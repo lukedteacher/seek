@@ -52,6 +52,38 @@ a {
 	text-decoration: none;
 }
 
+button {
+	cursor: pointer;
+	background-color: var(--secondary-4);
+	color: var(--secondary-4-on);
+	height: var(--size-8);
+	padding: var(--size-1) var(--size-2);
+	align-items: center;
+	justify-content: center;
+	display: inline-flex;
+	gap: var(--size--1);
+	border-radius: var(--border-radius-2);
+	box-shadow: none;
+	border: 0;
+	font-family: inherit;
+	font-size: var(--font-size--1);
+
+	&:hover {
+		background-color: var(--secondary-6);
+		color: var(--secondary-6-on);
+	}
+
+	&.error {
+		background-color: var(--error-5);
+		color: var(--error-5-on);
+
+		&:hover {
+			background-color: var(--error-7);
+			color: var(--error-7-on);
+		}
+	}
+}
+
 h1 {
 	font-size: var(--font-size-4);
 	color: var(--primary-4-on);

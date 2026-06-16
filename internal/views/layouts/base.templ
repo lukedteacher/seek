@@ -13,7 +13,9 @@ templ Base(title string) {
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ title }</title>
-			<script type="module" src={ resources.StaticPath("datastar.js") }></script>
+			<script type="module" src={ resources.StaticPath("scripts/datastar.js") }></script>
+    	<script type="module" src={ resources.StaticPath("scripts/datastar-inspector.js") }></script>
+			<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/stellar.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/global.css") }/>
 		</head>

@@ -1,5 +1,5 @@
 # SEEK
-aka <u>s</u>hared <u>e</u>educational <u>e</u>nvironment <u>k</u>knowledge
+aka shared eeducational environment knowledge
 
 a tool for educators.
 
