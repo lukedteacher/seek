@@ -1,0 +1,26 @@
+package components
+
+import (
+	"seek/internal/resources"
+)
+
+templ Base(title string) {
+	<!doctype html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ title }</title>
+			<script type="module" src={ resources.StaticPath("datastar.js") }></script>
+			<link rel="stylesheet" href={ resources.StaticPath("style.css") }/>
+		</head>
+		<body>
+			<div class="toast toast-top toast-center z-50 hidden" data-class:hidden="!$flashMessage">
+				<div class="alert alert-error shadow-lg">
+					<span data-text="$flashMessage"></span>
+				</div>
+			</div>
+			{ children... }
+		</body>
+	</html>
+}

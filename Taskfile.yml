@@ -1,0 +1,27 @@
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  dev:
+    deps: [templ]
+    cmds:
+      - task --parallel templ-watch server-watch
+
+  server-watch:
+    deps: [templ]
+    cmds:
+      - go tool air -c .air.toml
+
+  templ:
+    sources:
+      - "**/*.templ"
+    generates:
+      - "**/*_templ.go"
+    cmds:
+      - go tool templ generate
+
+  templ-watch:
+    cmds:
+      - go tool templ generate -watch

@@ -1,0 +1,15 @@
+# mac
+.DS_store
+
+# air
+.air.toml
+/.tmp
+
+# task
+/.task
+
+# uploaded files
+/static/uploads
+
+# vscode
+.vscode
