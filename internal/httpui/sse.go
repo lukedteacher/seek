@@ -25,10 +25,6 @@ func emptySSE(w http.ResponseWriter, r *http.Request, err error) {
 	writeSSE(w, r, clearFlash)
 }
 
-func clearNewTodoTitle(sse *datastar.ServerSentEventGenerator) error {
-	return sse.MarshalAndPatchSignals(map[string]string{"flashMessage": "", "newTodoTitle": ""})
-}
-
 func alert(sse *datastar.ServerSentEventGenerator, message string) error {
 	return flashError(sse, message)
 }

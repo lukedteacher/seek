@@ -1,11 +1,16 @@
 # SEEK
-## SHARED EDUCATIONAL ENVIRONMENT KNOWLEDGE
+aka <u>s</u>hared <u>e</u>educational <u>e</u>nvironment <u>k</u>knowledge
 
-Proof of concept for a tool for educators.
+a tool for educators.
 
-## TODO
+## todo
 
-[ ] test
+- [x] basic server
+- [ ] figure out hot reload
+- [x] index page
+- [ ] student data
+- [ ] schedule viewer
+- [ ] everything else
 
 ## features
 

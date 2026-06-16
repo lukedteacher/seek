@@ -1,0 +1,58 @@
+html {
+	min-width: var(--viewport-min);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	min-height: 100dvh;
+	margin: 0;
+	overflow-x: hidden;
+	background: var(--neutral-1);
+	color: var(--neutral-1-on);
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+header {
+	background-color: var(--secondary-3);
+	color: var(--secondary-3-on);
+	width: 100%;
+	height: 100px;
+	align-items: center;
+	display: flex;
+	flex-direction: row;
+	padding-left: var(--size-4);
+
+	nav {
+		ul {
+			list-style-type: none;
+			display: flex;
+			flex-direction: row;
+			gap: var(--size-4);
+
+			li a {
+				padding: var(--size-2);
+				border-radius: var(--border-radius-2);
+				&:hover {
+					background-color: var(--secondary-5);
+				}
+			}
+		}
+	}
+}
+
+main {
+	padding: var(--size-2)
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+h1 {
+	font-size: var(--font-size-4);
+	color: var(--primary-4-on);
+}

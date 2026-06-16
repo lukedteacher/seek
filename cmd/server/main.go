@@ -95,7 +95,7 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 	// 	return err
 	// }
 	// defer stopEventHandlers(handlers)
-
+	println("env:", cfg.DevelopmentCookie)
 	app := httpui.Server{
 		// Accounts:       components.accountCommands,
 		// Sessions:       components.sessionManager,

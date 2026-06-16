@@ -1,15 +1,16 @@
 package pages
 
 import (
-	"seek/internal/views/components"
+	"seek/internal/views/layouts"
 )
 
 templ Index() {
-	@components.Base("SEEK") {
-		<main class="page">
-			<section class="page-header">
-				<h1 class="page-title">test</h1>
-				<p class="page-subtitle">A compact event-sourced workflow powered by Orisun projections and Datastar fragments.</p>
+	@layouts.Base("SEEK") {
+		<main>
+			<section>
+				<h1>SEEK</h1>
+				<p>aka shared educational environment knowledge</p>
+				<p>many features to come</p>
 			</section>
 		</main>
 	}

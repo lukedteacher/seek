@@ -1,0 +1,28 @@
+package layouts
+
+import (
+	"seek/internal/resources"
+	"seek/internal/views"
+	"seek/internal/views/components"
+)
+
+templ Base(title string) {
+	<!doctype html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ title }</title>
+			<script type="module" src={ resources.StaticPath("datastar.js") }></script>
+			<link rel="stylesheet" href={ resources.StaticPath("styles/stellar.css") }/>
+			<link rel="stylesheet" href={ resources.StaticPath("styles/global.css") }/>
+		</head>
+		<body>			
+			if views.IsDevelopment() {
+				<div data-init={ views.HotReloadSSE() }></div>
+			}
+			@components.Header()
+			{ children... }
+		</body>
+	</html>
+}
