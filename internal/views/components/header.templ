@@ -1,0 +1,24 @@
+package components
+
+import (
+)
+
+templ Header() {
+	<!doctype html>
+	<header>
+		<h1>SEEK</h1>
+		@Nav()
+		{ children... }
+	</header>
+}
+
+templ Nav() {
+	<nav>
+		<ul>
+			<li><a href="/">home</a></li>
+			<li><a href="/students">students</a></li>
+			<li><a href="/schedules">schedules</a></li>
+			<li><a href="/goals">goals</a></li>
+		</ul>
+	</nav>
+}

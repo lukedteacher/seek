@@ -61,11 +61,11 @@ func parseOptions() runOptions {
 }
 
 func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts runOptions, logger *slog.Logger) error {
-	// db, err := appdb.Open(ctx, cfg.SQLitePath)
-	// if err != nil {
-	// 	return fmt.Errorf("open sqlite: %w", err)
-	// }
-	// defer closeDB(db, logger)
+	db, err := appdb.Open(ctx, cfg.SQLitePath)
+	if err != nil {
+		return fmt.Errorf("open sqlite: %w", err)
+	}
+	defer closeDB(db, logger)
 
 	if opts.migrateOnly {
 		logger.Info("sqlite migrations complete", "path", cfg.SQLitePath)
@@ -111,11 +111,11 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 	return serveHTTP(ctx, stop, cfg.Port, app.Routes(), logger)
 }
 
-// func closeDB(db *appdb.DB, logger *slog.Logger) {
-// 	if err := db.Close(); err != nil {
-// 		logger.Error("close sqlite", "err", err)
-// 	}
-// }
+func closeDB(db *appdb.DB, logger *slog.Logger) {
+	if err := db.Close(); err != nil {
+		logger.Error("close sqlite", "err", err)
+	}
+}
 
 // func startEventStore(ctx context.Context, cfg config.Config) (*eventstore.EmbeddedOrisun, error) {
 // 	store, err := eventstore.StartEmbeddedOrisun(ctx, eventstore.EmbeddedConfig{
@@ -227,11 +227,11 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 // 	return handlers, nil
 // }
 
-func stopEventHandlers(handlers []eventHandler) {
-	for i := len(handlers) - 1; i >= 0; i-- {
-		handlers[i].StopSubscribing()
-	}
-}
+// func stopEventHandlers(handlers []eventHandler) {
+// 	for i := len(handlers) - 1; i >= 0; i-- {
+// 		handlers[i].StopSubscribing()
+// 	}
+// }
 
 func serveHTTP(ctx context.Context, stop context.CancelFunc, port string, handler http.Handler, logger *slog.Logger) error {
 	server := &http.Server{Addr: ":" + port, Handler: handler, ReadHeaderTimeout: 5 * time.Second}

@@ -1,5 +1,5 @@
 # SEEK
-aka shared eeducational environment knowledge
+aka shared educational environment knowledge
 
 a tool for educators.
 
@@ -11,6 +11,13 @@ a tool for educators.
 - [ ] student data
 - [ ] schedule viewer
 - [ ] everything else
+
+### components todo
+
+- [x] buttons
+- [x] icons
+- [ ] forms
+- [ ] cards
 
 ## features
 
