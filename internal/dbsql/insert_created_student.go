@@ -8,9 +8,13 @@ import (
 )
 
 type InsertCreatedStudentParams struct {
-	StudentId                   string `json:"student_id"`
-	UserRegisteredId         string `json:"user_registered_id"`
-	FirstName                    string `json:"first_name"`
+	ID                string `json:"id"`
+	FirstName	string	`json:"first_name"`
+	ChosenName	string	`json:"chosen_name"`
+	LastName	string	`json:"last_name"`
+	Grade			int			`json:"grade"`
+	Homeroom	string	`json:"homeroom"`
+	CaseManager	string	`json:"case_manager"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	CreatedAt                string `json:"created_at"`
@@ -25,9 +29,9 @@ type InsertCreatedStudentStmt struct {
 
 func InsertCreatedStudent(tx *sqlite.Conn) *InsertCreatedStudentStmt {
 	const querySQL = `
-INSERT INTO student_items (student_id, user_registered_id, first_name, completed, completed_at, deleted_at, last_event_commit_position, last_event_prepare_position, created_at, updated_at)
-VALUES (?1, ?2, ?3, false, null, null, ?4, ?5, ?6, ?6)
-ON CONFLICT (student_id) DO NOTHING
+INSERT INTO student_items (id, first_name, last_event_commit_position, last_event_prepare_position, created_at, updated_at, deleted_at)
+VALUES (?1, ?2, ?8, ?9, ?10, ?11, null)
+ON CONFLICT (id) DO NOTHING
     `
 
 	ps := &InsertCreatedStudentStmt{
@@ -63,15 +67,19 @@ func (ps *InsertCreatedStudentStmt) Run(
 	}()
 
 	bindIndex := 1
-	// Bind parameters
-	stmt.BindText(bindIndex, params.StudentId)
-
-	bindIndex++
-	stmt.BindText(bindIndex, params.UserRegisteredId)
+	// bind parameters
+	stmt.BindText(bindIndex, params.ID)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.FirstName)
-
+	bindIndex++
+	stmt.BindText(bindIndex, params.ChosenName)
+	bindIndex++
+	stmt.BindText(bindIndex, params.LastName)
+	bindIndex++
+	stmt.BindText(bindIndex, params.Homeroom)
+	bindIndex++
+	stmt.BindText(bindIndex, params.CaseManager)
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
@@ -83,7 +91,7 @@ func (ps *InsertCreatedStudentStmt) Run(
 
 	bindIndex++
 
-	// Execute the query
+	// execute the query
 	if _, err := stmt.Step(); err != nil {
 		return fmt.Errorf("failed to execute insertcreatedstudent SQL: %w", err)
 	}

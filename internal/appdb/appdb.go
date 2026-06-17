@@ -19,11 +19,10 @@ type TxFn = toolbeltdb.TxFn
 
 func Open(ctx context.Context, filename string) (*DB, error) {
 	migrations, err := migrations.SQL()
-	println(migrations[0])
 	if err != nil {
 		return nil, err
 	}
-	println(filename)
+
 	inner, err := toolbeltdb.NewDatabase(ctx,
 		toolbeltdb.DatabaseWithFilename(filename),
 		toolbeltdb.DatabaseWithMigrations(migrations),
@@ -32,6 +31,7 @@ func Open(ctx context.Context, filename string) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	
 	return &DB{inner: inner}, nil
 }
 

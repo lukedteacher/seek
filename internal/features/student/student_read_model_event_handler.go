@@ -13,7 +13,7 @@ import (
 const StudentReadModelEventHandlerName = "student_read_model_event_handler"
 
 type StudentReadModelReader interface {
-	List(ctx context.Context, userRegisteredID string) ([]views.Student, error)
+	List(ctx context.Context) ([]views.Student, error)
 }
 
 type StudentReadModelWriter interface {
@@ -24,34 +24,28 @@ type StudentReadModelWriter interface {
 
 type StudentCreatedProjection struct {
 	Position         eventstore.Position
-	StudentID           string
-	UserRegisteredID string
+	ID           string
 	FirstName            string
+	ChosenName            string
+	LastName            string
+	Grade            int
+	Homeroom            string
+	CaseManager            string
 	CreatedAt        time.Time
 }
 
 type StudentRenamedProjection struct {
 	Position  eventstore.Position
-	StudentID    string
-	FirstName     string
+	ID    string
+	FirstName            string
+	ChosenName            string
+	LastName            string
 	RenamedAt time.Time
-}
-
-type StudentCompletedProjection struct {
-	Position    eventstore.Position
-	StudentID      string
-	CompletedAt time.Time
-}
-
-type StudentReopenedProjection struct {
-	Position   eventstore.Position
-	StudentID     string
-	ReopenedAt time.Time
 }
 
 type StudentDeletedProjection struct {
 	Position  eventstore.Position
-	StudentID    string
+	ID    string
 	DeletedAt time.Time
 }
 
@@ -98,27 +92,39 @@ func StudentReadModelEventHandlerQuery() eventstore.Query {
 func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	studentID, _ := scope["studentId"].(string)
-	userRegisteredID, _ := scope["userRegisteredId"].(string)
+	id, _ := scope["id"].(string)
 
 	switch resolved.Event.EventType {
 	case StudentCreated:
 		firstName, _ := data["first_name"].(string)
+		chosenName, _ := data["chosen_name"].(string)
+		lastName, _ := data["last_name"].(string)
+		grade, _ := data["grade"].(int)
+		homeroom, _ := data["homeroom"].(string)
+		caseManager, _ := data["case_manager"].(string)
 		if err := h.readModel.InsertCreatedStudent(ctx, StudentCreatedProjection{
 			Position:         resolved.Position,
-			StudentID:           studentID,
-			UserRegisteredID: userRegisteredID,
+			ID:           id,
 			FirstName:            firstName,
+			ChosenName:            chosenName,
+			LastName:            lastName,
+			Grade:            grade,
+			Homeroom:            homeroom,
+			CaseManager:            caseManager,
 			CreatedAt:        parseTime(data["createdAt"]),
 		}); err != nil {
 			return err
 		}
 	case StudentRenamed:
 		firstName, _ := data["first_name"].(string)
+		chosenName, _ := data["chosen_name"].(string)
+		lastName, _ := data["last_name"].(string)
 		if err := h.readModel.RenameStudent(ctx, StudentRenamedProjection{
 			Position:  resolved.Position,
-			StudentID:    studentID,
-			FirstName:     firstName,
+			ID:    id,
+			FirstName:            firstName,
+			ChosenName:            chosenName,
+			LastName:            lastName,
 			RenamedAt: parseTime(data["renamedAt"]),
 		}); err != nil {
 			return err
@@ -126,7 +132,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	case StudentDeleted:
 		if err := h.readModel.DeleteStudent(ctx, StudentDeletedProjection{
 			Position:  resolved.Position,
-			StudentID:    studentID,
+			ID:    id,
 			DeletedAt: parseTime(data["deletedAt"]),
 		}); err != nil {
 			return err
@@ -134,9 +140,6 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	default:
 		return fmt.Errorf("unhandled student read model event type %q", resolved.Event.EventType)
 	}
-
-	if userRegisteredID == "" {
-		return nil
-	}
-	return h.publisher.Publish(ctx, Channel(userRegisteredID), map[string]string{"userRegisteredId": userRegisteredID})
+	// TODO not sure if this is the fix
+	return nil
 }

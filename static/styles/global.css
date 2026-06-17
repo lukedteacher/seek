@@ -55,7 +55,6 @@ button {
 	cursor: pointer;
 	background-color: var(--secondary-4);
 	color: var(--secondary-4-on);
-	height: var(--size-8);
 	padding: var(--size--2) var(--size-1);
 	align-items: center;
 	justify-content: center;
@@ -99,8 +98,8 @@ table {
 	border-radius: var(--border-radius-2);
 	padding: var(--size-2) var(--size-5);
 
-	tbody tr td {
-		padding: var(--size-3);
+	tbody tr td, thead th {
+		padding: var(--size--1);
 	}
 
 	tbody tr:nth-child(odd) {

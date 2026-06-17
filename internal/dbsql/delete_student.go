@@ -11,7 +11,7 @@ type DeleteStudentParams struct {
 	DeletedAt                *string `json:"deleted_at"`
 	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
 	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
-	StudentId                   string  `json:"student_id"`
+	ID                   string  `json:"id"`
 }
 
 type DeleteStudentStmt struct {
@@ -28,7 +28,7 @@ SET deleted_at = ?1,
     last_event_commit_position = ?2,
     last_event_prepare_position = ?3,
     updated_at = ?1
-WHERE student_id = ?4
+WHERE id = ?4
     `
 
 	ps := &DeleteStudentStmt{
@@ -78,7 +78,7 @@ func (ps *DeleteStudentStmt) Run(
 	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.StudentId)
+	stmt.BindText(bindIndex, params.ID)
 
 	bindIndex++
 

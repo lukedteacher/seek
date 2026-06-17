@@ -18,5 +18,10 @@ func (s Server) index(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s Server) students(w http.ResponseWriter, r *http.Request) {
-	_ = pages.Students(2).Render(r.Context(), w)
+	students, err := s.Students.List(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	_ = pages.Students(students).Render(r.Context(), w)
 }

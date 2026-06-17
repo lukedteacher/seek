@@ -8,10 +8,15 @@ import (
 )
 
 type ListStudentsRes struct {
-	ID				string `json:"id"`
-	FirstName	string `json:"first_name"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	ID				string	`json:"id"`
+	FirstName	string	`json:"first_name"`
+	ChosenName	string	`json:"chosen_name"`
+	LastName	string	`json:"last_name"`
+	Grade			int			`json:"grade"`
+	Homeroom	string	`json:"homeroom"`
+	CaseManager	string	`json:"case_manager"`
+	CreatedAt string	`json:"created_at"`
+	UpdatedAt string	`json:"updated_at"`
 }
 
 type ListStudentsStmt struct {
@@ -23,10 +28,10 @@ type ListStudentsStmt struct {
 
 func ListStudents(tx *sqlite.Conn) *ListStudentsStmt {
 	const querySQL = `
-SELECT id, first_name, grade, created_at, updated_at
+SELECT id, first_name, chosen_name, last_name, grade, homeroom, case_manager, created_at, updated_at
 FROM students
 WHERE deleted_at IS NULL
-ORDER BY created_at DESC, todo_id DESC
+ORDER BY created_at DESC, id DESC
     `
 
 	ps := &ListStudentsStmt{
@@ -43,7 +48,6 @@ ORDER BY created_at DESC, todo_id DESC
 }
 
 func (ps *ListStudentsStmt) Run(
-	userRegisteredId string,
 ) (
 	res []ListStudentsRes,
 	err error,
@@ -61,14 +65,8 @@ func (ps *ListStudentsStmt) Run(
 		_ = stmt.ClearBindings()
 		_ = stmt.Reset()
 	}()
-
-	bindIndex := 1
-	// Bind parameters
-	stmt.BindText(bindIndex, userRegisteredId)
-
-	bindIndex++
-
-	// Execute the query
+	
+	// execute the query
 	for {
 		if hasRow, err := stmt.Step(); err != nil {
 			return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
@@ -79,8 +77,13 @@ func (ps *ListStudentsStmt) Run(
 		row := ListStudentsRes{}
 		row.ID = stmt.ColumnText(0)
 		row.FirstName = stmt.ColumnText(1)
-		row.CreatedAt = stmt.ColumnText(8)
-		row.UpdatedAt = stmt.ColumnText(9)
+		row.ChosenName = stmt.ColumnText(2)
+		row.LastName = stmt.ColumnText(3)
+		row.Grade = stmt.ColumnInt(4)
+		row.Homeroom = stmt.ColumnText(5)
+		row.CaseManager = stmt.ColumnText(6)
+		row.CreatedAt = stmt.ColumnText(7)
+		row.UpdatedAt = stmt.ColumnText(8)
 		res = append(res, row)
 	}
 
@@ -89,7 +92,6 @@ func (ps *ListStudentsStmt) Run(
 
 func OnceListStudents(
 	tx *sqlite.Conn,
-	userRegisteredId string,
 ) (
 	res []ListStudentsRes,
 	err error,
@@ -97,6 +99,5 @@ func OnceListStudents(
 	ps := ListStudents(tx)
 
 	return ps.Run(
-		userRegisteredId,
 	)
 }

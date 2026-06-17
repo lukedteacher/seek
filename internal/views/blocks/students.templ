@@ -1,32 +1,30 @@
 package blocks
 
-templ StudentList() {
+import (
+	"seek/internal/views"
+)
+
+templ StudentList(students []views.Student) {
 	<table>
 		<thead>
-			<th>name</th>
+			<th>first</th>
+			<th>chosen</th>
+			<th>last</th>
 			<th>grade</th>
 			<th>homeroom</th>
 			<th>case manager</th>
-			<th>services</th>
-			<th>goals</th>
 		</thead>
 		<tbody>
-			<tr>
-				<td>bob</td>
-				<td>5th</td>
-				<td>scott</td>
-				<td>!uke</td>
-				<td>xcv</td>
-				<td>xcv</td>
-			</tr>
-			<tr>
-				<td>alice</td>
-				<td>6th</td>
-				<td>scott</td>
-				<td>megan</td>
-				<td>xv</td>
-				<td>xcv</td>
-			</tr>
+			for _, student := range students {
+				<tr>
+					<td>{student.FirstName}</td>
+					<td>{student.ChosenName}</td>
+					<td>{student.LastName}</td>
+					<td>{student.Grade}</td>
+					<td>{student.Homeroom}</td>
+					<td>{student.CaseManager}</td>
+				</tr>
+			}
 		</tbody>
 	</table>
 }

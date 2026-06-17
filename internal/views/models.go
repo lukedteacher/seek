@@ -6,15 +6,15 @@ import (
 )
 
 type Student struct {
-	ID             string    `db:"id"`
-	FirstName      string    `db:"first_name"`
-	ChosenName     string    `db:"chosen_name"`
-	LastName       string    `db:"last_name"`
-	Grade          string    `db:"grade"`
-	Class          string    `db:"class"`
-	CaseManager    string    `db:"case_manager"`
-	CreatedAt      time.Time `db:"created_at"`
-	UpdatedAt      time.Time `db:"updated_at"`
+	ID             string			`db:"id"`
+	FirstName      string			`db:"first_name"`
+	ChosenName     string			`db:"chosen_name"`
+	LastName       string			`db:"last_name"`
+	Grade          int				`db:"grade"`
+	Homeroom       string			`db:"homeroom"`
+	CaseManager    string			`db:"case_manager"`
+	CreatedAt      time.Time	`db:"created_at"`
+	UpdatedAt      time.Time	`db:"updated_at"`
 }
 
 type DataView int

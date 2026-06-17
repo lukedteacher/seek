@@ -8,11 +8,13 @@ import (
 )
 
 type RenameStudentParams struct {
-	FirstName                    string `json:"first_name"`
+	FirstName	string	`json:"first_name"`
+	ChosenName	string	`json:"chosen_name"`
+	LastName	string	`json:"last_name"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	UpdatedAt                string `json:"updated_at"`
-	StudentId                   string `json:"student_id"`
+	ID                   string `json:"id"`
 }
 
 type RenameStudentStmt struct {
@@ -78,7 +80,7 @@ func (ps *RenameStudentStmt) Run(
 	stmt.BindText(bindIndex, params.UpdatedAt)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.StudentId)
+	stmt.BindText(bindIndex, params.ID)
 
 	bindIndex++
 
