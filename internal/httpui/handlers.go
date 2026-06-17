@@ -23,5 +23,5 @@ func (s Server) students(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_ = pages.Students(students).Render(r.Context(), w)
+	_ = pages.Students(1, students).Render(r.Context(), w)
 }

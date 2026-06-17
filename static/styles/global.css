@@ -96,7 +96,9 @@ table {
 	background-color: var(--primary-4);
 	color: var(--primary-4-on);
 	border-radius: var(--border-radius-2);
+	border-spacing: 0;
 	padding: var(--size-2) var(--size-5);
+	font-size: var(--font-size--1);
 
 	tbody tr td, thead th {
 		padding: var(--size--1);
@@ -109,12 +111,26 @@ table {
 
 	tbody tr {
 		&:hover {
-			background-color: var(--primary-5);
-			color: var(--primary-5-on);
+			background-color: var(--primary-6);
+			color: var(--primary-6-on);
 		}
 	}
 }
 
 ul {
 	list-style-type: none;
+}
+
+div.card {
+	background-color: var(--primary-4);
+	color: var(--primary-4-on);
+	border-radius: var(--border-radius-2);
+	padding: 0 var(--size-1);
+	font-size: var(--font-size--1);
+	flex-grow: 1;
+
+	&:hover {
+		background-color: var(--primary-6);
+		color: var(--primary-6-on);
+	}
 }

@@ -42,3 +42,28 @@ templ StudentList(students []views.Student) {
 		</tbody>
 	</table>
 }
+
+templ StudentCards(students []views.Student) {
+	<section style="display: flex; flex-direction: row; gap: 4px; flex-wrap: wrap;">
+		for _, student := range students {
+			<div class="card">
+				<p>
+					if student.ChosenName != nil {
+						{ *student.ChosenName }
+					}
+					else {
+						{ student.FirstName }
+					} { student.LastName }
+				</p>
+				<p>{ student.Grade }</p>
+				<p>{ student.Homeroom }</p>
+				if student.CaseManager != nil {
+					<p>{ *student.CaseManager }</p>
+				}
+				else {
+					""
+				}
+			</div>
+		}
+	</section>
+}

@@ -11,9 +11,9 @@ type StudentsSignals struct {
 	StudentDataView views.DataView
 }
 
-templ Students(students []views.Student) {
+templ Students(view int, students []views.Student) {
 	@layouts.Base("SEEK: students") {
-		<main data-signals:view="5">
+		<main data-signals:view={ view }>
 			<section>
 				<h1>STUDENTS</h1>
 				<p>review and enter student data here</p>
@@ -29,7 +29,11 @@ templ Students(students []views.Student) {
 						<span>cards</span>
 					</button>
 				</div>
-				@blocks.StudentList(students)
+				if view == 0 {
+					@blocks.StudentList(students)
+				} else {
+					@blocks.StudentCards(students)
+				}
 			</section>
 		</main>
 	}
