@@ -23,30 +23,30 @@ type StudentReadModelWriter interface {
 }
 
 type StudentCreatedProjection struct {
-	Position         eventstore.Position
-	ID           string
-	FirstName            string
-	ChosenName            string
-	LastName            string
-	Grade            int
-	Homeroom            string
-	CaseManager            string
-	CreatedAt        time.Time
+	Position		eventstore.Position
+	Id					string
+	FirstName		string
+	ChosenName	*string
+	LastName		string
+	Grade				int
+	Homeroom		string
+	CaseManager	*string
+	CreatedAt		time.Time
 }
 
 type StudentRenamedProjection struct {
-	Position  eventstore.Position
-	ID    string
-	FirstName            string
-	ChosenName            string
-	LastName            string
-	RenamedAt time.Time
+	Position		eventstore.Position
+	Id					string
+	FirstName		string
+	ChosenName	*string
+	LastName		string
+	RenamedAt		time.Time
 }
 
 type StudentDeletedProjection struct {
-	Position  eventstore.Position
-	ID    string
-	DeletedAt time.Time
+	Position	eventstore.Position
+	Id				string
+	DeletedAt	time.Time
 }
 
 type StudentReadModelEventHandler struct {
@@ -97,14 +97,14 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	switch resolved.Event.EventType {
 	case StudentCreated:
 		firstName, _ := data["first_name"].(string)
-		chosenName, _ := data["chosen_name"].(string)
+		chosenName, _ := data["chosen_name"].(*string)
 		lastName, _ := data["last_name"].(string)
 		grade, _ := data["grade"].(int)
 		homeroom, _ := data["homeroom"].(string)
-		caseManager, _ := data["case_manager"].(string)
+		caseManager, _ := data["case_manager"].(*string)
 		if err := h.readModel.InsertCreatedStudent(ctx, StudentCreatedProjection{
 			Position:         resolved.Position,
-			ID:           id,
+			Id:           id,
 			FirstName:            firstName,
 			ChosenName:            chosenName,
 			LastName:            lastName,
@@ -117,11 +117,11 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		}
 	case StudentRenamed:
 		firstName, _ := data["first_name"].(string)
-		chosenName, _ := data["chosen_name"].(string)
+		chosenName, _ := data["chosen_name"].(*string)
 		lastName, _ := data["last_name"].(string)
 		if err := h.readModel.RenameStudent(ctx, StudentRenamedProjection{
 			Position:  resolved.Position,
-			ID:    id,
+			Id:    id,
 			FirstName:            firstName,
 			ChosenName:            chosenName,
 			LastName:            lastName,
@@ -132,7 +132,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	case StudentDeleted:
 		if err := h.readModel.DeleteStudent(ctx, StudentDeletedProjection{
 			Position:  resolved.Position,
-			ID:    id,
+			Id:    id,
 			DeletedAt: parseTime(data["deletedAt"]),
 		}); err != nil {
 			return err

@@ -1,3 +1,5 @@
+# for sqlc-gen-zombiezen to generate queries and such
+
 version: "2"
 
 plugins:

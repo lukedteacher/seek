@@ -8,15 +8,15 @@ import (
 )
 
 type ListStudentsRes struct {
-	ID				string	`json:"id"`
-	FirstName	string	`json:"first_name"`
-	ChosenName	string	`json:"chosen_name"`
-	LastName	string	`json:"last_name"`
-	Grade			int			`json:"grade"`
-	Homeroom	string	`json:"homeroom"`
-	CaseManager	string	`json:"case_manager"`
-	CreatedAt string	`json:"created_at"`
-	UpdatedAt string	`json:"updated_at"`
+	Id          string  `json:"id"`
+	FirstName   string  `json:"first_name"`
+	ChosenName  *string `json:"chosen_name"`
+	LastName    string  `json:"last_name"`
+	Grade       int64   `json:"grade"`
+	Homeroom    string  `json:"homeroom"`
+	CaseManager *string `json:"case_manager"`
+	CreatedAt   string  `json:"created_at"`
+	UpdatedAt   string  `json:"updated_at"`
 }
 
 type ListStudentsStmt struct {
@@ -47,8 +47,7 @@ ORDER BY created_at DESC, id DESC
 	return ps
 }
 
-func (ps *ListStudentsStmt) Run(
-) (
+func (ps *ListStudentsStmt) Run() (
 	res []ListStudentsRes,
 	err error,
 ) {
@@ -65,8 +64,8 @@ func (ps *ListStudentsStmt) Run(
 		_ = stmt.ClearBindings()
 		_ = stmt.Reset()
 	}()
-	
-	// execute the query
+
+	// Execute the query
 	for {
 		if hasRow, err := stmt.Step(); err != nil {
 			return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
@@ -75,13 +74,21 @@ func (ps *ListStudentsStmt) Run(
 		}
 
 		row := ListStudentsRes{}
-		row.ID = stmt.ColumnText(0)
+		row.Id = stmt.ColumnText(0)
 		row.FirstName = stmt.ColumnText(1)
-		row.ChosenName = stmt.ColumnText(2)
+		isNullChosenName := stmt.ColumnIsNull(2)
+		if !isNullChosenName {
+			tmp := stmt.ColumnText(2)
+			row.ChosenName = &tmp
+		}
 		row.LastName = stmt.ColumnText(3)
-		row.Grade = stmt.ColumnInt(4)
+		row.Grade = stmt.ColumnInt64(4)
 		row.Homeroom = stmt.ColumnText(5)
-		row.CaseManager = stmt.ColumnText(6)
+		isNullCaseManager := stmt.ColumnIsNull(6)
+		if !isNullCaseManager {
+			tmp := stmt.ColumnText(6)
+			row.CaseManager = &tmp
+		}
 		row.CreatedAt = stmt.ColumnText(7)
 		row.UpdatedAt = stmt.ColumnText(8)
 		res = append(res, row)
@@ -98,6 +105,5 @@ func OnceListStudents(
 ) {
 	ps := ListStudents(tx)
 
-	return ps.Run(
-	)
+	return ps.Run()
 }

@@ -18,11 +18,25 @@ templ StudentList(students []views.Student) {
 			for _, student := range students {
 				<tr>
 					<td>{student.FirstName}</td>
-					<td>{student.ChosenName}</td>
+					<td>
+						if student.ChosenName != nil {
+							{*student.ChosenName}
+						}
+						else {
+							""
+						}
+					</td>
 					<td>{student.LastName}</td>
 					<td>{student.Grade}</td>
 					<td>{student.Homeroom}</td>
-					<td>{student.CaseManager}</td>
+					<td>
+							if student.CaseManager != nil {
+								{*student.CaseManager}
+							}
+							else {
+								""
+							}
+					</td>
 				</tr>
 			}
 		</tbody>

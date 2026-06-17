@@ -30,7 +30,7 @@ func (m *ReadModel) List(ctx context.Context) ([]views.Student, error) {
 	students := make([]views.Student, 0, len(rows))
 	for _, row := range rows {
 		students = append(students, views.Student{
-			ID:						row.ID,
+			Id:						row.Id,
 			FirstName:		row.FirstName,
 			ChosenName:		row.ChosenName,
 			LastName:			row.LastName,
@@ -47,7 +47,7 @@ func (m *ReadModel) List(ctx context.Context) ([]views.Student, error) {
 func (m *ReadModel) InsertCreatedStudent(ctx context.Context, event StudentCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceInsertCreatedStudent(conn, dbsql.InsertCreatedStudentParams{
-			ID:                   event.ID,
+			Id:                   event.Id,
 			FirstName:                    event.FirstName,
 			ChosenName:                    event.ChosenName,
 			LastName:                    event.LastName,
@@ -67,7 +67,7 @@ func (m *ReadModel) RenameStudent(ctx context.Context, event StudentRenamedProje
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			UpdatedAt:                appdb.SQLTime(event.RenamedAt),
-			ID:                   event.ID,
+			Id:                   event.Id,
 		})
 	})
 }
@@ -79,7 +79,7 @@ func (m *ReadModel) DeleteStudent(ctx context.Context, event StudentDeletedProje
 			DeletedAt:                &deletedAt,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
-			ID:                   event.ID,
+			Id:                   event.Id,
 		})
 	})
 }

@@ -8,16 +8,16 @@ import (
 )
 
 type InsertCreatedStudentParams struct {
-	ID                string `json:"id"`
-	FirstName	string	`json:"first_name"`
-	ChosenName	string	`json:"chosen_name"`
-	LastName	string	`json:"last_name"`
-	Grade			int			`json:"grade"`
-	Homeroom	string	`json:"homeroom"`
-	CaseManager	string	`json:"case_manager"`
-	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
-	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
-	CreatedAt                string `json:"created_at"`
+	Id                       string  `json:"id"`
+	FirstName                string  `json:"first_name"`
+	ChosenName               *string `json:"chosen_name"`
+	LastName                 string  `json:"last_name"`
+	Grade                    int64   `json:"grade"`
+	Homeroom                 string  `json:"homeroom"`
+	CaseManager              *string `json:"case_manager"`
+	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
+	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
+	CreatedAt                string  `json:"created_at"`
 }
 
 type InsertCreatedStudentStmt struct {
@@ -29,8 +29,8 @@ type InsertCreatedStudentStmt struct {
 
 func InsertCreatedStudent(tx *sqlite.Conn) *InsertCreatedStudentStmt {
 	const querySQL = `
-INSERT INTO student_items (id, first_name, last_event_commit_position, last_event_prepare_position, created_at, updated_at, deleted_at)
-VALUES (?1, ?2, ?8, ?9, ?10, ?11, null)
+INSERT INTO students (id, first_name, chosen_name, last_name, grade, homeroom, case_manager, deleted_at, last_event_commit_position, last_event_prepare_position, created_at, updated_at)
+VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, null, ?8, ?9, ?10, ?10)
 ON CONFLICT (id) DO NOTHING
     `
 
@@ -67,19 +67,35 @@ func (ps *InsertCreatedStudentStmt) Run(
 	}()
 
 	bindIndex := 1
-	// bind parameters
-	stmt.BindText(bindIndex, params.ID)
+	// Bind parameters
+	stmt.BindText(bindIndex, params.Id)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.FirstName)
+
 	bindIndex++
-	stmt.BindText(bindIndex, params.ChosenName)
+	if params.ChosenName == nil {
+		stmt.BindNull(bindIndex)
+	} else {
+		stmt.BindText(bindIndex, *params.ChosenName)
+
+	}
 	bindIndex++
 	stmt.BindText(bindIndex, params.LastName)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.Grade)
+
 	bindIndex++
 	stmt.BindText(bindIndex, params.Homeroom)
+
 	bindIndex++
-	stmt.BindText(bindIndex, params.CaseManager)
+	if params.CaseManager == nil {
+		stmt.BindNull(bindIndex)
+	} else {
+		stmt.BindText(bindIndex, *params.CaseManager)
+
+	}
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
@@ -91,7 +107,7 @@ func (ps *InsertCreatedStudentStmt) Run(
 
 	bindIndex++
 
-	// execute the query
+	// Execute the query
 	if _, err := stmt.Step(); err != nil {
 		return fmt.Errorf("failed to execute insertcreatedstudent SQL: %w", err)
 	}

@@ -8,13 +8,13 @@ import (
 )
 
 type RenameStudentParams struct {
-	FirstName	string	`json:"first_name"`
-	ChosenName	string	`json:"chosen_name"`
-	LastName	string	`json:"last_name"`
-	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
-	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
-	UpdatedAt                string `json:"updated_at"`
-	ID                   string `json:"id"`
+	FirstName                string  `json:"first_name"`
+	ChosenName               *string `json:"chosen_name"`
+	LastName                 string  `json:"last_name"`
+	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
+	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
+	UpdatedAt                string  `json:"updated_at"`
+	Id                       string  `json:"id"`
 }
 
 type RenameStudentStmt struct {
@@ -26,12 +26,14 @@ type RenameStudentStmt struct {
 
 func RenameStudent(tx *sqlite.Conn) *RenameStudentStmt {
 	const querySQL = `
-UPDATE student_items
+UPDATE students
 SET first_name = ?1,
-    last_event_commit_position = ?2,
-    last_event_prepare_position = ?3,
-    updated_at = ?4
-WHERE student_id = ?5
+	chosen_name = ?2,
+	last_name = ?3,
+	last_event_commit_position = ?4,
+	last_event_prepare_position = ?5,
+	updated_at = ?6
+WHERE id = ?7
     `
 
 	ps := &RenameStudentStmt{
@@ -71,6 +73,16 @@ func (ps *RenameStudentStmt) Run(
 	stmt.BindText(bindIndex, params.FirstName)
 
 	bindIndex++
+	if params.ChosenName == nil {
+		stmt.BindNull(bindIndex)
+	} else {
+		stmt.BindText(bindIndex, *params.ChosenName)
+
+	}
+	bindIndex++
+	stmt.BindText(bindIndex, params.LastName)
+
+	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
 	bindIndex++
@@ -80,7 +92,7 @@ func (ps *RenameStudentStmt) Run(
 	stmt.BindText(bindIndex, params.UpdatedAt)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.ID)
+	stmt.BindText(bindIndex, params.Id)
 
 	bindIndex++
 
