@@ -44,7 +44,7 @@ templ StudentList(students []views.Student) {
 }
 
 templ StudentCards(students []views.Student) {
-	<section style="display: flex; flex-direction: row; gap: 4px; flex-wrap: wrap;">
+	<div class="cards">
 		for _, student := range students {
 			<div class="card">
 				<p>
@@ -65,5 +65,5 @@ templ StudentCards(students []views.Student) {
 				}
 			</div>
 		}
-	</section>
+	</div>
 }

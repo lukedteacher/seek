@@ -97,8 +97,9 @@ table {
 	color: var(--primary-4-on);
 	border-radius: var(--border-radius-2);
 	border-spacing: 0;
-	padding: var(--size-2) var(--size-5);
+	padding: var(--size-1) var(--size-3);
 	font-size: var(--font-size--1);
+	margin-top: var(--size-1);
 
 	tbody tr td, thead th {
 		padding: var(--size--1);
@@ -119,6 +120,14 @@ table {
 
 ul {
 	list-style-type: none;
+}
+
+div.cards {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: var(--size-0);
+	margin-top: var(--size-1);
 }
 
 div.card {
