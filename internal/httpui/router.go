@@ -1,24 +1,33 @@
 package httpui
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
-	"seek/internal/resources"
 	"time"
+
+	"seek/internal/eventstore"
+	"seek/internal/features/student"
+	"seek/internal/resources"
+	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
 )
+
+type MessageSubscriber interface {
+	Subscribe(ctx context.Context, subject string, handle func(context.Context, []byte)) (eventstore.MessageSubscription, error)
+}
 
 type Server struct {
 	// Accounts       AccountCommands
 	// Sessions       SessionManager
 	// AuthUsers      AuthUserReader
-	// Todos          todo.TodoReadModelReader
-	// EventSaver     eventstore.Saver
-	// EventRetriever eventstore.Retriever
+	Students          student.StudentReadModelReader
+	EventSaver     eventstore.Saver
+	EventRetriever eventstore.Retriever
 	// ProfileStorage profile.ObjectStore
-	// Subscriber     MessageSubscriber
-	// ViewStore      viewstore.Store
+	Subscriber     MessageSubscriber
+	ViewStore      viewstore.Store
 	Development    bool
 }
 

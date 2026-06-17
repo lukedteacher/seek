@@ -11,8 +11,14 @@ import (
 	"syscall"
 	"time"
 
+	"seek/internal/appdb"
 	"seek/internal/config"
+	"seek/internal/eventcatalog"
+	"seek/internal/eventstore"
+	"seek/internal/features/student"
 	"seek/internal/httpui"
+	"seek/internal/natsbus"
+	"seek/internal/viewstore"
 )
 
 type runOptions struct {
@@ -20,16 +26,10 @@ type runOptions struct {
 	seedOnly    bool
 }
 
-// type appComponents struct {
-// 	accountCommands  *auth.AccountCommands
-// 	sessionManager   *auth.SessionManager
-// 	authUsers        *auth.AuthUserStore
-// 	todoReadModel    *todo.ReadModel
-// 	profileReadModel *profile.ReadModel
-// 	checkpointer     eventstore.Checkpointer
-// 	emailSender      email.Sender
-// 	profileStorage   profile.ObjectStore
-// }
+type appComponents struct {
+	studentReadModel	*student.ReadModel
+	checkpointer			eventstore.Checkpointer
+}
 
 type eventHandler interface {
 	StartSubscribing(context.Context) error
@@ -76,36 +76,36 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		return nil
 	}
 
-	// orisunStore, err := startEventStore(ctx, cfg)
-	// if err != nil {
-	// 	return err
-	// }
-	// defer orisunStore.Close(context.Background())
+	orisunStore, err := startEventStore(ctx, cfg)
+	if err != nil {
+		return err
+	}
+	defer orisunStore.Close(context.Background())
 
-	// bus, err := natsbus.FromConn(orisunStore.NATSConnection())
-	// if err != nil {
-	// 	return fmt.Errorf("borrow embedded orisun nats: %w", err)
-	// }
-	// defer bus.Close()
+	bus, err := natsbus.FromConn(orisunStore.NATSConnection())
+	if err != nil {
+		return fmt.Errorf("borrow embedded orisun nats: %w", err)
+	}
+	defer bus.Close()
 
-	// viewStore := newViewStore(bus, logger)
-	// components := newAppComponents(db, orisunStore, cfg, logger)
-	// handlers, err := startEventHandlers(ctx, eventHandlerFactories(orisunStore, bus, cfg, components, logger))
-	// if err != nil {
-	// 	return err
-	// }
-	// defer stopEventHandlers(handlers)
-	println("env:", cfg.DevelopmentCookie)
+	viewStore := newViewStore(bus, logger)
+	components := newAppComponents(db, orisunStore, cfg, logger)
+	handlers, err := startEventHandlers(ctx, eventHandlerFactories(orisunStore, bus, cfg, components, logger))
+	if err != nil {
+		return err
+	}
+	defer stopEventHandlers(handlers)
+
 	app := httpui.Server{
 		// Accounts:       components.accountCommands,
 		// Sessions:       components.sessionManager,
 		// AuthUsers:      components.authUsers,
-		// Todos:          components.todoReadModel,
-		// EventSaver:     orisunStore,
-		// EventRetriever: orisunStore,
+		Students:          components.studentReadModel,
+		EventSaver:     orisunStore,
+		EventRetriever: orisunStore,
 		// ProfileStorage: components.profileStorage,
-		// Subscriber:     bus,
-		// ViewStore:      viewStore,
+		Subscriber:     bus,
+		ViewStore:      viewStore,
 		Development:    cfg.DevelopmentCookie,
 	}
 	return serveHTTP(ctx, stop, cfg.Port, app.Routes(), logger)
@@ -117,121 +117,74 @@ func closeDB(db *appdb.DB, logger *slog.Logger) {
 	}
 }
 
-// func startEventStore(ctx context.Context, cfg config.Config) (*eventstore.EmbeddedOrisun, error) {
-// 	store, err := eventstore.StartEmbeddedOrisun(ctx, eventstore.EmbeddedConfig{
-// 		Boundary:     cfg.OrisunBoundary,
-// 		SQLiteDir:    cfg.OrisunSQLiteDir,
-// 		NATSStoreDir: eventstore.PollingStoreDir(),
-// 		LogLevel:     "info",
-// 	})
-// 	if err != nil {
-// 		return nil, fmt.Errorf("start embedded orisun: %w", err)
-// 	}
-// 	if err := store.EnsureBoundaryIndexes(ctx, eventcatalog.BoundaryIndexes()); err != nil {
-// 		store.Close(context.Background())
-// 		return nil, fmt.Errorf("ensure orisun indexes: %w", err)
-// 	}
-// 	return store, nil
-// }
+func startEventStore(ctx context.Context, cfg config.Config) (*eventstore.EmbeddedOrisun, error) {
+	store, err := eventstore.StartEmbeddedOrisun(ctx, eventstore.EmbeddedConfig{
+		Boundary:     cfg.OrisunBoundary,
+		SQLiteDir:    cfg.OrisunSQLiteDir,
+		NATSStoreDir: eventstore.PollingStoreDir(),
+		LogLevel:     "info",
+	})
+	if err != nil {
+		return nil, fmt.Errorf("start embedded orisun: %w", err)
+	}
+	if err := store.EnsureBoundaryIndexes(ctx, eventcatalog.BoundaryIndexes()); err != nil {
+		store.Close(context.Background())
+		return nil, fmt.Errorf("ensure orisun indexes: %w", err)
+	}
+	return store, nil
+}
 
-// func newViewStore(bus *natsbus.Bus, logger *slog.Logger) viewstore.Store {
-// 	store, err := viewstore.NewNATSStore(bus.Conn(), "go-starter-view-state", 5*time.Minute)
-// 	if err != nil {
-// 		logger.Warn("using in-memory view store fallback", "err", err)
-// 		return viewstore.NewMemoryStore()
-// 	}
-// 	return store
-// }
+func newViewStore(bus *natsbus.Bus, logger *slog.Logger) viewstore.Store {
+	store, err := viewstore.NewNATSStore(bus.Conn(), "go-starter-view-state", 5*time.Minute)
+	if err != nil {
+		logger.Warn("using in-memory view store fallback", "err", err)
+		return viewstore.NewMemoryStore()
+	}
+	return store
+}
 
-// func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config.Config, logger *slog.Logger) appComponents {
-// 	authUsers := auth.NewAuthUserStore(db)
-// 	accountCommands := auth.NewAccountCommands(db, authUsers, store, store)
-// 	sessionManager := auth.NewSessionManager(db, authUsers, !cfg.DevelopmentCookie)
-// 	todoReadModel := todo.NewReadModel(db)
-// 	profileReadModel := profile.NewReadModel(db)
-// 	profileStorage := storage.NewLocalProvider(cfg.UploadDir, cfg.UploadBaseURL)
+func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config.Config, logger *slog.Logger) appComponents {
+	studentReadModel := student.NewReadModel(db)
 
-// 	return appComponents{
-// 		accountCommands:  accountCommands,
-// 		sessionManager:   sessionManager,
-// 		authUsers:        authUsers,
-// 		todoReadModel:    todoReadModel,
-// 		profileReadModel: profileReadModel,
-// 		checkpointer:     eventstore.NewSQLiteCheckpointer(db),
-// 		emailSender:      email.LogSender{Logger: logger},
-// 		profileStorage:   profileStorage,
-// 	}
-// }
+	return appComponents{
+		studentReadModel:	studentReadModel,
+		checkpointer:			eventstore.NewSQLiteCheckpointer(db),
+	}
+}
 
-// func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, cfg config.Config, components appComponents, logger *slog.Logger) []eventHandlerFactory {
-// 	return []eventHandlerFactory{
-// 		{
-// 			name: "registration OTP",
-// 			create: func() (eventHandler, error) {
-// 				return auth.NewRegistrationOTPToBeGeneratedEventHandler(store, components.checkpointer, components.accountCommands, logger)
-// 			},
-// 		},
-// 		{
-// 			name: "email validation OTP",
-// 			create: func() (eventHandler, error) {
-// 				return auth.NewEmailValidationOTPToBeSentEventHandler(store, components.checkpointer, store, store, components.emailSender, logger)
-// 			},
-// 		},
-// 		{
-// 			name: "password reset email",
-// 			create: func() (eventHandler, error) {
-// 				return auth.NewPasswordResetEmailToBeSentEventHandler(store, components.checkpointer, store, store, components.emailSender, cfg.AppURL, logger)
-// 			},
-// 		},
-// 		{
-// 			name: "auth user projection",
-// 			create: func() (eventHandler, error) {
-// 				return auth.NewAuthUserProjectionEventHandler(store, components.checkpointer, store, components.authUsers, logger)
-// 			},
-// 		},
-// 		{
-// 			name: "profile read model",
-// 			create: func() (eventHandler, error) {
-// 				return profile.NewReadModelEventHandler(store, components.checkpointer, components.profileReadModel, logger)
-// 			},
-// 		},
-// 		{
-// 			name: "profile image auth user bridge",
-// 			create: func() (eventHandler, error) {
-// 				return profile.NewProfileImageUploadedAuthUserEventHandler(store, components.checkpointer, components.authUsers, logger)
-// 			},
-// 		},
-// 		{
-// 			name: "todo read model",
-// 			create: func() (eventHandler, error) {
-// 				return todo.NewTodoReadModelEventHandler(store, components.checkpointer, components.todoReadModel, bus, logger)
-// 			},
-// 		},
-// 	}
-// }
+func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, cfg config.Config, components appComponents, logger *slog.Logger) []eventHandlerFactory {
+	return []eventHandlerFactory{
+		{
+			name: "student read model",
+			create: func() (eventHandler, error) {
+				return student.NewStudentReadModelEventHandler(store, components.checkpointer, components.studentReadModel, bus, logger)
+			},
+		},
+	}
+}
 
-// func startEventHandlers(ctx context.Context, factories []eventHandlerFactory) ([]eventHandler, error) {
-// 	handlers := make([]eventHandler, 0, len(factories))
-// 	for _, factory := range factories {
-// 		handler, err := factory.create()
-// 		if err != nil {
-// 			stopEventHandlers(handlers)
-// 			return nil, fmt.Errorf("create %s event handler: %w", factory.name, err)
-// 		}
-// 		if err := handler.StartSubscribing(ctx); err != nil {
-// 			stopEventHandlers(append(handlers, handler))
-// 			return nil, fmt.Errorf("start %s event handler: %w", factory.name, err)
-// 		}
-// 		handlers = append(handlers, handler)
-// 	}
-// 	return handlers, nil
-// }
+func startEventHandlers(ctx context.Context, factories []eventHandlerFactory) ([]eventHandler, error) {
+	handlers := make([]eventHandler, 0, len(factories))
+	for _, factory := range factories {
+		handler, err := factory.create()
+		if err != nil {
+			stopEventHandlers(handlers)
+			return nil, fmt.Errorf("create %s event handler: %w", factory.name, err)
+		}
+		if err := handler.StartSubscribing(ctx); err != nil {
+			stopEventHandlers(append(handlers, handler))
+			return nil, fmt.Errorf("start %s event handler: %w", factory.name, err)
+		}
+		handlers = append(handlers, handler)
+	}
+	return handlers, nil
+}
 
-// func stopEventHandlers(handlers []eventHandler) {
-// 	for i := len(handlers) - 1; i >= 0; i-- {
-// 		handlers[i].StopSubscribing()
-// 	}
-// }
+func stopEventHandlers(handlers []eventHandler) {
+	for i := len(handlers) - 1; i >= 0; i-- {
+		handlers[i].StopSubscribing()
+	}
+}
 
 func serveHTTP(ctx context.Context, stop context.CancelFunc, port string, handler http.Handler, logger *slog.Logger) error {
 	server := &http.Server{Addr: ":" + port, Handler: handler, ReadHeaderTimeout: 5 * time.Second}

@@ -2,7 +2,20 @@ package views
 
 import (
 	"os"
+	"time"
 )
+
+type Student struct {
+	ID             string    `db:"id"`
+	FirstName      string    `db:"first_name"`
+	ChosenName     string    `db:"chosen_name"`
+	LastName       string    `db:"last_name"`
+	Grade          string    `db:"grade"`
+	Class          string    `db:"class"`
+	CaseManager    string    `db:"case_manager"`
+	CreatedAt      time.Time `db:"created_at"`
+	UpdatedAt      time.Time `db:"updated_at"`
+}
 
 type DataView int
 
@@ -12,7 +25,6 @@ const (
 )
 
 func HotReloadSSE() string {
-	println("hot reload called")
 	return "@get('/reload', {retryMaxCount: 1000, retryInterval: 20, retryMaxWaitMs: 200})"
 }
 

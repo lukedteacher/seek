@@ -12,7 +12,6 @@ func setupReload(r chi.Router) {
 	var initialReload sync.Once
 
 	r.Get("/reload", func(w http.ResponseWriter, r *http.Request) {
-		println("reload called")
 		sse := newSSE(w, r)
 		reload := func() { _ = sse.ExecuteScript("window.location.reload()") }
 		initialReload.Do(reload)

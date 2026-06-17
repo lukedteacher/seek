@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS projector_checkpoint (
+	id TEXT PRIMARY KEY,
+	name TEXT UNIQUE NOT NULL,
+	commit_position INTEGER NOT NULL,
+	prepare_position INTEGER NOT NULL,
+	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

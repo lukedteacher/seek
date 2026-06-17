@@ -14,6 +14,15 @@ tasks:
     cmds:
       - go tool air -c .air.toml
 
+  build:
+    deps: [sqlc, templ]
+    cmds:
+      - go build ./cmd/server.exe
+
+  migrate:
+    cmds:
+      - go run ./cmd/server -migrate-only
+
   templ:
     sources:
       - "**/*.templ"
@@ -25,3 +34,14 @@ tasks:
   templ-watch:
     cmds:
       - go tool templ generate -watch
+
+  sqlc:
+    sources:
+      - sqlc.yaml
+      - queries/**/*.sql
+      - migrations/**/*.sql
+    generates:
+      - internal/dbsql/**/*.go
+    cmds:
+      - GOBIN="{{.ROOT_DIR}}/.bin" go install github.com/delaneyj/toolbelt/sqlc-gen-zombiezen
+      - PATH="{{.ROOT_DIR}}/.bin:$PATH" go tool sqlc generate

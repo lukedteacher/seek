@@ -6,7 +6,7 @@ import (
 	"time"
 
 	toolbeltdb "github.com/delaneyj/toolbelt/db"
-	appmigrations "github.com/oexza/go-orisun-datastar/migrations"
+	migrations "seek/migrations"
 )
 
 var ErrNoRows = errors.New("no rows in result set")
@@ -18,10 +18,12 @@ type DB struct {
 type TxFn = toolbeltdb.TxFn
 
 func Open(ctx context.Context, filename string) (*DB, error) {
-	migrations, err := appmigrations.SQL()
+	migrations, err := migrations.SQL()
+	println(migrations[0])
 	if err != nil {
 		return nil, err
 	}
+	println(filename)
 	inner, err := toolbeltdb.NewDatabase(ctx,
 		toolbeltdb.DatabaseWithFilename(filename),
 		toolbeltdb.DatabaseWithMigrations(migrations),
