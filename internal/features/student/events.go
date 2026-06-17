@@ -31,29 +31,24 @@ const (
 )
 
 type StudentCreatedEvent struct {
-	ID				string				`json:"id"`
-	FirstName	string				`json:"first_name"`
-	CreatedAt string				`json:"createdAt"`
-	Scope     StudentScope	`json:"scope"`
+	ID         string				`json:"id"`
+	FirstName  string				`json:"first_name"`
+	ChosenName string				`json:"chosen_name"`
+	LastName   string				`json:"last_name"`
+	Grade  int64						`json:"grade"`
+	Homeroom string					`json:"homeroom"`
+	CaseManager   string    `json:"case_manager"`
+	CreatedAt  string				`json:"createdAt"`
+	Scope      StudentScope	`json:"scope"`
 }
 
 type StudentRenamedEvent struct {
 	StudentRenamedID string    `json:"studentRenamedId"`
-	Title         string    `json:"title"`
+	FirstName         string    `json:"first_name"`
+	ChosenName         string    `json:"chosen_name"`
+	LastName         string    `json:"last_name"`
 	RenamedAt     string    `json:"renamedAt"`
 	Scope         StudentScope `json:"scope"`
-}
-
-type StudentCompletedEvent struct {
-	StudentCompletedID string    `json:"studentCompletedId"`
-	CompletedAt     string    `json:"completedAt"`
-	Scope           StudentScope `json:"scope"`
-}
-
-type StudentReopenedEvent struct {
-	StudentReopenedID string    `json:"studentReopenedId"`
-	ReopenedAt     string    `json:"reopenedAt"`
-	Scope          StudentScope `json:"scope"`
 }
 
 type StudentDeletedEvent struct {
@@ -63,79 +58,59 @@ type StudentDeletedEvent struct {
 }
 
 type StudentScope struct {
-	StudentID           string `json:"studentId"`
+	ID           string `json:"id"`
 	UserRegisteredID string `json:"userRegisteredId"`
 }
 
-func NewStudentCreatedEvent(studentID, firstName string, createdAt time.Time, metadata map[string]any) eventstore.DomainEvent {
+func NewStudentCreatedEvent(id, firstName, chosenName, lastName string, grade int64, homeroom, caseManager string, createdAt time.Time, metadata map[string]any) eventstore.DomainEvent {
+	println("newstudentcreatedevent: ", grade)
 	return eventstore.DomainEvent{
-		EventID:   studentID,
+		EventID:   id,
 		EventType: StudentCreated,
 		Data: eventstore.MustData(StudentCreatedEvent{
-			ID:           studentID,
+			ID:           id,
 			FirstName:        firstName,
+			ChosenName:        chosenName,
+			LastName:        lastName,
+			Grade:        grade,
+			Homeroom:			homeroom,
+			CaseManager:	caseManager,
 			CreatedAt:        createdAt.Format(time.RFC3339),
-			Scope:            studentScope(studentID),
+			Scope:            studentScope(id),
 		}),
 		Metadata: metadata,
 	}
 }
 
-func NewStudentRenamedEvent(studentRenamedID, studentID, userRegisteredID, title string, renamedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
+func NewStudentRenamedEvent(studentRenamedID, id, firstName string, renamedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
 	return eventstore.DomainEvent{
 		EventID:   studentRenamedID,
 		EventType: StudentRenamed,
 		Data: eventstore.MustData(StudentRenamedEvent{
 			StudentRenamedID: studentRenamedID,
-			Title:         title,
+			FirstName:         firstName,
 			RenamedAt:     renamedAt.Format(time.RFC3339),
-			Scope:         studentScope(studentID),
+			Scope:         studentScope(id),
 		}),
 		Metadata: metadata,
 	}
 }
 
-func NewStudentCompletedEvent(studentCompletedID, studentID, userRegisteredID string, completedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
-	return eventstore.DomainEvent{
-		EventID:   studentCompletedID,
-		EventType: StudentCompleted,
-		Data: eventstore.MustData(StudentCompletedEvent{
-			StudentCompletedID: studentCompletedID,
-			CompletedAt:     completedAt.Format(time.RFC3339),
-			Scope:           studentScope(studentID),
-		}),
-		Metadata: metadata,
-	}
-}
-
-func NewStudentReopenedEvent(studentReopenedID, studentID string, reopenedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
-	return eventstore.DomainEvent{
-		EventID:   studentReopenedID,
-		EventType: StudentReopened,
-		Data: eventstore.MustData(StudentReopenedEvent{
-			StudentReopenedID: studentReopenedID,
-			ReopenedAt:     reopenedAt.Format(time.RFC3339),
-			Scope:          studentScope(studentID),
-		}),
-		Metadata: metadata,
-	}
-}
-
-func NewStudentDeletedEvent(studentDeletedID, studentID string, deletedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
+func NewStudentDeletedEvent(studentDeletedID, id string, deletedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
 	return eventstore.DomainEvent{
 		EventID:   studentDeletedID,
 		EventType: StudentDeleted,
 		Data: eventstore.MustData(StudentDeletedEvent{
 			StudentDeletedID: studentDeletedID,
 			DeletedAt:     deletedAt.Format(time.RFC3339),
-			Scope:         studentScope(studentID),
+			Scope:         studentScope(id),
 		}),
 		Metadata: metadata,
 	}
 }
 
-func studentScope(studentID string) StudentScope {
-	return StudentScope{StudentID: studentID}
+func studentScope(id string) StudentScope {
+	return StudentScope{ID: id}
 }
 
 func Channel(userRegisteredID string) string {

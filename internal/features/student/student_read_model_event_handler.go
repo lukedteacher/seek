@@ -28,7 +28,7 @@ type StudentCreatedProjection struct {
 	FirstName		string
 	ChosenName	*string
 	LastName		string
-	Grade				int
+	Grade				int64
 	Homeroom		string
 	CaseManager	*string
 	CreatedAt		time.Time
@@ -99,9 +99,18 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		firstName, _ := data["first_name"].(string)
 		chosenName, _ := data["chosen_name"].(*string)
 		lastName, _ := data["last_name"].(string)
-		grade, _ := data["grade"].(int)
+		grade, ok := data["grade"].(int64)
+    if !ok {
+      if gradeFloat, ok := data["grade"].(float64); ok {
+        grade = int64(gradeFloat)
+      } else {
+				println("invalid grade")
+        grade = 0
+      }
+    }
 		homeroom, _ := data["homeroom"].(string)
 		caseManager, _ := data["case_manager"].(*string)
+		println("studentreadmodeleventhandler: ", grade)
 		if err := h.readModel.InsertCreatedStudent(ctx, StudentCreatedProjection{
 			Position:         resolved.Position,
 			Id:           id,
