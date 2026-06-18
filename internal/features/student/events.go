@@ -63,7 +63,6 @@ type StudentScope struct {
 }
 
 func NewStudentCreatedEvent(id, firstName, chosenName, lastName string, grade int64, homeroom, caseManager string, createdAt time.Time, metadata map[string]any) eventstore.DomainEvent {
-	println("newstudentcreatedevent: ", grade)
 	return eventstore.DomainEvent{
 		EventID:   id,
 		EventType: StudentCreated,

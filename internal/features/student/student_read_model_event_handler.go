@@ -111,7 +111,6 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
     }
 		homeroom, _ := data["homeroom"].(string)
 		caseManager, _ := data["case_manager"].(*string)
-		println("studentreadmodeleventhandler: ", grade)
 		if err := h.readModel.InsertCreatedStudent(ctx, StudentCreatedProjection{
 			Position:         resolved.Position,
 			Id:           id,

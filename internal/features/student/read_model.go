@@ -72,7 +72,6 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 }
 
 func (m *ReadModel) InsertCreatedStudent(ctx context.Context, event StudentCreatedProjection) error {
-	println("insertcreatedstudent: ", event.Grade)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceInsertCreatedStudent(conn, dbsql.InsertCreatedStudentParams{
 			Id:                   event.Id,

@@ -30,7 +30,6 @@ func CreateStudentCommandHandler(ctx context.Context, command CreateStudentComma
 	}
 
 	event := NewStudentCreatedEvent(model.id, model.firstName, model.chosenName, model.lastName, model.grade, model.homeroom, model.caseManager, time.Now(), metadataWithQuery(command.Metadata, model.query))
-	println("createstudentcommandhandler: ", model.grade)
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, model.query); err != nil {
 		return CreateStudentResult{}, err
 	}

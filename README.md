@@ -6,8 +6,10 @@ a tool for educators.
 ## todo
 
 - [x] basic server
-- [ ] figure out hot reload
+- [x] figure out hot reload
 - [x] index page
+- [x] student page (basic)
+- [x] create, delete students
 - [ ] student data
 - [ ] schedule viewer
 - [ ] everything else
@@ -25,3 +27,7 @@ a tool for educators.
 - goals
 - data tracking
 - behavior
+
+## bugs
+
+- can't delete students created by migration
