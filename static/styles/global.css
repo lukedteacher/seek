@@ -129,10 +129,9 @@ ul {
 	list-style-type: none;
 }
 
-div.cards {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
+div.card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 	gap: var(--size-0);
 	margin-top: var(--size-1);
 }

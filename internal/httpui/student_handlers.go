@@ -15,8 +15,25 @@ import (
 func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students", s.students)
 	r.Get("/students/stream", s.studentsStream)
+	r.Get("/student/{id}", s.student)
 	r.Post("/student", s.createStudent)
 	r.Get("/student/create", s.createStudentForm)
+}
+
+func (s Server) student(w http.ResponseWriter, r *http.Request) {
+	type Signals struct {
+		View int64 `json:"view"`
+	}
+	signals := &Signals{}
+	studentID := chi.URLParam(r, "id")
+	student, err := s.Students.Get(r.Context(), studentID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	datastar.ReadSignals(r, signals)
+	
+	_ = pages.Student(signals.View, student).Render(r.Context(), w)
 }
 
 func (s Server) students(w http.ResponseWriter, r *http.Request) {

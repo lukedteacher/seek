@@ -2,11 +2,13 @@ package student
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
-	"seek/internal/views"
+	"seek/internal/domain/models"
+
 	"zombiezen.com/go/sqlite"
 )
 
@@ -18,7 +20,34 @@ func NewReadModel(db *appdb.DB) *ReadModel {
 	return &ReadModel{db: db}
 }
 
-func (m *ReadModel) List(ctx context.Context) ([]views.Student, error) {
+func (m *ReadModel) Get(ctx context.Context, studentID string) (*models.Student, error) {
+	var row *dbsql.GetStudentRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		row, err = dbsql.OnceGetStudent(conn, studentID)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+	
+	if row == nil {
+		return nil, fmt.Errorf("student not found")
+	}
+	
+	student := &models.Student{
+		Id:          row.Id,
+		FirstName:   row.FirstName,
+		ChosenName:  row.ChosenName,
+		LastName:    row.LastName,
+		Grade:       row.Grade,
+		Homeroom:    row.Homeroom,
+		CaseManager: row.CaseManager,
+	}
+	
+	return student, nil
+}
+
+func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 	var rows []dbsql.ListStudentsRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
@@ -27,9 +56,9 @@ func (m *ReadModel) List(ctx context.Context) ([]views.Student, error) {
 	}); err != nil {
 		return nil, err
 	}
-	students := make([]views.Student, 0, len(rows))
+	students := make([]models.Student, 0, len(rows))
 	for _, row := range rows {
-		students = append(students, views.Student{
+		students = append(students, models.Student{
 			Id:						row.Id,
 			FirstName:		row.FirstName,
 			ChosenName:		row.ChosenName,
@@ -37,8 +66,6 @@ func (m *ReadModel) List(ctx context.Context) ([]views.Student, error) {
 			Grade:				row.Grade,
 			Homeroom:			row.Homeroom,
 			CaseManager:	row.CaseManager,
-			CreatedAt:		parseDBTime(row.CreatedAt),
-			UpdatedAt:		parseDBTime(row.UpdatedAt),
 		})
 	}
 	return students, nil

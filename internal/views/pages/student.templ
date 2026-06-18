@@ -1,0 +1,25 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+)
+
+type StudentSignals struct {
+	StudentDataView views.DataView
+}
+
+templ Student(view int64, student *models.Student) {
+	@layouts.Base("SEEK: students") {
+		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/student/stream") }>
+			<section>
+				<h1>{ student.FirstLast() }</h1>
+				<p>review and enter student data here</p>
+				<p>many features to come</p>
+				<div>
+				</div>
+			</section>
+		</main>
+	}
+}

@@ -1,10 +1,12 @@
 package blocks
 
 import (
-	"seek/internal/views"
+	"fmt"
+
+	"seek/internal/domain/models"
 )
 
-templ StudentList(students []views.Student) {
+templ StudentList(students []models.Student) {
 	<table>
 		<thead>
 			<th>first</th>
@@ -17,24 +19,20 @@ templ StudentList(students []views.Student) {
 		<tbody>
 			for _, student := range students {
 				<tr>
-					<td>{student.FirstName}</td>
+					<td>
+						<a href={ fmt.Sprintf("/student/%s", student.Id) }>{ student.FirstName }</a>
+					</td>
 					<td>
 						if student.ChosenName != nil {
 							{*student.ChosenName}
 						}
-						else {
-							""
-						}
 					</td>
 					<td>{student.LastName}</td>
-					<td>{student.Grade}</td>
+					<td>{student.GradeOrdinal()}</td>
 					<td>{student.Homeroom}</td>
 					<td>
 							if student.CaseManager != nil {
 								{*student.CaseManager}
-							}
-							else {
-								""
 							}
 					</td>
 				</tr>
@@ -43,8 +41,8 @@ templ StudentList(students []views.Student) {
 	</table>
 }
 
-templ StudentCards(students []views.Student) {
-	<div class="cards">
+templ StudentCards(students []models.Student) {
+	<div class="card-grid">
 		for _, student := range students {
 			<div class="card">
 				<p>

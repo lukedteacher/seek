@@ -6,14 +6,15 @@ import (
 	"log/slog"
 	"time"
 
+	"seek/internal/domain/models"
 	"seek/internal/eventstore"
-	"seek/internal/views"
 )
 
 const StudentReadModelEventHandlerName = "student_read_model_event_handler"
 
 type StudentReadModelReader interface {
-	List(ctx context.Context) ([]views.Student, error)
+	Get(ctx context.Context, studentID string) (*models.Student, error)
+	List(ctx context.Context) ([]models.Student, error)
 }
 
 type StudentReadModelWriter interface {

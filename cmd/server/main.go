@@ -99,8 +99,8 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 	app := httpui.Server{
 		// Accounts:       components.accountCommands,
 		// Sessions:       components.sessionManager,
-		// AuthUsers:      components.authUsers,
-		Students:          components.studentReadModel,
+		// AuthUsers:   components.authUsers,
+		Students:       components.studentReadModel,
 		EventSaver:     orisunStore,
 		EventRetriever: orisunStore,
 		// ProfileStorage: components.profileStorage,

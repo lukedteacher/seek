@@ -3,7 +3,6 @@ package views
 import (
 	"fmt"
 	"os"
-	"time"
 )
 
 type Student struct {
@@ -14,8 +13,6 @@ type Student struct {
 	Grade          int64				`db:"grade"`
 	Homeroom       string			`db:"homeroom"`
 	CaseManager    *string			`db:"case_manager"`
-	CreatedAt      time.Time	`db:"created_at"`
-	UpdatedAt      time.Time	`db:"updated_at"`
 }
 
 type DataView int

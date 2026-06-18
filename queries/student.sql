@@ -1,3 +1,9 @@
+-- name: GetStudent :one
+SELECT id, first_name, chosen_name, last_name, grade, homeroom, case_manager, created_at, updated_at
+FROM students
+WHERE deleted_at IS NULL
+	AND id = @id;
+
 -- name: ListStudents :many
 SELECT id, first_name, chosen_name, last_name, grade, homeroom, case_manager, created_at, updated_at
 FROM students
