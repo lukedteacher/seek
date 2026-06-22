@@ -18,13 +18,17 @@ templ Base(title string) {
 			<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/stellar.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/global.css") }/>
-		</head>
-		<body>			
-			if views.IsDevelopment() {
-				<div data-init={ views.HotReloadSSE() }></div>
-			}
-			@components.Header()
-			{ children... }
-		</body>
+		</head>		
+		if views.IsDevelopment() {
+			<body data-init={ views.HotReloadSSE() }>
+				@components.Header()
+				{ children... }
+			</body>
+		} else {
+			<body>
+				@components.Header()
+				{ children... }
+			</body>
+		}
 	</html>
 }

@@ -15,6 +15,7 @@ import (
 	"seek/internal/config"
 	"seek/internal/eventcatalog"
 	"seek/internal/eventstore"
+	"seek/internal/features/period"
 	"seek/internal/features/student"
 	"seek/internal/httpui"
 	"seek/internal/natsbus"
@@ -27,6 +28,7 @@ type runOptions struct {
 }
 
 type appComponents struct {
+	periodReadModel   *period.ReadModel
 	studentReadModel	*student.ReadModel
 	checkpointer			eventstore.Checkpointer
 }
@@ -100,6 +102,7 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		// Accounts:       components.accountCommands,
 		// Sessions:       components.sessionManager,
 		// AuthUsers:   components.authUsers,
+		Periods:        components.periodReadModel,
 		Students:       components.studentReadModel,
 		EventSaver:     orisunStore,
 		EventRetriever: orisunStore,
@@ -144,9 +147,11 @@ func newViewStore(bus *natsbus.Bus, logger *slog.Logger) viewstore.Store {
 }
 
 func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config.Config, logger *slog.Logger) appComponents {
+	periodReadModel := period.NewReadModel(db)
 	studentReadModel := student.NewReadModel(db)
 
 	return appComponents{
+		periodReadModel:	periodReadModel,
 		studentReadModel:	studentReadModel,
 		checkpointer:			eventstore.NewSQLiteCheckpointer(db),
 	}
@@ -158,6 +163,12 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "student read model",
 			create: func() (eventHandler, error) {
 				return student.NewStudentReadModelEventHandler(store, components.checkpointer, components.studentReadModel, bus, logger)
+			},
+		},
+		{
+			name: "period read model",
+			create: func() (eventHandler, error) {
+				return period.NewPeriodReadModelEventHandler(store, components.checkpointer, components.periodReadModel, bus, logger)
 			},
 		},
 	}

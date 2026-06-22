@@ -84,7 +84,7 @@ func (h *StudentReadModelEventHandler) StopSubscribing() {
 
 func StudentReadModelEventHandlerQuery() eventstore.Query {
 	criteria := make([]eventstore.Criterion, 0, 5)
-	for _, eventType := range []string{StudentCreated, StudentRenamed, StudentCompleted, StudentReopened, StudentDeleted} {
+	for _, eventType := range []string{StudentCreated, StudentRenamed, StudentDeleted} {
 		criteria = append(criteria, eventstore.Criterion{Tags: []eventstore.Tag{{Key: "eventType", Value: eventType}}})
 	}
 	return eventstore.Query{Criteria: criteria}

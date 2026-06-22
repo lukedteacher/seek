@@ -1,0 +1,43 @@
+package pages
+
+import (
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+	"seek/internal/views/blocks"
+)
+
+type ScheduleSignals struct {
+	StudentDataView views.DataView
+}
+
+templ Schedule() {
+	@layouts.Base("SEEK: schedule") {
+		<main data-init={ views.LongRunningGetSSE("/schedule/stream") }>
+			@blocks.ScheduleComponent(60)
+		</main>
+	}
+}
+
+templ CreatePeriod() {
+	@layouts.Base("SEEK: create period") {
+		<main data-init={ views.LongRunningGetSSE("/period/create/stream") }>
+			<section>
+				<h1>CREATE A PERIOD</h1>
+				<p>create a new period</p>
+				<form data-on:submit="@post('/periods/create')">
+					<label for="title">title</label>
+					<input id="title" name="title" data-bind:title />
+					<label for="start_time">start time</label>
+					<input id="start_time" name="start_time" data-bind:start_time />
+					<label for="duration">duration</label>
+					<input id="duration" name="duration" data-bind:duration type="number" />
+					<label for="days">days</label>
+					<input id="days" name="days" data-bind:days type="number" />
+					<button type="submit">
+						<span>submit</span>
+					</button>
+				</form>
+			</section>
+		</main>
+	}
+}

@@ -6,10 +6,10 @@ CREATE TABLE IF NOT EXISTS students (
 	grade INTEGER NOT NULL,
 	homeroom TEXT NOT NULL,
 	case_manager TEXT,
-	last_event_commit_position INTEGER NOT NULL,
-	last_event_prepare_position INTEGER NOT NULL,
 	created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	deleted_at TEXT
+	deleted_at TEXT,
+	last_event_commit_position INTEGER NOT NULL,
+	last_event_prepare_position INTEGER NOT NULL
 );
 

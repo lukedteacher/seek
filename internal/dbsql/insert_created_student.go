@@ -15,9 +15,9 @@ type InsertCreatedStudentParams struct {
 	Grade                    int64   `json:"grade"`
 	Homeroom                 string  `json:"homeroom"`
 	CaseManager              *string `json:"case_manager"`
+	CreatedAt                string  `json:"created_at"`
 	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
 	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
-	CreatedAt                string  `json:"created_at"`
 }
 
 type InsertCreatedStudentStmt struct {
@@ -29,8 +29,8 @@ type InsertCreatedStudentStmt struct {
 
 func InsertCreatedStudent(tx *sqlite.Conn) *InsertCreatedStudentStmt {
 	const querySQL = `
-INSERT INTO students (id, first_name, chosen_name, last_name, grade, homeroom, case_manager, deleted_at, last_event_commit_position, last_event_prepare_position, created_at, updated_at)
-VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, null, ?8, ?9, ?10, ?10)
+INSERT INTO students (id, first_name, chosen_name, last_name, grade, homeroom, case_manager, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
+VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8, ?9, ?10)
 ON CONFLICT (id) DO NOTHING
     `
 
@@ -97,13 +97,13 @@ func (ps *InsertCreatedStudentStmt) Run(
 
 	}
 	bindIndex++
+	stmt.BindText(bindIndex, params.CreatedAt)
+
+	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
-
-	bindIndex++
-	stmt.BindText(bindIndex, params.CreatedAt)
 
 	bindIndex++
 

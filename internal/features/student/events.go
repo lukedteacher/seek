@@ -9,22 +9,16 @@ import (
 const (
 	StudentCreated   = "StudentCreated"
 	StudentRenamed   = "StudentRenamed"
-	StudentCompleted = "StudentCompleted"
-	StudentReopened  = "StudentReopened"
 	StudentDeleted   = "StudentDeleted"
 )
 
 const (
 	StudentIDField                    = "studentId"
 	StudentUserRegisteredIDField      = "userRegisteredId"
-	StudentTitleField                 = "title"
+	StudentFirstNameField             = "firstName"
 	StudentCreatedAtField             = "createdAt"
 	StudentRenamedIDField             = "studentRenamedId"
 	StudentRenamedAtField             = "renamedAt"
-	StudentCompletedIDField           = "studentCompletedId"
-	StudentCompletedAtField           = "completedAt"
-	StudentReopenedIDField            = "studentReopenedId"
-	StudentReopenedAtField            = "reopenedAt"
 	StudentDeletedIDField             = "studentDeletedId"
 	StudentDeletedAtField             = "deletedAt"
 	StudentScopeIDField               = "scope.id"

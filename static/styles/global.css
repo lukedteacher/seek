@@ -13,37 +13,40 @@ body {
 	background: var(--neutral-1);
 	color: var(--neutral-1-on);
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+	display: grid;
+	grid-template-rows: auto 1fr;
+	
+	> header {
+		background-color: var(--secondary-3);
+		color: var(--secondary-3-on);
+		width: 100%;
+		height: 100px;
+		align-items: center;
+		display: flex;
+		flex-direction: row;
+		padding-left: var(--size-4);
 
-header {
-	background-color: var(--secondary-3);
-	color: var(--secondary-3-on);
-	width: 100%;
-	height: 100px;
-	align-items: center;
-	display: flex;
-	flex-direction: row;
-	padding-left: var(--size-4);
+		nav {
+			ul {
+				display: flex;
+				flex-direction: row;
+				gap: var(--size-4);
 
-	nav {
-		ul {
-			display: flex;
-			flex-direction: row;
-			gap: var(--size-4);
-
-			li a {
-				padding: var(--size-2);
-				border-radius: var(--border-radius-2);
-				&:hover {
-					background-color: var(--secondary-5);
+				li a {
+					padding: var(--size-2);
+					border-radius: var(--border-radius-2);
+					&:hover {
+						background-color: var(--secondary-5);
+					}
 				}
 			}
 		}
 	}
-}
 
-main {
-	padding: var(--size-2)
+	main {
+		height: 100%;
+		padding: var(--size-2)
+	}
 }
 
 a {
@@ -92,6 +95,10 @@ form {
 	flex-direction: column;
 	gap: var(--size-1);
 	width: 30rem;
+}
+
+h1, h2, h3 {
+	margin: 0;
 }
 
 h1 {

@@ -7,36 +7,31 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type RenameStudentParams struct {
-	FirstName                string  `json:"first_name"`
-	ChosenName               *string `json:"chosen_name"`
-	LastName                 string  `json:"last_name"`
-	UpdatedAt                string  `json:"updated_at"`
+type DeletePeriodParams struct {
+	DeletedAt                *string `json:"deleted_at"`
 	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
 	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
 	Id                       string  `json:"id"`
 }
 
-type RenameStudentStmt struct {
+type DeletePeriodStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func RenameStudent(tx *sqlite.Conn) *RenameStudentStmt {
+func DeletePeriod(tx *sqlite.Conn) *DeletePeriodStmt {
 	const querySQL = `
-UPDATE students
-SET first_name = ?1,
-	chosen_name = ?2,
-	last_name = ?3,
-	updated_at = ?4,
-	last_event_commit_position = ?5,
-	last_event_prepare_position = ?6
-WHERE id = ?7
+UPDATE periods
+SET deleted_at = ?1,
+	updated_at = ?1,
+	last_event_commit_position = ?2,
+	last_event_prepare_position = ?3
+WHERE id = ?4
     `
 
-	ps := &RenameStudentStmt{
+	ps := &DeletePeriodStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -49,8 +44,8 @@ WHERE id = ?7
 	return ps
 }
 
-func (ps *RenameStudentStmt) Run(
-	params RenameStudentParams,
+func (ps *DeletePeriodStmt) Run(
+	params DeletePeriodParams,
 ) (
 	err error,
 ) {
@@ -70,21 +65,12 @@ func (ps *RenameStudentStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, params.FirstName)
-
-	bindIndex++
-	if params.ChosenName == nil {
+	if params.DeletedAt == nil {
 		stmt.BindNull(bindIndex)
 	} else {
-		stmt.BindText(bindIndex, *params.ChosenName)
+		stmt.BindText(bindIndex, *params.DeletedAt)
 
 	}
-	bindIndex++
-	stmt.BindText(bindIndex, params.LastName)
-
-	bindIndex++
-	stmt.BindText(bindIndex, params.UpdatedAt)
-
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
@@ -98,19 +84,19 @@ func (ps *RenameStudentStmt) Run(
 
 	// Execute the query
 	if _, err := stmt.Step(); err != nil {
-		return fmt.Errorf("failed to execute renamestudent SQL: %w", err)
+		return fmt.Errorf("failed to execute deleteperiod SQL: %w", err)
 	}
 
 	return nil
 }
 
-func OnceRenameStudent(
+func OnceDeletePeriod(
 	tx *sqlite.Conn,
-	params RenameStudentParams,
+	params DeletePeriodParams,
 ) (
 	err error,
 ) {
-	ps := RenameStudent(tx)
+	ps := DeletePeriod(tx)
 
 	return ps.Run(
 		params,

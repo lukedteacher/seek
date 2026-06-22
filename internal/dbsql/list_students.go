@@ -31,7 +31,7 @@ func ListStudents(tx *sqlite.Conn) *ListStudentsStmt {
 SELECT id, first_name, chosen_name, last_name, grade, homeroom, case_manager, created_at, updated_at
 FROM students
 WHERE deleted_at IS NULL
-ORDER BY created_at DESC, id DESC
+ORDER BY last_name DESC, id DESC
     `
 
 	ps := &ListStudentsStmt{
