@@ -16,9 +16,12 @@ templ Student(student *models.Student) {
 	@layouts.Base("SEEK: students") {
 		<main data-init={ views.LongRunningGetSSE("/student/stream") }>
 			<section>
-				<h1>{ student.FirstLast() }</h1>
-				<p>review and enter student data here</p>
-				<p>many features to come</p>
+				<h2>{ student.FirstLast() }</h2>
+				<p><strong>grade: </strong>{ student.GradeOrdinal() }</p>
+				<p><strong>homeroom: </strong>{ student.Homeroom }</p>
+				if student.CaseManager != nil {
+					<p><strong>case manager: </strong>{ *student.CaseManager }</p>
+				}
 				<div>
 					<button data-on:click={ fmt.Sprintf("@delete('/student/%s')", student.Id) }>delete</button>
 				</div>
