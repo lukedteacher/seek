@@ -105,8 +105,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
       if gradeFloat, ok := data["grade"].(float64); ok {
         grade = int64(gradeFloat)
       } else {
-				println("invalid grade")
-        grade = 0
+			return fmt.Errorf("invalid grade value")
       }
     }
 		homeroom, _ := data["homeroom"].(string)

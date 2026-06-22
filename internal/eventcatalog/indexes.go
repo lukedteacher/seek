@@ -11,7 +11,7 @@ func BoundaryIndexes() []eventstore.BoundaryIndexDefinition {
 		{
 			Name:       "period_scope",
 			Fields:     []string{period.PeriodScopeIDField},
-			EventTypes: []string{period.PeriodCreated, period.PeriodRenamed, period.PeriodDeleted},
+			EventTypes: []string{period.PeriodCreated, period.PeriodUpdated, period.PeriodDeleted},
 		},
 		{
 			Name:       "student_scope",

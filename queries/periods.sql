@@ -15,9 +15,12 @@ INSERT INTO periods (id, title, start_time, duration, days, created_at, updated_
 VALUES (@id, @title, @start_time, @duration, @days, @created_at, @created_at, @last_event_commit_position, @last_event_prepare_position)
 ON CONFLICT (id) DO NOTHING;
 
--- name: RenamePeriod :exec
+-- name: UpdatePeriod :exec
 UPDATE periods
 SET title = @title,
+	start_time = @start_time,
+	duration = @duration,
+	days = @days,
 	updated_at = @updated_at,
 	last_event_commit_position = @last_event_commit_position,
 	last_event_prepare_position = @last_event_prepare_position

@@ -7,32 +7,38 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type RenamePeriodParams struct {
+type UpdatePeriodParams struct {
 	Title                    string `json:"title"`
+	StartTime                string `json:"start_time"`
+	Duration                 int64  `json:"duration"`
+	Days                     int64  `json:"days"`
 	UpdatedAt                string `json:"updated_at"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	Id                       string `json:"id"`
 }
 
-type RenamePeriodStmt struct {
+type UpdatePeriodStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func RenamePeriod(tx *sqlite.Conn) *RenamePeriodStmt {
+func UpdatePeriod(tx *sqlite.Conn) *UpdatePeriodStmt {
 	const querySQL = `
 UPDATE periods
 SET title = ?1,
-	updated_at = ?2,
-	last_event_commit_position = ?3,
-	last_event_prepare_position = ?4
-WHERE id = ?5
+	start_time = ?2,
+	duration = ?3,
+	days = ?4,
+	updated_at = ?5,
+	last_event_commit_position = ?6,
+	last_event_prepare_position = ?7
+WHERE id = ?8
     `
 
-	ps := &RenamePeriodStmt{
+	ps := &UpdatePeriodStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -45,8 +51,8 @@ WHERE id = ?5
 	return ps
 }
 
-func (ps *RenamePeriodStmt) Run(
-	params RenamePeriodParams,
+func (ps *UpdatePeriodStmt) Run(
+	params UpdatePeriodParams,
 ) (
 	err error,
 ) {
@@ -69,6 +75,15 @@ func (ps *RenamePeriodStmt) Run(
 	stmt.BindText(bindIndex, params.Title)
 
 	bindIndex++
+	stmt.BindText(bindIndex, params.StartTime)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.Duration)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.Days)
+
+	bindIndex++
 	stmt.BindText(bindIndex, params.UpdatedAt)
 
 	bindIndex++
@@ -84,20 +99,19 @@ func (ps *RenamePeriodStmt) Run(
 
 	// Execute the query
 	if _, err := stmt.Step(); err != nil {
-		return fmt.Errorf("failed to execute renameperiod SQL: %w", err)
+		return fmt.Errorf("failed to execute updateperiod SQL: %w", err)
 	}
 
 	return nil
 }
 
-func OnceRenamePeriod(
+func OnceUpdatePeriod(
 	tx *sqlite.Conn,
-	params RenamePeriodParams,
+	params UpdatePeriodParams,
 ) (
 	err error,
 ) {
-	ps := RenamePeriod(tx)
-
+	ps := UpdatePeriod(tx)
 	return ps.Run(
 		params,
 	)

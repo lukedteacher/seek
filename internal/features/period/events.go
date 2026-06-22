@@ -8,7 +8,7 @@ import (
 
 const (
 	PeriodCreated   = "PeriodCreated"
-	PeriodRenamed   = "PeriodRenamed"
+	PeriodUpdated   = "PeriodUpdated"
 	PeriodDeleted   = "PeriodDeleted"
 )
 
@@ -34,21 +34,24 @@ type PeriodCreatedEvent struct {
 	Scope     PeriodScope	`json:"scope"`
 }
 
-type PeriodRenamedEvent struct {
-	PeriodRenamedID string    `json:"periodRenamedId"`
-	Title         string    `json:"title"`
-	RenamedAt     string    `json:"renamedAt"`
-	Scope         PeriodScope `json:"scope"`
+type PeriodUpdatedEvent struct {
+	ID        string			`json:"id"`
+	Title     string			`json:"title"`
+	StartTime string		  `json:"start_time"`
+	Duration  int64				`json:"duration"`
+	Days      int64       `json:"days"`
+	UpdatedAt string			`json:"updatedAt"`
+	Scope     PeriodScope	`json:"scope"`
 }
 
 type PeriodDeletedEvent struct {
-	PeriodDeletedID string    `json:"periodDeletedId"`
-	DeletedAt     string    `json:"deletedAt"`
-	Scope         PeriodScope `json:"scope"`
+	PeriodDeletedID string      `json:"periodDeletedId"`
+	DeletedAt       string      `json:"deletedAt"`
+	Scope           PeriodScope `json:"scope"`
 }
 
 type PeriodScope struct {
-	ID           string `json:"id"`
+	ID               string `json:"id"`
 	UserRegisteredID string `json:"userRegisteredId"`
 }
 
@@ -69,15 +72,18 @@ func NewPeriodCreatedEvent(id, title, startTime string, duration, days int64, cr
 	}
 }
 
-func NewPeriodRenamedEvent(periodRenamedID, id, title string, renamedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
+func NewPeriodUpdatedEvent(eventID, periodID, title, startTime string, duration, days int64, updatedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
 	return eventstore.DomainEvent{
-		EventID:   periodRenamedID,
-		EventType: PeriodRenamed,
-		Data: eventstore.MustData(PeriodRenamedEvent{
-			PeriodRenamedID: periodRenamedID,
-			Title:         title,
-			RenamedAt:     renamedAt.Format(time.RFC3339),
-			Scope:         periodScope(id),
+		EventID:   eventID,
+		EventType: PeriodUpdated,
+		Data: eventstore.MustData(PeriodUpdatedEvent{
+			ID:        eventID,
+			Title:     title,
+			StartTime: startTime,
+			Duration:  duration,
+			Days:      days,
+			UpdatedAt: updatedAt.Format(time.RFC3339),
+			Scope:     periodScope(periodID),
 		}),
 		Metadata: metadata,
 	}

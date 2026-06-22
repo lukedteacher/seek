@@ -82,14 +82,17 @@ func (m *ReadModel) InsertCreatedPeriod(ctx context.Context, event PeriodCreated
 	})
 }
 
-func (m *ReadModel) RenamePeriod(ctx context.Context, event PeriodRenamedProjection) error {
+func (m *ReadModel) UpdatePeriod(ctx context.Context, event PeriodUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceRenamePeriod(conn, dbsql.RenamePeriodParams{
+		return dbsql.OnceUpdatePeriod(conn, dbsql.UpdatePeriodParams{
+			Id:                       event.Id,
 			Title:                    event.Title,
+			StartTime:                event.StartTime,
+			Duration:                 event.Duration,
+			Days:                     event.Days,
+			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
-			UpdatedAt:                appdb.SQLTime(event.RenamedAt),
-			Id:                   event.Id,
 		})
 	})
 }
