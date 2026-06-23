@@ -1,3 +1,7 @@
+:root {
+	--bg-transparent: transparent;
+}
+
 html {
 	min-width: var(--viewport-min);
 }
@@ -63,7 +67,7 @@ button {
 	justify-content: center;
 	display: inline-flex;
 	gap: var(--size--1);
-	border-radius: var(--border-radius-2);
+	border-radius: var(--border-radius-1);
 	box-shadow: none;
 	border: 0;
 	font-family: inherit;
@@ -93,11 +97,38 @@ button {
 form {
 	display: flex;
 	flex-direction: column;
-	gap: var(--size-1);
+	gap: var(--size-3);
 	width: 30rem;
+	background-color: var(--primary-4);
+	color: var(--primary-4-on);
+	border-color: var(--primary-4-dim);
+	border-style: solid;
+	border-width: var(--border-width-0);
+	border-radius: var(--border-radius-2);
+	padding: var(--size-2);
+
+	hgroup p {
+		color: color-mix(in oklch, currentColor 90%, black 10%);
+	}
+
+	section {
+		display: flex;
+		flex-direction: column;
+		gap: var(--size-2);
+	}
+
+	footer {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--size-1);
+
+		button {
+			flex-grow: 1;
+		}
+	}
 }
 
-h1, h2, h3 {
+h1, h2, h3, p {
 	margin: 0;
 }
 

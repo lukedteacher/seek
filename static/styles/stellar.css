@@ -1,9 +1,5 @@
 @import "https://fonts.bunny.net/css?family=inter:100,900|inconsolata:400,700&display=swap";
 
-/* stellar:fonts-import.css */
-
-/* stellar:general-normalize.css */
-
 /* stellar:colors-theme.css */
 :root {
   --primary-1: #e1f4ff;
@@ -2191,21 +2187,6 @@
   --border-radius-5-6: clamp(0.858307rem, calc(0.122615rem + 3.678458vw), 3.433228rem);
 }
 
-/* stellar:border-generate.css */
-:root {
-  --radius-blob-1: 55% 30% 56% 33% / 30% 55% 30% 55%;
-  --radius-blob-2: 34% 30% 60% 60% / 60% 58% 36% 35%;
-  --radius-blob-3: 39% 64% 35% 62% / 61% 32% 62% 33%;
-  --radius-blob-4: 34% 34% 37% 68% / 66% 67% 66% 38%;
-  --radius-blob-5: 69% 36% 39% 38% / 43% 70% 70% 70%;
-  --radius-drawn-1: 0.625rem 8.438rem 0.625rem 8.125rem / 7.813rem 1.563rem 8.75rem 0.625rem;
-  --radius-drawn-2: 9.063rem 2.813rem 2.188rem 9.375rem / 0.625rem 9.063rem 8.438rem 1.25rem;
-  --radius-drawn-3: 11.563rem 2.188rem 10rem 0.625rem / 1.875rem 11.563rem 2.813rem 11.563rem;
-  --radius-drawn-4: 13.125rem 0.625rem 2.5rem 1.25rem / 1.563rem 12.813rem 12.188rem 12.188rem;
-  --radius-drawn-5: 2.188rem 14.375rem 2.188rem 1.25rem / 14.063rem 2.188rem 14.063rem 14.688rem;
-  --radius-drawn-6: 4.688rem 15.938rem 4.063rem 3.125rem / 15.938rem 1.563rem 15.938rem 15.938rem;
-}
-
 /* stellar:animations.css */
 :root {
   --anim-duration-base: calc(calc(0.18 + 0.06 * clamp(0, calc((100vw - 320px) / (1440px - 320px)), 1)) * 1s);
@@ -2544,5 +2525,3 @@
       color-mix(in srgb, var(--secondary-6) 12%, var(--error-6) 88%) 88%,
       color-mix(in srgb, var(--secondary-6) 0%, var(--error-6) 100%) 100%);
 }
-
-/* stellar:index.css */

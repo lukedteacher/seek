@@ -24,22 +24,6 @@ type UpdatePeriodResult struct {
 }
 
 func UpdatePeriodCommandHandler(ctx context.Context, command UpdatePeriodCommand, saver eventstore.Saver, retriever eventstore.Retriever) (UpdatePeriodResult, error) {
-	title, err := validateTitle(command.Title)
-	if err != nil {
-		return UpdatePeriodResult{}, err
-	}
-	startTime, err := validateStartTime(command.StartTime)
-	if err != nil {
-		return UpdatePeriodResult{}, err
-	}
-	duration, err := validateDuration(command.Duration)
-	if err != nil {
-		return UpdatePeriodResult{}, err
-	}
-	days, err := validateDays(command.Days)
-	if err != nil {
-		return UpdatePeriodResult{}, err
-	}
 	model, err := loadUpdatePeriodContext(ctx, retriever, command.Id)
 	if err != nil {
 		return UpdatePeriodResult{}, err
@@ -47,12 +31,12 @@ func UpdatePeriodCommandHandler(ctx context.Context, command UpdatePeriodCommand
 	if err := model.requireActive(); err != nil {
 		return UpdatePeriodResult{}, err
 	}
-	if model.title == title && model.startTime == startTime && model.duration == duration && model.days == days {
+	if model.title == command.Title && model.startTime == command.StartTime && model.duration == command.Duration && model.days == command.Days {
 		return UpdatePeriodResult{Skipped: true}, nil
 	}
 
 	eventID := uuidv7.NewString()
-	event := NewPeriodUpdatedEvent(eventID, command.Id, title, command.StartTime, command.Duration, command.Days, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewPeriodUpdatedEvent(eventID, command.Id, command.Title, command.StartTime, command.Duration, command.Days, time.Now(), metadataWithQuery(command.Metadata, model.query))
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return UpdatePeriodResult{}, err
@@ -100,8 +84,14 @@ func (m *updatePeriodContext) handle(resolved eventstore.ResolvedEvent) {
 		m.exists = true
 		m.deleted = false
 		m.title, _ = data["title"].(string)
+		m.startTime, _ = data["start_time"].(string)
+		m.duration, _ = data["duration"].(int64)
+		m.days, _ = data["days"].(int64)
 	case PeriodUpdated:
 		m.title, _ = data["title"].(string)
+		m.startTime, _ = data["start_time"].(string)
+		m.duration, _ = data["duration"].(int64)
+		m.days, _ = data["days"].(int64)
 	case PeriodDeleted:
 		m.deleted = true
 	}

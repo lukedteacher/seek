@@ -33,16 +33,6 @@ type appComponents struct {
 	checkpointer			eventstore.Checkpointer
 }
 
-type eventHandler interface {
-	StartSubscribing(context.Context) error
-	StopSubscribing()
-}
-
-type eventHandlerFactory struct {
-	name   string
-	create func() (eventHandler, error)
-}
-
 func main() {
 	opts := parseOptions()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -154,46 +144,6 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 		periodReadModel:	periodReadModel,
 		studentReadModel:	studentReadModel,
 		checkpointer:			eventstore.NewSQLiteCheckpointer(db),
-	}
-}
-
-func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, cfg config.Config, components appComponents, logger *slog.Logger) []eventHandlerFactory {
-	return []eventHandlerFactory{
-		{
-			name: "student read model",
-			create: func() (eventHandler, error) {
-				return student.NewStudentReadModelEventHandler(store, components.checkpointer, components.studentReadModel, bus, logger)
-			},
-		},
-		{
-			name: "period read model",
-			create: func() (eventHandler, error) {
-				return period.NewPeriodReadModelEventHandler(store, components.checkpointer, components.periodReadModel, bus, logger)
-			},
-		},
-	}
-}
-
-func startEventHandlers(ctx context.Context, factories []eventHandlerFactory) ([]eventHandler, error) {
-	handlers := make([]eventHandler, 0, len(factories))
-	for _, factory := range factories {
-		handler, err := factory.create()
-		if err != nil {
-			stopEventHandlers(handlers)
-			return nil, fmt.Errorf("create %s event handler: %w", factory.name, err)
-		}
-		if err := handler.StartSubscribing(ctx); err != nil {
-			stopEventHandlers(append(handlers, handler))
-			return nil, fmt.Errorf("start %s event handler: %w", factory.name, err)
-		}
-		handlers = append(handlers, handler)
-	}
-	return handlers, nil
-}
-
-func stopEventHandlers(handlers []eventHandler) {
-	for i := len(handlers) - 1; i >= 0; i-- {
-		handlers[i].StopSubscribing()
 	}
 }
 

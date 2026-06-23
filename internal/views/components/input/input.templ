@@ -1,0 +1,123 @@
+package input
+
+import "github.com/starfederation/datastar-go/datastar"
+
+type Type string
+
+const (
+	TypeText     Type = "text"
+	TypeEmail    Type = "email"
+	TypeNumber   Type = "number"
+	TypeTel      Type = "tel"
+	TypeURL      Type = "url"
+	TypeSearch   Type = "search"
+)
+
+type Props struct {
+	ID               string
+	Class            string
+	Attributes       templ.Attributes
+	Name             string
+	Type             Type
+	Form             string
+	Placeholder      string
+	Value            string
+	Disabled         bool
+	Readonly         bool
+	HasError         bool
+	IsValid          bool
+	NoTogglePassword bool
+	DataBind         string
+	DataOn           string
+}
+
+templ Input(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	if p.Type == "" {
+		{{ p.Type = TypeText }}
+	}
+	<input
+		id={ p.ID }
+		type={ string(p.Type) }
+		if p.Name != "" {
+			name={ p.Name }
+		}
+		if p.Placeholder != "" {
+			placeholder={ p.Placeholder }
+		}
+		if p.Value != "" {
+			value={ p.Value }
+		}
+		if p.Form != "" {
+			form={ p.Form }
+		}
+		disabled?={ p.Disabled }
+		readonly?={ p.Readonly }
+		if p.HasError {
+			aria-invalid="true"
+		} else if p.IsValid {
+			aria-invalid="false"
+		}
+		if p.DataBind != "" {
+			data-bind={ p.DataBind }
+		}
+		if p.DataOn != "" {
+			data-on:input__debounce.200ms={ datastar.PostSSE( p.DataOn ) }
+		}
+		class={	p.Class }
+		{ p.Attributes... }
+	/>
+	@InputStyle()
+}
+
+templ InputStyle() {
+	<style>
+	input {
+		/* variables */
+		--_color-outline: blue;
+		/* interaction */
+		transition-property: all;
+		transition-timing-function: var(--anim-ease-standard);
+		transition-duration: var(--anim-duration-base);
+		cursor: text;
+		display: inline-flex;
+		outline-style: solid;
+		outline-width: var(--border-width-1);
+		outline-color: transparent;
+		outline-offset: var(--border-width-1);
+		/* size */
+		height: var(--size-4);
+		width: 100%;
+		min-width: 0; /* needed to stop text overflow or something? */
+		/* text */
+		font-size: var(--font-size--1);
+		/* borders */
+		border-radius: var(--border-radius-0);
+		border: var(--border-width-0)
+		/* color */
+		background-color: var(--bg-transparent);
+		padding: 0 var(--size--2);
+
+		&:focus {
+			outline-color: var(--_color-outline);
+		}
+
+		&:disabled {
+			pointer-events: none;
+			cursor: not-allowed;
+			opacity: 0.5;
+		}
+		&[aria-invalid="false"] {
+			border-color: green;
+			outline-color: green;
+		}
+		&[aria-invalid="true"] {
+			border-color: var(--error-6);
+			outline-color: var(--error-5);
+		}
+	}
+	</style>
+}

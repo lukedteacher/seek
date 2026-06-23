@@ -1,0 +1,89 @@
+package popover
+
+import (
+	"fmt"
+)
+
+const (
+	baseTriggerClasses = "group cursor-pointer relative"
+
+	baseContentClasses = 
+	"bg-popover rounded-lg border shadow-lg " + 
+	"p-2 max-w-sm h-0 opacity-0 hidden" + 
+	"starting:open:opacity-0 starting:open:h-0 starting:open:p-0 " + 
+	"open:opacity-100 open:h-fit open:block " +
+	"text-popover-foreground text-sm overflow-hidden " + 
+	"pointer-events-auto absolute z-[9999] " +
+	"transition-discrete transition-all duration-200 "
+)
+
+type TriggerProps struct {
+	ID  				string
+	Class       string
+	Attributes  templ.Attributes
+	For 				string
+}
+
+type ContentProps struct {
+	ID 					string
+	Class       string
+	Attributes  templ.Attributes
+	Anchor			string
+}
+
+templ TriggerStyle() {
+	<style>
+		.popover-trigger {
+			cursor: pointer;
+			position: relative;
+
+		}
+	</style>
+}
+
+templ ContentStyle() {
+	<style>
+		.popover-content {
+			border-radius: var(--border-radius-1);
+			border: var(--border-width-1) solid currentColor;
+			padding: var(--size-2);
+			transition: all 1s ease;
+		}
+	</style>
+}
+
+templ Trigger(props ...TriggerProps) {
+	{{ var p TriggerProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<button 
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		popovertarget={ p.For }
+		class={ p.Class }
+		style={ fmt.Sprintf("anchor-name: --%s;", p.ID) }
+		{ p.Attributes... }
+	>
+		{ children... }
+	</button>
+	@TriggerStyle()
+}
+
+templ Content(props ...ContentProps) {
+	{{ var p ContentProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<div 
+		id={ p.ID }
+		popover
+		class={ p.Class }
+		style={ fmt.Sprintf("position-anchor: --%[1]s; top: anchor(--%[1]s bottom); left: anchor(--%[1]s center); transform: translateX(-50%%)", p.Anchor) }
+		{ p.Attributes... }
+	>
+		{ children... }
+	</div>
+	@ContentStyle()
+}

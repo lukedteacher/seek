@@ -2,45 +2,49 @@ package pages
 
 import (
 	"seek/internal/domain/models"
+	"seek/internal/features/period"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/components/input"
+	"seek/internal/views/components/label"
+	"seek/internal/views/blocks"
 )
 
-templ CreatePeriod() {
+templ CreatePeriod(validation map[string]period.Validation) {
 	@layouts.Base("SEEK: create period") {
 		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
 			<section>
-				<h1>CREATE A PERIOD</h1>
-				<p>create a new period</p>
-				<form data-on:submit={ datastar.PostSSE("/periods/create") }>
-					<label for="title">title</label>
-					<input id="title" name="title" data-bind:title />
-					<label for="start_time">start time</label>
-					<input id="start_time" name="start_time" data-bind:start_time />
-					<label for="duration">duration</label>
-					<input id="duration" name="duration" data-bind:duration type="number" />
-					<label for="days">days</label>
-					<input id="days" name="days" data-bind:days type="number" />
-					<button type="submit">
-						<span>submit</span>
-					</button>
-				</form>
+				@blocks.CreatePeriodForm(validation)
 			</section>
 		</main>
 	}
 }
 
 templ EditPeriod(period models.Period) {
-	@layouts.Base("SEEK: create period") {
+	@layouts.Base("SEEK: edit period") {
 		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
 			<section>
 				<h1>EDIT A PERIOD</h1>
-				<p>edit a period</p>
+				<p>update an existing period.</p>
 				<form data-on:submit={ datastar.PatchSSE("/periods/%s", period.Id)}>
-					<label for="title">title</label>
-					<input id="title" name="title" data-bind:title value={ period.Title }>
+					@label.Label(label.Props{
+						ID: "title-label",
+						For: "title",
+						Label: "title",
+						HasError: false,
+					}) {
+						@input.Input(input.Props{
+							ID: "title",
+							Name: "title",
+							DataBind: "title",
+							DataOn: "/periods/create/validate",
+							Value: period.Title,
+							HasError: false,
+							IsValid: true,
+						})
+					}
 					<label for="start_time">start time</label>
 					<input id="start_time" name="start_time" data-bind:start_time  value={ period.StartTime }/>
 					<label for="duration">duration</label>

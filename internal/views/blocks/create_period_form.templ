@@ -1,0 +1,102 @@
+package blocks
+
+import (
+	"seek/internal/features/period"
+
+	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/components/input"
+	"seek/internal/views/components/label"
+	"seek/internal/views/components/popover"
+)
+
+templ CreatePeriodForm(validation map[string]period.Validation) {
+	<form data-on:submit={ datastar.PostSSE("/periods/create") }>
+		<hgroup>
+			<h2>CREATE A PERIOD</h2>
+			<p>create a new period.</p>
+		</hgroup>
+		<section>
+			@label.Label(label.Props{
+				ID: "title-label",
+				For: "title",
+				Label: "title",
+				ValidationState: validation["title"].State,
+				ValidationMessage: validation["title"].Message,
+			}) {
+				@input.Input(input.Props{
+					ID: "title",
+					Name: "title",
+					DataBind: "title",
+					DataOn: "/periods/create/validate",
+					HasError: validation["title"].State == "error",
+					IsValid: validation["title"].State == "valid",
+				})
+			}
+			<div style="display: flex; justify-content: space-between; gap: var(--size-1);">
+				@label.Label(label.Props{
+					ID: "start-time-label",
+					For: "start-time",
+					Label: "start time",
+					ValidationState: validation["start_time"].State,
+					ValidationMessage: validation["start_time"].Message,
+				}) {
+					@input.Input(input.Props{
+						ID: "start-time",
+						Name: "start-time",
+						DataBind: "start_time",
+						DataOn: "/periods/create/validate",
+						HasError: validation["start_time"].State == "error",
+						IsValid: validation["start_time"].State == "valid",
+						Value: "9:00",
+					})
+				}
+				@label.Label(label.Props{
+					ID: "end-time-label",
+					For: "end-time",
+					Label: "end time",
+					ValidationState: validation["end_time"].State,
+					ValidationMessage: validation["end_time"].Message,
+				}) {
+					@input.Input(input.Props{
+						ID: "end-time",
+						Name: "end-time",
+						DataBind: "end_time",
+						DataOn: "/periods/create/validate",
+						HasError: validation["end_time"].State == "error",
+						IsValid: validation["end_time"].State == "valid",
+						Value: "9:30",
+					})
+				}
+			</div>
+			@popover.Trigger(popover.TriggerProps{
+				ID: "trigger",
+				For: "content",
+			}) {
+				test
+			}
+			@popover.Content(popover.ContentProps{
+				ID: "content",
+				Anchor: "trigger",
+			}) {
+				test
+			}
+			<label for="duration">duration</label>
+			<input id="duration" name="duration" data-bind:duration type="number" />
+			<label for="days">days</label>
+			<input id="days" name="days" data-bind:days type="number" />
+		</section>
+		<footer>
+			<button 
+				type="button"
+			>
+				<span>cancel</span>
+			</button>
+			<button 
+				type="submit"
+			>
+				<span>submit</span>
+			</button>
+		</footer>
+	</form>
+}
+				
