@@ -43,9 +43,6 @@ func clearFlash(sse *datastar.ServerSentEventGenerator) error {
 
 func patchTempl(w http.ResponseWriter, r *http.Request, component templ.Component, opts ...datastar.PatchElementOption) {
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-		if err := clearFlash(sse); err != nil {
-			return err
-		}
 		return sse.PatchElementTempl(component, opts...)
 	})
 }

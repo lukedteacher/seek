@@ -56,126 +56,118 @@ func (s Server) scheduleStream(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// get request to /schedule/create
+// GET request to /schedule/create
 func (s Server) createScheduleForm(w http.ResponseWriter, r *http.Request) {
 	validation := schedule.Validate(models.Schedule{})
 	_ = pages.CreateSchedule(validation).Render(r.Context(), w)
 }
 
-// post request to /schedule
+// POST request to /schedule
 func (s Server) createSchedule(w http.ResponseWriter, r *http.Request) {
-  type Signals struct {
-    Title    string `json:"title"`
-    TeacherId   string `json:"teacher_id"`
-  }
-  
-  signals := &Signals{}
-  if err := datastar.ReadSignals(r, signals); err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
+	type Signals struct {
+		Title     string `json:"title"`
+		TeacherId string `json:"teacher_id"`
+	}
 
-  _, err := schedule.CreateScheduleCommandHandler(r.Context(), schedule.CreateScheduleCommand{
-    Title:     signals.Title,
-    TeacherId: signals.TeacherId,
-    Metadata:  eventstore.HTTPCommandMetadata(r),
-  }, s.EventSaver)
-  if err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
+	signals := &Signals{}
+	if err := datastar.ReadSignals(r, signals); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err := schedule.CreateScheduleCommandHandler(r.Context(), schedule.CreateScheduleCommand{
+		Title:     signals.Title,
+		TeacherId: signals.TeacherId,
+		Metadata:  eventstore.HTTPCommandMetadata(r),
+	}, s.EventSaver)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // GET request to /schedule/{id}
 func (s Server) editScheduleForm(w http.ResponseWriter, r *http.Request) {
-  type Signals struct {
-    Title     string `json:"title"`
-    TeacherId string `json:"teacher_id"`
-    Duration  int64  `json:"duration"`
-    Days      int64	 `json:"days"`
-  }
-  signals := &Signals{}
-  if err := datastar.ReadSignals(r, signals); err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
-
+	context := r.Context()
+	type Signals struct {
+		Title     string   `json:"title"`
+		TeacherId string   `json:"teacher_id"`
+		Periods   []string `json:"periods"`
+	}
+	signals := &Signals{}
+	if err := datastar.ReadSignals(r, signals); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if len(signals.Periods) > 0 {
+		println("sg: ", signals.Periods[0])
+	}
 	scheduleID := chi.URLParam(r, "id")
-	scheduleRes, err := s.Schedules.Get(r.Context(), scheduleID)
+	scheduleRes, err := s.Schedules.Get(context, scheduleID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	model := models.Schedule{
-		Title: signals.Title,
+		Title:     signals.Title,
 		TeacherId: signals.TeacherId,
 	}
 	validation := schedule.Validate(model)
-	_ = pages.EditSchedule(*scheduleRes, validation).Render(r.Context(), w)
+	teachers, err := s.Teachers.List(context)
+	periods, err := s.Periods.List(context)
+	_ = pages.EditSchedule(*scheduleRes, teachers, periods, validation).Render(context, w)
 }
 
 // POST request to /schedule/{id}/edit
 func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
-  type Signals struct {
-    Title     string `json:"title"`
-    TeacherId string `json:"teacher_id"`
-  }
-  
-  signals := &Signals{}
-  if err := datastar.ReadSignals(r, signals); err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
-	
+	type Signals struct {
+		Title     string `json:"title"`
+		TeacherId string `json:"teacher_id"`
+	}
+
+	signals := &Signals{}
+	if err := datastar.ReadSignals(r, signals); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	scheduleID := chi.URLParam(r, "id")
-  
-  result, err := schedule.UpdateScheduleCommandHandler(r.Context(), schedule.UpdateScheduleCommand{
+
+	result, err := schedule.UpdateScheduleCommandHandler(r.Context(), schedule.UpdateScheduleCommand{
 		Id:        scheduleID,
-    Title:     signals.Title,
-    TeacherId: signals.TeacherId,
-    Metadata:  eventstore.HTTPCommandMetadata(r),
-  }, s.EventSaver, s.EventRetriever)
-  if err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
+		Title:     signals.Title,
+		TeacherId: signals.TeacherId,
+		Metadata:  eventstore.HTTPCommandMetadata(r),
+	}, s.EventSaver, s.EventRetriever)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	if result.Skipped == true {
 		println("update skipped")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-  
-  writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-    return clearNewStudentForm(sse)
-  })
 }
 
 // POST request to /schedule/create/validate
 func (s Server) validateCreateSchedule(w http.ResponseWriter, r *http.Request) {
-  type Signals struct {
-    Title     string `json:"title"`
-    TeacherId string `json:"teacher_id"`
-  }
-  
-  signals := &Signals{}
-  if err := datastar.ReadSignals(r, signals); err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
+	type Signals struct {
+		Title     string `json:"title"`
+		TeacherId string `json:"teacher_id"`
+		Periods   []string `json:"periods"`
+	}
+
+	signals := &Signals{}
+	if err := datastar.ReadSignals(r, signals); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if len(signals.Periods) > 0 {
+		println("s: ", signals.Periods[0])
+	}
 	model := models.Schedule{
-		Title: signals.Title,
+		Title:     signals.Title,
 		TeacherId: signals.TeacherId,
 	}
 	validation := schedule.Validate(model)
@@ -184,24 +176,29 @@ func (s Server) validateCreateSchedule(w http.ResponseWriter, r *http.Request) {
 
 // POST request to /schedule/{id}/edit/validate
 func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
+	context := r.Context()
   type Signals struct {
     Title     string `json:"title"`
     TeacherId string `json:"teacher_id"`
+		Periods   []string `json:"periods"`
   }
-  
+
   signals := &Signals{}
   if err := datastar.ReadSignals(r, signals); err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
   }
+	if len(signals.Periods) > 0 {
+		println("s: ", signals.Periods[0])
+	}
 	id := chi.URLParam(r, "id")
 	model := models.Schedule{
 		Id: id,
 		Title: signals.Title,
 		TeacherId: signals.TeacherId,
 	}
+	teachers, _ := s.Teachers.List(context)
+	periods, _ := s.Periods.List(context)
 	validation := schedule.Validate(model)
-	patchTempl(w, r, pages.EditSchedule(model, validation))
+	patchTempl(w, r, pages.EditSchedule(model, teachers, periods, validation))
 }

@@ -10,7 +10,7 @@ import (
 	"fmt"
 )
 
-templ EditScheduleForm(schedule models.Schedule, validation map[string]schedule.Validation) {
+templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation) {
 	<form data-on:submit={ datastar.PostSSE("/schedule/%s/edit", schedule.Id) }>
 		<hgroup>
 			<h2>EDIT A SCHEDULE</h2>
@@ -45,12 +45,21 @@ templ EditScheduleForm(schedule models.Schedule, validation map[string]schedule.
 					ID: "teacher-id",
 					Name: "teacher-id",
 					DataBind: "teacher_id",
-					DataOn: fmt.Sprintf("/schedule/%s/edit/validate", schedule.Id),
 					HasError: validation["teacher_id"].State == "error",
 					IsValid: validation["teacher_id"].State == "valid",
 					Value: schedule.TeacherId,
 				})
 			}
+		</section>
+		<section>
+			<label for="periods">
+				<span>periods</span>
+				<select id="periods" multiple name="periods" data-bind:periods>
+					for _, period := range periods {
+						<option>{ period.Title }</option>
+					}
+				</select>
+			</label>
 		</section>
 		<footer>
 			<button 

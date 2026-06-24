@@ -98,7 +98,6 @@ func (h *TeacherReadModelEventHandler) handle(ctx context.Context, resolved even
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
 	id, _ := scope["id"].(string)
-	println("is this being called?")
 	switch resolved.Event.EventType {
 	case TeacherCreated:
 		firstName, _ := data["first_name"].(string)

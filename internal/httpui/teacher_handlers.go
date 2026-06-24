@@ -99,7 +99,6 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
     })
     return
   }
-  println(signals.FirstName)
   _, err := teacher.CreateTeacherCommandHandler(r.Context(), teacher.CreateTeacherCommand{
     FirstName:    signals.FirstName,
     ChosenName:   signals.ChosenName,
@@ -112,7 +111,6 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
     })
     return
   }
-	println("is this working?")
 	// TODO add response
 }
 

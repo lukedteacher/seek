@@ -18,7 +18,7 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-func EditScheduleForm(schedule models.Schedule, validation map[string]schedule.Validation) templ.Component {
+func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -108,7 +108,6 @@ func EditScheduleForm(schedule models.Schedule, validation map[string]schedule.V
 				ID:       "teacher-id",
 				Name:     "teacher-id",
 				DataBind: "teacher_id",
-				DataOn:   fmt.Sprintf("/schedule/%s/edit/validate", schedule.Id),
 				HasError: validation["teacher_id"].State == "error",
 				IsValid:  validation["teacher_id"].State == "valid",
 				Value:    schedule.TeacherId,
@@ -128,7 +127,30 @@ func EditScheduleForm(schedule models.Schedule, validation map[string]schedule.V
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</section><footer><button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</section><section><label for=\"periods\"><span>periods</span> <select id=\"periods\" multiple name=\"periods\" data-bind:periods>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, period := range periods {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(period.Title)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 59, Col: 28}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</option>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</select></label></section><footer><button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

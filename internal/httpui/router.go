@@ -66,6 +66,7 @@ func (s Server) Routes() http.Handler {
 	r.Group(func(r chi.Router) {
 	// 	r.Use(s.requireVerifiedEmail)
 		s.coreRoutes(r)
+		s.periodRoutes(r)
 		s.scheduleRoutes(r)
 		s.studentRoutes(r)
 		s.teacherRoutes(r)

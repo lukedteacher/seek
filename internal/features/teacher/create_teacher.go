@@ -30,7 +30,6 @@ func CreateTeacherCommandHandler(ctx context.Context, command CreateTeacherComma
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, model.query); err != nil {
 		return CreateTeacherResult{}, err
 	}
-	println("ctch: ", model.id)
 	return CreateTeacherResult{Id: model.id}, nil
 }
 
