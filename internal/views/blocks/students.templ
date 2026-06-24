@@ -45,14 +45,7 @@ templ StudentCards(students []models.Student) {
 	<div class="card-grid">
 		for _, student := range students {
 			<div class="card">
-				<p>
-					if student.ChosenName != nil {
-						{ *student.ChosenName }
-					}
-					else {
-						{ student.FirstName }
-					} { student.LastName }
-				</p>
+				<p>{ student.DisplayName() } { student.LastName }</p>
 				<p>{ student.Grade }</p>
 				<p>{ student.Homeroom }</p>
 				if student.CaseManager != nil {

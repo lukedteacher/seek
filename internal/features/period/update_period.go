@@ -20,7 +20,7 @@ type UpdatePeriodCommand struct {
 
 type UpdatePeriodResult struct {
 	PeriodUpdatedID string
-	Skipped       bool
+	Skipped         bool
 }
 
 func UpdatePeriodCommandHandler(ctx context.Context, command UpdatePeriodCommand, saver eventstore.Saver, retriever eventstore.Retriever) (UpdatePeriodResult, error) {
@@ -67,7 +67,7 @@ func loadUpdatePeriodContext(ctx context.Context, retriever eventstore.Retriever
 	for _, event := range events {
 		model.handle(event)
 	}
-	
+
 	return model, nil
 }
 

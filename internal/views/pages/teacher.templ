@@ -1,0 +1,26 @@
+package pages
+
+import (
+	"fmt"
+
+	"seek/internal/domain/models"
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+)
+
+type TeacherSignals struct {
+	TeacherDataView views.DataView
+}
+
+templ Teacher(teacher *models.Teacher) {
+	@layouts.Base("SEEK: teachers") {
+		<main data-init={ views.LongRunningGetSSE("/teacher/stream") }>
+			<section>
+				<h2>{ teacher.FirstLast() }</h2>
+				<div>
+					<button data-on:click={ fmt.Sprintf("@delete('/teacher/%s')", teacher.Id) }>delete</button>
+				</div>
+			</section>
+		</main>
+	}
+}

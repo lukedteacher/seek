@@ -17,6 +17,7 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/period"
 	"seek/internal/features/student"
+	"seek/internal/features/teacher"
 	"seek/internal/httpui"
 	"seek/internal/natsbus"
 	"seek/internal/viewstore"
@@ -30,6 +31,7 @@ type runOptions struct {
 type appComponents struct {
 	periodReadModel   *period.ReadModel
 	studentReadModel	*student.ReadModel
+	teacherReadModel	*teacher.ReadModel
 	checkpointer			eventstore.Checkpointer
 }
 
@@ -94,6 +96,7 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		// AuthUsers:   components.authUsers,
 		Periods:        components.periodReadModel,
 		Students:       components.studentReadModel,
+		Teachers:       components.teacherReadModel,
 		EventSaver:     orisunStore,
 		EventRetriever: orisunStore,
 		// ProfileStorage: components.profileStorage,
@@ -139,10 +142,12 @@ func newViewStore(bus *natsbus.Bus, logger *slog.Logger) viewstore.Store {
 func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config.Config, logger *slog.Logger) appComponents {
 	periodReadModel := period.NewReadModel(db)
 	studentReadModel := student.NewReadModel(db)
+	teacherReadModel := teacher.NewReadModel(db)
 
 	return appComponents{
 		periodReadModel:	periodReadModel,
 		studentReadModel:	studentReadModel,
+		teacherReadModel:	teacherReadModel,
 		checkpointer:			eventstore.NewSQLiteCheckpointer(db),
 	}
 }

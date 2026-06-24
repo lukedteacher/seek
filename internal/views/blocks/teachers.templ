@@ -1,0 +1,42 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/domain/models"
+)
+
+templ TeacherList(teachers []models.Teacher) {
+	<table>
+		<thead>
+			<th>first</th>
+			<th>chosen</th>
+			<th>last</th>
+		</thead>
+		<tbody>
+			for _, teacher := range teachers {
+				<tr>
+					<td>
+						<a href={ fmt.Sprintf("/teacher/%s", teacher.Id) }>{ teacher.FirstName }</a>
+					</td>
+					<td>
+						if teacher.ChosenName != nil {
+							{*teacher.ChosenName}
+						}
+					</td>
+					<td>{teacher.LastName}</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+templ TeacherCards(teachers []models.Teacher) {
+	<div class="card-grid">
+		for _, teacher := range teachers {
+			<div class="card">
+				<p>{ teacher.DisplayName() } { teacher.LastName }</p>
+			</div>
+		}
+	</div>
+}

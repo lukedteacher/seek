@@ -10,13 +10,13 @@ import (
 )
 
 type CreateStudentCommand struct {
-	FirstName string
-	ChosenName string
-	LastName string
-	Grade int64
-	Homeroom string
+	FirstName   string
+	ChosenName  string
+	LastName    string
+	Grade       int64
+	Homeroom    string
 	CaseManager string
-	Metadata         CommandMetadata
+	Metadata    CommandMetadata
 }
 
 type CreateStudentResult struct {
@@ -37,30 +37,26 @@ func CreateStudentCommandHandler(ctx context.Context, command CreateStudentComma
 }
 
 type createStudentContext struct {
-	id string
-	firstName  string
-	chosenName string
-	lastName string
-	grade int64
-	homeroom string
+	id          string
+	firstName   string
+	chosenName  string
+	lastName    string
+	grade       int64
+	homeroom    string
 	caseManager string
-	query  eventstore.Query
+	query       eventstore.Query
 }
 
 func newCreateStudentContext(command CreateStudentCommand) (*createStudentContext, error) {
-	// firstName, err := validateTitle(command.FirstName)
-	// if err != nil {
-	// 	return nil, err
-	// }
 	id := uuidv7.NewString()
 	return &createStudentContext{
-		id: id,
-		firstName:  command.FirstName,
+		id:          id,
+		firstName:   command.FirstName,
 		chosenName:  command.ChosenName,
-		lastName:  command.LastName,
-		grade:  command.Grade,
-		homeroom:  command.Homeroom,
-		caseManager:  command.CaseManager,
-		query:  streamQuery(id),
+		lastName:    command.LastName,
+		grade:       command.Grade,
+		homeroom:    command.Homeroom,
+		caseManager: command.CaseManager,
+		query:       streamQuery(id),
 	}, nil
 }

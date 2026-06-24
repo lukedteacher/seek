@@ -5,14 +5,15 @@ package blocks
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
+import "github.com/a-h/templ"
+import templruntime "github.com/a-h/templ/runtime"
+
 import (
 	"seek/internal/features/period"
+
+	"github.com/starfederation/datastar-go/datastar"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
-
-	"github.com/a-h/templ"
-	templruntime "github.com/a-h/templ/runtime"
-	"github.com/starfederation/datastar-go/datastar"
 )
 
 func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
@@ -43,7 +44,7 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/period/create"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/create_period_form.templ`, Line: 12, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/create_period_form.templ`, Line: 12, Col: 58}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {

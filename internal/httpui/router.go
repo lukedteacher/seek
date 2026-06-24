@@ -9,6 +9,7 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/period"
 	"seek/internal/features/student"
+	"seek/internal/features/teacher"
 	"seek/internal/resources"
 	"seek/internal/viewstore"
 
@@ -25,6 +26,7 @@ type Server struct {
 	// AuthUsers      AuthUserReader
 	Periods        period.PeriodReadModelReader
 	Students       student.StudentReadModelReader
+	Teachers       teacher.TeacherReadModelReader
 	EventSaver     eventstore.Saver
 	EventRetriever eventstore.Retriever
 	// ProfileStorage profile.ObjectStore
@@ -62,8 +64,9 @@ func (s Server) Routes() http.Handler {
 	r.Group(func(r chi.Router) {
 	// 	r.Use(s.requireVerifiedEmail)
 		s.coreRoutes(r)
-		s.studentRoutes(r)
 		s.scheduleRoutes(r)
+		s.studentRoutes(r)
+		s.teacherRoutes(r)
 	// 	s.profileRoutes(r)
 	})
 

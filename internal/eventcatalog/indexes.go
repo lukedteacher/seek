@@ -4,6 +4,7 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/period"
 	"seek/internal/features/student"
+	"seek/internal/features/teacher"
 )
 
 func BoundaryIndexes() []eventstore.BoundaryIndexDefinition {
@@ -17,6 +18,11 @@ func BoundaryIndexes() []eventstore.BoundaryIndexDefinition {
 			Name:       "student_scope",
 			Fields:     []string{student.StudentScopeIDField},
 			EventTypes: []string{student.StudentCreated, student.StudentRenamed, student.StudentDeleted},
+		},
+		{
+			Name:       "teacher_scope",
+			Fields:     []string{teacher.TeacherScopeIDField},
+			EventTypes: []string{teacher.TeacherCreated, teacher.TeacherUpdated, teacher.TeacherDeleted},
 		},
 	}
 }

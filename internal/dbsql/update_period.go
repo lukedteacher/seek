@@ -112,6 +112,7 @@ func OnceUpdatePeriod(
 	err error,
 ) {
 	ps := UpdatePeriod(tx)
+
 	return ps.Run(
 		params,
 	)

@@ -8,6 +8,7 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/period"
 	"seek/internal/features/student"
+	"seek/internal/features/teacher"
 	"seek/internal/natsbus"
 )
 
@@ -24,15 +25,21 @@ type eventHandlerFactory struct {
 func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, cfg config.Config, components appComponents, logger *slog.Logger) []eventHandlerFactory {
 	return []eventHandlerFactory{
 		{
+			name: "period read model",
+			create: func() (eventHandler, error) {
+				return period.NewPeriodReadModelEventHandler(store, components.checkpointer, components.periodReadModel, bus, logger)
+			},
+		},
+		{
 			name: "student read model",
 			create: func() (eventHandler, error) {
 				return student.NewStudentReadModelEventHandler(store, components.checkpointer, components.studentReadModel, bus, logger)
 			},
 		},
 		{
-			name: "period read model",
+			name: "teacher read model",
 			create: func() (eventHandler, error) {
-				return period.NewPeriodReadModelEventHandler(store, components.checkpointer, components.periodReadModel, bus, logger)
+				return teacher.NewTeacherReadModelEventHandler(store, components.checkpointer, components.teacherReadModel, bus, logger)
 			},
 		},
 	}
