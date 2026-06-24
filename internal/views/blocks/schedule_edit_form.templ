@@ -1,0 +1,69 @@
+package blocks
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/features/schedule"
+	"seek/internal/views/components/input"
+	"seek/internal/views/components/label"
+
+	"github.com/starfederation/datastar-go/datastar"
+	"fmt"
+)
+
+templ EditScheduleForm(schedule models.Schedule, validation map[string]schedule.Validation) {
+	<form data-on:submit={ datastar.PostSSE("/schedule/%s/edit", schedule.Id) }>
+		<hgroup>
+			<h2>EDIT A SCHEDULE</h2>
+			<p>edit the data of an existing schedule.</p>
+		</hgroup>
+		<section>
+			@label.Label(label.Props{
+				ID: "title-label",
+				For: "title",
+				Label: "title",
+				ValidationState: validation["title"].State,
+				ValidationMessage: validation["title"].Message,
+			}) {
+				@input.Input(input.Props{
+					ID: "title",
+					Name: "title",
+					DataBind: "title",
+					DataOn: fmt.Sprintf("/schedule/%s/edit/validate", schedule.Id),
+					HasError: validation["title"].State == "error",
+					IsValid: validation["title"].State == "valid",
+					Value: schedule.Title,
+				})
+			}
+			@label.Label(label.Props{
+				ID: "teacher-id-label",
+				For: "teacher-id",
+				Label: "teacher id",
+				ValidationState: validation["teacher_id"].State,
+				ValidationMessage: validation["teacher_id"].Message,
+			}) {
+				@input.Input(input.Props{
+					ID: "teacher-id",
+					Name: "teacher-id",
+					DataBind: "teacher_id",
+					DataOn: fmt.Sprintf("/schedule/%s/edit/validate", schedule.Id),
+					HasError: validation["teacher_id"].State == "error",
+					IsValid: validation["teacher_id"].State == "valid",
+					Value: schedule.TeacherId,
+				})
+			}
+		</section>
+		<footer>
+			<button 
+				type="button"
+			>
+				<span>cancel</span>
+			</button>
+			<button 
+				type="submit"
+			>
+				<span>submit</span>
+			</button>
+		</footer>
+	</form>
+}
+				

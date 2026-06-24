@@ -7,29 +7,6 @@ import (
 	"seek/internal/views/components"
 )
 
-templ PeriodList(periods []models.Period) {
-	<table>
-		<thead>
-			<th>title</th>
-			<th>start time</th>
-			<th>duration</th>
-			<th>days</th>
-		</thead>
-		<tbody>
-			for _, period := range periods {
-				<tr>
-					<td>
-						<a href={ fmt.Sprintf("/period/%s", period.Id) }>{ period.Title }</a>
-					</td>
-					<td>{ period.StartTime }</td>
-					<td>{ period.Duration }</td>
-					<td>{ period.Days }</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-}
-
 templ PeriodCards(periods []models.Period) {
 	<div class="card-grid">
 		for _, period := range periods {

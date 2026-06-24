@@ -8,6 +8,7 @@ import (
 
 	"seek/internal/eventstore"
 	"seek/internal/features/period"
+	"seek/internal/features/schedule"
 	"seek/internal/features/student"
 	"seek/internal/features/teacher"
 	"seek/internal/resources"
@@ -25,6 +26,7 @@ type Server struct {
 	// Sessions       SessionManager
 	// AuthUsers      AuthUserReader
 	Periods        period.PeriodReadModelReader
+	Schedules      schedule.ScheduleReadModelReader
 	Students       student.StudentReadModelReader
 	Teachers       teacher.TeacherReadModelReader
 	EventSaver     eventstore.Saver

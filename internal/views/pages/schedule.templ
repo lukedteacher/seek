@@ -6,10 +6,6 @@ import (
 	"seek/internal/views/blocks"
 )
 
-type ScheduleSignals struct {
-	StudentDataView views.DataView
-}
-
 templ Schedule() {
 	@layouts.Base("SEEK: schedule") {
 		<main data-init={ views.LongRunningGetSSE("/schedule/stream") }>

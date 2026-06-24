@@ -1,4 +1,4 @@
-package period
+package schedule
 
 import (
 	"errors"
@@ -13,32 +13,20 @@ type Validation struct {
 	State   string // "error", "empty", "valid"
 }
 
-func Validate(period models.Period) map[string]Validation {
+func Validate(schedule models.Schedule) map[string]Validation {
 	errors := make(map[string]Validation)
-	errors["title"] = ValidateTitle(period.Title)
+	errors["title"] = ValidateTitle(schedule.Title)
 
-	if period.StartTime == "" {
+	if schedule.TeacherId == "" {
 		errors["startTime"] = Validation{Message: "required", State: "empty"}
 	} else {
 		errors["startTime"] = Validation{Message: "required", State: "valid"}
 	}
 
-	if period.Duration < 0 {
-		errors["duration"] = Validation{Message: "1-60 minutes", State: "error"}
-	} else {
-		errors["duration"] = Validation{Message: "1-60 minutes", State: "valid"}
-	}
-
-	if period.Days > 16 {
-		errors["class"] = Validation{Message: "required", State: "empty"}
-	} else {
-		errors["class"] = Validation{Message: "required", State: "valid"}
-	}
-
 	return errors
 }
 
-func ValidateTitle(title string) Validation {
+func ValidateTitle(title string) (Validation) {
 	if title == "" {
 		return Validation{Message: "required", State: "empty"}
 	} else if utils.ValidateAlphabetic(title) {
@@ -48,24 +36,24 @@ func ValidateTitle(title string) Validation {
 	}
 }
 
-func ValidateStartTime(startTime string) (string, error) {
+func ValidateTeacherID(startTime string) (string, error) {
 	startTime = strings.TrimSpace(startTime)
 	if startTime == "" || len(startTime) > 160 {
-		return "", errors.New("period start time must be between 1 and 160 characters")
+		return "", errors.New("schedule start time must be between 1 and 160 characters")
 	}
 	return startTime, nil
 }
 
 func ValidateDuration(duration int64) (int64, error) {
 	if duration < 1 || duration > 60 {
-		return 0, errors.New("period duration must be between 1 and 60 minutes")
+		return 0, errors.New("schedule duration must be between 1 and 60 minutes")
 	}
 	return duration, nil
 }
 
 func ValidateDays(days int64) (int64, error) {
 	if days < 0 || days > 16 {
-		return 0, errors.New("period days must be between 0 and 16")
+		return 0, errors.New("schedule days must be between 0 and 16")
 	}
 	return days, nil
 }

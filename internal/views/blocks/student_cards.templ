@@ -1,0 +1,23 @@
+package blocks
+
+import (
+	"seek/internal/domain/models"
+)
+
+templ StudentCards(students []models.Student) {
+	<div class="card-grid">
+		for _, student := range students {
+			<div class="card">
+				<p>{ student.DisplayName() } { student.LastName }</p>
+				<p>{ student.Grade }</p>
+				<p>{ student.Homeroom }</p>
+				if student.CaseManager != nil {
+					<p>{ *student.CaseManager }</p>
+				}
+				else {
+					""
+				}
+			</div>
+		}
+	</div>
+}

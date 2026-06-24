@@ -30,13 +30,3 @@ templ TeacherList(teachers []models.Teacher) {
 		</tbody>
 	</table>
 }
-
-templ TeacherCards(teachers []models.Teacher) {
-	<div class="card-grid">
-		for _, teacher := range teachers {
-			<div class="card">
-				<p>{ teacher.DisplayName() } { teacher.LastName }</p>
-			</div>
-		}
-	</div>
-}

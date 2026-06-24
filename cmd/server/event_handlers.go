@@ -7,6 +7,7 @@ import (
 	"seek/internal/config"
 	"seek/internal/eventstore"
 	"seek/internal/features/period"
+	"seek/internal/features/schedule"
 	"seek/internal/features/student"
 	"seek/internal/features/teacher"
 	"seek/internal/natsbus"
@@ -28,6 +29,12 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "period read model",
 			create: func() (eventHandler, error) {
 				return period.NewPeriodReadModelEventHandler(store, components.checkpointer, components.periodReadModel, bus, logger)
+			},
+		},
+		{
+			name: "schedule read model",
+			create: func() (eventHandler, error) {
+				return schedule.NewScheduleReadModelEventHandler(store, components.checkpointer, components.scheduleReadModel, bus, logger)
 			},
 		},
 		{

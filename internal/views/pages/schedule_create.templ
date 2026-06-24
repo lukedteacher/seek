@@ -1,0 +1,18 @@
+package pages
+
+import (
+	"seek/internal/features/schedule"
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+	"seek/internal/views/blocks"
+)
+
+templ CreateSchedule(validation map[string]schedule.Validation) {
+	@layouts.Base("SEEK: create period") {
+		<main data-init={ views.LongRunningGetSSE("/period/create/stream") }>
+			<section>
+				@blocks.CreateScheduleForm(validation)
+			</section>
+		</main>
+	}
+}

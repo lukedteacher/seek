@@ -1,0 +1,34 @@
+package pages
+
+import (
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+)
+
+templ CreateStudent() {
+	@layouts.Base("SEEK: create student") {
+		<main data-init={ views.LongRunningGetSSE("/student/create/stream") }>
+			<section>
+				<h1>CREATE A STUDENT</h1>
+				<p>create a new student</p>
+				<form data-on:submit="@post('/student')">
+					<label for="first_name">first</label>
+					<input id="first_name" name="first_name" data-bind:first_name />
+					<label for="chosen_name">chosen</label>
+					<input id="chosen_name" name="chosen_name" data-bind:chosen_name />
+					<label for="last_name">last</label>
+					<input id="last_name" name="last_name" data-bind:last_name />
+					<label for="grade">grade</label>
+					<input id="grade" name="grade" data-bind:grade type="number" />
+					<label for="homeroom">homeroom</label>
+					<input id="homeroom" name="homeroom" data-bind:homeroom />
+					<label for="case_manager">case manager</label>
+					<input id="case_manager" name="case_manager" data-bind:case_manager />
+					<button type="submit">
+						<span>submit</span>
+					</button>
+				</form>
+			</section>
+		</main>
+	}
+}

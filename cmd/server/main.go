@@ -16,6 +16,7 @@ import (
 	"seek/internal/eventcatalog"
 	"seek/internal/eventstore"
 	"seek/internal/features/period"
+	"seek/internal/features/schedule"
 	"seek/internal/features/student"
 	"seek/internal/features/teacher"
 	"seek/internal/httpui"
@@ -30,9 +31,10 @@ type runOptions struct {
 
 type appComponents struct {
 	periodReadModel   *period.ReadModel
-	studentReadModel	*student.ReadModel
-	teacherReadModel	*teacher.ReadModel
-	checkpointer			eventstore.Checkpointer
+	scheduleReadModel *schedule.ReadModel
+	studentReadModel  *student.ReadModel
+	teacherReadModel  *teacher.ReadModel
+	checkpointer      eventstore.Checkpointer
 }
 
 func main() {
@@ -95,14 +97,15 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		// Sessions:       components.sessionManager,
 		// AuthUsers:   components.authUsers,
 		Periods:        components.periodReadModel,
+		Schedules:      components.scheduleReadModel,
 		Students:       components.studentReadModel,
 		Teachers:       components.teacherReadModel,
 		EventSaver:     orisunStore,
 		EventRetriever: orisunStore,
 		// ProfileStorage: components.profileStorage,
-		Subscriber:     bus,
-		ViewStore:      viewStore,
-		Development:    cfg.DevelopmentCookie,
+		Subscriber:  bus,
+		ViewStore:   viewStore,
+		Development: cfg.DevelopmentCookie,
 	}
 	return serveHTTP(ctx, stop, cfg.Port, app.Routes(), logger)
 }
@@ -141,14 +144,16 @@ func newViewStore(bus *natsbus.Bus, logger *slog.Logger) viewstore.Store {
 
 func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config.Config, logger *slog.Logger) appComponents {
 	periodReadModel := period.NewReadModel(db)
+	scheduleReadModel := schedule.NewReadModel(db)
 	studentReadModel := student.NewReadModel(db)
 	teacherReadModel := teacher.NewReadModel(db)
 
 	return appComponents{
-		periodReadModel:	periodReadModel,
-		studentReadModel:	studentReadModel,
-		teacherReadModel:	teacherReadModel,
-		checkpointer:			eventstore.NewSQLiteCheckpointer(db),
+		periodReadModel:   periodReadModel,
+		scheduleReadModel: scheduleReadModel,
+		studentReadModel:  studentReadModel,
+		teacherReadModel:  teacherReadModel,
+		checkpointer:      eventstore.NewSQLiteCheckpointer(db),
 	}
 }
 

@@ -8,10 +8,6 @@ import (
 	"seek/internal/views/layouts"
 )
 
-type TeacherSignals struct {
-	TeacherDataView views.DataView
-}
-
 templ Teacher(teacher *models.Teacher) {
 	@layouts.Base("SEEK: teachers") {
 		<main data-init={ views.LongRunningGetSSE("/teacher/stream") }>
