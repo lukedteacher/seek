@@ -5,16 +5,12 @@ import (
 	"seek/internal/features/period"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
-
-	"github.com/starfederation/datastar-go/datastar"
-	"seek/internal/views/components/input"
-	"seek/internal/views/components/label"
 	"seek/internal/views/blocks"
 )
 
 templ CreatePeriod(validation map[string]period.Validation) {
 	@layouts.Base("SEEK: create period") {
-		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
+		<main data-init={ views.LongRunningGetSSE("/period/create/stream") }>
 			<section>
 				@blocks.CreatePeriodForm(validation)
 			</section>
@@ -22,39 +18,11 @@ templ CreatePeriod(validation map[string]period.Validation) {
 	}
 }
 
-templ EditPeriod(period models.Period) {
+templ EditPeriod(period models.Period, validation map[string]period.Validation) {
 	@layouts.Base("SEEK: edit period") {
-		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
+		<main>
 			<section>
-				<h1>EDIT A PERIOD</h1>
-				<p>update an existing period.</p>
-				<form data-on:submit={ datastar.PatchSSE("/periods/%s", period.Id)}>
-					@label.Label(label.Props{
-						ID: "title-label",
-						For: "title",
-						Label: "title",
-						HasError: false,
-					}) {
-						@input.Input(input.Props{
-							ID: "title",
-							Name: "title",
-							DataBind: "title",
-							DataOn: "/periods/create/validate",
-							Value: period.Title,
-							HasError: false,
-							IsValid: true,
-						})
-					}
-					<label for="start_time">start time</label>
-					<input id="start_time" name="start_time" data-bind:start_time  value={ period.StartTime }/>
-					<label for="duration">duration</label>
-					<input id="duration" name="duration" data-bind:duration type="number" value={ period.Duration }/>
-					<label for="days">days</label>
-					<input id="days" name="days" data-bind:days type="number"  value={ period.Days }/>
-					<button type="submit">
-						<span>submit</span>
-					</button>
-				</form>
+				@blocks.EditPeriodForm(period, validation)
 			</section>
 		</main>
 	}

@@ -67,6 +67,7 @@ func loadUpdatePeriodContext(ctx context.Context, retriever eventstore.Retriever
 	for _, event := range events {
 		model.handle(event)
 	}
+	
 	return model, nil
 }
 

@@ -1,0 +1,42 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/views"
+	"seek/internal/views/blocks"
+	"seek/internal/views/components"
+	"seek/internal/views/layouts"
+)
+
+templ Periods(view int64, periods []models.Period) {
+	@layouts.Base("SEEK: students") {
+		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/students/stream") }>
+			<section>
+				<h1>PERIODS</h1>
+				<p>review and enter period data here</p>
+				<p>many features to come</p>
+				<div>
+					<button data-on:click="$view=0; @get('/periods')">
+						@components.Icon("solar:list-bold-duotone")
+						<span>list</span>
+					</button>
+					<button data-on:click="$view=1; @get('/periods')">
+						@components.Icon("solar:widget-bold-duotone")
+						<span>cards</span>
+					</button>
+					<a href="/period/create">
+						<button>
+							@components.Icon("solar:widget-bold-duotone")
+							<span>create</span>
+						</button>
+					</a>
+				</div>
+				if view == 0 {
+					@blocks.PeriodList(periods)
+				} else {
+					@blocks.PeriodCards(periods)
+				}
+			</section>
+		</main>
+	}
+}

@@ -36,7 +36,7 @@ templ TriggerStyle() {
 		.popover-trigger {
 			cursor: pointer;
 			position: relative;
-
+			anchor-name: var(--anchor-name);
 		}
 	</style>
 }
@@ -47,7 +47,20 @@ templ ContentStyle() {
 			border-radius: var(--border-radius-1);
 			border: var(--border-width-1) solid currentColor;
 			padding: var(--size-2);
-			transition: all 1s ease;
+			transition: all 300ms allow-discrete;
+			position-anchor: var(--anchor-name);
+			position-area: bottom center;
+			opacity: 0;
+			margin-top: var(--size--2);
+			&:popover-open {
+				opacity: 1;
+				transform: translateY(0);
+
+				@starting-style {
+					opacity: 0;
+					transform: translateY(-1em);
+				}
+			}
 		}
 	</style>
 }
@@ -62,8 +75,9 @@ templ Trigger(props ...TriggerProps) {
 			id={ p.ID }
 		}
 		popovertarget={ p.For }
-		class={ p.Class }
-		style={ fmt.Sprintf("anchor-name: --%s;", p.ID) }
+		type="button"
+		class="popover-trigger"
+		style={ fmt.Sprintf("--anchor-name: --%s;", p.ID) }
 		{ p.Attributes... }
 	>
 		{ children... }
@@ -79,8 +93,8 @@ templ Content(props ...ContentProps) {
 	<div 
 		id={ p.ID }
 		popover
-		class={ p.Class }
-		style={ fmt.Sprintf("position-anchor: --%[1]s; top: anchor(--%[1]s bottom); left: anchor(--%[1]s center); transform: translateX(-50%%)", p.Anchor) }
+		class={ p.Class, "popover-content" }
+		style={ fmt.Sprintf("--anchor-name: --%s;", p.Anchor) }
 		{ p.Attributes... }
 	>
 		{ children... }

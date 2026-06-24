@@ -15,16 +15,34 @@ import (
 
 func (s Server) scheduleRoutes(r chi.Router) {
 	r.Get("/schedule", s.schedule)
-	r.Get("/periods/create", s.createPeriodForm)
-	r.Post("/periods/create", s.createPeriod)
-	r.Post("/periods/create/validate", s.validateCreatePeriod)
-	r.Get("/periods/{id}", s.editPeriodForm)
-	r.Patch("/periods/{id}", s.editPeriod)
+	r.Get("/periods", s.periods)
+	r.Get("/period/create", s.createPeriodForm)
+	r.Post("/period/create", s.createPeriod)
+	r.Post("/period/create/validate", s.validateCreatePeriod)
+	r.Get("/period/{id}", s.editPeriodForm)
+	r.Get("/period/{id}/edit", s.editPeriodForm)
+	r.Post("/period/{id}/edit", s.editPeriod)
+	r.Post("/period/{id}/edit/validate", s.validateEditPeriod)
 }
 
 func (s Server) schedule(w http.ResponseWriter, r *http.Request) {
 	
 	_ = pages.Schedule().Render(r.Context(), w)
+}
+
+func (s Server) periods(w http.ResponseWriter, r *http.Request) {
+	type Signals struct {
+		View int64 `json:"view"`
+	}
+	signals := &Signals{}
+	periods, err := s.Periods.List(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	datastar.ReadSignals(r, signals)
+	
+	_ = pages.Periods(signals.View, periods).Render(r.Context(), w)
 }
 
 func (s Server) scheduleStream(w http.ResponseWriter, r *http.Request) {
@@ -92,7 +110,7 @@ func (s Server) createPeriod(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-// get request to /period/{id}
+// GET request to /period/{id}
 func (s Server) editPeriodForm(w http.ResponseWriter, r *http.Request) {
   type Signals struct {
     Title     string `json:"title"`
@@ -109,15 +127,22 @@ func (s Server) editPeriodForm(w http.ResponseWriter, r *http.Request) {
   }
 
 	periodID := chi.URLParam(r, "id")
-	period, err := s.Periods.Get(r.Context(), periodID)
+	periodRes, err := s.Periods.Get(r.Context(), periodID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_ = pages.EditPeriod(*period).Render(r.Context(), w)
+	model := models.Period{
+		Title: signals.Title,
+		StartTime: signals.StartTime,
+		Duration: signals.Duration,
+		Days: signals.Duration,
+	}
+	validation := period.Validate(model)
+	_ = pages.EditPeriod(*periodRes, validation).Render(r.Context(), w)
 }
 
-// patch request to /periods/{id}
+// POST request to /period/{id}/edit
 func (s Server) editPeriod(w http.ResponseWriter, r *http.Request) {
   type Signals struct {
     Title     string `json:"title"`
@@ -133,6 +158,7 @@ func (s Server) editPeriod(w http.ResponseWriter, r *http.Request) {
     })
     return
   }
+	
 	periodID := chi.URLParam(r, "id")
   
   result, err := period.UpdatePeriodCommandHandler(r.Context(), period.UpdatePeriodCommand{
@@ -160,7 +186,7 @@ func (s Server) editPeriod(w http.ResponseWriter, r *http.Request) {
   })
 }
 
-// patch request to /periods/{id}
+// POST request to /period/create/validate
 func (s Server) validateCreatePeriod(w http.ResponseWriter, r *http.Request) {
   type Signals struct {
     Title     string `json:"title"`
@@ -184,4 +210,32 @@ func (s Server) validateCreatePeriod(w http.ResponseWriter, r *http.Request) {
 	}
 	validation := period.Validate(model)
 	patchTempl(w, r, pages.CreatePeriod(validation))
+}
+
+// POST request to /period/{id}/edit/validate
+func (s Server) validateEditPeriod(w http.ResponseWriter, r *http.Request) {
+  type Signals struct {
+    Title     string `json:"title"`
+    StartTime string `json:"start_time"`
+    Duration  int64  `json:"duration"`
+    Days      int64	 `json:"days"`
+  }
+  
+  signals := &Signals{}
+  if err := datastar.ReadSignals(r, signals); err != nil {
+    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+      return flashError(sse, err.Error())
+    })
+    return
+  }
+	id := chi.URLParam(r, "id")
+	model := models.Period{
+		Id: id,
+		Title: signals.Title,
+		StartTime: signals.StartTime,
+		Duration: signals.Duration,
+		Days: signals.Duration,
+	}
+	validation := period.Validate(model)
+	patchTempl(w, r, pages.EditPeriod(model, validation))
 }

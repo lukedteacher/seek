@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"seek/internal/views/components/popover"
 	"seek/internal/views/layouts"
 )
 
@@ -12,6 +13,26 @@ templ Index() {
 				<p>aka shared educational environment knowledge</p>
 				<p>many features to come</p>
 			</section>
+			<section>
+			<ul>
+				<a href="/periods"><li>list periods</li></a>
+				<a href="/period/create"><li>create a period</li></a>
+				<a href="/students"><li>list students</li></a>
+				<a href="/student/create"><li>create a student</li></a>
+			</ul>
+			</section>
+			@popover.Trigger(popover.TriggerProps{
+				ID: "trigger",
+				For: "content",
+			}) {
+				popover
+			}
+			@popover.Content(popover.ContentProps{
+				ID: "content",
+				Anchor: "trigger",
+			}) {
+				this is a thing.
+			}
 		</main>
 	}
 }

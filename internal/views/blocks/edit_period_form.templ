@@ -1,18 +1,20 @@
 package blocks
 
 import (
+	"seek/internal/domain/models"
 	"seek/internal/features/period"
-
-	"github.com/starfederation/datastar-go/datastar"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
+
+	"github.com/starfederation/datastar-go/datastar"
+	"fmt"
 )
 
-templ CreatePeriodForm(validation map[string]period.Validation) {
-	<form data-on:submit={ datastar.PostSSE("/period/create") }>
+templ EditPeriodForm(period models.Period, validation map[string]period.Validation) {
+	<form data-on:submit={ datastar.PostSSE("/period/%s/edit", period.Id) }>
 		<hgroup>
-			<h2>CREATE A PERIOD</h2>
-			<p>create a new period.</p>
+			<h2>EDIT A PERIOD</h2>
+			<p>edit the data of an existing period.</p>
 		</hgroup>
 		<section>
 			@label.Label(label.Props{
@@ -26,9 +28,10 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 					ID: "title",
 					Name: "title",
 					DataBind: "title",
-					DataOn: "/period/create/validate",
+					DataOn: fmt.Sprintf("/period/%s/edit/validate", period.Id),
 					HasError: validation["title"].State == "error",
 					IsValid: validation["title"].State == "valid",
+					Value: period.Title,
 				})
 			}
 			<div style="display: flex; justify-content: space-between; gap: var(--size-1);">
@@ -43,10 +46,10 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 						ID: "start-time",
 						Name: "start-time",
 						DataBind: "start_time",
-						DataOn: "/period/create/validate",
+						DataOn: fmt.Sprintf("/period/%s/edit/validate", period.Id),
 						HasError: validation["start_time"].State == "error",
 						IsValid: validation["start_time"].State == "valid",
-						Value: "9:00",
+						Value: period.StartTime,
 					})
 				}
 				@label.Label(label.Props{
@@ -60,7 +63,7 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 						ID: "end-time",
 						Name: "end-time",
 						DataBind: "end_time",
-						DataOn: "/period/create/validate",
+						DataOn: fmt.Sprintf("/period/%s/edit/validate", period.Id),
 						HasError: validation["end_time"].State == "error",
 						IsValid: validation["end_time"].State == "valid",
 						Value: "9:30",
@@ -68,9 +71,9 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 				}
 			</div>
 			<label for="duration">duration</label>
-			<input id="duration" name="duration" data-bind:duration type="number" />
+			<input id="duration" name="duration" data-bind:duration type="number" value={ period.Duration } />
 			<label for="days">days</label>
-			<input id="days" name="days" data-bind:days type="number" />
+			<input id="days" name="days" data-bind:days type="number"  value={ period.Days } />
 		</section>
 		<footer>
 			<button 

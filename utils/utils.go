@@ -13,6 +13,6 @@ func ChiParamInt64(r *http.Request, name string) (int64, error) {
 }
 
 func ValidateAlphabetic(i string) bool {
-	var rxPat = regexp.MustCompile(`^[A-Za-z]+$`)
+	var rxPat = regexp.MustCompile(`^[A-Za-z ]+$`)
 	return rxPat.MatchString(i)
 }

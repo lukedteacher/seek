@@ -5,17 +5,20 @@ package blocks
 
 //lint:file-ignore SA4006 This context is only used if a nested component is present.
 
+import "github.com/a-h/templ"
+import templruntime "github.com/a-h/templ/runtime"
+
 import (
+	"seek/internal/domain/models"
 	"seek/internal/features/period"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
 
-	"github.com/a-h/templ"
-	templruntime "github.com/a-h/templ/runtime"
+	"fmt"
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
+func EditPeriodForm(period models.Period, validation map[string]period.Validation) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -41,15 +44,15 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/period/create"))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/period/%s/edit", period.Id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/create_period_form.templ`, Line: 12, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/edit_period_form.templ`, Line: 14, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><hgroup><h2>CREATE A PERIOD</h2><p>create a new period.</p></hgroup><section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><hgroup><h2>EDIT A PERIOD</h2><p>edit the data of an existing period.</p></hgroup><section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -69,9 +72,10 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 				ID:       "title",
 				Name:     "title",
 				DataBind: "title",
-				DataOn:   "/period/create/validate",
+				DataOn:   fmt.Sprintf("/period/%s/edit/validate", period.Id),
 				HasError: validation["title"].State == "error",
 				IsValid:  validation["title"].State == "valid",
+				Value:    period.Title,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -108,10 +112,10 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 				ID:       "start-time",
 				Name:     "start-time",
 				DataBind: "start_time",
-				DataOn:   "/period/create/validate",
+				DataOn:   fmt.Sprintf("/period/%s/edit/validate", period.Id),
 				HasError: validation["start_time"].State == "error",
 				IsValid:  validation["start_time"].State == "valid",
-				Value:    "9:00",
+				Value:    period.StartTime,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -144,7 +148,7 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 				ID:       "end-time",
 				Name:     "end-time",
 				DataBind: "end_time",
-				DataOn:   "/period/create/validate",
+				DataOn:   fmt.Sprintf("/period/%s/edit/validate", period.Id),
 				HasError: validation["end_time"].State == "error",
 				IsValid:  validation["end_time"].State == "valid",
 				Value:    "9:30",
@@ -164,7 +168,33 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><label for=\"duration\">duration</label> <input id=\"duration\" name=\"duration\" data-bind:duration type=\"number\"> <label for=\"days\">days</label> <input id=\"days\" name=\"days\" data-bind:days type=\"number\"></section><footer><button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><label for=\"duration\">duration</label> <input id=\"duration\" name=\"duration\" data-bind:duration type=\"number\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(period.Duration)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/edit_period_form.templ`, Line: 74, Col: 96}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"> <label for=\"days\">days</label> <input id=\"days\" name=\"days\" data-bind:days type=\"number\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(period.Days)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/edit_period_form.templ`, Line: 76, Col: 81}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"></section><footer><button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
