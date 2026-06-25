@@ -53,13 +53,16 @@ templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, peri
 			}
 		</section>
 		<section>
-			<label for="teacher">
+			<label for="teacher-select">
 				<span>teacher</span>
 				@ui_select.Select(ui_select.Props{
 					ID: "teacher-select",
 					Placeholder: "select a teacher",
 					DataBind: "teacher",
-					DataOnChange: "/schedule/edit/validate",
+					DataOnChange: fmt.Sprintf("/schedule/%s/edit/validate", schedule.Id),
+					Attributes: templ.Attributes{
+						"data-preserve-attr": "value",
+					},
 				}) {
 					for _, teacher := range teachers {
 						@ui_select.Option() {

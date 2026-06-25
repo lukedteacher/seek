@@ -74,6 +74,7 @@ templ SelectStyles() {
 				border: 2px solid var(--primary-10);
 				padding: var(--size--2);
 				transition: 250ms;
+				font-size: var(--font-size--1);
 				color: var(--primary-12-on);
 				background-color: var(--primary-12);
 				
@@ -143,6 +144,7 @@ templ Select(props ...Props) {
 			data-on:change__debounce.200ms={ datastar.PostSSE( p.DataOnChange ) }
 		}
 		class={	p.Class }
+		{ p.Attributes... }
 	>
 		<button style="background: var(--bg-transparent); color: inherit; padding: 0;"><selectedcontent></selectedcontent></button>
 		if p.Placeholder != "" {

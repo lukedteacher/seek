@@ -181,6 +181,7 @@ func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
     Title     string `json:"title"`
     TeacherId string `json:"teacher_id"`
 		Periods   []string `json:"periods"`
+		Teacher   string `json:"teacher"`
   }
 
   signals := &Signals{}
@@ -188,6 +189,7 @@ func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
   }
+	println(signals.Teacher)
 	if len(signals.Periods) > 0 {
 		println("s: ", signals.Periods[0])
 	}
