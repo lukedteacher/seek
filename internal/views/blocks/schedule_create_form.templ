@@ -48,10 +48,10 @@ templ CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, pe
 					for index, teacher := range teachers {
 						<option 
 						id={ fmt.Sprintf( "option-%d", index ) }
-						if teacher.Id == selectedTeacherId {
+						if teacher.ID == selectedTeacherId {
 							selected
 						}
-						value={ teacher.Id }
+						value={ teacher.ID }
 						>
 							{ teacher.DisplayName() }
 						</option>

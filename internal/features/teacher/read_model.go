@@ -35,7 +35,7 @@ func (m *ReadModel) Get(ctx context.Context, teacherID string) (*models.Teacher,
 	}
 
 	teacher := &models.Teacher{
-		Id:         row.Id,
+		ID:         row.Id,
 		FirstName:  row.FirstName,
 		ChosenName: row.ChosenName,
 		LastName:   row.LastName,
@@ -56,7 +56,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Teacher, error) {
 	teachers := make([]models.Teacher, 0, len(rows))
 	for _, row := range rows {
 		teachers = append(teachers, models.Teacher{
-			Id:         row.Id,
+			ID:         row.Id,
 			FirstName:  row.FirstName,
 			ChosenName: row.ChosenName,
 			LastName:   row.LastName,

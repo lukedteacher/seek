@@ -13,7 +13,7 @@ const (
 )
 
 const (
-	StudentIDField               = "studentId"
+	StudentIDField               = "studentID"
 	StudentUserRegisteredIDField = "userRegisteredId"
 	StudentFirstNameField        = "firstName"
 	StudentCreatedAtField        = "createdAt"
@@ -26,24 +26,24 @@ const (
 
 type StudentCreatedEvent struct {
 	ID          string       `json:"id"`
-	FirstName   string       `json:"first_name"`
-	ChosenName  string       `json:"chosen_name"`
-	LastName    string       `json:"last_name"`
+	FirstName   string       `json:"firstName"`
+	ChosenName  string       `json:"chosenName"`
+	LastName    string       `json:"lastName"`
 	Grade       int64        `json:"grade"`
 	Homeroom    string       `json:"homeroom"`
-	CaseManager string       `json:"case_manager"`
+	CaseManager string       `json:"caseManager"`
 	CreatedAt   string       `json:"createdAt"`
 	Scope       StudentScope `json:"scope"`
 }
 
 type StudentUpdatedEvent struct {
 	StudentUpdatedID string       `json:"studentUpdatedId"`
-	FirstName        string       `json:"first_name"`
-	ChosenName       string       `json:"chosen_name"`
-	LastName         string       `json:"last_name"`
+	FirstName        string       `json:"firstName"`
+	ChosenName       string       `json:"chosenName"`
+	LastName         string       `json:"lastName"`
 	Grade            int64        `json:"grade"`
 	Homeroom         string       `json:"homeroom"`
-	CaseManager      string       `json:"case_manager"`
+	CaseManager      string       `json:"caseManager"`
 	UpdatedAt        string       `json:"updatedAt"`
 	Scope            StudentScope `json:"scope"`
 }

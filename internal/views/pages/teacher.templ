@@ -14,7 +14,7 @@ templ Teacher(teacher *models.Teacher) {
 			<section>
 				<h2>{ teacher.FirstLast() }</h2>
 				<div>
-					<button data-on:click={ fmt.Sprintf("@delete('/teacher/%s')", teacher.Id) }>delete</button>
+					<button data-on:click={ fmt.Sprintf("@delete('/teacher/%s')", teacher.ID) }>delete</button>
 				</div>
 			</section>
 		</main>

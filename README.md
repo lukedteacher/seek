@@ -10,7 +10,7 @@ a tool for educators.
 - [x] index page
 - [x] student page (basic)
 - [x] create, delete students
-- [ ] student data
+- [x] student data
 - [ ] schedule viewer
 - [ ] everything else
 
@@ -31,3 +31,7 @@ a tool for educators.
 ## bugs
 
 - can't delete students created by migration
+
+### reminders
+- camelCase for event sourcing
+- snake_case for datastar and sqlite

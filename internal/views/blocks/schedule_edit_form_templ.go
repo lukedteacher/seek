@@ -128,7 +128,7 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if teacher.Id == selectedTeacherId {
+				if teacher.ID == selectedTeacherId {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -139,7 +139,7 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var6 string
-				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(teacher.Id)
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(teacher.ID)
 				if templ_7745c5c3_Err != nil {
 					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 55, Col: 24}
 				}

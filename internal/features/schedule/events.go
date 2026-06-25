@@ -13,7 +13,7 @@ const (
 )
 
 const (
-	ScheduleIDField               = "scheduleId"
+	ScheduleIDField               = "scheduleID"
 	ScheduleUserRegisteredIDField = "userRegisteredId"
 	ScheduleTitleField            = "title"
 	ScheduleCreatedAtField        = "createdAt"
@@ -27,7 +27,7 @@ const (
 type ScheduleCreatedEvent struct {
 	ID        string        `json:"id"`
 	Title     string        `json:"title"`
-	TeacherId string        `json:"teacher_id"`
+	TeacherId string        `json:"teacherID"`
 	CreatedAt string        `json:"createdAt"`
 	Scope     ScheduleScope `json:"scope"`
 }
@@ -35,7 +35,7 @@ type ScheduleCreatedEvent struct {
 type ScheduleUpdatedEvent struct {
 	ID        string        `json:"id"`
 	Title     string        `json:"title"`
-	TeacherId string        `json:"teacher_id"`
+	TeacherId string        `json:"teacherID"`
 	UpdatedAt string        `json:"updatedAt"`
 	Scope     ScheduleScope `json:"scope"`
 }

@@ -3,7 +3,7 @@ package models
 import "strings"
 
 type Teacher struct {
-	Id          string  `db:"id"`
+	ID          string  `db:"id"`
 	FirstName   string  `db:"first_name"`
 	ChosenName  *string `db:"chosen_name"`
 	LastName    string  `db:"last_name"`

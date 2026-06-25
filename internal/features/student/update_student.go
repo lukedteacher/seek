@@ -88,16 +88,16 @@ func (m *updateStudentContext) handle(resolved eventstore.ResolvedEvent) {
 	case StudentCreated:
 		m.exists = true
 		m.deleted = false
-		m.firstName, _ = data["first_name"].(string)
-		m.chosenName, _ = data["chosen_name"].(string)
-		m.lastName, _ = data["last_name"].(string)
+		m.firstName, _ = data["firstName"].(string)
+		m.chosenName, _ = data["chosenName"].(string)
+		m.lastName, _ = data["lastName"].(string)
 		m.grade, _ = data["grade"].(int64)
 		m.homeroom, _ = data["homeroom"].(string)
 		m.caseManager, _ = data["case_manager"].(string)
 	case StudentUpdated:
-		m.firstName, _ = data["first_name"].(string)
-		m.chosenName, _ = data["chosen_name"].(string)
-		m.lastName, _ = data["last_name"].(string)
+		m.firstName, _ = data["firstName"].(string)
+		m.chosenName, _ = data["chosenName"].(string)
+		m.lastName, _ = data["lastName"].(string)
 		m.grade, _ = data["grade"].(int64)
 		m.homeroom, _ = data["homeroom"].(string)
 		m.caseManager, _ = data["case_manager"].(string)

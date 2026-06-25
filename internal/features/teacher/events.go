@@ -26,31 +26,31 @@ const (
 
 type TeacherCreatedEvent struct {
 	ID         string       `json:"id"`
-	FirstName  string       `json:"first_name"`
-	ChosenName string       `json:"chosen_name"`
-	LastName   string       `json:"last_name"`
+	FirstName  string       `json:"firstName"`
+	ChosenName string       `json:"chosenName"`
+	LastName   string       `json:"lastName"`
 	CreatedAt  string       `json:"createdAt"`
 	Scope      TeacherScope `json:"scope"`
 }
 
 type TeacherUpdatedEvent struct {
-	TeacherUpdatedID string       `json:"teacherUpdatedId"`
-	FirstName        string       `json:"first_name"`
-	ChosenName       string       `json:"chosen_name"`
-	LastName         string       `json:"last_name"`
+	TeacherUpdatedID string       `json:"teacherUpdatedID"`
+	FirstName        string       `json:"firstName"`
+	ChosenName       string       `json:"chosenName"`
+	LastName         string       `json:"lastName"`
 	UpdatedAt        string       `json:"updatedAt"`
 	Scope            TeacherScope `json:"scope"`
 }
 
 type TeacherDeletedEvent struct {
-	TeacherDeletedID string       `json:"teacherDeletedId"`
+	TeacherDeletedID string       `json:"teacherDeletedID"`
 	DeletedAt        string       `json:"deletedAt"`
 	Scope            TeacherScope `json:"scope"`
 }
 
 type TeacherScope struct {
 	ID               string `json:"id"`
-	UserRegisteredID string `json:"userRegisteredId"`
+	UserRegisteredID string `json:"userRegisteredID"`
 }
 
 func NewTeacherCreatedEvent(id, firstName, chosenName, lastName string, createdAt time.Time, metadata map[string]any) eventstore.DomainEvent {

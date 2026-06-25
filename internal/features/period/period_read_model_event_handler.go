@@ -106,43 +106,38 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 
 	switch resolved.Event.EventType {
 	case PeriodCreated:
-		title, _ := data["title"].(string)
-		startTime, _ := data["start_time"].(string)
-		duration := int64(data["duration"].(float64))
-		days := int64(data["days"].(float64))
-		if err := h.readModel.InsertCreatedPeriod(ctx, PeriodCreatedProjection{
-			Position:  resolved.Position,
+		periodCreated := PeriodCreatedProjection{
 			Id:        id,
-			Title:     title,
-			StartTime: startTime,
-			Duration:  duration,
-			Days:      days,
+			Title:     data["title"].(string),
+			StartTime: data["startTime"].(string),
+			Duration:  int64(data["duration"].(float64)),
+			Days:      int64(data["days"].(float64)),
 			CreatedAt: parseTime(data["createdAt"]),
-		}); err != nil {
+		}
+		println("pcd: ", data["createdAt"])
+		if err := h.readModel.InsertCreatedPeriod(ctx, periodCreated); err != nil {
 			return err
 		}
 	case PeriodUpdated:
-		title, _ := data["title"].(string)
-		startTime, _ := data["start_time"].(string)
-		duration := int64(data["duration"].(float64))
-		days := int64(data["days"].(float64))
-		if err := h.readModel.UpdatePeriod(ctx, PeriodUpdatedProjection{
-			Position:  resolved.Position,
+		periodUpdated := PeriodUpdatedProjection{
 			Id:        id,
-			Title:     title,
-			StartTime: startTime,
-			Duration:  duration,
-			Days:      days,
+			Title:     data["title"].(string),
+			StartTime: data["startTime"].(string),
+			Duration:  int64(data["duration"].(float64)),
+			Days:      int64(data["days"].(float64)),
 			UpdatedAt: parseTime(data["updatedAt"]),
-		}); err != nil {
+		}
+		println("pud: ", data["updatedAt"])
+		if err := h.readModel.UpdatePeriod(ctx, periodUpdated); err != nil {
 			return err
 		}
 	case PeriodDeleted:
-		if err := h.readModel.DeletePeriod(ctx, PeriodDeletedProjection{
+		periodDeleted := PeriodDeletedProjection{
 			Position:  resolved.Position,
 			Id:        id,
 			DeletedAt: parseTime(data["deletedAt"]),
-		}); err != nil {
+		}
+		if err := h.readModel.DeletePeriod(ctx, periodDeleted); err != nil {
 			return err
 		}
 	default:

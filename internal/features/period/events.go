@@ -27,7 +27,7 @@ const (
 type PeriodCreatedEvent struct {
 	ID        string      `json:"id"`
 	Title     string      `json:"title"`
-	StartTime string      `json:"start_time"`
+	StartTime string      `json:"startTime"`
 	Duration  int64       `json:"duration"`
 	Days      int64       `json:"days"`
 	CreatedAt string      `json:"createdAt"`
@@ -37,7 +37,7 @@ type PeriodCreatedEvent struct {
 type PeriodUpdatedEvent struct {
 	ID        string      `json:"id"`
 	Title     string      `json:"title"`
-	StartTime string      `json:"start_time"`
+	StartTime string      `json:"startTime"`
 	Duration  int64       `json:"duration"`
 	Days      int64       `json:"days"`
 	UpdatedAt string      `json:"updatedAt"`
@@ -45,14 +45,14 @@ type PeriodUpdatedEvent struct {
 }
 
 type PeriodDeletedEvent struct {
-	PeriodDeletedID string      `json:"periodDeletedId"`
+	PeriodDeletedID string      `json:"periodDeletedID"`
 	DeletedAt       string      `json:"deletedAt"`
 	Scope           PeriodScope `json:"scope"`
 }
 
 type PeriodScope struct {
 	ID               string `json:"id"`
-	UserRegisteredID string `json:"userRegisteredId"`
+	UserRegisteredID string `json:"userRegisteredID"`
 }
 
 func NewPeriodCreatedEvent(id, title, startTime string, duration, days int64, createdAt time.Time, metadata map[string]any) eventstore.DomainEvent {

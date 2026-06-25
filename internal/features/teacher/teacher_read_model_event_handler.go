@@ -100,9 +100,9 @@ func (h *TeacherReadModelEventHandler) handle(ctx context.Context, resolved even
 	id, _ := scope["id"].(string)
 	switch resolved.Event.EventType {
 	case TeacherCreated:
-		firstName, _ := data["first_name"].(string)
-		chosenName, _ := data["chosen_name"].(*string)
-		lastName, _ := data["last_name"].(string)
+		firstName, _ := data["firstName"].(string)
+		chosenName, _ := data["chosenName"].(*string)
+		lastName, _ := data["lastName"].(string)
 		if err := h.readModel.InsertCreatedTeacher(ctx, TeacherCreatedProjection{
 			Position:   resolved.Position,
 			Id:         id,
@@ -114,9 +114,9 @@ func (h *TeacherReadModelEventHandler) handle(ctx context.Context, resolved even
 			return err
 		}
 	case TeacherUpdated:
-		firstName, _ := data["first_name"].(string)
-		chosenName, _ := data["chosen_name"].(*string)
-		lastName, _ := data["last_name"].(string)
+		firstName, _ := data["firstName"].(string)
+		chosenName, _ := data["chosenName"].(*string)
+		lastName, _ := data["lastName"].(string)
 		if err := h.readModel.UpdateTeacher(ctx, TeacherUpdatedProjection{
 			Position:   resolved.Position,
 			Id:         id,

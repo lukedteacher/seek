@@ -103,7 +103,7 @@ func (h *ScheduleReadModelEventHandler) handle(ctx context.Context, resolved eve
 	switch resolved.Event.EventType {
 	case ScheduleCreated:
 		title, _ := data["title"].(string)
-		teacherId, _ := data["teacher_id"].(string)
+		teacherId, _ := data["teacherID"].(string)
 		if err := h.readModel.InsertCreatedSchedule(ctx, ScheduleCreatedProjection{
 			Position:  resolved.Position,
 			Id:        id,
@@ -115,7 +115,7 @@ func (h *ScheduleReadModelEventHandler) handle(ctx context.Context, resolved eve
 		}
 	case ScheduleUpdated:
 		title, _ := data["title"].(string)
-		teacherId, _ := data["teacher_id"].(string)
+		teacherId, _ := data["teacherID"].(string)
 		if err := h.readModel.UpdateSchedule(ctx, ScheduleUpdatedProjection{
 			Position:  resolved.Position,
 			Id:        id,

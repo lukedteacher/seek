@@ -28,7 +28,7 @@ func (s Server) teacher(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	_ = pages.Teacher(teacher).Render(r.Context(), w)
 }
 
@@ -43,7 +43,7 @@ func (s Server) teachers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	datastar.ReadSignals(r, signals)
-	
+
 	_ = pages.Teachers(signals.View, teachers).Render(r.Context(), w)
 }
 
@@ -86,31 +86,31 @@ func (s Server) createTeacherForm(w http.ResponseWriter, r *http.Request) {
 
 // POST request to /teacher
 func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
-  type Signals struct {
-    FirstName    string `json:"first_name"`
-    ChosenName   string `json:"chosen_name"`
-    LastName     string `json:"last_name"`
-  }
-  
-  signals := &Signals{}
-  if err := datastar.ReadSignals(r, signals); err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
-  _, err := teacher.CreateTeacherCommandHandler(r.Context(), teacher.CreateTeacherCommand{
-    FirstName:    signals.FirstName,
-    ChosenName:   signals.ChosenName,
-    LastName:     signals.LastName,
-    Metadata:     eventstore.HTTPCommandMetadata(r),
-  }, s.EventSaver)
-  if err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
+	type Signals struct {
+		FirstName  string `json:"first_name"`
+		ChosenName string `json:"chosen_name"`
+		LastName   string `json:"last_name"`
+	}
+
+	signals := &Signals{}
+	if err := datastar.ReadSignals(r, signals); err != nil {
+		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+			return flashError(sse, err.Error())
+		})
+		return
+	}
+	_, err := teacher.CreateTeacherCommandHandler(r.Context(), teacher.CreateTeacherCommand{
+		FirstName:  signals.FirstName,
+		ChosenName: signals.ChosenName,
+		LastName:   signals.LastName,
+		Metadata:   eventstore.HTTPCommandMetadata(r),
+	}, s.EventSaver)
+	if err != nil {
+		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+			return flashError(sse, err.Error())
+		})
+		return
+	}
 	// TODO add response
 }
 
@@ -119,7 +119,7 @@ func (s Server) deleteTeacher(w http.ResponseWriter, r *http.Request) {
 	teacherID := chi.URLParam(r, "id")
 	_, err := teacher.DeleteTeacherCommandHandler(r.Context(), teacher.DeleteTeacherCommand{
 		TeacherID: teacherID,
-		Metadata: eventstore.HTTPCommandMetadata(r),
+		Metadata:  eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)
 	emptySSE(w, r, err)
 }

@@ -36,12 +36,15 @@ type StudentCreatedProjection struct {
 }
 
 type StudentUpdatedProjection struct {
-	Position   eventstore.Position
-	Id         string
-	FirstName  string
-	ChosenName *string
-	LastName   string
-	UpdatedAt  time.Time
+	Position    eventstore.Position
+	Id          string
+	FirstName   string
+	ChosenName  *string
+	LastName    string
+	Grade       int64
+	Homeroom    string
+	CaseManager *string
+	UpdatedAt   time.Time
 }
 
 type StudentDeletedProjection struct {
@@ -106,19 +109,12 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 
 	switch resolved.Event.EventType {
 	case StudentCreated:
-		firstName, _ := data["first_name"].(string)
-		chosenName, _ := data["chosen_name"].(*string)
-		lastName, _ := data["last_name"].(string)
-		grade, ok := data["grade"].(int64)
-		if !ok {
-			if gradeFloat, ok := data["grade"].(float64); ok {
-				grade = int64(gradeFloat)
-			} else {
-				return fmt.Errorf("invalid grade value")
-			}
-		}
+		firstName, _ := data["firstName"].(string)
+		chosenName, _ := data["chosenName"].(*string)
+		lastName, _ := data["lastName"].(string)
+		grade, _ := data["grade"].(int64)
 		homeroom, _ := data["homeroom"].(string)
-		caseManager, _ := data["case_manager"].(*string)
+		caseManager, _ := data["caseManager"].(*string)
 		if err := h.readModel.InsertCreatedStudent(ctx, StudentCreatedProjection{
 			Position:    resolved.Position,
 			Id:          id,
@@ -133,16 +129,22 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 			return err
 		}
 	case StudentUpdated:
-		firstName, _ := data["first_name"].(string)
-		chosenName, _ := data["chosen_name"].(*string)
-		lastName, _ := data["last_name"].(string)
+		firstName, _ := data["firstName"].(string)
+		chosenName, _ := data["chosenName"].(*string)
+		lastName, _ := data["lastName"].(string)
+		grade, _ := data["grade"].(int64)
+		homeroom, _ := data["homeroom"].(string)
+		caseManager, _ := data["caseManager"].(*string)
 		if err := h.readModel.UpdateStudent(ctx, StudentUpdatedProjection{
-			Position:   resolved.Position,
-			Id:         id,
-			FirstName:  firstName,
-			ChosenName: chosenName,
-			LastName:   lastName,
-			UpdatedAt:  parseTime(data["updatedAt"]),
+			Position:    resolved.Position,
+			Id:          id,
+			FirstName:   firstName,
+			ChosenName:  chosenName,
+			LastName:    lastName,
+			Grade:       grade,
+			Homeroom:    homeroom,
+			CaseManager: caseManager,
+			UpdatedAt:   parseTime(data["updatedAt"]),
 		}); err != nil {
 			return err
 		}
