@@ -1,4 +1,4 @@
-package httpui
+package httpserver
 
 import (
 	"net/http"

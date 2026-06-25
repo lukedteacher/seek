@@ -8,6 +8,7 @@ import (
 
 	"github.com/starfederation/datastar-go/datastar"
 	"fmt"
+	"seek/internal/views/components/select"
 )
 
 templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation) {
@@ -50,6 +51,23 @@ templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, peri
 					Value: schedule.TeacherId,
 				})
 			}
+		</section>
+		<section>
+			<label for="teacher">
+				<span>teacher</span>
+				@ui_select.Select(ui_select.Props{
+					ID: "teacher-select",
+					Placeholder: "select a teacher",
+					DataBind: "teacher",
+					DataOnChange: "/schedule/edit/validate",
+				}) {
+					for _, teacher := range teachers {
+						@ui_select.Option() {
+							{ teacher.DisplayName() }
+						}
+					}
+				}
+			</label>
 		</section>
 		<section>
 			<label for="periods">

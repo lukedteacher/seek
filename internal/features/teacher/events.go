@@ -25,12 +25,12 @@ const (
 )
 
 type TeacherCreatedEvent struct {
-	ID          string       `json:"id"`
-	FirstName   string       `json:"first_name"`
-	ChosenName  string       `json:"chosen_name"`
-	LastName    string       `json:"last_name"`
-	CreatedAt   string       `json:"createdAt"`
-	Scope       TeacherScope `json:"scope"`
+	ID         string       `json:"id"`
+	FirstName  string       `json:"first_name"`
+	ChosenName string       `json:"chosen_name"`
+	LastName   string       `json:"last_name"`
+	CreatedAt  string       `json:"createdAt"`
+	Scope      TeacherScope `json:"scope"`
 }
 
 type TeacherUpdatedEvent struct {

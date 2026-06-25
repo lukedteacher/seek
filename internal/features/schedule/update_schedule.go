@@ -18,7 +18,7 @@ type UpdateScheduleCommand struct {
 
 type UpdateScheduleResult struct {
 	ScheduleUpdatedID string
-	Skipped         bool
+	Skipped           bool
 }
 
 func UpdateScheduleCommandHandler(ctx context.Context, command UpdateScheduleCommand, saver eventstore.Saver, retriever eventstore.Retriever) (UpdateScheduleResult, error) {

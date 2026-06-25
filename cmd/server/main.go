@@ -19,7 +19,7 @@ import (
 	"seek/internal/features/schedule"
 	"seek/internal/features/student"
 	"seek/internal/features/teacher"
-	"seek/internal/httpui"
+	"seek/internal/httpserver"
 	"seek/internal/natsbus"
 	"seek/internal/viewstore"
 )
@@ -92,7 +92,7 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 	}
 	defer stopEventHandlers(handlers)
 
-	app := httpui.Server{
+	app := httpserver.Server{
 		// Accounts:       components.accountCommands,
 		// Sessions:       components.sessionManager,
 		// AuthUsers:   components.authUsers,

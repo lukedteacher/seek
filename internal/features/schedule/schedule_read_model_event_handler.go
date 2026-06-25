@@ -44,9 +44,9 @@ type ScheduleUpdatedProjection struct {
 }
 
 type ScheduleDeletedProjection struct {
-	Position	eventstore.Position
-	Id				string
-	DeletedAt	time.Time
+	Position  eventstore.Position
+	Id        string
+	DeletedAt time.Time
 }
 
 type ScheduleReadModelEventHandler struct {

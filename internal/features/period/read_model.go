@@ -29,11 +29,11 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.Period, error) 
 	}); err != nil {
 		return nil, err
 	}
-	
+
 	if row == nil {
 		return nil, fmt.Errorf("period not found")
 	}
-	
+
 	period := &models.Period{
 		Id:        row.Id,
 		Title:     row.Title,
@@ -41,7 +41,7 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.Period, error) 
 		Duration:  row.Duration,
 		Days:      row.Days,
 	}
-	
+
 	return period, nil
 }
 
@@ -57,8 +57,8 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Period, error) {
 	periods := make([]models.Period, 0, len(rows))
 	for _, row := range rows {
 		periods = append(periods, models.Period{
-			Id:				 row.Id,
-			Title:		 row.Title,
+			Id:        row.Id,
+			Title:     row.Title,
 			StartTime: row.StartTime,
 			Duration:  row.Duration,
 			Days:      row.Days,
@@ -104,7 +104,7 @@ func (m *ReadModel) DeletePeriod(ctx context.Context, event PeriodDeletedProject
 			DeletedAt:                &deletedAt,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
-			Id:                   event.Id,
+			Id:                       event.Id,
 		})
 	})
 }

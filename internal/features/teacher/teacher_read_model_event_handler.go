@@ -24,12 +24,12 @@ type TeacherReadModelWriter interface {
 }
 
 type TeacherCreatedProjection struct {
-	Position    eventstore.Position
-	Id          string
-	FirstName   string
-	ChosenName  *string
-	LastName    string
-	CreatedAt   time.Time
+	Position   eventstore.Position
+	Id         string
+	FirstName  string
+	ChosenName *string
+	LastName   string
+	CreatedAt  time.Time
 }
 
 type TeacherUpdatedProjection struct {

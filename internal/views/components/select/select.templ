@@ -1,9 +1,156 @@
 package ui_select
 
-templ Select() {
-	<select>
+import (
+	"github.com/starfederation/datastar-go/datastar"
+)
+
+type Props struct {
+	ID           string
+	Class        string
+	Attributes   templ.Attributes
+	Name         string
+	Form         string
+	Value        string
+	Placeholder  string
+	Disabled     bool
+	IsValid      bool
+	HasError     bool
+	DataBind     string
+	DataOnChange string
+}
+
+templ SelectStyles() {
+	<style>
+		select {
+			appearance: base-select;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: var(--size-4);
+			width: 100%;
+			/* text */
+			font-size: var(--font-size--1);
+			/* borders */
+			border-radius: var(--border-radius-0);
+			border: var(--border-width-0);
+			padding: 0 var(--size--2);
+			color: var(--primary-12-on);
+			background-color: var(--primary-12);
+			&:hover {
+				cursor: pointer;
+				color: var(--primary-11-on);
+				background-color: var(--primary-11);
+			}
+			&::picker-icon {
+				color: var(--primary-11-on);
+				transition: 250ms rotate;
+			}
+			&:open::picker-icon {
+				rotate: 180deg;
+			}
+			&::picker(select) {
+				appearance: base-select;
+				opacity: 0;
+				transition: all 250ms allow-discrete;
+				border: none;
+				border-radius: var(--border-radius-0);
+				flex-direction: column;
+				margin-top: var(--size--3);
+			}
+			&:open::picker(select) {
+				display: flex;
+				opacity: 1;
+				transform: translateY(0);
+
+				@starting-style {
+					opacity: 0;
+					transform: translateY(-1em);
+				}
+			}
+
+			option {
+				display: flex;
+				justify-content: flex-start;
+				border: 2px solid var(--primary-10);
+				padding: var(--size--2);
+				transition: 250ms;
+				color: var(--primary-12-on);
+				background-color: var(--primary-12);
+				
+				&:first-of-type {
+					border-radius: var(--border-radius-0) var(--border-radius-0) 0 0;
+				}
+
+				&:last-of-type {
+					border-radius: 0 0 var(--border-radius-0) var(--border-radius-0);
+				}
+
+				&:not(option:last-of-type) {
+					border-bottom: none;
+				}
+
+				&:nth-of-type(odd) {
+					color: var(--primary-11-on);
+					background-color: var(--primary-11);
+				}
+
+				&:hover, &:focus {
+					cursor: pointer;
+					color: var(--primary-9-on);
+					background-color: var(--primary-9);
+				}
+
+				&:checked {
+					font-weight: var(--font-weight-bold);
+				}
+
+				&::checkmark {
+					order: 1;
+					margin-left: auto;
+				}
+			}
+		}
+	</style>
+}
+
+
+templ Select(props ...Props) {
+	{{ var p Props }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<select
+		id={ p.ID }
+		if p.Name != "" {
+			name={ p.Name }
+		}
+		if p.Value != "" {
+			value={ p.Value }
+		}
+		if p.Form != "" {
+			form={ p.Form }
+		}
+		disabled?={ p.Disabled }
+		if p.HasError {
+			aria-invalid="true"
+		} else if p.IsValid {
+			aria-invalid="false"
+		}
+		if p.DataBind != "" {
+			data-bind={ p.DataBind }
+		}
+		if p.DataOnChange != "" {
+			data-on:change__debounce.200ms={ datastar.PostSSE( p.DataOnChange ) }
+		}
+		class={	p.Class }
+	>
+		<button style="background: var(--bg-transparent); color: inherit; padding: 0;"><selectedcontent></selectedcontent></button>
+		if p.Placeholder != "" {
+			<option>{ p.Placeholder }</option>
+		}
 	 { children... }
 	</select>
+	@SelectStyles()
 }
 
 templ Option() {

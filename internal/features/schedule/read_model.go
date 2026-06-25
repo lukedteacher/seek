@@ -29,17 +29,17 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.Schedule, error
 	}); err != nil {
 		return nil, err
 	}
-	
+
 	if row == nil {
 		return nil, fmt.Errorf("schedule not found")
 	}
-	
+
 	schedule := &models.Schedule{
 		Id:        row.Id,
 		Title:     row.Title,
 		TeacherId: row.TeacherId,
 	}
-	
+
 	return schedule, nil
 }
 
@@ -55,8 +55,8 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Schedule, error) {
 	schedules := make([]models.Schedule, 0, len(rows))
 	for _, row := range rows {
 		schedules = append(schedules, models.Schedule{
-			Id:				 row.Id,
-			Title:		 row.Title,
+			Id:        row.Id,
+			Title:     row.Title,
 			TeacherId: row.TeacherId,
 		})
 	}
@@ -96,7 +96,7 @@ func (m *ReadModel) DeleteSchedule(ctx context.Context, event ScheduleDeletedPro
 			DeletedAt:                &deletedAt,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
-			Id:                   event.Id,
+			Id:                       event.Id,
 		})
 	})
 }

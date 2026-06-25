@@ -7,41 +7,41 @@ import (
 )
 
 const (
-	PeriodCreated   = "PeriodCreated"
-	PeriodUpdated   = "PeriodUpdated"
-	PeriodDeleted   = "PeriodDeleted"
+	PeriodCreated = "PeriodCreated"
+	PeriodUpdated = "PeriodUpdated"
+	PeriodDeleted = "PeriodDeleted"
 )
 
 const (
-	PeriodIDField                    = "periodId"
-	PeriodUserRegisteredIDField      = "userRegisteredId"
-	PeriodTitleField                 = "title"
-	PeriodCreatedAtField             = "createdAt"
-	PeriodRenamedIDField             = "periodRenamedId"
-	PeriodRenamedAtField             = "renamedAt"
-	PeriodDeletedIDField             = "periodDeletedId"
-	PeriodDeletedAtField             = "deletedAt"
-	PeriodScopeIDField               = "scope.id"
+	PeriodIDField               = "periodId"
+	PeriodUserRegisteredIDField = "userRegisteredId"
+	PeriodTitleField            = "title"
+	PeriodCreatedAtField        = "createdAt"
+	PeriodRenamedIDField        = "periodRenamedId"
+	PeriodRenamedAtField        = "renamedAt"
+	PeriodDeletedIDField        = "periodDeletedId"
+	PeriodDeletedAtField        = "deletedAt"
+	PeriodScopeIDField          = "scope.id"
 )
 
 type PeriodCreatedEvent struct {
-	ID        string			`json:"id"`
-	Title     string			`json:"title"`
-	StartTime string		  `json:"start_time"`
-	Duration  int64				`json:"duration"`
+	ID        string      `json:"id"`
+	Title     string      `json:"title"`
+	StartTime string      `json:"start_time"`
+	Duration  int64       `json:"duration"`
 	Days      int64       `json:"days"`
-	CreatedAt string			`json:"createdAt"`
-	Scope     PeriodScope	`json:"scope"`
+	CreatedAt string      `json:"createdAt"`
+	Scope     PeriodScope `json:"scope"`
 }
 
 type PeriodUpdatedEvent struct {
-	ID        string			`json:"id"`
-	Title     string			`json:"title"`
-	StartTime string		  `json:"start_time"`
-	Duration  int64				`json:"duration"`
+	ID        string      `json:"id"`
+	Title     string      `json:"title"`
+	StartTime string      `json:"start_time"`
+	Duration  int64       `json:"duration"`
 	Days      int64       `json:"days"`
-	UpdatedAt string			`json:"updatedAt"`
-	Scope     PeriodScope	`json:"scope"`
+	UpdatedAt string      `json:"updatedAt"`
+	Scope     PeriodScope `json:"scope"`
 }
 
 type PeriodDeletedEvent struct {
@@ -95,8 +95,8 @@ func NewPeriodDeletedEvent(periodDeletedID, id string, deletedAt time.Time, meta
 		EventType: PeriodDeleted,
 		Data: eventstore.MustData(PeriodDeletedEvent{
 			PeriodDeletedID: periodDeletedID,
-			DeletedAt:     deletedAt.Format(time.RFC3339),
-			Scope:         periodScope(id),
+			DeletedAt:       deletedAt.Format(time.RFC3339),
+			Scope:           periodScope(id),
 		}),
 		Metadata: metadata,
 	}

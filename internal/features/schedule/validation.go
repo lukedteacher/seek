@@ -26,7 +26,7 @@ func Validate(schedule models.Schedule) map[string]Validation {
 	return errors
 }
 
-func ValidateTitle(title string) (Validation) {
+func ValidateTitle(title string) Validation {
 	if title == "" {
 		return Validation{Message: "required", State: "empty"}
 	} else if utils.ValidateAlphabetic(title) {

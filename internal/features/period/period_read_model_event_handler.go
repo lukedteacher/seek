@@ -44,9 +44,9 @@ type PeriodUpdatedProjection struct {
 }
 
 type PeriodDeletedProjection struct {
-	Position	eventstore.Position
-	Id				string
-	DeletedAt	time.Time
+	Position  eventstore.Position
+	Id        string
+	DeletedAt time.Time
 }
 
 type PeriodReadModelEventHandler struct {
