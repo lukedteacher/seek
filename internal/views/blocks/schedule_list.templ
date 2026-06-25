@@ -1,0 +1,33 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/domain/models"
+	"seek/internal/views/components"
+)
+
+templ ScheduleList(schedules []models.Schedule) {
+	<table>
+		<thead>
+			<th>link</th>
+			<th>title</th>
+			<th>teacher id</th>
+		</thead>
+		<tbody>
+			for _, schedule := range schedules {
+				<tr>
+					<td>
+						<a href={ fmt.Sprintf("/schedule/%s", schedule.Id) }>
+							<button>
+								@components.Icon("mdi:link")
+							</button>
+						</a>
+					</td>
+					<td>{ schedule.Title }</td>
+					<td>{ schedule.TeacherId }</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

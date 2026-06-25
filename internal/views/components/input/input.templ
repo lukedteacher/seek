@@ -84,10 +84,6 @@ templ InputStyle() {
 		transition-duration: var(--anim-duration-base);
 		cursor: text;
 		display: inline-flex;
-		outline-style: solid;
-		outline-width: var(--border-width-1);
-		outline-color: transparent;
-		outline-offset: var(--border-width-1);
 		/* size */
 		height: var(--size-4);
 		width: 100%;
@@ -95,15 +91,22 @@ templ InputStyle() {
 		/* text */
 		font-size: var(--font-size--1);
 		/* borders */
+		border-style: solid;
+		border-color: var(--primary-12-dim);
 		border-radius: var(--border-radius-0);
-		border: var(--border-width-0);
+		border-width: var(--border-width-1);
+		outline-style: solid;
+		outline-width: var(--border-width-1);
+		outline-color: transparent;
+		outline-offset: var(--border-width-1);
 		/* color */
 		color: var(--primary-12-on);
 		background-color: var(--primary-12);
 		padding: 0 var(--size--2);
 
-		&:focus {
-			outline-color: var(--_color-outline);
+		&:focus, &:active {
+			outline-color: var(--primary-12-dim);
+			border-color: transparent;
 		}
 
 		&:disabled {
@@ -111,13 +114,23 @@ templ InputStyle() {
 			cursor: not-allowed;
 			opacity: 0.5;
 		}
-		&[aria-invalid="false"] {
+
+		&[aria-invalid="false"]:not(:focus), &[aria-invalid="false"]:not(:active) {
 			border-color: green;
-			outline-color: green;
 		}
-		&[aria-invalid="true"] {
-			border-color: var(--error-6);
+
+		&[aria-invalid="false"]:focus, &[aria-invalid="false"]:active {
+			outline-color: green;
+			border-color: transparent;
+		}
+
+		&[aria-invalid="true"]:not(:focus), &[aria-invalid="true"]:not(:active) {
+			border-color: var(--error-5);
+		}
+
+		&[aria-invalid="true"]:focus, &[aria-invalid="true"]:active {
 			outline-color: var(--error-5);
+			border-color: transparent;
 		}
 	}
 	</style>

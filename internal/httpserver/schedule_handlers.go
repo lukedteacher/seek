@@ -23,6 +23,7 @@ func (s Server) scheduleRoutes(r chi.Router) {
 	r.Post("/schedule/{id}/edit", s.editSchedule)
 	r.Post("/schedule/{id}/edit/validate", s.validateEditSchedule)
 	r.Post("/schedule/{id}/delete", s.deleteSchedule)
+	r.Get("/schedules", s.schedules)
 }
 
 // GET request for /schedule: shows default schedule for current user
@@ -243,4 +244,14 @@ func (s Server) deleteSchedule(w http.ResponseWriter, r *http.Request) {
 		Metadata:   eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)
 	emptySSE(w, r, err)
+}
+
+func (s Server) schedules(w http.ResponseWriter, r *http.Request) {
+	schedules, err := s.Schedules.List(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_ = pages.Schedules(schedules).Render(r.Context(), w)
 }

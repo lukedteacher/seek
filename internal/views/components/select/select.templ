@@ -31,8 +31,14 @@ templ SelectStyles() {
 			/* text */
 			font-size: var(--font-size--1);
 			/* borders */
+			border-style: solid;
+			border-color: var(--primary-12-dim);
 			border-radius: var(--border-radius-0);
-			border: var(--border-width-0);
+			border-width: var(--border-width-1);
+			outline-style: solid;
+			outline-width: var(--border-width-1);
+			outline-color: transparent;
+			outline-offset: var(--border-width-1);
 			padding: 0 var(--size--2);
 			color: var(--primary-12-on);
 			background-color: var(--primary-12);
@@ -66,6 +72,35 @@ templ SelectStyles() {
 					opacity: 0;
 					transform: translateY(-1em);
 				}
+			}
+
+			&:focus, &:active, &:open {
+				outline-color: var(--primary-12-dim);
+				border-color: transparent;
+			}
+
+			&:disabled {
+				pointer-events: none;
+				cursor: not-allowed;
+				opacity: 0.5;
+			}
+
+			&[aria-invalid="false"]:not(:focus), &[aria-invalid="false"]:not(:active), &[aria-invalid="false"]:not(:open) {
+				border-color: green;
+			}
+
+			&[aria-invalid="false"]:focus, &[aria-invalid="false"]:active, &[aria-invalid="false"]:open {
+				outline-color: green;
+				border-color: transparent;
+			}
+
+			&[aria-invalid="true"]:not(:focus), &[aria-invalid="true"]:not(:active), &[aria-invalid="true"]:not(:open) {
+				border-color: var(--error-5);
+			}
+
+			&[aria-invalid="true"]:focus, &[aria-invalid="true"]:active, &[aria-invalid="true"]:open {
+				outline-color: var(--error-5);
+				border-color: transparent;
 			}
 
 			option {

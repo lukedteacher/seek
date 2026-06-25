@@ -46,7 +46,7 @@ func Index() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><section><h1>SEEK</h1><p>aka shared educational environment knowledge</p><p>many features to come</p></section><section><ul><a href=\"/periods\"><li>list periods</li></a> <a href=\"/period/create\"><li>create a period</li></a> <a href=\"/students\"><li>list students</li></a> <a href=\"/student/create\"><li>create a student</li></a> <a href=\"/teachers\"><li>list teachers</li></a> <a href=\"/teacher/create\"><li>create a teacher</li></a> <a href=\"schedule/019efadd-00d3-722a-b611-989bbdc8fc0d/edit\"><li>edit a schedule</li></a></ul></section>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><section><h1>SEEK</h1><p>aka shared educational environment knowledge</p><p>many features to come</p></section><section><ul style=\"display: flex; flex-direction: column; gap: 10px;\"><a href=\"/periods\"><li>list periods</li></a> <a href=\"/period/create\"><li>create a period</li></a> <a href=\"/students\"><li>list students</li></a> <a href=\"/student/create\"><li>create a student</li></a> <a href=\"/teachers\"><li>list teachers</li></a> <a href=\"/teacher/create\"><li>create a teacher</li></a> <a href=\"/schedules\"><li>list schedules</li></a> <a href=\"/schedule/create\"><li>create a schedule</li></a></ul></section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

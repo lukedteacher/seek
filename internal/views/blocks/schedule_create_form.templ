@@ -20,7 +20,7 @@ templ CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, pe
 		</hgroup>
 		<section>
 			@label.Label(label.Props{
-				ID: "title-label",
+				ID: "title--input-label",
 				For: "title",
 				Label: "title",
 				ValidationState: validation["title"].State,
@@ -37,13 +37,20 @@ templ CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, pe
 			}
 		</section>
 		<section>
-			<label for="teacher-select">
-				<span>teacher</span>
+			@label.Label(label.Props{
+				ID: "teacher-select-label",
+				For: "teacher-select",
+				Label: "teacher",
+				ValidationState: validation["teacher_id"].State,
+				ValidationMessage: validation["teacher_id"].Message,
+			}) {
 				@ui_select.Select(ui_select.Props{
 					ID: "teacher-select",
 					Placeholder: "select a teacher",
 					DataBind: "teacher_id",
 					DataOnChange: fmt.Sprintf("/schedule/create/validate"),
+					HasError: validation["teacher_id"].State == "error",
+					IsValid: validation["teacher_id"].State == "valid",
 				}) {
 					for index, teacher := range teachers {
 						<option 
@@ -57,7 +64,7 @@ templ CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, pe
 						</option>
 					}
 				}
-			</label>
+			}
 		</section>
 		<section>
 			<label for="periods">
