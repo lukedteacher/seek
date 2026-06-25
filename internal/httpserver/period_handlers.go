@@ -21,6 +21,7 @@ func (s Server) periodRoutes(r chi.Router) {
 	r.Get("/period/{id}/edit", s.editPeriodForm)
 	r.Post("/period/{id}/edit", s.editPeriod)
 	r.Post("/period/{id}/edit/validate", s.validateEditPeriod)
+	r.Post("/period/{id}/delete", s.deletePeriod)
 }
 
 func (s Server) periods(w http.ResponseWriter, r *http.Request) {
@@ -204,4 +205,14 @@ func (s Server) validateEditPeriod(w http.ResponseWriter, r *http.Request) {
 	}
 	validation := period.Validate(model)
 	patchTempl(w, r, pages.EditPeriod(model, validation))
+}
+
+// POST request to /period/{id}/delete
+func (s Server) deletePeriod(w http.ResponseWriter, r *http.Request) {
+	periodID := chi.URLParam(r, "id")
+	_, err := period.DeletePeriodCommandHandler(r.Context(), period.DeletePeriodCommand{
+		PeriodID: periodID,
+		Metadata:   eventstore.HTTPCommandMetadata(r),
+	}, s.EventSaver, s.EventRetriever)
+	emptySSE(w, r, err)
 }

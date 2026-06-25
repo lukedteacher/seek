@@ -1,17 +1,17 @@
 package pages
 
 import (
+	"seek/internal/domain/models"
 	"seek/internal/features/schedule"
-	"seek/internal/views"
 	"seek/internal/views/layouts"
 	"seek/internal/views/blocks"
 )
 
-templ CreateSchedule(validation map[string]schedule.Validation) {
+templ CreateSchedule(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) {
 	@layouts.Base("SEEK: create period") {
-		<main data-init={ views.LongRunningGetSSE("/period/create/stream") }>
+		<main>
 			<section>
-				@blocks.CreateScheduleForm(validation)
+				@blocks.CreateScheduleForm(schedule, teachers, periods, validation, selectedTeacherId)
 			</section>
 		</main>
 	}

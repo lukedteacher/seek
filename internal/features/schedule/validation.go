@@ -29,7 +29,7 @@ func Validate(schedule models.Schedule) map[string]Validation {
 func ValidateTitle(title string) Validation {
 	if title == "" {
 		return Validation{Message: "required", State: "empty"}
-	} else if utils.ValidateAlphabetic(title) {
+	} else if utils.ValidateAlphanumeric(title) {
 		return Validation{Message: "required", State: "valid"}
 	} else {
 		return Validation{Message: "required", State: "error"}

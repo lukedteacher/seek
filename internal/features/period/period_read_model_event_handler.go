@@ -108,18 +108,8 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 	case PeriodCreated:
 		title, _ := data["title"].(string)
 		startTime, _ := data["start_time"].(string)
-		var duration int64
-		if durationFloat, ok := data["duration"].(float64); ok {
-			duration = int64(durationFloat)
-		} else {
-			return fmt.Errorf("invalid duration value")
-		}
-		var days int64
-		if daysFloat, ok := data["days"].(float64); ok {
-			days = int64(daysFloat)
-		} else {
-			return fmt.Errorf("invalid days value")
-		}
+		duration := int64(data["duration"].(float64))
+		days := int64(data["days"].(float64))
 		if err := h.readModel.InsertCreatedPeriod(ctx, PeriodCreatedProjection{
 			Position:  resolved.Position,
 			Id:        id,
@@ -134,18 +124,8 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 	case PeriodUpdated:
 		title, _ := data["title"].(string)
 		startTime, _ := data["start_time"].(string)
-		var duration int64
-		if durationFloat, ok := data["duration"].(float64); ok {
-			duration = int64(durationFloat)
-		} else {
-			return fmt.Errorf("invalid duration value")
-		}
-		var days int64
-		if daysFloat, ok := data["days"].(float64); ok {
-			days = int64(daysFloat)
-		} else {
-			return fmt.Errorf("invalid days value")
-		}
+		duration := int64(data["duration"].(float64))
+		days := int64(data["days"].(float64))
 		if err := h.readModel.UpdatePeriod(ctx, PeriodUpdatedProjection{
 			Position:  resolved.Position,
 			Id:        id,

@@ -41,6 +41,9 @@ type StudentUpdatedEvent struct {
 	FirstName        string       `json:"first_name"`
 	ChosenName       string       `json:"chosen_name"`
 	LastName         string       `json:"last_name"`
+	Grade            int64        `json:"grade"`
+	Homeroom         string       `json:"homeroom"`
+	CaseManager      string       `json:"case_manager"`
 	UpdatedAt        string       `json:"updatedAt"`
 	Scope            StudentScope `json:"scope"`
 }
@@ -75,13 +78,18 @@ func NewStudentCreatedEvent(id, firstName, chosenName, lastName string, grade in
 	}
 }
 
-func NewStudentUpdatedEvent(eventId, id, firstName string, updatedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
+func NewStudentUpdatedEvent(eventId, id, firstName, chosenName, lastName string, grade int64, homeroom, caseManager string, updatedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
 	return eventstore.DomainEvent{
 		EventID:   eventId,
 		EventType: StudentUpdated,
 		Data: eventstore.MustData(StudentUpdatedEvent{
 			StudentUpdatedID: id,
 			FirstName:        firstName,
+			ChosenName:       chosenName,
+			LastName:         lastName,
+			Grade:            grade,
+			Homeroom:         homeroom,
+			CaseManager:      caseManager,
 			UpdatedAt:        updatedAt.Format(time.RFC3339),
 			Scope:            studentScope(id),
 		}),

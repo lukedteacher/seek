@@ -81,10 +81,10 @@ func (m *updateScheduleContext) handle(resolved eventstore.ResolvedEvent) {
 		m.exists = true
 		m.deleted = false
 		m.title, _ = data["title"].(string)
-		m.teacherID, _ = data["start_time"].(string)
+		m.teacherID, _ = data["teacher_id"].(string)
 	case ScheduleUpdated:
 		m.title, _ = data["title"].(string)
-		m.teacherID, _ = data["start_time"].(string)
+		m.teacherID, _ = data["teacher_id"].(string)
 	case ScheduleDeleted:
 		m.deleted = true
 	}

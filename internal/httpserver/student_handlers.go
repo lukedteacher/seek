@@ -28,7 +28,7 @@ func (s Server) student(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	_ = pages.Student(student).Render(r.Context(), w)
 }
 
@@ -43,7 +43,7 @@ func (s Server) students(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	datastar.ReadSignals(r, signals)
-	
+
 	_ = pages.Students(signals.View, students).Render(r.Context(), w)
 }
 
@@ -86,50 +86,50 @@ func (s Server) createStudentForm(w http.ResponseWriter, r *http.Request) {
 
 // post request to /student
 func (s Server) createStudent(w http.ResponseWriter, r *http.Request) {
-  type Signals struct {
-    FirstName    string `json:"first_name"`
-    ChosenName   string `json:"chosen_name"`
-    LastName     string `json:"last_name"`
-    Grade        int64	`json:"grade"`
-    Homeroom     string `json:"homeroom"`
-    CaseManager  string `json:"case_manager"`
-  }
-  
-  signals := &Signals{}
-  if err := datastar.ReadSignals(r, signals); err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
-  
-  _, err := student.CreateStudentCommandHandler(r.Context(), student.CreateStudentCommand{
-    FirstName:    signals.FirstName,
-    ChosenName:   signals.ChosenName,
-    LastName:     signals.LastName,
-    Grade:        signals.Grade,
-    Homeroom:     signals.Homeroom,
-    CaseManager:  signals.CaseManager,
-    Metadata:     eventstore.HTTPCommandMetadata(r),
-  }, s.EventSaver)
-  if err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
-  
-  writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-    return clearNewStudentForm(sse)
-  })
+	type Signals struct {
+		FirstName   string `json:"first_name"`
+		ChosenName  string `json:"chosen_name"`
+		LastName    string `json:"last_name"`
+		Grade       int64  `json:"grade"`
+		Homeroom    string `json:"homeroom"`
+		CaseManager string `json:"case_manager"`
+	}
+
+	signals := &Signals{}
+	if err := datastar.ReadSignals(r, signals); err != nil {
+		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+			return flashError(sse, err.Error())
+		})
+		return
+	}
+
+	_, err := student.CreateStudentCommandHandler(r.Context(), student.CreateStudentCommand{
+		FirstName:   signals.FirstName,
+		ChosenName:  signals.ChosenName,
+		LastName:    signals.LastName,
+		Grade:       signals.Grade,
+		Homeroom:    signals.Homeroom,
+		CaseManager: signals.CaseManager,
+		Metadata:    eventstore.HTTPCommandMetadata(r),
+	}, s.EventSaver)
+	if err != nil {
+		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+			return flashError(sse, err.Error())
+		})
+		return
+	}
+
+	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+		return clearNewStudentForm(sse)
+	})
 }
 
-//post request to /student/{id}/delete
+// POST request to /student/{id}/delete
 func (s Server) deleteStudent(w http.ResponseWriter, r *http.Request) {
 	studentID := chi.URLParam(r, "id")
 	_, err := student.DeleteStudentCommandHandler(r.Context(), student.DeleteStudentCommand{
 		StudentID: studentID,
-		Metadata: eventstore.HTTPCommandMetadata(r),
+		Metadata:  eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)
 	emptySSE(w, r, err)
 }

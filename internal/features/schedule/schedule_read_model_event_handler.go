@@ -28,8 +28,6 @@ type ScheduleCreatedProjection struct {
 	Id        string
 	Title     string
 	TeacherId string
-	Duration  int64
-	Days      int64
 	CreatedAt time.Time
 }
 
@@ -38,8 +36,6 @@ type ScheduleUpdatedProjection struct {
 	Id        string
 	Title     string
 	TeacherId string
-	Duration  int64
-	Days      int64
 	UpdatedAt time.Time
 }
 

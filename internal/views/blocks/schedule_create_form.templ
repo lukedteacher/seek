@@ -1,14 +1,18 @@
 package blocks
 
 import (
-	"seek/internal/features/schedule"
+	"fmt"
 
-	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/domain/models"
+	"seek/internal/features/schedule"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
+	"seek/internal/views/components/select"
+
+	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ CreateScheduleForm(validation map[string]schedule.Validation) {
+templ CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) {
 	<form data-on:submit={ datastar.PostSSE("/schedule/create") }>
 		<hgroup>
 			<h2>CREATE A SCHEDULE</h2>
@@ -31,22 +35,39 @@ templ CreateScheduleForm(validation map[string]schedule.Validation) {
 					IsValid: validation["title"].State == "valid",
 				})
 			}
-			@label.Label(label.Props{
-				ID: "teacher-id-label",
-				For: "teacher-id",
-				Label: "teacher id",
-				ValidationState: validation["teacher_id"].State,
-				ValidationMessage: validation["teacher_id"].Message,
-			}) {
-				@input.Input(input.Props{
-					ID: "teacher-id",
-					Name: "teacher-id",
+		</section>
+		<section>
+			<label for="teacher-select">
+				<span>teacher</span>
+				@ui_select.Select(ui_select.Props{
+					ID: "teacher-select",
+					Placeholder: "select a teacher",
 					DataBind: "teacher_id",
-					DataOn: "/schedule/create/validate",
-					HasError: validation["teacher_id"].State == "error",
-					IsValid: validation["teacher_id"].State == "valid",
-				})
-			}
+					DataOnChange: fmt.Sprintf("/schedule/create/validate"),
+				}) {
+					for index, teacher := range teachers {
+						<option 
+						id={ fmt.Sprintf( "option-%d", index ) }
+						if teacher.Id == selectedTeacherId {
+							selected
+						}
+						value={ teacher.Id }
+						>
+							{ teacher.DisplayName() }
+						</option>
+					}
+				}
+			</label>
+		</section>
+		<section>
+			<label for="periods">
+				<span>periods</span>
+				<select id="periods" multiple name="periods" data-bind:periods>
+					for _, period := range periods {
+						<option>{ period.Title }</option>
+					}
+				</select>
+			</label>
 		</section>
 		<footer>
 			<button 

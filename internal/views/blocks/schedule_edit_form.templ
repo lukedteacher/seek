@@ -1,14 +1,15 @@
 package blocks
 
 import (
+	"fmt"
+	
 	"seek/internal/domain/models"
 	"seek/internal/features/schedule"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
+	"seek/internal/views/components/select"
 
 	"github.com/starfederation/datastar-go/datastar"
-	"fmt"
-	"seek/internal/views/components/select"
 )
 
 templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) {
@@ -70,6 +71,12 @@ templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, peri
 			</label>
 		</section>
 		<footer>
+			<button 
+				type="button"
+				data-on:click={ datastar.PostSSE("/schedule/%s/delete", schedule.Id) }
+			>
+				delete
+			</button>
 			<button 
 				type="button"
 			>

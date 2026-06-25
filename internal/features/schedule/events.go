@@ -28,8 +28,6 @@ type ScheduleCreatedEvent struct {
 	ID        string        `json:"id"`
 	Title     string        `json:"title"`
 	TeacherId string        `json:"teacher_id"`
-	Duration  int64         `json:"duration"`
-	Days      int64         `json:"days"`
 	CreatedAt string        `json:"createdAt"`
 	Scope     ScheduleScope `json:"scope"`
 }
@@ -38,8 +36,6 @@ type ScheduleUpdatedEvent struct {
 	ID        string        `json:"id"`
 	Title     string        `json:"title"`
 	TeacherId string        `json:"teacher_id"`
-	Duration  int64         `json:"duration"`
-	Days      int64         `json:"days"`
 	UpdatedAt string        `json:"updatedAt"`
 	Scope     ScheduleScope `json:"scope"`
 }
