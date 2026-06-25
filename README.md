@@ -31,6 +31,7 @@ a tool for educators.
 ## bugs
 
 - can't delete students created by migration
+- pointers in student data don't translate to projections
 
 ### reminders
 - camelCase for event sourcing

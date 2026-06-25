@@ -84,7 +84,7 @@ func (s Server) createStudentForm(w http.ResponseWriter, r *http.Request) {
 	_ = pages.CreateStudent().Render(r.Context(), w)
 }
 
-// post request to /student
+// POST request to /student
 func (s Server) createStudent(w http.ResponseWriter, r *http.Request) {
 	type Signals struct {
 		FirstName   string `json:"first_name"`
@@ -120,7 +120,7 @@ func (s Server) createStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-		return clearNewStudentForm(sse)
+		return clearSignals(&Signals{}, sse)
 	})
 }
 

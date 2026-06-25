@@ -25,8 +25,8 @@ func emptySSE(w http.ResponseWriter, r *http.Request, err error) {
 	writeSSE(w, r, clearFlash)
 }
 
-func clearNewStudentForm(sse *datastar.ServerSentEventGenerator) error {
-	return sse.MarshalAndPatchSignals(map[string]string{"flashMessage": "", "firstName": ""})
+func clearSignals(signals any, sse *datastar.ServerSentEventGenerator) error {
+	return sse.MarshalAndPatchSignals(signals)
 }
 
 func alert(sse *datastar.ServerSentEventGenerator, message string) error {

@@ -39,13 +39,39 @@ func (s Server) periods(w http.ResponseWriter, r *http.Request) {
 	_ = pages.Periods(signals.View, periods).Render(r.Context(), w)
 }
 
-// get request to /period/create
+// GET request to /period/create
 func (s Server) createPeriodForm(w http.ResponseWriter, r *http.Request) {
 	validation := period.Validate(models.Period{})
 	_ = pages.CreatePeriod(validation).Render(r.Context(), w)
 }
 
-// post request to /period
+// POST request to /period/create/validate
+func (s Server) validateCreatePeriod(w http.ResponseWriter, r *http.Request) {
+  type Signals struct {
+    Title     string `json:"title"`
+    StartTime string `json:"start_time"`
+    Duration  int64  `json:"duration"`
+    Days      int64	 `json:"days"`
+  }
+  
+  signals := &Signals{}
+  if err := datastar.ReadSignals(r, signals); err != nil {
+    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+      return flashError(sse, err.Error())
+    })
+    return
+  }
+	model := models.Period{
+		Title: signals.Title,
+		StartTime: signals.StartTime,
+		Duration: signals.Duration,
+		Days: signals.Duration,
+	}
+	validation := period.Validate(model)
+	patchTempl(w, r, pages.CreatePeriod(validation))
+}
+
+// POST request to /period
 func (s Server) createPeriod(w http.ResponseWriter, r *http.Request) {
   type Signals struct {
     Title    string `json:"title"`
@@ -75,6 +101,10 @@ func (s Server) createPeriod(w http.ResponseWriter, r *http.Request) {
     })
     return
   }
+
+	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+    return clearSignals(&Signals{}, sse)
+  })
 }
 
 // GET request to /period/{id}
@@ -107,6 +137,34 @@ func (s Server) editPeriodForm(w http.ResponseWriter, r *http.Request) {
 	}
 	validation := period.Validate(model)
 	_ = pages.EditPeriod(*periodRes, validation).Render(r.Context(), w)
+}
+
+// POST request to /period/{id}/edit/validate
+func (s Server) validateEditPeriod(w http.ResponseWriter, r *http.Request) {
+  type Signals struct {
+    Title     string `json:"title"`
+    StartTime string `json:"start_time"`
+    Duration  int64  `json:"duration"`
+    Days      int64	 `json:"days"`
+  }
+  
+  signals := &Signals{}
+  if err := datastar.ReadSignals(r, signals); err != nil {
+    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+      return flashError(sse, err.Error())
+    })
+    return
+  }
+	id := chi.URLParam(r, "id")
+	model := models.Period{
+		Id: id,
+		Title: signals.Title,
+		StartTime: signals.StartTime,
+		Duration: signals.Duration,
+		Days: signals.Duration,
+	}
+	validation := period.Validate(model)
+	patchTempl(w, r, pages.EditPeriod(model, validation))
 }
 
 // POST request to /period/{id}/edit
@@ -147,64 +205,6 @@ func (s Server) editPeriod(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-  
-  writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-    return clearNewStudentForm(sse)
-  })
-}
-
-// POST request to /period/create/validate
-func (s Server) validateCreatePeriod(w http.ResponseWriter, r *http.Request) {
-  type Signals struct {
-    Title     string `json:"title"`
-    StartTime string `json:"start_time"`
-    Duration  int64  `json:"duration"`
-    Days      int64	 `json:"days"`
-  }
-  
-  signals := &Signals{}
-  if err := datastar.ReadSignals(r, signals); err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
-	model := models.Period{
-		Title: signals.Title,
-		StartTime: signals.StartTime,
-		Duration: signals.Duration,
-		Days: signals.Duration,
-	}
-	validation := period.Validate(model)
-	patchTempl(w, r, pages.CreatePeriod(validation))
-}
-
-// POST request to /period/{id}/edit/validate
-func (s Server) validateEditPeriod(w http.ResponseWriter, r *http.Request) {
-  type Signals struct {
-    Title     string `json:"title"`
-    StartTime string `json:"start_time"`
-    Duration  int64  `json:"duration"`
-    Days      int64	 `json:"days"`
-  }
-  
-  signals := &Signals{}
-  if err := datastar.ReadSignals(r, signals); err != nil {
-    writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-      return flashError(sse, err.Error())
-    })
-    return
-  }
-	id := chi.URLParam(r, "id")
-	model := models.Period{
-		Id: id,
-		Title: signals.Title,
-		StartTime: signals.StartTime,
-		Duration: signals.Duration,
-		Days: signals.Duration,
-	}
-	validation := period.Validate(model)
-	patchTempl(w, r, pages.EditPeriod(model, validation))
 }
 
 // POST request to /period/{id}/delete

@@ -132,6 +132,10 @@ func (s Server) createSchedule(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	
+	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+		return clearSignals(&Signals{}, sse)
+	})
 }
 
 // GET request to /schedule/{id}

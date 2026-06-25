@@ -21,6 +21,7 @@ func (s Server) teacherRoutes(r chi.Router) {
 	r.Get("/teacher/create", s.createTeacherForm)
 }
 
+// GET request to /teacher/{id}
 func (s Server) teacher(w http.ResponseWriter, r *http.Request) {
 	teacherID := chi.URLParam(r, "id")
 	teacher, err := s.Teachers.Get(r.Context(), teacherID)
@@ -32,6 +33,7 @@ func (s Server) teacher(w http.ResponseWriter, r *http.Request) {
 	_ = pages.Teacher(teacher).Render(r.Context(), w)
 }
 
+// GET request to /teachers
 func (s Server) teachers(w http.ResponseWriter, r *http.Request) {
 	type Signals struct {
 		View int64 `json:"view"`
@@ -111,7 +113,10 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	// TODO add response
+	
+	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
+		return clearSignals(&Signals{}, sse)
+	})
 }
 
 // POST request to /teacher/{id}/delete

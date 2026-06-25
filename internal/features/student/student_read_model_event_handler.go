@@ -112,7 +112,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		firstName, _ := data["firstName"].(string)
 		chosenName, _ := data["chosenName"].(*string)
 		lastName, _ := data["lastName"].(string)
-		grade, _ := data["grade"].(int64)
+		grade := int64(data["grade"].(float64))
 		homeroom, _ := data["homeroom"].(string)
 		caseManager, _ := data["caseManager"].(*string)
 		if err := h.readModel.InsertCreatedStudent(ctx, StudentCreatedProjection{
@@ -132,7 +132,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		firstName, _ := data["firstName"].(string)
 		chosenName, _ := data["chosenName"].(*string)
 		lastName, _ := data["lastName"].(string)
-		grade, _ := data["grade"].(int64)
+		grade := int64(data["grade"].(float64))
 		homeroom, _ := data["homeroom"].(string)
 		caseManager, _ := data["caseManager"].(*string)
 		if err := h.readModel.UpdateStudent(ctx, StudentUpdatedProjection{
