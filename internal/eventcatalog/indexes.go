@@ -17,7 +17,7 @@ func BoundaryIndexes() []eventstore.BoundaryIndexDefinition {
 		{
 			Name:       "student_scope",
 			Fields:     []string{student.StudentScopeIDField},
-			EventTypes: []string{student.StudentCreated, student.StudentRenamed, student.StudentDeleted},
+			EventTypes: []string{student.StudentCreated, student.StudentUpdated, student.StudentDeleted},
 		},
 		{
 			Name:       "teacher_scope",

@@ -8,7 +8,7 @@ import (
 
 const (
 	StudentCreated = "StudentCreated"
-	StudentRenamed = "StudentRenamed"
+	StudentUpdated = "StudentUpdated"
 	StudentDeleted = "StudentDeleted"
 )
 
@@ -17,8 +17,8 @@ const (
 	StudentUserRegisteredIDField = "userRegisteredId"
 	StudentFirstNameField        = "firstName"
 	StudentCreatedAtField        = "createdAt"
-	StudentRenamedIDField        = "studentRenamedId"
-	StudentRenamedAtField        = "renamedAt"
+	StudentUpdatedIDField        = "studentUpdatedId"
+	StudentUpdatedAtField        = "updatedAt"
 	StudentDeletedIDField        = "studentDeletedId"
 	StudentDeletedAtField        = "deletedAt"
 	StudentScopeIDField          = "scope.id"
@@ -36,12 +36,12 @@ type StudentCreatedEvent struct {
 	Scope       StudentScope `json:"scope"`
 }
 
-type StudentRenamedEvent struct {
-	StudentRenamedID string       `json:"studentRenamedId"`
+type StudentUpdatedEvent struct {
+	StudentUpdatedID string       `json:"studentUpdatedId"`
 	FirstName        string       `json:"first_name"`
 	ChosenName       string       `json:"chosen_name"`
 	LastName         string       `json:"last_name"`
-	RenamedAt        string       `json:"renamedAt"`
+	UpdatedAt        string       `json:"updatedAt"`
 	Scope            StudentScope `json:"scope"`
 }
 
@@ -75,14 +75,14 @@ func NewStudentCreatedEvent(id, firstName, chosenName, lastName string, grade in
 	}
 }
 
-func NewStudentRenamedEvent(studentRenamedID, id, firstName string, renamedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
+func NewStudentUpdatedEvent(eventId, id, firstName string, updatedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
 	return eventstore.DomainEvent{
-		EventID:   studentRenamedID,
-		EventType: StudentRenamed,
-		Data: eventstore.MustData(StudentRenamedEvent{
-			StudentRenamedID: studentRenamedID,
+		EventID:   eventId,
+		EventType: StudentUpdated,
+		Data: eventstore.MustData(StudentUpdatedEvent{
+			StudentUpdatedID: id,
 			FirstName:        firstName,
-			RenamedAt:        renamedAt.Format(time.RFC3339),
+			UpdatedAt:        updatedAt.Format(time.RFC3339),
 			Scope:            studentScope(id),
 		}),
 		Metadata: metadata,

@@ -7,7 +7,7 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type RenameStudentParams struct {
+type UpdateStudentParams struct {
 	FirstName                string  `json:"first_name"`
 	ChosenName               *string `json:"chosen_name"`
 	LastName                 string  `json:"last_name"`
@@ -17,14 +17,14 @@ type RenameStudentParams struct {
 	Id                       string  `json:"id"`
 }
 
-type RenameStudentStmt struct {
+type UpdateStudentStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func RenameStudent(tx *sqlite.Conn) *RenameStudentStmt {
+func UpdateStudent(tx *sqlite.Conn) *UpdateStudentStmt {
 	const querySQL = `
 UPDATE students
 SET first_name = ?1,
@@ -36,7 +36,7 @@ SET first_name = ?1,
 WHERE id = ?7
     `
 
-	ps := &RenameStudentStmt{
+	ps := &UpdateStudentStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -49,8 +49,8 @@ WHERE id = ?7
 	return ps
 }
 
-func (ps *RenameStudentStmt) Run(
-	params RenameStudentParams,
+func (ps *UpdateStudentStmt) Run(
+	params UpdateStudentParams,
 ) (
 	err error,
 ) {
@@ -98,19 +98,19 @@ func (ps *RenameStudentStmt) Run(
 
 	// Execute the query
 	if _, err := stmt.Step(); err != nil {
-		return fmt.Errorf("failed to execute renamestudent SQL: %w", err)
+		return fmt.Errorf("failed to execute updatestudent SQL: %w", err)
 	}
 
 	return nil
 }
 
-func OnceRenameStudent(
+func OnceUpdateStudent(
 	tx *sqlite.Conn,
-	params RenameStudentParams,
+	params UpdateStudentParams,
 ) (
 	err error,
 ) {
-	ps := RenameStudent(tx)
+	ps := UpdateStudent(tx)
 
 	return ps.Run(
 		params,

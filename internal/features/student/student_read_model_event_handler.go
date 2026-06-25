@@ -19,7 +19,7 @@ type StudentReadModelReader interface {
 
 type StudentReadModelWriter interface {
 	InsertCreatedStudent(ctx context.Context, event StudentCreatedProjection) error
-	RenameStudent(ctx context.Context, event StudentRenamedProjection) error
+	UpdateStudent(ctx context.Context, event StudentUpdatedProjection) error
 	DeleteStudent(ctx context.Context, event StudentDeletedProjection) error
 }
 
@@ -35,13 +35,13 @@ type StudentCreatedProjection struct {
 	CreatedAt   time.Time
 }
 
-type StudentRenamedProjection struct {
+type StudentUpdatedProjection struct {
 	Position   eventstore.Position
 	Id         string
 	FirstName  string
 	ChosenName *string
 	LastName   string
-	RenamedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 type StudentDeletedProjection struct {
@@ -85,13 +85,15 @@ func (h *StudentReadModelEventHandler) StopSubscribing() {
 func StudentReadModelEventHandlerQuery() eventstore.Query {
 	eventTypes := []string{
 		StudentCreated,
-		StudentRenamed,
+		StudentUpdated,
 		StudentDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
 	for _, eventType := range eventTypes {
 		criteria = append(criteria, eventstore.Criterion{
-			Tags: []eventstore.Tag{{Key: "eventType", Value: eventType}},
+			Tags: []eventstore.Tag{
+				{Key: "eventType", Value: eventType},
+			},
 		})
 	}
 	return eventstore.Query{Criteria: criteria}
@@ -130,17 +132,17 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		}); err != nil {
 			return err
 		}
-	case StudentRenamed:
+	case StudentUpdated:
 		firstName, _ := data["first_name"].(string)
 		chosenName, _ := data["chosen_name"].(*string)
 		lastName, _ := data["last_name"].(string)
-		if err := h.readModel.RenameStudent(ctx, StudentRenamedProjection{
+		if err := h.readModel.UpdateStudent(ctx, StudentUpdatedProjection{
 			Position:   resolved.Position,
 			Id:         id,
 			FirstName:  firstName,
 			ChosenName: chosenName,
 			LastName:   lastName,
-			RenamedAt:  parseTime(data["renamedAt"]),
+			UpdatedAt:  parseTime(data["updatedAt"]),
 		}); err != nil {
 			return err
 		}

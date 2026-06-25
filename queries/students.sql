@@ -15,7 +15,7 @@ INSERT INTO students (id, first_name, chosen_name, last_name, grade, homeroom, c
 VALUES (@id, @first_name, @chosen_name, @last_name, @grade, @homeroom, @case_manager, @created_at, @created_at, @last_event_commit_position, @last_event_prepare_position)
 ON CONFLICT (id) DO NOTHING;
 
--- name: RenameStudent :exec
+-- name: UpdateStudent :exec
 UPDATE students
 SET first_name = @first_name,
 	chosen_name = @chosen_name,

@@ -123,7 +123,7 @@ func (h *TeacherReadModelEventHandler) handle(ctx context.Context, resolved even
 			FirstName:  firstName,
 			ChosenName: chosenName,
 			LastName:   lastName,
-			UpdatedAt:  parseTime(data["renamedAt"]),
+			UpdatedAt:  parseTime(data["updatedAt"]),
 		}); err != nil {
 			return err
 		}

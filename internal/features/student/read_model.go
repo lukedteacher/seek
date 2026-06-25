@@ -88,15 +88,15 @@ func (m *ReadModel) InsertCreatedStudent(ctx context.Context, event StudentCreat
 	})
 }
 
-func (m *ReadModel) RenameStudent(ctx context.Context, event StudentRenamedProjection) error {
+func (m *ReadModel) UpdateStudent(ctx context.Context, event StudentUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceRenameStudent(conn, dbsql.RenameStudentParams{
+		return dbsql.OnceUpdateStudent(conn, dbsql.UpdateStudentParams{
 			FirstName:                event.FirstName,
 			ChosenName:               event.ChosenName,
 			LastName:                 event.LastName,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
-			UpdatedAt:                appdb.SQLTime(event.RenamedAt),
+			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),
 			Id:                       event.Id,
 		})
 	})
