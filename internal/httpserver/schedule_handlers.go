@@ -99,23 +99,32 @@ func (s Server) editScheduleForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if len(signals.Periods) > 0 {
-		println("sg: ", signals.Periods[0])
-	}
+
 	scheduleID := chi.URLParam(r, "id")
 	scheduleRes, err := s.Schedules.Get(context, scheduleID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	id := chi.URLParam(r, "id")
 	model := models.Schedule{
+		Id: id,
 		Title:     signals.Title,
 		TeacherId: signals.TeacherId,
 	}
+	selectedTeacher := ""
+	// if the user has selected a teacher, use that as the default selection
+	// otherwise use the schedule's teacher ID data
+	if signals.TeacherId != "" && scheduleRes.TeacherId != signals.TeacherId {
+		selectedTeacher = signals.TeacherId
+	} else {
+		selectedTeacher = scheduleRes.TeacherId
+	}
+	print("h: ", signals.TeacherId)
 	validation := schedule.Validate(model)
 	teachers, err := s.Teachers.List(context)
 	periods, err := s.Periods.List(context)
-	_ = pages.EditSchedule(*scheduleRes, teachers, periods, validation).Render(context, w)
+	_ = pages.EditSchedule(*scheduleRes, teachers, periods, validation, selectedTeacher).Render(context, w)
 }
 
 // POST request to /schedule/{id}/edit
@@ -181,7 +190,6 @@ func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
     Title     string `json:"title"`
     TeacherId string `json:"teacher_id"`
 		Periods   []string `json:"periods"`
-		Teacher   string `json:"teacher"`
   }
 
   signals := &Signals{}
@@ -189,7 +197,6 @@ func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
   }
-	println(signals.Teacher)
 	if len(signals.Periods) > 0 {
 		println("s: ", signals.Periods[0])
 	}
@@ -202,5 +209,5 @@ func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
 	teachers, _ := s.Teachers.List(context)
 	periods, _ := s.Periods.List(context)
 	validation := schedule.Validate(model)
-	patchTempl(w, r, pages.EditSchedule(model, teachers, periods, validation))
+	patchTempl(w, r, pages.EditSchedule(model, teachers, periods, validation, signals.TeacherId))
 }

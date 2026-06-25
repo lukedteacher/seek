@@ -7,11 +7,11 @@ import (
 	"seek/internal/views/blocks"
 )
 
-templ EditSchedule(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation) {
+templ EditSchedule(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) {
 	@layouts.Base("SEEK: edit schedule") {
 		<main>
 			<section>
-				@blocks.EditScheduleForm(schedule, teachers, periods, validation)
+				@blocks.EditScheduleForm(schedule, teachers, periods, validation, selectedTeacherId)
 			</section>
 		</main>
 	}

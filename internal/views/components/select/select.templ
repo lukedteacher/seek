@@ -143,7 +143,9 @@ templ Select(props ...Props) {
 		if p.DataOnChange != "" {
 			data-on:change__debounce.200ms={ datastar.PostSSE( p.DataOnChange ) }
 		}
-		class={	p.Class }
+		if p.Class != "" {
+			class={	p.Class }
+		}
 		{ p.Attributes... }
 	>
 		<button style="background: var(--bg-transparent); color: inherit; padding: 0;"><selectedcontent></selectedcontent></button>
@@ -155,8 +157,10 @@ templ Select(props ...Props) {
 	@SelectStyles()
 }
 
-templ Option() {
-	<option>
+templ Option(selected bool) {
+	<option
+	{ selected }
+	>
 		{ children... }
 	</option>
 }

@@ -48,7 +48,7 @@ func SelectStyles() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\r\n\t\tselect {\r\n\t\t\tappearance: base-select;\r\n\t\t\tdisplay: flex;\r\n\t\t\tjustify-content: center;\r\n\t\t\talign-items: center;\r\n\t\t\theight: var(--size-4);\r\n\t\t\twidth: 100%;\r\n\t\t\t/* text */\r\n\t\t\tfont-size: var(--font-size--1);\r\n\t\t\t/* borders */\r\n\t\t\tborder-radius: var(--border-radius-0);\r\n\t\t\tborder: var(--border-width-0);\r\n\t\t\tpadding: 0 var(--size--2);\r\n\t\t\tcolor: var(--primary-12-on);\r\n\t\t\tbackground-color: var(--primary-12);\r\n\t\t\t&:hover {\r\n\t\t\t\tcursor: pointer;\r\n\t\t\t\tcolor: var(--primary-11-on);\r\n\t\t\t\tbackground-color: var(--primary-11);\r\n\t\t\t}\r\n\t\t\t&::picker-icon {\r\n\t\t\t\tcolor: var(--primary-11-on);\r\n\t\t\t\ttransition: 250ms rotate;\r\n\t\t\t}\r\n\t\t\t&:open::picker-icon {\r\n\t\t\t\trotate: 180deg;\r\n\t\t\t}\r\n\t\t\t&::picker(select) {\r\n\t\t\t\tappearance: base-select;\r\n\t\t\t\topacity: 0;\r\n\t\t\t\ttransition: all 250ms allow-discrete;\r\n\t\t\t\tborder: none;\r\n\t\t\t\tborder-radius: var(--border-radius-0);\r\n\t\t\t\tflex-direction: column;\r\n\t\t\t\tmargin-top: var(--size--3);\r\n\t\t\t}\r\n\t\t\t&:open::picker(select) {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\topacity: 1;\r\n\t\t\t\ttransform: translateY(0);\r\n\r\n\t\t\t\t@starting-style {\r\n\t\t\t\t\topacity: 0;\r\n\t\t\t\t\ttransform: translateY(-1em);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\toption {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tjustify-content: flex-start;\r\n\t\t\t\tborder: 2px solid var(--primary-10);\r\n\t\t\t\tpadding: var(--size--2);\r\n\t\t\t\ttransition: 250ms;\r\n\t\t\t\tfont-size: var(--font-size--1);\r\n\t\t\t\tcolor: var(--primary-12-on);\r\n\t\t\t\tbackground-color: var(--primary-12);\r\n\t\t\t\t\r\n\t\t\t\t&:first-of-type {\r\n\t\t\t\t\tborder-radius: var(--border-radius-0) var(--border-radius-0) 0 0;\r\n\t\t\t\t}\r\n\r\n\t\t\t\t&:last-of-type {\r\n\t\t\t\t\tborder-radius: 0 0 var(--border-radius-0) var(--border-radius-0);\r\n\t\t\t\t}\r\n\r\n\t\t\t\t&:not(option:last-of-type) {\r\n\t\t\t\t\tborder-bottom: none;\r\n\t\t\t\t}\r\n\r\n\t\t\t\t&:nth-of-type(odd) {\r\n\t\t\t\t\tcolor: var(--primary-11-on);\r\n\t\t\t\t\tbackground-color: var(--primary-11);\r\n\t\t\t\t}\r\n\r\n\t\t\t\t&:hover, &:focus {\r\n\t\t\t\t\tcursor: pointer;\r\n\t\t\t\t\tcolor: var(--primary-9-on);\r\n\t\t\t\t\tbackground-color: var(--primary-9);\r\n\t\t\t\t}\r\n\r\n\t\t\t\t&:checked {\r\n\t\t\t\t\tfont-weight: var(--font-weight-bold);\r\n\t\t\t\t}\r\n\r\n\t\t\t\t&::checkmark {\r\n\t\t\t\t\torder: 1;\r\n\t\t\t\t\tmargin-left: auto;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\tselect {\n\t\t\tappearance: base-select;\n\t\t\tdisplay: flex;\n\t\t\tjustify-content: center;\n\t\t\talign-items: center;\n\t\t\theight: var(--size-4);\n\t\t\twidth: 100%;\n\t\t\t/* text */\n\t\t\tfont-size: var(--font-size--1);\n\t\t\t/* borders */\n\t\t\tborder-radius: var(--border-radius-0);\n\t\t\tborder: var(--border-width-0);\n\t\t\tpadding: 0 var(--size--2);\n\t\t\tcolor: var(--primary-12-on);\n\t\t\tbackground-color: var(--primary-12);\n\t\t\t&:hover {\n\t\t\t\tcursor: pointer;\n\t\t\t\tcolor: var(--primary-11-on);\n\t\t\t\tbackground-color: var(--primary-11);\n\t\t\t}\n\t\t\t&::picker-icon {\n\t\t\t\tcolor: var(--primary-11-on);\n\t\t\t\ttransition: 250ms rotate;\n\t\t\t}\n\t\t\t&:open::picker-icon {\n\t\t\t\trotate: 180deg;\n\t\t\t}\n\t\t\t&::picker(select) {\n\t\t\t\tappearance: base-select;\n\t\t\t\topacity: 0;\n\t\t\t\ttransition: all 250ms allow-discrete;\n\t\t\t\tborder: none;\n\t\t\t\tborder-radius: var(--border-radius-0);\n\t\t\t\tflex-direction: column;\n\t\t\t\tmargin-top: var(--size--3);\n\t\t\t}\n\t\t\t&:open::picker(select) {\n\t\t\t\tdisplay: flex;\n\t\t\t\topacity: 1;\n\t\t\t\ttransform: translateY(0);\n\n\t\t\t\t@starting-style {\n\t\t\t\t\topacity: 0;\n\t\t\t\t\ttransform: translateY(-1em);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\toption {\n\t\t\t\tdisplay: flex;\n\t\t\t\tjustify-content: flex-start;\n\t\t\t\tborder: 2px solid var(--primary-10);\n\t\t\t\tpadding: var(--size--2);\n\t\t\t\ttransition: 250ms;\n\t\t\t\tfont-size: var(--font-size--1);\n\t\t\t\tcolor: var(--primary-12-on);\n\t\t\t\tbackground-color: var(--primary-12);\n\t\t\t\t\n\t\t\t\t&:first-of-type {\n\t\t\t\t\tborder-radius: var(--border-radius-0) var(--border-radius-0) 0 0;\n\t\t\t\t}\n\n\t\t\t\t&:last-of-type {\n\t\t\t\t\tborder-radius: 0 0 var(--border-radius-0) var(--border-radius-0);\n\t\t\t\t}\n\n\t\t\t\t&:not(option:last-of-type) {\n\t\t\t\t\tborder-bottom: none;\n\t\t\t\t}\n\n\t\t\t\t&:nth-of-type(odd) {\n\t\t\t\t\tcolor: var(--primary-11-on);\n\t\t\t\t\tbackground-color: var(--primary-11);\n\t\t\t\t}\n\n\t\t\t\t&:hover, &:focus {\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\tcolor: var(--primary-9-on);\n\t\t\t\t\tbackground-color: var(--primary-9);\n\t\t\t\t}\n\n\t\t\t\t&:checked {\n\t\t\t\t\tfont-weight: var(--font-weight-bold);\n\t\t\t\t}\n\n\t\t\t\t&::checkmark {\n\t\t\t\t\torder: 1;\n\t\t\t\t\tmargin-left: auto;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -220,22 +220,24 @@ func Select(props ...Props) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " class=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var10 string
-		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var3).String())
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/select/select.templ`, Line: 1, Col: 0}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if p.Class != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var3).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/select/select.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		templ_7745c5c3_Err = templ.RenderAttributes(ctx, templ_7745c5c3_Buffer, p.Attributes)
 		if templ_7745c5c3_Err != nil {
@@ -253,7 +255,7 @@ func Select(props ...Props) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(p.Placeholder)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/select/select.templ`, Line: 151, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/select/select.templ`, Line: 153, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -280,7 +282,7 @@ func Select(props ...Props) templ.Component {
 	})
 }
 
-func Option() templ.Component {
+func Option(selected bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -301,7 +303,20 @@ func Option() templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<option>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<option")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var13 string
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(selected)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/select/select.templ`, Line: 162, Col: 11}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(` ` + templ_7745c5c3_Var13))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, ">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -309,7 +324,7 @@ func Option() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</option>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</option>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
