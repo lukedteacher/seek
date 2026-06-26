@@ -20,12 +20,13 @@ type ScheduleReadModelReader interface {
 type ScheduleReadModelWriter interface {
 	InsertCreatedSchedule(ctx context.Context, event ScheduleCreatedProjection) error
 	UpdateSchedule(ctx context.Context, event ScheduleUpdatedProjection) error
+	PeriodAddedToSchedule(ctx context.Context, event PeriodAddedToScheduleProjection) error
 	DeleteSchedule(ctx context.Context, event ScheduleDeletedProjection) error
 }
 
 type ScheduleCreatedProjection struct {
 	Position  eventstore.Position
-	Id        string
+	ScheduleID        string
 	Title     string
 	TeacherId string
 	CreatedAt time.Time
@@ -33,15 +34,22 @@ type ScheduleCreatedProjection struct {
 
 type ScheduleUpdatedProjection struct {
 	Position  eventstore.Position
-	Id        string
+	ScheduleID        string
 	Title     string
 	TeacherId string
 	UpdatedAt time.Time
 }
 
+type PeriodAddedToScheduleProjection struct {
+	Position                eventstore.Position
+	ScheduleID              string
+	PeriodID                string
+	PeriodAddedToScheduleAt time.Time
+}
+
 type ScheduleDeletedProjection struct {
 	Position  eventstore.Position
-	Id        string
+	ScheduleID        string
 	DeletedAt time.Time
 }
 
@@ -81,6 +89,7 @@ func ScheduleReadModelEventHandlerQuery() eventstore.Query {
 	eventTypes := []string{
 		ScheduleCreated,
 		ScheduleUpdated,
+		PeriodAddedToSchedule,
 		ScheduleDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
@@ -99,14 +108,15 @@ func (h *ScheduleReadModelEventHandler) handle(ctx context.Context, resolved eve
 	if id == "" {
 		return fmt.Errorf("no id provided for read model event")
 	}
-
+	println(resolved.Event.Data)
 	switch resolved.Event.EventType {
 	case ScheduleCreated:
+		println("sc case in read model")
 		title, _ := data["title"].(string)
 		teacherId, _ := data["teacherID"].(string)
 		if err := h.readModel.InsertCreatedSchedule(ctx, ScheduleCreatedProjection{
 			Position:  resolved.Position,
-			Id:        id,
+			ScheduleID:        id,
 			Title:     title,
 			TeacherId: teacherId,
 			CreatedAt: parseTime(data["createdAt"]),
@@ -114,21 +124,35 @@ func (h *ScheduleReadModelEventHandler) handle(ctx context.Context, resolved eve
 			return err
 		}
 	case ScheduleUpdated:
+		println("su case in read model")
 		title, _ := data["title"].(string)
 		teacherId, _ := data["teacherID"].(string)
 		if err := h.readModel.UpdateSchedule(ctx, ScheduleUpdatedProjection{
 			Position:  resolved.Position,
-			Id:        id,
+			ScheduleID:        id,
 			Title:     title,
 			TeacherId: teacherId,
 			UpdatedAt: parseTime(data["updatedAt"]),
 		}); err != nil {
 			return err
 		}
+	case PeriodAddedToSchedule:
+		println("pa case in read model")
+		scheduleID, _ := data["scheduleID"].(string)
+		println("c sid: ", scheduleID)
+		periodID, _ := data["periodID"].(string)
+		if err := h.readModel.PeriodAddedToSchedule(ctx, PeriodAddedToScheduleProjection{
+			Position:                resolved.Position,
+			ScheduleID:              scheduleID,
+			PeriodID:                periodID,
+			PeriodAddedToScheduleAt: parseTime(data["periodAddedToScheduleAt"]),
+		}); err != nil {
+			return err
+		}
 	case ScheduleDeleted:
 		if err := h.readModel.DeleteSchedule(ctx, ScheduleDeletedProjection{
 			Position:  resolved.Position,
-			Id:        id,
+			ScheduleID:        id,
 			DeletedAt: parseTime(data["deletedAt"]),
 		}); err != nil {
 			return err

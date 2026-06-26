@@ -1,4 +1,4 @@
-package ui_select
+package selectbox
 
 import (
 	"github.com/starfederation/datastar-go/datastar"
@@ -17,13 +17,13 @@ type Props struct {
 	HasError     bool
 	DataBind     string
 	DataOnChange string
+	Multiple     bool
 }
 
 templ SelectStyles() {
 	<style>
 		select {
 			appearance: base-select;
-			display: flex;
 			justify-content: center;
 			align-items: center;
 			height: var(--size-4);
@@ -146,9 +146,20 @@ templ SelectStyles() {
 				}
 			}
 		}
+		select[multiple] {
+			height: fit-content;
+			padding: 0;
+			background-color: transparent;
+			/* this doesn't match the children */
+			border-radius: var(--border-radius-2);
+
+			&:focus-within {
+				outline-color: var(--primary-12-dim);
+				border-color: transparent;
+			}
+		}
 	</style>
 }
-
 
 templ Select(props ...Props) {
 	{{ var p Props }}
@@ -180,6 +191,9 @@ templ Select(props ...Props) {
 		}
 		if p.Class != "" {
 			class={	p.Class }
+		}
+		if p.Multiple {
+			multiple
 		}
 		{ p.Attributes... }
 	>

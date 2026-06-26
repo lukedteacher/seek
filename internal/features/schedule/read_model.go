@@ -8,6 +8,7 @@ import (
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
 	"seek/internal/domain/models"
+	"seek/internal/uuidv7"
 
 	"zombiezen.com/go/sqlite"
 )
@@ -66,7 +67,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Schedule, error) {
 func (m *ReadModel) InsertCreatedSchedule(ctx context.Context, event ScheduleCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceInsertCreatedSchedule(conn, dbsql.InsertCreatedScheduleParams{
-			Id:                       event.Id,
+			Id:                       event.ScheduleID,
 			Title:                    event.Title,
 			TeacherId:                event.TeacherId,
 			CreatedAt:                appdb.SQLTime(event.CreatedAt),
@@ -79,10 +80,23 @@ func (m *ReadModel) InsertCreatedSchedule(ctx context.Context, event ScheduleCre
 func (m *ReadModel) UpdateSchedule(ctx context.Context, event ScheduleUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateSchedule(conn, dbsql.UpdateScheduleParams{
-			Id:                       event.Id,
+			Id:                       event.ScheduleID,
 			Title:                    event.Title,
 			TeacherId:                event.TeacherId,
 			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),
+			LastEventCommitPosition:  event.Position.Commit,
+			LastEventPreparePosition: event.Position.Prepare,
+		})
+	})
+}
+
+func (m *ReadModel) PeriodAddedToSchedule(ctx context.Context, event PeriodAddedToScheduleProjection) error {
+	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
+		return dbsql.OnceInsertCreatedSchedulePeriod(conn, dbsql.InsertCreatedSchedulePeriodParams{
+			Id: 											uuidv7.NewString(),
+			ScheduleId:               event.ScheduleID,
+			PeriodId:                 event.PeriodID,
+			CreatedAt:                appdb.SQLTime(event.PeriodAddedToScheduleAt),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 		})
@@ -96,7 +110,7 @@ func (m *ReadModel) DeleteSchedule(ctx context.Context, event ScheduleDeletedPro
 			DeletedAt:                &deletedAt,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
-			Id:                       event.Id,
+			Id:                       event.ScheduleID,
 		})
 	})
 }

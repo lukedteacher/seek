@@ -8,7 +8,7 @@ import (
 
 templ Schedule() {
 	@layouts.Base("SEEK: schedule") {
-		<main data-init={ views.LongRunningGetSSE("/schedule/stream") }>
+		<main data-init={ views.LongRunningGetSSE("/schedules/stream") }>
 			@blocks.ScheduleComponent(60)
 		</main>
 	}

@@ -15,7 +15,7 @@ import (
 	"seek/internal/features/student"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
-	"seek/internal/views/components/select"
+	"seek/internal/views/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
@@ -255,7 +255,7 @@ func EditStudentForm(student models.Student, validation map[string]student.Valid
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = ui_select.Select(ui_select.Props{
+			templ_7745c5c3_Err = selectbox.Select(selectbox.Props{
 				ID:           "grade-select",
 				Placeholder:  "select a grade",
 				DataBind:     "grade",

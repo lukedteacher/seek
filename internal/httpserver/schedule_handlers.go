@@ -16,12 +16,12 @@ import (
 func (s Server) scheduleRoutes(r chi.Router) {
 	r.Get("/schedule", s.schedule)
 	r.Get("/schedules/create", s.createScheduleForm)
-	r.Post("/schedules/create", s.createSchedule)
 	r.Post("/schedules/create/validate", s.validateCreateSchedule)
+	r.Post("/schedules/create", s.createSchedule)
 	r.Get("/schedules/{id}", s.editScheduleForm)
 	r.Get("/schedules/{id}/edit", s.editScheduleForm)
-	r.Post("/schedules/{id}/edit", s.editSchedule)
 	r.Post("/schedules/{id}/edit/validate", s.validateEditSchedule)
+	r.Post("/schedules/{id}/edit", s.editSchedule)
 	r.Post("/schedules/{id}/delete", s.deleteSchedule)
 	r.Get("/schedules", s.schedules)
 }
@@ -117,13 +117,13 @@ func (s Server) createSchedule(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
 		return clearSignals(&Signals{}, sse)
 	})
 }
 
-// GET request to /schedule/{id}
+// GET request to /schedules/{id}
 func (s Server) editScheduleForm(w http.ResponseWriter, r *http.Request) {
 	context := r.Context()
 	type Signals struct {
@@ -163,7 +163,7 @@ func (s Server) editScheduleForm(w http.ResponseWriter, r *http.Request) {
 	_ = pages.EditSchedule(*scheduleRes, teachers, periods, validation, selectedTeacher).Render(context, w)
 }
 
-// POST request to /schedule/{id}/edit/validate
+// POST request to /schedules/{id}/edit/validate
 func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
 	context := r.Context()
 	type Signals struct {
@@ -189,11 +189,13 @@ func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
 	patchTempl(w, r, pages.EditSchedule(model, teachers, periods, validation, signals.TeacherId))
 }
 
-// POST request to /schedule/{id}/edit
+// POST request to /schedules/{id}/edit
 func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
+	context := r.Context()
 	type Signals struct {
-		Title     string `json:"title"`
-		TeacherId string `json:"teacher_id"`
+		Title     string   `json:"title"`
+		TeacherId string   `json:"teacher_id"`
+		PeriodIDs []string `json:"period_ids"`
 	}
 
 	signals := &Signals{}
@@ -201,10 +203,9 @@ func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	scheduleID := chi.URLParam(r, "id")
-
-	result, err := schedule.UpdateScheduleCommandHandler(r.Context(), schedule.UpdateScheduleCommand{
+	println(signals.PeriodIDs[0])
+	result, err := schedule.UpdateScheduleCommandHandler(context, schedule.UpdateScheduleCommand{
 		Id:        scheduleID,
 		Title:     signals.Title,
 		TeacherId: signals.TeacherId,
@@ -214,14 +215,24 @@ func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if result.Skipped == true {
-		println("update skipped")
+
+	println(result.ScheduleUpdatedID)
+
+	periodResult, err := schedule.PeriodAddedToScheduleCommandHandler(context, schedule.PeriodAddedToScheduleCommand{
+		ScheduleID: scheduleID,
+		PeriodID: signals.PeriodIDs[0],
+		Metadata:   eventstore.HTTPCommandMetadata(r),
+	}, s.EventSaver, s.EventRetriever)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	if periodResult != nil {
+		println("did we get a result?")
+	}
 }
 
-// POST request to /schedule/{id}/delete
+// POST request to /schedules/{id}/delete
 func (s Server) deleteSchedule(w http.ResponseWriter, r *http.Request) {
 	scheduleID := chi.URLParam(r, "id")
 	_, err := schedule.DeleteScheduleCommandHandler(r.Context(), schedule.DeleteScheduleCommand{

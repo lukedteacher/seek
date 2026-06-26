@@ -18,7 +18,7 @@ templ ScheduleList(schedules []models.Schedule) {
 			for _, schedule := range schedules {
 				<tr>
 					<td>
-						<a href={ fmt.Sprintf("/schedule/%s", schedule.Id) }>
+						<a href={ fmt.Sprintf("/schedules/%s", schedule.Id) }>
 							<button>
 								@components.Icon("mdi:link")
 							</button>

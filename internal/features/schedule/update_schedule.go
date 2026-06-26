@@ -39,7 +39,7 @@ func UpdateScheduleCommandHandler(ctx context.Context, command UpdateScheduleCom
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return UpdateScheduleResult{}, err
 	}
-	return UpdateScheduleResult{ScheduleUpdatedID: eventID}, nil
+	return UpdateScheduleResult{ScheduleUpdatedID: eventID, Skipped: false}, nil
 }
 
 type updateScheduleContext struct {

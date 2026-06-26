@@ -7,13 +7,13 @@ import (
 	"seek/internal/features/schedule"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
-	"seek/internal/views/components/select"
+	"seek/internal/views/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
 templ CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) {
-	<form data-on:submit={ datastar.PostSSE("/schedule/create") }>
+	<form data-on:submit={ datastar.PostSSE("/schedules/create") }>
 		<hgroup>
 			<h2>CREATE A SCHEDULE</h2>
 			<p>create a new schedule.</p>
@@ -30,7 +30,7 @@ templ CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, pe
 					ID: "title",
 					Name: "title",
 					DataBind: "title",
-					DataOn: "/schedule/create/validate",
+					DataOn: "/schedules/create/validate",
 					HasError: validation["title"].State == "error",
 					IsValid: validation["title"].State == "valid",
 				})
@@ -44,11 +44,11 @@ templ CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, pe
 				ValidationState: validation["teacher_id"].State,
 				ValidationMessage: validation["teacher_id"].Message,
 			}) {
-				@ui_select.Select(ui_select.Props{
+				@selectbox.Select(selectbox.Props{
 					ID: "teacher-select",
 					Placeholder: "select a teacher",
 					DataBind: "teacher_id",
-					DataOnChange: fmt.Sprintf("/schedule/create/validate"),
+					DataOnChange: fmt.Sprintf("/schedules/create/validate"),
 					HasError: validation["teacher_id"].State == "error",
 					IsValid: validation["teacher_id"].State == "valid",
 				}) {

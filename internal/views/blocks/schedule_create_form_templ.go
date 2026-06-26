@@ -15,7 +15,7 @@ import (
 	"seek/internal/features/schedule"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
-	"seek/internal/views/components/select"
+	"seek/internal/views/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
@@ -46,9 +46,9 @@ func CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, per
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/schedule/create"))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/schedules/create"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_create_form.templ`, Line: 16, Col: 60}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_create_form.templ`, Line: 16, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -74,7 +74,7 @@ func CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, per
 				ID:       "title",
 				Name:     "title",
 				DataBind: "title",
-				DataOn:   "/schedule/create/validate",
+				DataOn:   "/schedules/create/validate",
 				HasError: validation["title"].State == "error",
 				IsValid:  validation["title"].State == "valid",
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -178,11 +178,11 @@ func CreateScheduleForm(schedule models.Schedule, teachers []models.Teacher, per
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = ui_select.Select(ui_select.Props{
+			templ_7745c5c3_Err = selectbox.Select(selectbox.Props{
 				ID:           "teacher-select",
 				Placeholder:  "select a teacher",
 				DataBind:     "teacher_id",
-				DataOnChange: fmt.Sprintf("/schedule/create/validate"),
+				DataOnChange: fmt.Sprintf("/schedules/create/validate"),
 				HasError:     validation["teacher_id"].State == "error",
 				IsValid:      validation["teacher_id"].State == "valid",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)

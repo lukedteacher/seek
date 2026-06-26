@@ -16,7 +16,11 @@ a tool for educators.
 - [ ] fix validation
 - [ ] schedules
   - [x] CRUD operations
+	- [x] add period to schedule
+	- [ ] add periodS to schedule
+	- [ ] validate period isn't already in schedule
   - [ ] show periods
+
 - [ ] everything else
 
 ### components todo
