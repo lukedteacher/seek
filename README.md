@@ -8,18 +8,28 @@ a tool for educators.
 - [x] basic server
 - [x] figure out hot reload
 - [x] index page
-- [x] student page (basic)
-- [x] create, delete students
-- [x] student data
-- [ ] schedule viewer
+- [ ] students
+  - [x] info page
+  - [x] CRUD operations
+  - [ ] better lists / tables
+  - [ ] refactor grades / homerooms / etc.
+- [ ] fix validation
+- [ ] schedules
+  - [x] CRUD operations
+  - [ ] show periods
 - [ ] everything else
 
 ### components todo
 
 - [x] buttons
+  - [ ] more interactivity
 - [x] icons
+  - [ ] remove iconify dependency
 - [ ] forms
-- [ ] cards
+  - [x] select
+  - [x] text input
+  - [ ] time input
+- [x] cards
 
 ## features
 
@@ -27,11 +37,13 @@ a tool for educators.
 - goals
 - data tracking
 - behavior
+- info page
 
 ## bugs
 
-- can't delete students created by migration
-- pointers in student data don't translate to projections
+- [ ] can't delete students created by migration
+- [x] pointers in student data don't translate to projections
+  - fixed with stringPtr function from orisun
 
 ### reminders
 - camelCase for event sourcing

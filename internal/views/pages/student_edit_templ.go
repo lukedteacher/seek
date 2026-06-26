@@ -16,7 +16,7 @@ import (
 	"seek/internal/views/layouts"
 )
 
-func CreateStudent(student models.Student, validation map[string]student.Validation, selectedGrade string) templ.Component {
+func EditStudent(student models.Student, validation map[string]student.Validation, selectedGrade string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -54,9 +54,9 @@ func CreateStudent(student models.Student, validation map[string]student.Validat
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/students/create/stream"))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/students/edit/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/pages/student_create.templ`, Line: 13, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/pages/student_edit.templ`, Line: 13, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -66,7 +66,7 @@ func CreateStudent(student models.Student, validation map[string]student.Validat
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.CreateStudentForm(student, validation, selectedGrade).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.EditStudentForm(student, validation, selectedGrade).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -76,7 +76,7 @@ func CreateStudent(student models.Student, validation map[string]student.Validat
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("SEEK: create student").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("SEEK: edit student").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

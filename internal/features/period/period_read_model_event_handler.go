@@ -114,7 +114,6 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 			Days:      int64(data["days"].(float64)),
 			CreatedAt: parseTime(data["createdAt"]),
 		}
-		println("pcd: ", data["createdAt"])
 		if err := h.readModel.InsertCreatedPeriod(ctx, periodCreated); err != nil {
 			return err
 		}
@@ -127,7 +126,6 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 			Days:      int64(data["days"].(float64)),
 			UpdatedAt: parseTime(data["updatedAt"]),
 		}
-		println("pud: ", data["updatedAt"])
 		if err := h.readModel.UpdatePeriod(ctx, periodUpdated); err != nil {
 			return err
 		}

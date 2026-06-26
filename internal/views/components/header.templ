@@ -6,19 +6,35 @@ import (
 templ Header() {
 	<!doctype html>
 	<header>
+		<hgroup>
 		<h1>SEEK</h1>
+		<h3>shared educational environment knowledge</h3>
+		</hgroup>
 		@Nav()
 		{ children... }
 	</header>
+	@HeaderStyles()
 }
 
-templ Nav() {
-	<nav>
-		<ul>
-			<li><a href="/">home</a></li>
-			<li><a href="/students">students</a></li>
-			<li><a href="/schedule">schedules</a></li>
-			<li><a href="/goals">goals</a></li>
-		</ul>
-	</nav>
+templ HeaderStyles() {
+	<style>
+		body > header {
+			color: var(--secondary-2-on);
+			background-color: var(--secondary-2);
+			width: 100%;
+			height: 6rem;
+			align-items: center;
+			display: flex;
+			flex-direction: row;
+			padding-left: var(--size-4);
+
+			h3 {
+				font-weight: var(--font-weight-thin);
+				font-size: var(--font-size--2);
+				color: var(--secondary-4-on);
+				letter-spacing: (--font-letter-spacing--2);
+				
+			}
+		}
+	</style>
 }

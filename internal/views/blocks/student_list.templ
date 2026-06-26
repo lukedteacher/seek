@@ -20,7 +20,7 @@ templ StudentList(students []models.Student) {
 			for _, student := range students {
 				<tr>
 					<td>
-						<a href={ fmt.Sprintf("/student/%s", student.Id) }>{ student.FirstName }</a>
+						<a href={ fmt.Sprintf("/students/%s", student.Id) }>{ student.FirstName }</a>
 					</td>
 					<td>
 						if student.ChosenName != nil {

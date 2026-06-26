@@ -8,9 +8,7 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import ()
-
-func Header() templ.Component {
+func Footer() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -31,23 +29,11 @@ func Header() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><header><hgroup><h1>SEEK</h1><h3>shared educational environment knowledge</h3></hgroup>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<footer><p>probably there should be stuff here.</p></footer>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = Nav().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templ_7745c5c3_Var1.Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</header>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = HeaderStyles().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = FooterStyle().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -55,7 +41,7 @@ func Header() templ.Component {
 	})
 }
 
-func HeaderStyles() templ.Component {
+func FooterStyle() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -76,7 +62,7 @@ func HeaderStyles() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<style>\n\t\tbody > header {\n\t\t\tcolor: var(--secondary-2-on);\n\t\t\tbackground-color: var(--secondary-2);\n\t\t\twidth: 100%;\n\t\t\theight: 6rem;\n\t\t\talign-items: center;\n\t\t\tdisplay: flex;\n\t\t\tflex-direction: row;\n\t\t\tpadding-left: var(--size-4);\n\n\t\t\th3 {\n\t\t\t\tfont-weight: var(--font-weight-thin);\n\t\t\t\tfont-size: var(--font-size--2);\n\t\t\t\tcolor: var(--secondary-4-on);\n\t\t\t\tletter-spacing: (--font-letter-spacing--2);\n\t\t\t\t\n\t\t\t}\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<style>\n\t\tbody > footer {\n\t\t\tdisplay: flex;\n\t\t\tjustify-content: start;\n\t\t\talign-items: center;\n\t\t\theight: 4rem;\n\t\t\twidth: 100%;\n\t\t\tmargin-top: var(--size-3);\n\t\t\tpadding-left: var(--size-4);\n\t\t\tcolor: var(--secondary-2-on);\n\t\t\tbackground-color: var(--secondary-2);\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

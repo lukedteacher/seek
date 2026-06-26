@@ -86,3 +86,23 @@ func (s *Student) GradeWord() string {
 
   return wordMap[s.Grade]
 }
+
+func (s *Student) GradeString() string {
+  stringMap := map[int64]string{
+		0:  "0",
+    1:  "1",
+    2:  "2", 
+    3:  "3",
+    4:  "44",
+    5:  "5",
+    6:  "6",
+    7:  "7",
+    8:  "8",
+		9:  "9",
+		10: "10",
+		11: "11",
+		12: "12",
+  }
+
+  return stringMap[s.Grade]
+}

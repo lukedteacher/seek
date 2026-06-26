@@ -18,13 +18,13 @@ body {
 	color: var(--neutral-1-on);
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	display: grid;
-	grid-template-rows: auto 1fr;
+	grid-template-rows: auto 1fr auto;
 	
 	> header {
-		background-color: var(--secondary-3);
-		color: var(--secondary-3-on);
+		color: var(--secondary-2-on);
+		background-color: var(--secondary-2);
 		width: 100%;
-		height: 100px;
+		height: 6rem;
 		align-items: center;
 		display: flex;
 		flex-direction: row;
@@ -37,7 +37,7 @@ body {
 				gap: var(--size-4);
 
 				li a {
-					padding: var(--size-2);
+					padding: var(--size-0) var(--size-2);
 					border-radius: var(--border-radius-2);
 					&:hover {
 						background-color: var(--secondary-5);
@@ -109,6 +109,7 @@ form {
 
 	hgroup p {
 		color: color-mix(in oklch, currentColor 90%, black 10%);
+		font-size: var(--font-size--1);
 	}
 
 	section {
@@ -180,13 +181,15 @@ div.card {
 	border-radius: var(--border-radius-2);
 	padding: var(--size-0) var(--size-1);
 	font-size: var(--font-size--1);
-	flex-grow: 1;
+	flex: 1;
 	display: flex;
 	flex-direction: column;
 	gap: var(--size-0);
+	transition: all 150ms var(--anim-ease-standard);
 
 	&:hover {
 		background-color: var(--primary-6);
 		color: var(--primary-6-on);
+		transform: scale(105%);
 	}
 }

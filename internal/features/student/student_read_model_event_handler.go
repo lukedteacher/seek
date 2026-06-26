@@ -110,40 +110,40 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	switch resolved.Event.EventType {
 	case StudentCreated:
 		firstName, _ := data["firstName"].(string)
-		chosenName, _ := data["chosenName"].(*string)
+		chosenName, _ := data["chosenName"].(string)
 		lastName, _ := data["lastName"].(string)
 		grade := int64(data["grade"].(float64))
 		homeroom, _ := data["homeroom"].(string)
-		caseManager, _ := data["caseManager"].(*string)
+		caseManager, _ := data["caseManager"].(string)
 		if err := h.readModel.InsertCreatedStudent(ctx, StudentCreatedProjection{
 			Position:    resolved.Position,
 			Id:          id,
 			FirstName:   firstName,
-			ChosenName:  chosenName,
+			ChosenName:  stringPtr(chosenName),
 			LastName:    lastName,
 			Grade:       grade,
 			Homeroom:    homeroom,
-			CaseManager: caseManager,
+			CaseManager: stringPtr(caseManager),
 			CreatedAt:   parseTime(data["createdAt"]),
 		}); err != nil {
 			return err
 		}
 	case StudentUpdated:
 		firstName, _ := data["firstName"].(string)
-		chosenName, _ := data["chosenName"].(*string)
+		chosenName, _ := data["chosenName"].(string)
 		lastName, _ := data["lastName"].(string)
 		grade := int64(data["grade"].(float64))
 		homeroom, _ := data["homeroom"].(string)
-		caseManager, _ := data["caseManager"].(*string)
+		caseManager, _ := data["caseManager"].(string)
 		if err := h.readModel.UpdateStudent(ctx, StudentUpdatedProjection{
 			Position:    resolved.Position,
 			Id:          id,
 			FirstName:   firstName,
-			ChosenName:  chosenName,
+			ChosenName:  stringPtr(chosenName),
 			LastName:    lastName,
 			Grade:       grade,
 			Homeroom:    homeroom,
-			CaseManager: caseManager,
+			CaseManager: stringPtr(caseManager),
 			UpdatedAt:   parseTime(data["updatedAt"]),
 		}); err != nil {
 			return err
@@ -161,4 +161,8 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	}
 	// TODO not sure if this is the fix
 	return nil
+}
+
+func stringPtr(value string) *string {
+	return &value
 }
