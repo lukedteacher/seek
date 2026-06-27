@@ -9,7 +9,8 @@ type CommandMetadata = eventstore.CommandMetadata
 func streamQuery(id string) eventstore.Query {
 	eventTypes := []string{
 		ScheduleCreated,
-		PeriodAddedToSchedule,
+		SchedulePeriodAdded,
+		SchedulePeriodRemoved,
 		ScheduleUpdated,
 		ScheduleDeleted,
 	}

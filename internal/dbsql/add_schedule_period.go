@@ -7,7 +7,7 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type InsertCreatedSchedulePeriodParams struct {
+type AddSchedulePeriodParams struct {
 	Id                       string `json:"id"`
 	ScheduleId               string `json:"schedule_id"`
 	PeriodId                 string `json:"period_id"`
@@ -16,21 +16,21 @@ type InsertCreatedSchedulePeriodParams struct {
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 }
 
-type InsertCreatedSchedulePeriodStmt struct {
+type AddSchedulePeriodStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func InsertCreatedSchedulePeriod(tx *sqlite.Conn) *InsertCreatedSchedulePeriodStmt {
+func AddSchedulePeriod(tx *sqlite.Conn) *AddSchedulePeriodStmt {
 	const querySQL = `
 INSERT INTO schedule_periods (id, schedule_id, period_id, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
 VALUES (?1, ?2, ?3, ?4, ?4, ?5, ?6)
 ON CONFLICT (id) DO NOTHING
     `
 
-	ps := &InsertCreatedSchedulePeriodStmt{
+	ps := &AddSchedulePeriodStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -43,8 +43,8 @@ ON CONFLICT (id) DO NOTHING
 	return ps
 }
 
-func (ps *InsertCreatedSchedulePeriodStmt) Run(
-	params InsertCreatedSchedulePeriodParams,
+func (ps *AddSchedulePeriodStmt) Run(
+	params AddSchedulePeriodParams,
 ) (
 	err error,
 ) {
@@ -85,19 +85,19 @@ func (ps *InsertCreatedSchedulePeriodStmt) Run(
 
 	// Execute the query
 	if _, err := stmt.Step(); err != nil {
-		return fmt.Errorf("failed to execute insertcreatedscheduleperiod SQL: %w", err)
+		return fmt.Errorf("failed to execute addscheduleperiod SQL: %w", err)
 	}
 
 	return nil
 }
 
-func OnceInsertCreatedSchedulePeriod(
+func OnceAddSchedulePeriod(
 	tx *sqlite.Conn,
-	params InsertCreatedSchedulePeriodParams,
+	params AddSchedulePeriodParams,
 ) (
 	err error,
 ) {
-	ps := InsertCreatedSchedulePeriod(tx)
+	ps := AddSchedulePeriod(tx)
 
 	return ps.Run(
 		params,

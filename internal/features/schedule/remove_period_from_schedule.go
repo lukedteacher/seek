@@ -2,26 +2,27 @@ package schedule
 
 import (
 	"context"
+	"slices"
 	"time"
 
 	"seek/internal/eventstore"
 	"seek/internal/uuidv7"
 )
 
-type PeriodAddedToScheduleCommand struct {
+type RemovePeriodFromScheduleCommand struct {
 	EventID    string
 	ScheduleID string
 	PeriodID   string
 	Metadata   CommandMetadata
 }
 
-type SchedulePeriodAddedResult struct {
+type SchedulePeriodRemoveResult struct {
 	EventID string
 	Skipped bool
 }
 
-func PeriodAddedToScheduleCommandHandler(ctx context.Context, command PeriodAddedToScheduleCommand, saver eventstore.Saver, retriever eventstore.Retriever) (*SchedulePeriodAddedResult, error) {
-	model, err := loadPeriodAddedToScheduleContext(ctx, retriever, command.ScheduleID)
+func RemovePeriodFromScheduleCommandHandler(ctx context.Context, command RemovePeriodFromScheduleCommand, saver eventstore.Saver, retriever eventstore.Retriever) (*SchedulePeriodRemoveResult, error) {
+	model, err := loadRemovePeriodFromScheduleContext(ctx, retriever, command.ScheduleID)
 	if err != nil {
 		return nil, err
 	}
@@ -29,44 +30,43 @@ func PeriodAddedToScheduleCommandHandler(ctx context.Context, command PeriodAdde
 		return nil, err
 	}
 
-	skipped := false
-
+	skipped := true
 	if len(model.periodIDs) > 0 {
 		for _, periodID := range model.periodIDs {
 			if periodID == command.PeriodID {
-				skipped = true
+				skipped = false
 			}
 		}
 	}
 	if skipped {
-		return &SchedulePeriodAddedResult{Skipped: skipped}, nil
+		return &SchedulePeriodRemoveResult{Skipped: skipped}, nil
 	}
 	eventID := uuidv7.NewString()
-	event := NewSchedulePeriodAddedEvent(eventID, command.ScheduleID, command.PeriodID, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewSchedulePeriodRemovedEvent(eventID, command.ScheduleID, command.PeriodID, time.Now(), metadataWithQuery(command.Metadata, model.query))
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return nil, err
 	}
-	return &SchedulePeriodAddedResult{EventID: eventID, Skipped: false}, nil
+	return &SchedulePeriodRemoveResult{EventID: eventID, Skipped: false}, nil
 }
 
-type periodAddedToScheduleContext struct {
-	exists   bool
-	deleted  bool
+type removePeriodFromScheduleContext struct {
+	exists    bool
+	deleted   bool
 	periodIDs []string
-	position eventstore.Position
-	events   []eventstore.ResolvedEvent
-	query    eventstore.Query
+	position  eventstore.Position
+	events    []eventstore.ResolvedEvent
+	query     eventstore.Query
 }
 
-func loadPeriodAddedToScheduleContext(ctx context.Context, retriever eventstore.Retriever, id string) (*periodAddedToScheduleContext, error) {
+func loadRemovePeriodFromScheduleContext(ctx context.Context, retriever eventstore.Retriever, id string) (*removePeriodFromScheduleContext, error) {
 	query := streamQuery(id)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err
 	}
 
-	model := &periodAddedToScheduleContext{position: eventstore.NoEventPosition, events: events, query: query}
+	model := &removePeriodFromScheduleContext{position: eventstore.NoEventPosition, events: events, query: query}
 	for _, event := range events {
 		model.handle(event)
 	}
@@ -74,14 +74,14 @@ func loadPeriodAddedToScheduleContext(ctx context.Context, retriever eventstore.
 	return model, nil
 }
 
-func (m *periodAddedToScheduleContext) requireActive() error {
+func (m *removePeriodFromScheduleContext) requireActive() error {
 	if !m.exists || m.deleted {
 		return eventstore.ErrNotFound
 	}
 	return nil
 }
 
-func (m *periodAddedToScheduleContext) handle(resolved eventstore.ResolvedEvent) {
+func (m *removePeriodFromScheduleContext) handle(resolved eventstore.ResolvedEvent) {
 	data := resolved.Event.Data
 	switch resolved.Event.EventType {
 	case ScheduleCreated:
@@ -92,14 +92,9 @@ func (m *periodAddedToScheduleContext) handle(resolved eventstore.ResolvedEvent)
 		m.periodIDs = append(m.periodIDs, data["periodID"].(string))
 	case SchedulePeriodRemoved:
 		periodToRemove := data["periodID"].(string)
-		n := 0
-		for index, periodID := range m.periodIDs {
-				if m.periodIDs[index] == periodToRemove {
-						m.periodIDs[n] = periodID
-						n++
-				}
-		}
-		m.periodIDs = m.periodIDs[:n]
+		m.periodIDs = slices.DeleteFunc(m.periodIDs, func(id string) bool {
+        return id == periodToRemove
+    })
 	case ScheduleDeleted:
 		m.deleted = true
 	}

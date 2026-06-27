@@ -15,42 +15,52 @@ const ScheduleReadModelEventHandlerName = "schedule_read_model_event_handler"
 type ScheduleReadModelReader interface {
 	Get(ctx context.Context, scheduleID string) (*models.Schedule, error)
 	List(ctx context.Context) ([]models.Schedule, error)
+	ListSchedulePeriodIDs(ctx context.Context, scheduleID string) ([]string, error)
+	UpdateSchedulePeriods(ctx context.Context, currentPeriodIDs, proposedPeriodIDs []string) error
 }
 
 type ScheduleReadModelWriter interface {
 	InsertCreatedSchedule(ctx context.Context, event ScheduleCreatedProjection) error
 	UpdateSchedule(ctx context.Context, event ScheduleUpdatedProjection) error
-	PeriodAddedToSchedule(ctx context.Context, event PeriodAddedToScheduleProjection) error
+	AddSchedulePeriod(ctx context.Context, event SchedulePeriodAddedProjection) error
+	RemoveSchedulePeriod(ctx context.Context, event SchedulePeriodRemovedProjection) error
 	DeleteSchedule(ctx context.Context, event ScheduleDeletedProjection) error
 }
 
 type ScheduleCreatedProjection struct {
-	Position  eventstore.Position
-	ScheduleID        string
-	Title     string
-	TeacherId string
-	CreatedAt time.Time
+	Position   eventstore.Position
+	ScheduleID string
+	Title      string
+	TeacherId  string
+	CreatedAt  time.Time
 }
 
 type ScheduleUpdatedProjection struct {
-	Position  eventstore.Position
-	ScheduleID        string
-	Title     string
-	TeacherId string
-	UpdatedAt time.Time
+	Position   eventstore.Position
+	ScheduleID string
+	Title      string
+	TeacherId  string
+	UpdatedAt  time.Time
 }
 
-type PeriodAddedToScheduleProjection struct {
-	Position                eventstore.Position
-	ScheduleID              string
-	PeriodID                string
-	PeriodAddedToScheduleAt time.Time
+type SchedulePeriodAddedProjection struct {
+	Position   eventstore.Position
+	ScheduleID string
+	PeriodID   string
+	AddedAt    time.Time
+}
+
+type SchedulePeriodRemovedProjection struct {
+	Position   eventstore.Position
+	ScheduleID string
+	PeriodID   string
+	RemovedAt  time.Time
 }
 
 type ScheduleDeletedProjection struct {
-	Position  eventstore.Position
-	ScheduleID        string
-	DeletedAt time.Time
+	Position   eventstore.Position
+	ScheduleID string
+	DeletedAt  time.Time
 }
 
 type ScheduleReadModelEventHandler struct {
@@ -88,8 +98,9 @@ func (h *ScheduleReadModelEventHandler) StopSubscribing() {
 func ScheduleReadModelEventHandlerQuery() eventstore.Query {
 	eventTypes := []string{
 		ScheduleCreated,
+		SchedulePeriodAdded,
+		SchedulePeriodRemoved,
 		ScheduleUpdated,
-		PeriodAddedToSchedule,
 		ScheduleDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
@@ -108,52 +119,60 @@ func (h *ScheduleReadModelEventHandler) handle(ctx context.Context, resolved eve
 	if id == "" {
 		return fmt.Errorf("no id provided for read model event")
 	}
-	println(resolved.Event.Data)
+
 	switch resolved.Event.EventType {
 	case ScheduleCreated:
-		println("sc case in read model")
 		title, _ := data["title"].(string)
 		teacherId, _ := data["teacherID"].(string)
 		if err := h.readModel.InsertCreatedSchedule(ctx, ScheduleCreatedProjection{
-			Position:  resolved.Position,
-			ScheduleID:        id,
-			Title:     title,
-			TeacherId: teacherId,
-			CreatedAt: parseTime(data["createdAt"]),
+			Position:   resolved.Position,
+			ScheduleID: id,
+			Title:      title,
+			TeacherId:  teacherId,
+			CreatedAt:  parseTime(data["createdAt"]),
 		}); err != nil {
 			return err
 		}
 	case ScheduleUpdated:
-		println("su case in read model")
 		title, _ := data["title"].(string)
 		teacherId, _ := data["teacherID"].(string)
 		if err := h.readModel.UpdateSchedule(ctx, ScheduleUpdatedProjection{
-			Position:  resolved.Position,
-			ScheduleID:        id,
-			Title:     title,
-			TeacherId: teacherId,
-			UpdatedAt: parseTime(data["updatedAt"]),
+			Position:   resolved.Position,
+			ScheduleID: id,
+			Title:      title,
+			TeacherId:  teacherId,
+			UpdatedAt:  parseTime(data["updatedAt"]),
 		}); err != nil {
 			return err
 		}
-	case PeriodAddedToSchedule:
-		println("pa case in read model")
+	case SchedulePeriodAdded:
 		scheduleID, _ := data["scheduleID"].(string)
-		println("c sid: ", scheduleID)
 		periodID, _ := data["periodID"].(string)
-		if err := h.readModel.PeriodAddedToSchedule(ctx, PeriodAddedToScheduleProjection{
+		if err := h.readModel.AddSchedulePeriod(ctx, SchedulePeriodAddedProjection{
 			Position:                resolved.Position,
 			ScheduleID:              scheduleID,
 			PeriodID:                periodID,
-			PeriodAddedToScheduleAt: parseTime(data["periodAddedToScheduleAt"]),
+			AddedAt: parseTime(data["periodAddedAt"]),
+		}); err != nil {
+			return err
+		}
+	case SchedulePeriodRemoved:
+		scheduleID, _ := data["scheduleID"].(string)
+		periodID, _ := data["periodID"].(string)
+		println("eh: ", data["periodRemovedAt"].(string))
+		if err := h.readModel.RemoveSchedulePeriod(ctx, SchedulePeriodRemovedProjection{
+			Position:                resolved.Position,
+			ScheduleID:              scheduleID,
+			PeriodID:                periodID,
+			RemovedAt: parseTime(data["periodRemovedAt"]),
 		}); err != nil {
 			return err
 		}
 	case ScheduleDeleted:
 		if err := h.readModel.DeleteSchedule(ctx, ScheduleDeletedProjection{
-			Position:  resolved.Position,
-			ScheduleID:        id,
-			DeletedAt: parseTime(data["deletedAt"]),
+			Position:   resolved.Position,
+			ScheduleID: id,
+			DeletedAt:  parseTime(data["deletedAt"]),
 		}); err != nil {
 			return err
 		}

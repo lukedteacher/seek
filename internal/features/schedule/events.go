@@ -9,7 +9,8 @@ import (
 const (
 	ScheduleCreated       = "ScheduleCreated"
 	ScheduleUpdated       = "ScheduleUpdated"
-	PeriodAddedToSchedule = "PeriodAddedToSchedule"
+	SchedulePeriodAdded   = "SchedulePeriodAdded"
+	SchedulePeriodRemoved = "SchedulePeriodRemoved"
 	ScheduleDeleted       = "ScheduleDeleted"
 )
 
@@ -20,8 +21,10 @@ const (
 	ScheduleCreatedAtField        = "createdAt"
 	ScheduleUpdatedIDField        = "scheduleUpdatedId"
 	ScheduleUpdatedAtField        = "updatedAt"
-	PeriodAddedToScheduleIDField  = "periodAddedToScheduleId"
-	PeriodAddedToScheduleAtField  = "periodAddedToScheduleAt"
+	SchedulePeriodAddedIDField    = "schedulePeriodAddedID"
+	SchedulePeriodAddedAtField    = "periodAddedAt"
+	SchedulePeriodRemovedIDField  = "schedulePeriodRemovedID"
+	SchedulePeriodRemovedAtField  = "periodRemovedAt"
 	ScheduleDeletedIDField        = "scheduleDeletedId"
 	ScheduleDeletedAtField        = "deletedAt"
 	ScheduleScopeIDField          = "scope.id"
@@ -43,11 +46,19 @@ type ScheduleUpdatedEvent struct {
 	Scope             ScheduleScope `json:"scope"`
 }
 
-type PeriodAddedToScheduleEvent struct {
-	PeriodAddedToScheduleID string        `json:"periodAddedToScheduleID"`
+type SchedulePeriodAddedEvent struct {
+	SchedulePeriodAddedID string        `json:"schedulePeriodAddedID"`
+	ScheduleID            string        `json:"scheduleID"`
+	PeriodID              string        `json:"periodID"`
+	PeriodAddedAt         string        `json:"periodAddedAt"`
+	Scope                 ScheduleScope `json:"scope"`
+}
+
+type SchedulePeriodRemovedEvent struct {
+	SchedulePeriodRemovedID string        `json:"schedulePeriodRemovedID"`
 	ScheduleID              string        `json:"scheduleID"`
 	PeriodID                string        `json:"periodID"`
-	PeriodAddedToScheduleAt string        `json:"periodAddedToScheduleAt"`
+	PeriodRemovedAt         string        `json:"periodRemovedAt"`
 	Scope                   ScheduleScope `json:"scope"`
 }
 
@@ -92,17 +103,33 @@ func NewScheduleUpdatedEvent(eventID, scheduleID, title, teacherId string, updat
 	}
 }
 
-func NewPeriodAddedToScheduleEvent(eventID, scheduleID string, periodID string, updatedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
-	event := PeriodAddedToScheduleEvent{
-		PeriodAddedToScheduleID: eventID,
+func NewSchedulePeriodAddedEvent(eventID, scheduleID string, periodID string, addedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
+	event := SchedulePeriodAddedEvent{
+		SchedulePeriodAddedID: eventID,
+		ScheduleID:            scheduleID,
+		PeriodID:              periodID,
+		PeriodAddedAt:         addedAt.Format(time.RFC3339),
+		Scope:                 scheduleScope(scheduleID),
+	}
+	return eventstore.DomainEvent{
+		EventID:   eventID,
+		EventType: SchedulePeriodAdded,
+		Data:      eventstore.MustData(event),
+		Metadata:  metadata,
+	}
+}
+
+func NewSchedulePeriodRemovedEvent(eventID, scheduleID string, periodID string, removedAt time.Time, metadata map[string]any) eventstore.DomainEvent {
+	event := SchedulePeriodRemovedEvent{
+		SchedulePeriodRemovedID: eventID,
 		ScheduleID:              scheduleID,
 		PeriodID:                periodID,
-		PeriodAddedToScheduleAt: updatedAt.Format(time.RFC3339),
+		PeriodRemovedAt:         removedAt.Format(time.RFC3339),
 		Scope:                   scheduleScope(scheduleID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: PeriodAddedToSchedule,
+		EventType: SchedulePeriodRemoved,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}

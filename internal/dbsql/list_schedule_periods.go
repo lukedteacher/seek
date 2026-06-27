@@ -7,20 +7,20 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type ListPeriodsForScheduleRes struct {
+type ListSchedulePeriodsRes struct {
 	Id         string `json:"id"`
 	ScheduleId string `json:"schedule_id"`
 	PeriodId   string `json:"period_id"`
 }
 
-type ListPeriodsForScheduleStmt struct {
+type ListSchedulePeriodsStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func ListPeriodsForSchedule(tx *sqlite.Conn) *ListPeriodsForScheduleStmt {
+func ListSchedulePeriods(tx *sqlite.Conn) *ListSchedulePeriodsStmt {
 	const querySQL = `
 SELECT id, schedule_id, period_id
 FROM schedule_periods
@@ -29,7 +29,7 @@ WHERE schedule_id = ?1 AND
 ORDER BY id DESC
     `
 
-	ps := &ListPeriodsForScheduleStmt{
+	ps := &ListSchedulePeriodsStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -42,10 +42,10 @@ ORDER BY id DESC
 	return ps
 }
 
-func (ps *ListPeriodsForScheduleStmt) Run(
+func (ps *ListSchedulePeriodsStmt) Run(
 	scheduleId string,
 ) (
-	res []ListPeriodsForScheduleRes,
+	res []ListSchedulePeriodsRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
@@ -76,7 +76,7 @@ func (ps *ListPeriodsForScheduleStmt) Run(
 			break
 		}
 
-		row := ListPeriodsForScheduleRes{}
+		row := ListSchedulePeriodsRes{}
 		row.Id = stmt.ColumnText(0)
 		row.ScheduleId = stmt.ColumnText(1)
 		row.PeriodId = stmt.ColumnText(2)
@@ -86,14 +86,14 @@ func (ps *ListPeriodsForScheduleStmt) Run(
 	return res, nil
 }
 
-func OnceListPeriodsForSchedule(
+func OnceListSchedulePeriods(
 	tx *sqlite.Conn,
 	scheduleId string,
 ) (
-	res []ListPeriodsForScheduleRes,
+	res []ListSchedulePeriodsRes,
 	err error,
 ) {
-	ps := ListPeriodsForSchedule(tx)
+	ps := ListSchedulePeriods(tx)
 
 	return ps.Run(
 		scheduleId,

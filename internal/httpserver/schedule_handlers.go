@@ -204,32 +204,80 @@ func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	scheduleID := chi.URLParam(r, "id")
-	println(signals.PeriodIDs[0])
-	result, err := schedule.UpdateScheduleCommandHandler(context, schedule.UpdateScheduleCommand{
-		Id:        scheduleID,
-		Title:     signals.Title,
-		TeacherId: signals.TeacherId,
-		Metadata:  eventstore.HTTPCommandMetadata(r),
-	}, s.EventSaver, s.EventRetriever)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	currentPeriodIDs, _ := s.Schedules.ListSchedulePeriodIDs(context, scheduleID)
+	proposedPeriodIDs := signals.PeriodIDs
+	if len(currentPeriodIDs) != 0 || len(proposedPeriodIDs) != 0 {
+		// build maps for O(1) lookups
+		currentMap := make(map[string]bool)
+		for _, v := range currentPeriodIDs {
+			currentMap[v] = true
+		}
 
-	println(result.ScheduleUpdatedID)
+		proposedMap := make(map[string]bool)
+		for _, v := range proposedPeriodIDs {
+			proposedMap[v] = true
+		}
 
-	periodResult, err := schedule.PeriodAddedToScheduleCommandHandler(context, schedule.PeriodAddedToScheduleCommand{
-		ScheduleID: scheduleID,
-		PeriodID: signals.PeriodIDs[0],
-		Metadata:   eventstore.HTTPCommandMetadata(r),
-	}, s.EventSaver, s.EventRetriever)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		// find deletions
+		for _, periodID := range currentPeriodIDs {
+			if !proposedMap[periodID] {
+				println("remove: ", periodID)
+				result, err := schedule.RemovePeriodFromScheduleCommandHandler(context, schedule.RemovePeriodFromScheduleCommand{
+					ScheduleID: scheduleID,
+					PeriodID: periodID,
+					Metadata: eventstore.HTTPCommandMetadata(r),
+				}, s.EventSaver, s.EventRetriever)
+				if result != nil {
+					println("reid: ", result.EventID)
+				}
+				if err != nil {
+					println("re: ", err.Error())
+				}
+			}
+		}
+
+		// find additions
+		for _, periodID := range proposedPeriodIDs {
+			if !currentMap[periodID] {
+				println("add: ", periodID)
+				result, err := schedule.PeriodAddedToScheduleCommandHandler(context, schedule.PeriodAddedToScheduleCommand{
+					ScheduleID: scheduleID,
+					PeriodID: periodID,
+					Metadata: eventstore.HTTPCommandMetadata(r),
+				}, s.EventSaver, s.EventRetriever)
+				if result != nil {
+					println("aeid: ", result.EventID)
+				}
+				if err != nil {
+					println("ae: ", err.Error())
+				}
+			}
+		}
 	}
-	if periodResult != nil {
-		println("did we get a result?")
-	}
+	// _, err = schedule.UpdateScheduleCommandHandler(context, schedule.UpdateScheduleCommand{
+	// 	Id:        scheduleID,
+	// 	Title:     signals.Title,
+	// 	TeacherId: signals.TeacherId,
+	// 	Metadata:  eventstore.HTTPCommandMetadata(r),
+	// }, s.EventSaver, s.EventRetriever)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// if len(signals.PeriodIDs) > 0 {
+	// 	for _, period := range signals.PeriodIDs {
+	// 		_, err = schedule.PeriodAddedToScheduleCommandHandler(context, schedule.PeriodAddedToScheduleCommand{
+	// 			ScheduleID: scheduleID,
+	// 			PeriodID:   period,
+	// 			Metadata:   eventstore.HTTPCommandMetadata(r),
+	// 		}, s.EventSaver, s.EventRetriever)
+	// 		if err != nil {
+	// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 			return
+	// 		}
+	// 	}
+	// }
 }
 
 // POST request to /schedules/{id}/delete
@@ -242,6 +290,7 @@ func (s Server) deleteSchedule(w http.ResponseWriter, r *http.Request) {
 	emptySSE(w, r, err)
 }
 
+// GET request to /schedules
 func (s Server) schedules(w http.ResponseWriter, r *http.Request) {
 	schedules, err := s.Schedules.List(r.Context())
 	if err != nil {

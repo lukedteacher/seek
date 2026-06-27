@@ -169,7 +169,7 @@ func LabelStyle() templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<style>\n\t\tlabel {\n\t\t\tdisplay: flex;\n\t\t\tflex-direction: column;\n\t\t\talign-items: center;\n\t\t\tgap: var(--size-0);\n\t\t\tflex-grow: 1;\n\n\t\t\tp {\n\t\t\t\twidth: 100%;\n\t\t\t\tdisplay: flex;\n\t\t\t\tjustify-content: space-between;\n\t\t\t\talign-items: center;\n\n\t\t\t\t.validation-span {\n\t\t\t\t\tcolor: color-mix(in oklch, currentColor 80%, black 10%)\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t&.error {\n\t\t\t\tcolor: var(--error-6);\n\t\t\t\tspan {\n\t\t\t\t\tcolor: var(--error-7);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t&.valid {\n\t\t\t\tcolor: green;\n\t\t\t\tspan {\n\t\t\t\t\tcolor: var(green);\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<style>\r\n\t\tlabel {\r\n\t\t\tdisplay: flex;\r\n\t\t\tflex-direction: column;\r\n\t\t\talign-items: center;\r\n\t\t\tgap: var(--size-0);\r\n\t\t\tflex-grow: 1;\r\n\r\n\t\t\tp {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tjustify-content: space-between;\r\n\t\t\t\talign-items: center;\r\n\r\n\t\t\t\t.validation-span {\r\n\t\t\t\t\tcolor: color-mix(in oklch, currentColor 80%, black 10%)\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t&.error {\r\n\t\t\t\tcolor: var(--error-6);\r\n\t\t\t\tspan {\r\n\t\t\t\t\tcolor: var(--error-7);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t&.valid {\r\n\t\t\t\tcolor: green;\r\n\t\t\t\tspan {\r\n\t\t\t\t\tcolor: var(green);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
