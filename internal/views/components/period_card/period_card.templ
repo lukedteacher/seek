@@ -1,0 +1,30 @@
+package period_card
+
+import "seek/internal/domain/models"
+import "fmt"
+
+templ PeriodCard(period models.Period) {
+	<div 
+		class="period-card"
+		style={fmt.Sprintf("grid-column: 2; grid-row: %s / span 30;", period.TimeToRow(480))}
+	>
+		<h3>{ period.Title }</h3>
+		<p>{ period.StartTime }</p>
+		<p>{ period.Duration }</p>
+	</div>
+	@PeriodCardStyles()
+}
+
+templ PeriodCardStyles() {
+	<style>
+		.period-card {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background-color: red;
+			border: 2px solid green;
+			border-radius: var(--border-radius-0);
+		}
+	</style>
+}

@@ -2,6 +2,8 @@ package blocks
 
 import (
   "strconv"
+	"seek/internal/domain/models"
+	"seek/internal/views/components/period_card"
 )
 
 templ ScheduleStyle() {
@@ -12,9 +14,13 @@ templ ScheduleStyle() {
 			display: grid;
 			grid-template-rows: auto 1fr;
 			grid-template-columns: repeat(6, 1fr);
-			background-color: var(--primary-3);
-			color: var(--primary-3-on);
+			background-color: var(--primary-4);
+			color: var(--primary-4-on);
+			border-style: solid;
+			border-color: var(--primary-6);
+			border-width: var(--border-width-0);
 			border-radius: var(--border-radius-2);
+			padding: var(--size-3);
 
 			header {
 				width: 100%;
@@ -38,6 +44,7 @@ templ ScheduleStyle() {
 				height: 100%;
 				display: flex;
 				flex-direction: column;
+				font-size: var(--font-size--1);
 
 				div {
 					display: flex;
@@ -52,20 +59,25 @@ templ ScheduleStyle() {
 				width: 100%;
 				height: 100%;
 				display: grid;
-				grid-template-rows: repeat(180, 1fr);
+				grid-template-rows: repeat(480, 1fr);
 				grid-template-columns: repeat(5, 1fr);
 				grid-column: 2 / -1;
-				border: 1px solid blue;
 			}
 		}
 	</style>
 }
 
-templ ScheduleComponent(minutes int) {
+templ ScheduleComponent(periods []models.Period) {
 	<div id="schedule-component">
 		@DayHeaders()
 		@TimeColumn()
-		@GridContainer()
+		@GridContainer() {
+			@TimeGrid(30, 480)
+			@DayGrid()
+			for i := range periods {
+				@period_card.PeriodCard(periods[i])
+			}
+		}
 		@ScheduleStyle()
 	</div>
 }
@@ -114,27 +126,46 @@ templ GridContainer() {
 }
 
 templ TimeGrid(interval int, totalRows int) {
-  // using total rows + 1 so the last and final row has a grid
+  // using total rows + 1 so the final row has a grid
+	<div class="time-grid" style="grid-row: 1 / 1;"></div>
   for index := 1; index < totalRows + 1; index++ {
     if index%interval == 0 {
       <div 
         style={"grid-row: " + strconv.Itoa(index) + " / span 1;"}
-        class={"col-start-1 -col-end-1 bg-gray-500 h-px"} 
+        class="time-grid"
       />
     }
   }
+	<style>
+		.time-grid {
+			grid-column: 1 / -1;
+			background-color: var(--primary-5);
+			height: 1px;
+		}
+	</style>
 }
 
 templ DayGrid() {
   // this is ugly TODO: fix
   <div 
     style={"grid-column: 1 / span 1;"}
-    class={"row-start-1 -row-end-1 bg-gray-500 w-px"} 
+    class="day-grid" 
   />
   for index := 1; index < 6; index++ {
     <div 
       style={"grid-column: " + strconv.Itoa(index) + " / span 1;"}
-      class={"row-start-1 -row-end-1 bg-gray-500 w-px justify-self-end"} 
+      class="day-grid"
     />
   }
+	<style>
+		.day-grid {
+			grid-row: 1 / -1;
+			background-color: var(--primary-5);
+			width: 1px;
+
+			&~ .day-grid {
+				justify-self: end;
+			}
+		}
+	</style>
 }

@@ -30,7 +30,7 @@ var GradeList = []Grade{
 	Grade8,
 }
 
-func (g *Grade) Ordinal() string {
+func (g Grade) Ordinal() string {
   ordinalMap := map[Grade]string{
 		0:  "K",
     1:  "1st",
@@ -46,10 +46,10 @@ func (g *Grade) Ordinal() string {
 		11: "11th",
 		12: "12th",
   }
-  return ordinalMap[*g]
+  return ordinalMap[g]
 }
 
-func (g *Grade) Word() string {
+func (g Grade) Word() string {
   wordMap := map[Grade]string{
 		0:  "kindergarten",
     1:  "first",
@@ -65,10 +65,10 @@ func (g *Grade) Word() string {
 		11: "eleventh",
 		12: "twelfth",
   }
-  return wordMap[*g]
+  return wordMap[g]
 }
 
-func (g *Grade) Str() string {
+func (g Grade) Str() string {
   strMap := map[Grade]string{
 		0:  "0",
     1:  "1",
@@ -84,5 +84,5 @@ func (g *Grade) Str() string {
 		11: "11",
 		12: "12",
   }
-  return strMap[*g]
+  return strMap[g]
 }

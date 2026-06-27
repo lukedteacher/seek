@@ -5,21 +5,6 @@ import (
 	"strings"
 )
 
-type Day struct {
-	Name    string
-	Short   string
-	Initial string
-	Column  string
-}
-
-var Days = map[string]Day{
-	"Monday":    {Name: "Monday", Short: "Mon", Initial: "M", Column: "2"},
-	"Tuesday":   {Name: "Tuesday", Short: "Tue", Initial: "T", Column: "3"},
-	"Wednesday": {Name: "Wednesday", Short: "Wed", Initial: "W", Column: "4"},
-	"Thursday":  {Name: "Thursday", Short: "Thu", Initial: "T", Column: "5"},
-	"Friday":    {Name: "Friday", Short: "Fri", Initial: "F", Column: "6"},
-}
-
 var periodTypes = map[string]PeriodType{
 	"reading": {Color: "#d55e00", ColorVar: "--cb-red", Icon: "book-open-text", Short: "reading"},
 	"writing": {Color: "#e69f00", ColorVar: "--cb-red", Icon: "notebook-pen", Short: "writing"},

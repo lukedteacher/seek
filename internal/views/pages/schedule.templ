@@ -1,15 +1,16 @@
 package pages
 
 import (
+	"seek/internal/domain/models"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 	"seek/internal/views/blocks"
 )
 
-templ Schedule() {
+templ Schedule(periods []models.Period) {
 	@layouts.Base("SEEK: schedule") {
 		<main data-init={ views.LongRunningGetSSE("/schedules/stream") }>
-			@blocks.ScheduleComponent(60)
+			@blocks.ScheduleComponent(periods)
 		</main>
 	}
 }

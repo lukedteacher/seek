@@ -7,7 +7,6 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/schedule"
 	"seek/internal/views/pages"
-	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/starfederation/datastar-go/datastar"
@@ -28,34 +27,7 @@ func (s Server) scheduleRoutes(r chi.Router) {
 
 // GET request for /schedule: shows default schedule for current user
 func (s Server) schedule(w http.ResponseWriter, r *http.Request) {
-	_ = pages.Schedule().Render(r.Context(), w)
-}
-
-func (s Server) scheduleStream(w http.ResponseWriter, r *http.Request) {
-	sse := newSSE(w, r)
-	ctx := r.Context()
-
-	watcher, err := s.ViewStore.Watch(ctx, "schedule", viewstore.WatchOptions{IgnoreDeletes: true})
-	if err != nil {
-		_ = alert(sse, err.Error())
-		return
-	}
-	defer watcher.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case _, ok := <-watcher.Updates():
-			if !ok {
-				return
-			}
-			page := pages.Schedule()
-			if err := sse.PatchElementTempl(page); err != nil {
-				return
-			}
-		}
-	}
+	_ = pages.Schedule([]models.Period{}).Render(r.Context(), w)
 }
 
 // GET request to /schedules/create

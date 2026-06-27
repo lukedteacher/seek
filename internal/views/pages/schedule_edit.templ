@@ -10,8 +10,9 @@ import (
 templ EditSchedule(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) {
 	@layouts.Base("SEEK: edit schedule") {
 		<main>
-			<section>
+			<section style="display: flex;">
 				@blocks.EditScheduleForm(schedule, teachers, periods, validation, selectedTeacherId)
+				@blocks.ScheduleComponent(periods)
 			</section>
 		</main>
 	}
