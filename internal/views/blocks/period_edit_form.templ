@@ -11,8 +11,8 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ EditPeriodForm(period models.Period, validation map[string]period.Validation) {
-	<form data-on:submit={ datastar.PostSSE("/period/%s/edit", period.Id) }>
+templ EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[string]period.Validation) {
+	<form data-on:submit={ datastar.PostSSE("/period/%s/edit", period.ID) }>
 		<hgroup>
 			<h2>EDIT A PERIOD</h2>
 			<p>edit the data of an existing period.</p>
@@ -29,7 +29,7 @@ templ EditPeriodForm(period models.Period, validation map[string]period.Validati
 					ID: "title",
 					Name: "title",
 					DataBind: "title",
-					DataOn: fmt.Sprintf("/period/%s/edit/validate", period.Id),
+					DataOn: fmt.Sprintf("/period/%s/edit/validate", period.ID),
 					HasError: validation["title"].State == "error",
 					IsValid: validation["title"].State == "valid",
 					Value: period.Title,
@@ -47,7 +47,7 @@ templ EditPeriodForm(period models.Period, validation map[string]period.Validati
 						ID: "start-time",
 						Name: "start-time",
 						DataBind: "start_time",
-						DataOn: fmt.Sprintf("/period/%s/edit/validate", period.Id),
+						DataOn: fmt.Sprintf("/period/%s/edit/validate", period.ID),
 						HasError: validation["start_time"].State == "error",
 						IsValid: validation["start_time"].State == "valid",
 						Value: period.StartTime,
@@ -64,7 +64,7 @@ templ EditPeriodForm(period models.Period, validation map[string]period.Validati
 						ID: "end-time",
 						Name: "end-time",
 						DataBind: "end_time",
-						DataOn: fmt.Sprintf("/period/%s/edit/validate", period.Id),
+						DataOn: fmt.Sprintf("/period/%s/edit/validate", period.ID),
 						HasError: validation["end_time"].State == "error",
 						IsValid: validation["end_time"].State == "valid",
 						Value: "9:30",
@@ -73,12 +73,12 @@ templ EditPeriodForm(period models.Period, validation map[string]period.Validati
 			</div>
 			<label for="duration">duration</label>
 			<input id="duration" name="duration" data-bind:duration type="number" value={ period.Duration } />
-			@day_buttons.DayButtons()
+			@day_buttons.DayButtons(period.Days)
 		</section>
 		<footer>
 			<button 
 				type="button"
-				data-on:click={ datastar.PostSSE("/period/%s/delete", period.Id) }
+				data-on:click={ datastar.PostSSE("/period/%s/delete", period.ID) }
 			>
 				delete
 			</button>

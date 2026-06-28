@@ -7,11 +7,11 @@ import (
 	"seek/internal/views/blocks"
 )
 
-templ EditPeriod(period models.Period, validation map[string]period.Validation) {
+templ EditPeriod(period, editedPeriod models.PeriodSignals, validation map[string]period.Validation) {
 	@layouts.Base("SEEK: edit period") {
 		<main>
 			<section>
-				@blocks.EditPeriodForm(period, validation)
+				@blocks.EditPeriodForm(period, editedPeriod, validation)
 			</section>
 		</main>
 	}

@@ -91,14 +91,14 @@ func (m *updateStudentContext) handle(resolved eventstore.ResolvedEvent) {
 		m.firstName, _ = data["firstName"].(string)
 		m.chosenName, _ = data["chosenName"].(string)
 		m.lastName, _ = data["lastName"].(string)
-		m.grade, _ = data["grade"].(int64)
+		m.grade = int64(data["grade"].(float64))
 		m.homeroom, _ = data["homeroom"].(string)
 		m.caseManager, _ = data["case_manager"].(string)
 	case StudentUpdated:
 		m.firstName, _ = data["firstName"].(string)
 		m.chosenName, _ = data["chosenName"].(string)
 		m.lastName, _ = data["lastName"].(string)
-		m.grade, _ = data["grade"].(int64)
+		m.grade = int64(data["grade"].(float64))
 		m.homeroom, _ = data["homeroom"].(string)
 		m.caseManager, _ = data["case_manager"].(string)
 	case StudentDeleted:

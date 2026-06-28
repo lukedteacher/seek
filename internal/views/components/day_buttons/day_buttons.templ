@@ -3,7 +3,7 @@ package day_buttons
 import "seek/internal/domain/models"
 import "fmt"
 
-templ DayButtons() {
+templ DayButtons(days models.DaysSignals) {
 	<div class="days-selector">
 		for i := range models.Days {
 			<label for={ models.Days[i].NameLower() }>
@@ -13,6 +13,9 @@ templ DayButtons() {
 					name="days" 
 					type="checkbox" 
 					id={ models.Days[i].NameLower() } 
+					if days.IsDaySet(models.Days[i]) {
+						checked
+					}
 				/>
 			</label>
 		}

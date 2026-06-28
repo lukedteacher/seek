@@ -15,7 +15,7 @@ import (
 	"seek/internal/views/layouts"
 )
 
-func EditPeriod(period models.Period, validation map[string]period.Validation) templ.Component {
+func EditPeriod(period, editedPeriod models.PeriodSignals, validation map[string]period.Validation) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -52,7 +52,7 @@ func EditPeriod(period models.Period, validation map[string]period.Validation) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.EditPeriodForm(period, validation).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.EditPeriodForm(period, editedPeriod, validation).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

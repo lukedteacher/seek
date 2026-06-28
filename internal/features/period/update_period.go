@@ -85,14 +85,14 @@ func (m *updatePeriodContext) handle(resolved eventstore.ResolvedEvent) {
 		m.exists = true
 		m.deleted = false
 		m.title, _ = data["title"].(string)
-		m.startTime, _ = data["start_time"].(string)
-		m.duration, _ = data["duration"].(int64)
-		m.days, _ = data["days"].(int64)
+		m.startTime, _ = data["startTime"].(string)
+		m.duration = int64(data["duration"].(float64))
+		m.days = int64(data["days"].(float64))
 	case PeriodUpdated:
 		m.title, _ = data["title"].(string)
-		m.startTime, _ = data["start_time"].(string)
-		m.duration, _ = data["duration"].(int64)
-		m.days, _ = data["days"].(int64)
+		m.startTime, _ = data["startTime"].(string)
+		m.duration = int64(data["duration"].(float64))
+		m.days = int64(data["days"].(float64))
 	case PeriodDeleted:
 		m.deleted = true
 	}
