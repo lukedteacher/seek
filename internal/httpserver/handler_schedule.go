@@ -236,20 +236,6 @@ func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
 	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
 	// 	return
 	// }
-
-	// if len(signals.PeriodIDs) > 0 {
-	// 	for _, period := range signals.PeriodIDs {
-	// 		_, err = schedule.PeriodAddedToScheduleCommandHandler(context, schedule.PeriodAddedToScheduleCommand{
-	// 			ScheduleID: scheduleID,
-	// 			PeriodID:   period,
-	// 			Metadata:   eventstore.HTTPCommandMetadata(r),
-	// 		}, s.EventSaver, s.EventRetriever)
-	// 		if err != nil {
-	// 			http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 			return
-	// 		}
-	// 	}
-	// }
 }
 
 // POST request to /schedules/{id}/delete

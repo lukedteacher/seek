@@ -8,7 +8,6 @@ import (
 )
 
 type ListSchedulePeriodsRes struct {
-	Id         string `json:"id"`
 	ScheduleId string `json:"schedule_id"`
 	PeriodId   string `json:"period_id"`
 }
@@ -22,11 +21,11 @@ type ListSchedulePeriodsStmt struct {
 
 func ListSchedulePeriods(tx *sqlite.Conn) *ListSchedulePeriodsStmt {
 	const querySQL = `
-SELECT id, schedule_id, period_id
+SELECT schedule_id, period_id
 FROM schedule_periods
 WHERE schedule_id = ?1 AND
 	deleted_at IS NULL
-ORDER BY id DESC
+ORDER BY schedule_id DESC
     `
 
 	ps := &ListSchedulePeriodsStmt{
@@ -77,9 +76,8 @@ func (ps *ListSchedulePeriodsStmt) Run(
 		}
 
 		row := ListSchedulePeriodsRes{}
-		row.Id = stmt.ColumnText(0)
-		row.ScheduleId = stmt.ColumnText(1)
-		row.PeriodId = stmt.ColumnText(2)
+		row.ScheduleId = stmt.ColumnText(0)
+		row.PeriodId = stmt.ColumnText(1)
 		res = append(res, row)
 	}
 

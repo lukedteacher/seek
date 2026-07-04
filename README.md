@@ -8,6 +8,7 @@ a tool for educators.
 - [x] basic server
 - [x] figure out hot reload
 - [x] index page
+- [ ] users + auth
 - [ ] students
   - [x] info page
   - [x] CRUD operations
@@ -18,6 +19,7 @@ a tool for educators.
   - [x] CRUD operations
 	- [x] add period to schedule
 	- [ ] add periodS to schedule
+	- [ ] actual delete?
 	- [ ] validate period isn't already in schedule
   - [ ] show periods
 
@@ -33,6 +35,7 @@ a tool for educators.
   - [x] select
   - [x] text input
   - [ ] time input
+	- [ ] duration input
 - [x] cards
 
 ## features
@@ -46,6 +49,7 @@ a tool for educators.
 ## bugs
 
 - [ ] can't delete students created by migration
+  - should be able to fix by seeding data with events instead of into db directly
 - [x] pointers in student data don't translate to projections
   - fixed with stringPtr function from orisun
 

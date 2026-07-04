@@ -11,7 +11,8 @@ type RemoveSchedulePeriodParams struct {
 	DeletedAt                *string `json:"deleted_at"`
 	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
 	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
-	Id                       string  `json:"id"`
+	ScheduleId               string  `json:"schedule_id"`
+	PeriodId                 string  `json:"period_id"`
 }
 
 type RemoveSchedulePeriodStmt struct {
@@ -25,10 +26,10 @@ func RemoveSchedulePeriod(tx *sqlite.Conn) *RemoveSchedulePeriodStmt {
 	const querySQL = `
 UPDATE schedule_periods
 SET deleted_at = ?1,
-	updated_at = ?1,
-	last_event_commit_position = ?2,
-	last_event_prepare_position = ?3
-WHERE id = ?4
+    updated_at = ?1,
+    last_event_commit_position = ?2,
+    last_event_prepare_position = ?3
+WHERE schedule_id = ?4 AND period_id = ?5
     `
 
 	ps := &RemoveSchedulePeriodStmt{
@@ -78,7 +79,10 @@ func (ps *RemoveSchedulePeriodStmt) Run(
 	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.Id)
+	stmt.BindText(bindIndex, params.ScheduleId)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.PeriodId)
 
 	bindIndex++
 
@@ -86,7 +90,7 @@ func (ps *RemoveSchedulePeriodStmt) Run(
 	if _, err := stmt.Step(); err != nil {
 		return fmt.Errorf("failed to execute removescheduleperiod SQL: %w", err)
 	}
-	println("why")
+
 	return nil
 }
 
@@ -97,7 +101,7 @@ func OnceRemoveSchedulePeriod(
 	err error,
 ) {
 	ps := RemoveSchedulePeriod(tx)
-	println(ps.querySQL)
+
 	return ps.Run(
 		params,
 	)

@@ -8,7 +8,6 @@ import (
 )
 
 type AddSchedulePeriodParams struct {
-	Id                       string `json:"id"`
 	ScheduleId               string `json:"schedule_id"`
 	PeriodId                 string `json:"period_id"`
 	CreatedAt                string `json:"created_at"`
@@ -25,9 +24,9 @@ type AddSchedulePeriodStmt struct {
 
 func AddSchedulePeriod(tx *sqlite.Conn) *AddSchedulePeriodStmt {
 	const querySQL = `
-INSERT INTO schedule_periods (id, schedule_id, period_id, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
-VALUES (?1, ?2, ?3, ?4, ?4, ?5, ?6)
-ON CONFLICT (id) DO NOTHING
+INSERT INTO schedule_periods (schedule_id, period_id, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
+VALUES (?1, ?2, ?3, ?3, ?4, ?5)
+ON CONFLICT (schedule_id, period_id) DO NOTHING
     `
 
 	ps := &AddSchedulePeriodStmt{
@@ -64,9 +63,6 @@ func (ps *AddSchedulePeriodStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, params.Id)
-
-	bindIndex++
 	stmt.BindText(bindIndex, params.ScheduleId)
 
 	bindIndex++

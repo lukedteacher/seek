@@ -59,7 +59,7 @@ func TriggerStyle() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\r\n\t\t.popover-trigger {\r\n\t\t\tcursor: pointer;\r\n\t\t\tposition: relative;\r\n\t\t\tanchor-name: var(--anchor-name);\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t.popover-trigger {\n\t\t\tcursor: pointer;\n\t\t\tposition: relative;\n\t\t\tanchor-name: var(--anchor-name);\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -88,7 +88,7 @@ func ContentStyle() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<style>\r\n\t\t.popover-content {\r\n\t\t\tborder-radius: var(--border-radius-1);\r\n\t\t\tborder: var(--border-width-1) solid currentColor;\r\n\t\t\tpadding: var(--size-2);\r\n\t\t\ttransition: all 300ms allow-discrete;\r\n\t\t\tposition-anchor: var(--anchor-name);\r\n\t\t\tposition-area: bottom center;\r\n\t\t\topacity: 0;\r\n\t\t\tmargin-top: var(--size--2);\r\n\t\t\t&:popover-open {\r\n\t\t\t\topacity: 1;\r\n\t\t\t\ttransform: translateY(0);\r\n\r\n\t\t\t\t@starting-style {\r\n\t\t\t\t\topacity: 0;\r\n\t\t\t\t\ttransform: translateY(-1em);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<style>\n\t\t.popover-content {\n\t\t\tborder-radius: var(--border-radius-1);\n\t\t\tborder: var(--border-width-1) solid currentColor;\n\t\t\tpadding: var(--size-2);\n\t\t\ttransition: all 300ms allow-discrete;\n\t\t\tposition-anchor: var(--anchor-name);\n\t\t\tposition-area: bottom center;\n\t\t\topacity: 0;\n\t\t\tmargin-top: var(--size--2);\n\t\t\t&:popover-open {\n\t\t\t\topacity: 1;\n\t\t\t\ttransform: translateY(0);\n\n\t\t\t\t@starting-style {\n\t\t\t\t\topacity: 0;\n\t\t\t\t\ttransform: translateY(-1em);\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

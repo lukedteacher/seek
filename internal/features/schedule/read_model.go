@@ -8,7 +8,6 @@ import (
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
 	"seek/internal/domain/models"
-	"seek/internal/uuidv7"
 
 	"zombiezen.com/go/sqlite"
 )
@@ -143,7 +142,6 @@ func (m *ReadModel) UpdateSchedule(ctx context.Context, event ScheduleUpdatedPro
 func (m *ReadModel) AddSchedulePeriod(ctx context.Context, event SchedulePeriodAddedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceAddSchedulePeriod(conn, dbsql.AddSchedulePeriodParams{
-			Id:                       uuidv7.NewString(),
 			ScheduleId:               event.ScheduleID,
 			PeriodId:                 event.PeriodID,
 			CreatedAt:                appdb.SQLTime(event.AddedAt),
@@ -159,10 +157,11 @@ func (m *ReadModel) RemoveSchedulePeriod(ctx context.Context, event SchedulePeri
 	stringst := "hello"
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceRemoveSchedulePeriod(conn, dbsql.RemoveSchedulePeriodParams{
-			Id:                       event.ScheduleID,
 			DeletedAt:                &stringst,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
+			ScheduleId:               event.ScheduleID,
+			PeriodId:                 event.PeriodID,
 		})
 	})
 }
