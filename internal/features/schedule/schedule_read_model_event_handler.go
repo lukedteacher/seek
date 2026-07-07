@@ -179,6 +179,6 @@ func (h *ScheduleReadModelEventHandler) handle(ctx context.Context, resolved eve
 	default:
 		return fmt.Errorf("unhandled schedule read model event type %q", resolved.Event.EventType)
 	}
-	// TODO not sure if this is the fix
-	return nil
+	// so the SSE stream will update
+	return h.publisher.Publish(ctx, Channel("idk"), "test")
 }

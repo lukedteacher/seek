@@ -134,7 +134,7 @@ func startEventStore(ctx context.Context, cfg config.Config) (*eventstore.Embedd
 }
 
 func newViewStore(bus *natsbus.Bus, logger *slog.Logger) viewstore.Store {
-	store, err := viewstore.NewNATSStore(bus.Conn(), "go-starter-view-state", 5*time.Minute)
+	store, err := viewstore.NewNATSStore(bus.Conn(), "seek-view-state", 5*time.Minute)
 	if err != nil {
 		logger.Warn("using in-memory view store fallback", "err", err)
 		return viewstore.NewMemoryStore()

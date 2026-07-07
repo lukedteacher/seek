@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"context"
 	"net/http"
 
 	"seek/internal/domain/models"
@@ -8,6 +9,7 @@ import (
 	"seek/internal/features/schedule"
 	"seek/internal/views/blocks"
 	"seek/internal/views/pages"
+	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/starfederation/datastar-go/datastar"
@@ -18,8 +20,9 @@ func (s Server) scheduleRoutes(r chi.Router) {
 	r.Get("/schedules/create", s.createScheduleForm)
 	r.Post("/schedules/create/validate", s.validateCreateSchedule)
 	r.Post("/schedules/create", s.createSchedule)
-	r.Get("/schedules/{id}", s.editScheduleForm)
-	r.Get("/schedules/{id}/edit", s.editScheduleForm)
+	r.Get("/schedules/{id}", s.getEditSchedule)
+	r.Get("/schedules/{id}/edit", s.getEditSchedule)
+	r.Get("/schedules/{id}/edit/stream", s.editScheduleStream)
 	r.Post("/schedules/{id}/edit/validate", s.validateEditSchedule)
 	r.Post("/schedules/{id}/edit", s.editSchedule)
 	r.Post("/schedules/{id}/delete", s.deleteSchedule)
@@ -99,7 +102,7 @@ func (s Server) createSchedule(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET request to /schedules/{id}
-func (s Server) editScheduleForm(w http.ResponseWriter, r *http.Request) {
+func (s Server) getEditSchedule(w http.ResponseWriter, r *http.Request) {
 	context := r.Context()
 	type Signals struct {
 		Schedule models.ScheduleSignals `json:"schedule"`
@@ -136,9 +139,74 @@ func (s Server) editScheduleForm(w http.ResponseWriter, r *http.Request) {
 	_ = pages.EditSchedule(*scheduleRes, teachers, periods, validation, selectedTeacher).Render(context, w)
 }
 
+func (s Server) editScheduleStream(w http.ResponseWriter, r *http.Request) {
+	//sse := newSSE(w, r)
+	ctx := r.Context()
+	scheduleID := chi.URLParam(r, "id")
+
+	updates := make(chan struct{}, 1)
+	notify := func() {
+		select {
+		case updates <- struct{}{}:
+		default:
+		}
+	}
+
+	// refreshes the view state for initial population of value
+	if err := s.refreshScheduleViewState(ctx, scheduleID); err != nil {
+		println(err.Error())
+		return
+	}
+
+	// watches that initial store
+	watcher, err := s.ViewStore.Watch(
+		ctx, 
+		scheduleID, 
+		viewstore.WatchOptions{
+			IgnoreDeletes: true,
+		},
+	)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	defer watcher.Stop()
+
+	sub, err := s.Subscriber.Subscribe(ctx, schedule.Channel("idk"), func(context.Context, []byte) {
+		notify()
+	})
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	defer sub.Close()
+
+		for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-updates:
+			if err := s.refreshScheduleViewState(ctx, scheduleID); err != nil {
+				println(err.Error())
+				return
+			}
+		case entry, ok := <-watcher.Updates():
+			if !ok {
+				return
+			}
+			var schedule models.Schedule
+			if err := entry.JSON(&schedule); err != nil {
+				println(err.Error())
+				return
+			}
+			println(schedule.Title)
+		}
+	}
+}
+
 // POST request to /schedules/{id}/edit/validate
 func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
+	ctx := r.Context()
 	type Signals struct {
 		Schedule models.ScheduleSignals `json:"schedule"`
 	}
@@ -147,15 +215,16 @@ func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	id := chi.URLParam(r, "id")
+	scheduleID := chi.URLParam(r, "id")
 	model := models.Schedule{
-		Id:        id,
+		Id:        scheduleID,
 		Title:     signals.Schedule.Title,
 		TeacherId: signals.Schedule.TeacherID,
 	}
-	teachers, _ := s.Teachers.List(context)
-	periods, _ := s.Periods.List(context)
+	teachers, _ := s.Teachers.List(ctx)
+	periods, _ := s.Periods.List(ctx)
 	validation := schedule.Validate(model)
+	viewstore.PutState(ctx, s.ViewStore, scheduleID, model)
 	patchTempl(w, r, blocks.EditScheduleForm(model, teachers, periods, validation, signals.Schedule.TeacherID))
 }
 
@@ -255,4 +324,12 @@ func (s Server) schedules(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = pages.Schedules(schedules).Render(r.Context(), w)
+}
+
+func (s Server) refreshScheduleViewState(ctx context.Context, scheduleID string) error {
+ schedule, err := s.Schedules.Get(ctx, scheduleID)
+ if err != nil {
+	return err
+ }
+ return viewstore.PutState(ctx, s.ViewStore, scheduleID, schedule)
 }

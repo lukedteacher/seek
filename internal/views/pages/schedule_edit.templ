@@ -1,15 +1,17 @@
 package pages
 
 import (
+	"fmt"
 	"seek/internal/domain/models"
 	"seek/internal/features/schedule"
+	"seek/internal/views"
 	"seek/internal/views/layouts"
 	"seek/internal/views/blocks"
 )
 
 templ EditSchedule(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) {
 	@layouts.Base("SEEK: edit schedule") {
-		<main>
+		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/schedules/%s/edit/stream", schedule.Id)) }>
 			<section style="display: flex;">
 				@blocks.EditScheduleForm(schedule, teachers, periods, validation, selectedTeacherId)
 				@blocks.ScheduleComponent(periods)
