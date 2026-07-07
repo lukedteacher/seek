@@ -44,9 +44,12 @@ templ TriggerStyle() {
 templ ContentStyle() {
 	<style>
 		.popover-content {
-			border-radius: var(--border-radius-1);
-			border: var(--border-width-1) solid currentColor;
-			padding: var(--size-2);
+			width: auto;
+			border-style: solid;
+			border-radius: var(--border-radius-0);
+			border-width: var(--border-width-0);
+			border-color: currentColor;
+			padding: var(--size-0);
 			transition: all 300ms allow-discrete;
 			position-anchor: var(--anchor-name);
 			position-area: bottom center;

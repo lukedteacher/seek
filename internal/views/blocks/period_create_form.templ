@@ -1,13 +1,13 @@
 package blocks
 
 import (
+	"seek/internal/domain/models"
 	"seek/internal/features/period"
 	"seek/internal/views/components/day_buttons"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
 
 	"github.com/starfederation/datastar-go/datastar"
-	"seek/internal/domain/models"
 )
 
 templ CreatePeriodForm(validation map[string]period.Validation) {
@@ -71,6 +71,7 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 			</div>
 			<label for="duration">duration</label>
 			<input id="duration" name="duration" data-bind:period.duration type="number" />
+			@DurationSlider(30)
 			@day_buttons.DayButtons(models.DaysSignals{})
 		</section>
 		<footer>

@@ -141,7 +141,7 @@ func CardStyles() templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<style>\r\n\t\tdiv.card {\r\n\t\t\tdisplay: flex;\r\n\t\t\tflex-direction: column;\r\n\t\t\twidth: 100%;\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-radius: var(--border-radius-0);\r\n\t\t\tborder-width: var(--border-width-0);\r\n\t\t\tborder-color: var(--primary-6-dim);\r\n\t\t\tbackground-color: var(--primary-6);\r\n\t\t\tcolor: var(--primary-6-on);\r\n\t\t\tpadding: var(--size-1);\r\n\r\n\t\t\thgroup {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: column;\r\n\t\t\t\tpadding-bottom: var(--size-0);\r\n\r\n\t\t\t\th3 {\r\n\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\talign-items: center;\r\n\t\t\t\t\tgap: var(--size--2);\r\n\t\t\t\t\tfont-family: var(--font-industrial);\r\n\t\t\t\t\tfont-size: var(--font-size-1);\r\n\t\t\t\t\tfont-weight: var(--font-weight-medium);\r\n\t\t\t\t\tline-height: 1;\r\n\t\t\t\t\tletter-spacing: var(--font-letter-spacing--1);\r\n\t\t\t\t}\r\n\r\n\t\t\t\tp {\r\n\t\t\t\t\tfont-size: var(--font-size--1);\r\n\t\t\t\t\tcolor: color-mix(in oklch, var(--primary-6-on) 85%, black 15%);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\tdiv {\r\n\t\t\t\tdisplay: block;\r\n\t\t\t\tfont-size: var(--font-size--1);\r\n\t\t\t}\r\n\r\n\t\t\tfooter {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tgap: var(--size-2);\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tmargin-top: auto;\r\n\t\t\t\tpadding-top: var(--size-0);\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<style>\r\n\t\tdiv.card {\r\n\t\t\tdisplay: flex;\r\n\t\t\tflex-direction: column;\r\n\t\t\twidth: 100%;\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-radius: var(--border-radius-0);\r\n\t\t\tborder-width: var(--border-width-0);\r\n\t\t\tborder-color: var(--primary-5-dim);\r\n\t\t\tbackground-color: var(--primary-5);\r\n\t\t\tcolor: var(--primary-5-on);\r\n\t\t\tpadding: var(--size-1);\r\n\r\n\t\t\t&:hover {\r\n\t\t\t\tcolor: var(--primary-6-on);\r\n\t\t\t\tbackground-color: var(--primary-6);\r\n\t\t\t\tborder-color: var(--primary-6-dim);\r\n\t\t\t}\r\n\r\n\t\t\thgroup {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: column;\r\n\t\t\t\tpadding-bottom: var(--size-0);\r\n\r\n\t\t\t\th3 {\r\n\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\talign-items: center;\r\n\t\t\t\t\tgap: var(--size--2);\r\n\t\t\t\t\tfont-family: var(--font-industrial);\r\n\t\t\t\t\tfont-size: var(--font-size-1);\r\n\t\t\t\t\tfont-weight: var(--font-weight-medium);\r\n\t\t\t\t\tline-height: 1;\r\n\t\t\t\t\tletter-spacing: var(--font-letter-spacing--1);\r\n\t\t\t\t}\r\n\r\n\t\t\t\tp {\r\n\t\t\t\t\tfont-size: var(--font-size--1);\r\n\t\t\t\t\tcolor: color-mix(in oklch, var(--primary-6-on) 85%, black 15%);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\tdiv {\r\n\t\t\t\tdisplay: block;\r\n\t\t\t\tfont-size: var(--font-size--1);\r\n\t\t\t}\r\n\r\n\t\t\tfooter {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tgap: var(--size-2);\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tmargin-top: auto;\r\n\t\t\t\tpadding-top: var(--size-0);\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -191,7 +191,7 @@ func Header(props ...HeaderProps) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/card/card.templ`, Line: 117, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/card/card.templ`, Line: 123, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -283,7 +283,7 @@ func Title(props ...TitleProps) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/card/card.templ`, Line: 135, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/card/card.templ`, Line: 141, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -375,7 +375,7 @@ func Description(props ...DescriptionProps) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/card/card.templ`, Line: 153, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/card/card.templ`, Line: 159, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 			if templ_7745c5c3_Err != nil {
@@ -467,7 +467,7 @@ func Content(props ...ContentProps) templ.Component {
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/card/card.templ`, Line: 171, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/card/card.templ`, Line: 177, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 			if templ_7745c5c3_Err != nil {
@@ -559,7 +559,7 @@ func Footer(props ...FooterProps) templ.Component {
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/card/card.templ`, Line: 189, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/card/card.templ`, Line: 195, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 			if templ_7745c5c3_Err != nil {

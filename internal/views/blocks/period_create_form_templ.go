@@ -9,13 +9,13 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"seek/internal/domain/models"
 	"seek/internal/features/period"
 	"seek/internal/views/components/day_buttons"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
 
 	"github.com/starfederation/datastar-go/datastar"
-	"seek/internal/domain/models"
 )
 
 func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
@@ -168,6 +168,10 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><label for=\"duration\">duration</label> <input id=\"duration\" name=\"duration\" data-bind:period.duration type=\"number\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = DurationSlider(30).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

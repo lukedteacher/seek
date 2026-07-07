@@ -88,7 +88,7 @@ func ContentStyle() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<style>\r\n\t\t.popover-content {\r\n\t\t\tborder-radius: var(--border-radius-1);\r\n\t\t\tborder: var(--border-width-1) solid currentColor;\r\n\t\t\tpadding: var(--size-2);\r\n\t\t\ttransition: all 300ms allow-discrete;\r\n\t\t\tposition-anchor: var(--anchor-name);\r\n\t\t\tposition-area: bottom center;\r\n\t\t\topacity: 0;\r\n\t\t\tmargin-top: var(--size--2);\r\n\t\t\t&:popover-open {\r\n\t\t\t\topacity: 1;\r\n\t\t\t\ttransform: translateY(0);\r\n\r\n\t\t\t\t@starting-style {\r\n\t\t\t\t\topacity: 0;\r\n\t\t\t\t\ttransform: translateY(-1em);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<style>\r\n\t\t.popover-content {\r\n\t\t\twidth: auto;\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-radius: var(--border-radius-0);\r\n\t\t\tborder-width: var(--border-width-0);\r\n\t\t\tborder-color: currentColor;\r\n\t\t\tpadding: var(--size-0);\r\n\t\t\ttransition: all 300ms allow-discrete;\r\n\t\t\tposition-anchor: var(--anchor-name);\r\n\t\t\tposition-area: bottom center;\r\n\t\t\topacity: 0;\r\n\t\t\tmargin-top: var(--size--2);\r\n\t\t\t&:popover-open {\r\n\t\t\t\topacity: 1;\r\n\t\t\t\ttransform: translateY(0);\r\n\r\n\t\t\t\t@starting-style {\r\n\t\t\t\t\topacity: 0;\r\n\t\t\t\t\ttransform: translateY(-1em);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -133,7 +133,7 @@ func Trigger(props ...TriggerProps) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/popover/popover.templ`, Line: 75, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/popover/popover.templ`, Line: 78, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -151,7 +151,7 @@ func Trigger(props ...TriggerProps) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.For)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/popover/popover.templ`, Line: 77, Col: 23}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/popover/popover.templ`, Line: 80, Col: 23}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 		if templ_7745c5c3_Err != nil {
@@ -164,7 +164,7 @@ func Trigger(props ...TriggerProps) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("--anchor-name: --%s;", p.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/popover/popover.templ`, Line: 80, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/popover/popover.templ`, Line: 83, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -235,7 +235,7 @@ func Content(props ...ContentProps) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/popover/popover.templ`, Line: 94, Col: 11}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/popover/popover.templ`, Line: 97, Col: 11}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 		if templ_7745c5c3_Err != nil {
@@ -261,7 +261,7 @@ func Content(props ...ContentProps) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("--anchor-name: --%s;", p.Anchor))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/popover/popover.templ`, Line: 97, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/popover/popover.templ`, Line: 100, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {

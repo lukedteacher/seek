@@ -2,20 +2,19 @@ package pages
 
 import (
 	"seek/internal/views/components"
-	"seek/internal/views/components/popover"
-	"seek/internal/views/layouts"
 	"seek/internal/views/components/card"
+	"seek/internal/views/layouts"
 )
 
 templ Index() {
 	@layouts.Base("SEEK") {
 		<main>
-			<section>
-				<h1>SEEK</h1>
-				<p>aka shared educational environment knowledge</p>
-				<p>many features to come</p>
+			<section style="margin-bottom: var(--size-2)">
+				<p>welcome to SEEK (aka shared educational environment knowledge)</p>
+				<p>there many features to come</p>
+				<p>below are some of the current ones</p>
 			</section>
-			<section style="display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+			<section style="display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
 				@card.CardStyles()
 				@card.Card() {
 					@card.Header() {
@@ -112,19 +111,101 @@ templ Index() {
 						<a href="/teachers/create"><button>create</button></a>
 					}
 				}
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							@components.Icon("mdi:target-arrow")
+							goals
+						}
+						@card.Description() {
+							students have goals.
+						}
+					}
+					@card.Content() {
+							<h4>features (coming soon)</h4>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>goal bank</li>
+								<li>goal builder</li>
+								<li>progress tracking</li>
+								<li>charts?</li>
+							</ul>
+					}
+					@card.Footer() {
+						<a href="/goals"><button>list</button></a>	
+						<a href="/goals/create"><button>create</button></a>
+					}
+				}
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							@components.Icon("mdi:chart-line")
+							interventions
+						}
+						@card.Description() {
+							plan interventions, track data, and view progress.
+						}
+					}
+					@card.Content() {
+							<h4>features (coming soon)</h4>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>easy progress monitoring</li>
+								<li>automatic progress report creation</li>
+								<li>links to resources</li>
+								<li>charts!</li>
+							</ul>
+					}
+					@card.Footer() {
+						<a href="/interventions"><button>list</button></a>	
+						<a href="/interventions/create"><button>create</button></a>
+					}
+				}
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							@components.Icon("mdi:hand-heart")
+							caregivers
+						}
+						@card.Description() {
+							caregiver info up to date and easy to access.
+						}
+					}
+					@card.Content() {
+							<h4>features (coming soon)</h4>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>email templates & sending?</li>
+								<li>portals for their own access to data</li>
+								<li>resources for learning about disabilities?</li>
+							</ul>
+					}
+					@card.Footer() {
+						<a href="/caregivers"><button>list</button></a>	
+						<a href="/caregivers/create"><button>create</button></a>
+					}
+				}
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							@components.Icon("mdi:home-heart")
+							homerooms
+						}
+						@card.Description() {
+							general education teachers will also have their own access.
+						}
+					}
+					@card.Content() {
+							<h4>features (coming maybe?)</h4>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>gen ed student data?</li>
+								<li>interventions, goals, schedules, etc.</li>
+								<li>idk</li>
+							</ul>
+					}
+					@card.Footer() {
+						<a href="/homerooms"><button>list</button></a>	
+						<a href="/homerooms/create"><button>create</button></a>
+					}
+				}
 			</section>
-			@popover.Trigger(popover.TriggerProps{
-				ID: "trigger",
-				For: "content",
-			}) {
-				popover
-			}
-			@popover.Content(popover.ContentProps{
-				ID: "content",
-				Anchor: "trigger",
-			}) {
-				this is a thing.
-			}
 		</main>
 	}
 }

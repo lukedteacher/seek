@@ -69,69 +69,71 @@ templ Input(props ...Props) {
 		}
 		class={	p.Class }
 		{ p.Attributes... }
-	/>
+	>
+		{ children... }
+	</input>
 	@InputStyle()
 }
 
 templ InputStyle() {
 	<style>
-	input {
-		/* variables */
-		--_color-outline: blue;
-		/* interaction */
-		transition-property: all;
-		transition-timing-function: var(--anim-ease-standard);
-		transition-duration: var(--anim-duration-base);
-		cursor: text;
-		display: inline-flex;
-		/* size */
-		height: var(--size-4);
-		width: 100%;
-		min-width: 0; /* needed to stop text overflow or something? */
-		/* text */
-		font-size: var(--font-size--1);
-		/* borders */
-		border-style: solid;
-		border-color: var(--primary-12-dim);
-		border-radius: var(--border-radius-0);
-		border-width: var(--border-width-1);
-		outline-style: solid;
-		outline-width: var(--border-width-1);
-		outline-color: transparent;
-		outline-offset: var(--border-width-1);
-		/* color */
-		color: var(--primary-12-on);
-		background-color: var(--primary-12);
-		padding: 0 var(--size--2);
+		input {
+			/* variables */
+			--_color-outline: blue;
+			/* interaction */
+			transition-property: all;
+			transition-timing-function: var(--anim-ease-standard);
+			transition-duration: var(--anim-duration-base);
+			cursor: text;
+			display: inline-flex;
+			/* size */
+			height: var(--size-4);
+			width: 100%;
+			min-width: 0; /* needed to stop text overflow or something? */
+			/* text */
+			font-size: var(--font-size--1);
+			/* borders */
+			border-style: solid;
+			border-color: var(--primary-12-dim);
+			border-radius: var(--border-radius-0);
+			border-width: var(--border-width-1);
+			outline-style: solid;
+			outline-width: var(--border-width-1);
+			outline-color: transparent;
+			outline-offset: var(--border-width-1);
+			/* color */
+			color: var(--primary-12-on);
+			background-color: var(--primary-12);
+			padding: 0 var(--size--2);
 
-		&:focus, &:active {
-			outline-color: var(--primary-12-dim);
-			border-color: transparent;
-		}
+			&:focus, &:active {
+				outline-color: var(--primary-12-dim);
+				border-color: transparent;
+			}
 
-		&:disabled {
-			pointer-events: none;
-			cursor: not-allowed;
-			opacity: 0.5;
-		}
+			&:disabled {
+				pointer-events: none;
+				cursor: not-allowed;
+				opacity: 0.5;
+			}
 
-		&[aria-invalid="false"]:not(:focus), &[aria-invalid="false"]:not(:active) {
-			border-color: green;
-		}
+			&[aria-invalid="false"]:not(:focus), &[aria-invalid="false"]:not(:active) {
+				border-color: green;
+			}
 
-		&[aria-invalid="false"]:focus, &[aria-invalid="false"]:active {
-			outline-color: green;
-			border-color: transparent;
-		}
+			&[aria-invalid="false"]:focus, &[aria-invalid="false"]:active {
+				outline-color: green;
+				border-color: transparent;
+			}
 
-		&[aria-invalid="true"]:not(:focus), &[aria-invalid="true"]:not(:active) {
-			border-color: var(--error-5);
-		}
+			&[aria-invalid="true"]:not(:focus), &[aria-invalid="true"]:not(:active) {
+				border-color: var(--error-5);
+			}
 
-		&[aria-invalid="true"]:focus, &[aria-invalid="true"]:active {
-			outline-color: var(--error-5);
-			border-color: transparent;
+			&[aria-invalid="true"]:focus, &[aria-invalid="true"]:active {
+				outline-color: var(--error-5);
+				border-color: transparent;
+			}
 		}
-	}
 	</style>
 }

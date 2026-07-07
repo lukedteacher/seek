@@ -64,10 +64,16 @@ templ CardStyles() {
 			border-style: solid;
 			border-radius: var(--border-radius-0);
 			border-width: var(--border-width-0);
-			border-color: var(--primary-6-dim);
-			background-color: var(--primary-6);
-			color: var(--primary-6-on);
+			border-color: var(--primary-5-dim);
+			background-color: var(--primary-5);
+			color: var(--primary-5-on);
 			padding: var(--size-1);
+
+			&:hover {
+				color: var(--primary-6-on);
+				background-color: var(--primary-6);
+				border-color: var(--primary-6-dim);
+			}
 
 			hgroup {
 				display: flex;
