@@ -17,7 +17,7 @@ templ TeacherList(teachers []models.Teacher) {
 			for _, teacher := range teachers {
 				<tr>
 					<td>
-						<a href={ fmt.Sprintf("/teacher/%s", teacher.ID) }>{ teacher.FirstName }</a>
+						<a href={ fmt.Sprintf("/teachers/%s", teacher.ID) }>{ teacher.FirstName }</a>
 					</td>
 					<td>
 						if teacher.ChosenName != nil {

@@ -117,7 +117,7 @@ func (s Server) editPeriodForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	daysSignals := models.DaysBitmaskToDaysSignals(periodRes.Days)
-	signals := &models.PeriodSignals{
+	signals := models.PeriodSignals{
 		ID:        periodID,
 		Title:     periodRes.Title,
 		StartTime: periodRes.StartTime,
@@ -126,7 +126,7 @@ func (s Server) editPeriodForm(w http.ResponseWriter, r *http.Request) {
 	}
 	
 	validation := period.Validate(*periodRes)
-	_ = pages.EditPeriod(*signals, *signals, validation).Render(r.Context(), w)
+	_ = pages.EditPeriod(signals, signals, validation).Render(r.Context(), w)
 }
 
 // POST request to /periods/{id}/edit/validate
@@ -151,7 +151,7 @@ func (s Server) validateEditPeriod(w http.ResponseWriter, r *http.Request) {
 		Days:      daysBitmask,
 	}
 	validation := period.Validate(model)
-	patchTempl(w, r, blocks.CreatePeriodForm(validation))
+	patchTempl(w, r, blocks.EditPeriodForm(signals.Period, signals.Period , validation))
 }
 
 // POST request to /periods/{id}/edit

@@ -76,7 +76,6 @@ func (d Day) IsSet(mask int64) bool {
 	return mask&d.Bit() != 0
 }
 
-
 type DaysSignals struct {
 	Monday    bool `json:"monday"`
 	Tuesday   bool `json:"tuesday"`

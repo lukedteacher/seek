@@ -52,6 +52,8 @@ a tool for educators.
   - should be able to fix by seeding data with events instead of into db directly
 - [x] pointers in student data don't translate to projections
   - fixed with stringPtr function from orisun
+- [ ] teacher validation breaks when chosen name is empty
+  - probably just should refactor validation
 
 ### reminders
 - camelCase for event sourcing

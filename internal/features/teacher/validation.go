@@ -1,4 +1,4 @@
-package student
+package teacher
 
 import (
 	"seek/internal/domain/models"
@@ -10,18 +10,21 @@ type Validation struct {
 	State   string // "error", "empty", "valid"
 }
 
-func Validate(student *models.Student) map[string]Validation {
+func Validate(teacher *models.Teacher) map[string]Validation {
 	errors := make(map[string]Validation)
-	if student == nil {
-		return errors
+	if teacher == nil {
+		println("am i sending a nil teacher?")
 	}
-	if student.ChosenName == nil {
-		println("howdy")
+	if teacher.ChosenName == nil {
+		println("why does this fial?")
 	}
-	errors["first_name"] = ValidateFirstName(student.FirstName)
-	errors["chosen_name"] = ValidateChosenName(*student.ChosenName)
-	errors["last_name"] = ValidateLastName(student.LastName)
-	errors["grade"] = ValidateGrade(student.Grade)
+	println("test")
+	errors["first_name"] = ValidateFirstName(teacher.FirstName)
+	println("test2")
+	errors["chosen_name"] = ValidateChosenName(*teacher.ChosenName)
+	println("test3")
+	errors["last_name"] = ValidateLastName(teacher.LastName)
+	println("test4")
 
 	return errors
 }
@@ -37,9 +40,10 @@ func ValidateFirstName(firstName string) Validation {
 }
 
 func ValidateChosenName(chosenName string) Validation {
+	println("am i getting here??")
 	if chosenName == "" {
 		return Validation{Message: "optional", State: "empty"}
-	} else	if utils.ValidateAlphanumeric(chosenName) {
+	} else	if utils.ValidateAlphanumericLax(chosenName) {
 		return Validation{Message: "optional", State: "valid"}
 	} else {
 		return Validation{Message: "optional", State: "error"}
@@ -53,13 +57,5 @@ func ValidateLastName(lastName string) Validation {
 		return Validation{Message: "required", State: "valid"}
 	} else {
 		return Validation{Message: "required", State: "error"}
-	}
-}
-
-func ValidateGrade(grade int64) Validation {
-	if grade == -1 {
-		return Validation{Message: "required", State: "empty"}
-	} else {
-		return Validation{Message: "required", State: "valid"}
 	}
 }

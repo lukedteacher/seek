@@ -1,7 +1,7 @@
 package blocks
 
 import (
-  "strconv"
+  "fmt"
 	"seek/internal/domain/models"
 	"seek/internal/views/components/period_card"
 )
@@ -12,31 +12,23 @@ templ ScheduleStyle() {
 			width: 100%;
 			height: 100%;
 			display: grid;
-			grid-template-rows: auto 1fr;
-			grid-template-columns: repeat(6, 1fr);
+			grid-template-rows: 4rem 1fr;
+			grid-template-columns: 6rem repeat(5, 1fr);
 			background-color: var(--primary-4);
 			color: var(--primary-4-on);
 			border-style: solid;
 			border-color: var(--primary-6);
 			border-width: var(--border-width-0);
 			border-radius: var(--border-radius-2);
-			padding: var(--size-3);
+			padding-right: var(--size-2);
+			padding-bottom: var(--size-2);
 
-			header {
+			div.day-header {
 				width: 100%;
 				height: 100%;
 				display: flex;
-				padding: 0;
-				grid-column: 2 / -1;
-
-				div {
-					width: 100%;
-					height: 100%;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					padding: var(--size-2) var(--size-3);
-				}
+				justify-content: center;
+				align-items: center;
 			}
 
 			#schedule-times {
@@ -51,7 +43,6 @@ templ ScheduleStyle() {
 					justify-content: center;
 					align-items: center;
 					flex-grow: 1;
-					padding: var(--size-2) var(--size-3);
 				}
 			}
 
@@ -90,13 +81,14 @@ templ DayHeaders() {
     "Thursday",
     "Friday",
   }}}
-  <header id="schedule-days">
-    for _, day := range days {
-      <div>
-        { day }
-      </div>
-    }
-  </header>
+	for index, day := range days {
+		<div 
+			class="day-header"
+			style={ fmt.Sprintf("grid-column: %d / span 1;", index+2) }
+		>
+			{ day }
+		</div>
+	}
 }
 
 templ TimeColumn() {
@@ -126,16 +118,15 @@ templ GridContainer() {
 }
 
 templ TimeGrid(interval int, totalRows int) {
-  // using total rows + 1 so the final row has a grid
-	<div class="time-grid" style="grid-row: 1 / 1;"></div>
-  for index := 1; index < totalRows + 1; index++ {
-    if index%interval == 0 {
+  for index := 1; index < totalRows; index++ {
+    if index%interval == 1 {
       <div 
-        style={"grid-row: " + strconv.Itoa(index) + " / span 1;"}
         class="time-grid"
+        style={ fmt.Sprintf("grid-row: %d / span 1;", index) }
       />
     }
   }
+	<div class="time-grid" style="grid-row: -1 / span 1;"></div>
 	<style>
 		.time-grid {
 			grid-column: 1 / -1;
@@ -148,14 +139,14 @@ templ TimeGrid(interval int, totalRows int) {
 templ DayGrid() {
   // this is ugly TODO: fix
   <div 
-    style={"grid-column: 1 / span 1;"}
     class="day-grid" 
-  />
+    style="grid-column: 1 / span 1;"
+  ></div>
   for index := 1; index < 6; index++ {
     <div 
-      style={"grid-column: " + strconv.Itoa(index) + " / span 1;"}
+      style={ fmt.Sprintf("grid-column: %d / span 1;", index) }
       class="day-grid"
-    />
+    ></div>
   }
 	<style>
 		.day-grid {

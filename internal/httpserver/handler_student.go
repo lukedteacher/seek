@@ -127,7 +127,7 @@ func (s Server) validateCreateStudent(w http.ResponseWriter, r *http.Request) {
 		Homeroom:    signals.Homeroom,
 		CaseManager: &signals.CaseManager,
 	}
-	
+
 	validation := student.Validate(&studentToValidate)
 	_ = pages.CreateStudent(studentToValidate, validation, selectedGrade).Render(context, w)
 }
@@ -178,14 +178,14 @@ func (s Server) createStudent(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GET request to /students/{id}
+// GET request to /students/{id}/edit
 func (s Server) editStudentForm(w http.ResponseWriter, r *http.Request) {
 	context := r.Context()
 	type Signals struct {
 		FirstName   string `json:"first_name"`
 		ChosenName  string `json:"chosen_name"`
 		LastName    string `json:"last_name"`
-		Grade       string  `json:"grade"`
+		Grade       string `json:"grade"`
 		Homeroom    string `json:"homeroom"`
 		CaseManager string `json:"case_manager"`
 	}
@@ -205,8 +205,8 @@ func (s Server) editStudentForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var selectedGrade string = "-1"
-	// if the user has selected a teacher, use that as the default selection
-	// otherwise use the schedule's teacher ID data
+	// if the user has selected a grade, use that as the default selection
+	// otherwise use the students existing grade data
 	if signals.Grade != "" && studentRes.GradeString() != signals.Grade {
 		selectedGrade = signals.Grade
 	} else {
@@ -261,8 +261,8 @@ func (s Server) validateEditStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var selectedGrade string = "-1"
-	// if the user has selected a teacher, use that as the default selection
-	// otherwise use the schedule's teacher ID data
+	// if the user has selected a grade, use that as the default selection
+	// otherwise use the students existing grade data
 	if signals.Grade != "" && studentRes.GradeString() != signals.Grade {
 		selectedGrade = signals.Grade
 	} else {
@@ -285,7 +285,7 @@ func (s Server) validateEditStudent(w http.ResponseWriter, r *http.Request) {
 		Homeroom:    signals.Homeroom,
 		CaseManager: &signals.CaseManager,
 	}
-	
+
 	validation := student.Validate(&model)
 	_ = pages.EditStudent(*studentRes, validation, selectedGrade).Render(context, w)
 }

@@ -3,10 +3,17 @@ package models
 import "strings"
 
 type Teacher struct {
-	ID          string  `db:"id"`
-	FirstName   string  `db:"first_name"`
-	ChosenName  *string `db:"chosen_name"`
-	LastName    string  `db:"last_name"`
+	ID         string  `db:"id"`
+	FirstName  string  `db:"first_name"`
+	ChosenName *string `db:"chosen_name"`
+	LastName   string  `db:"last_name"`
+}
+
+type TeacherSignals struct {
+	ID         string `json:"id"`
+	FirstName  string `json:"first_name"`
+	ChosenName string `json:"chosen_name"`
+	LastName   string `json:"last_name"`
 }
 
 func (s Teacher) DisplayName() string {

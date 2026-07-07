@@ -24,10 +24,6 @@ templ Teachers(view int64, teachers []models.Teacher) {
 						@components.Icon("solar:widget-bold-duotone")
 						<span>cards</span>
 					</button>
-					<button data-on:click="@get('/teacher/create')">
-						@components.Icon("solar:widget-bold-duotone")
-						<span>create</span>
-					</button>
 				</div>
 				if view == 0 {
 					@blocks.TeacherList(teachers)

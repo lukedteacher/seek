@@ -4,13 +4,12 @@ import "seek/internal/domain/models"
 import "fmt"
 
 templ PeriodCard(period models.Period) {
+
 	<div 
 		class="period-card"
-		style={fmt.Sprintf("grid-column: 2; grid-row: %s / span 30;", period.TimeToRow(480))}
+		style={fmt.Sprintf("grid-column: 2; grid-row: %s / span %d;", period.TimeToRow(479), period.Duration)}
 	>
 		<h3>{ period.Title }</h3>
-		<p>{ period.StartTime }</p>
-		<p>{ period.Duration }</p>
 	</div>
 	@PeriodCardStyles()
 }
@@ -18,13 +17,16 @@ templ PeriodCard(period models.Period) {
 templ PeriodCardStyles() {
 	<style>
 		.period-card {
+			width: 100%;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			background-color: red;
-			border: 2px solid green;
+			background-color: var(--gruvbox-orange-neutral-0);
+			border-style: solid;
+			border-color: var(--gruvbox-orange-neutral--1);
 			border-radius: var(--border-radius-0);
+			font-size: var(--font-size--2);
 		}
 	</style>
 }

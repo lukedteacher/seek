@@ -10,12 +10,15 @@ import (
 
 templ Teacher(teacher *models.Teacher) {
 	@layouts.Base("SEEK: teachers") {
-		<main data-init={ views.LongRunningGetSSE("/teacher/stream") }>
+		<main data-init={ views.LongRunningGetSSE("/teachers/stream") }>
 			<section>
 				<h2>{ teacher.FirstLast() }</h2>
-				<div>
-					<button data-on:click={ fmt.Sprintf("@delete('/teacher/%s')", teacher.ID) }>delete</button>
-				</div>
+				<footer>
+					<a href={ fmt.Sprintf("/teachers/%s/edit", teacher.ID) }>
+						<button>edit</button>
+					</a>
+					<button data-on:click={ fmt.Sprintf("@delete('/teachers/%s')", teacher.ID) }>delete</button>
+				</footer>
 			</section>
 		</main>
 	}

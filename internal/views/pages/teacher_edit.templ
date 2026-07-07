@@ -1,0 +1,19 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/features/teacher"
+	"seek/internal/views"
+	"seek/internal/views/blocks"
+	"seek/internal/views/layouts"
+)
+
+templ EditTeacher(teacher models.TeacherSignals, validation map[string]teacher.Validation) {
+	@layouts.Base("SEEK: edit student") {
+		<main data-init={ views.LongRunningGetSSE("/teachers/edit/stream") }>
+			<section>
+				@blocks.EditTeacherForm(teacher, validation)
+			</section>
+		</main>
+	}
+}
