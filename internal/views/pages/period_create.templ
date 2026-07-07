@@ -9,7 +9,7 @@ import (
 
 templ CreatePeriod(validation map[string]period.Validation) {
 	@layouts.Base("SEEK: create period") {
-		<main data-init={ views.LongRunningGetSSE("/period/create/stream") }>
+		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
 			<section>
 				@blocks.CreatePeriodForm(validation)
 			</section>

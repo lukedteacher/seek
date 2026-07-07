@@ -9,7 +9,7 @@ templ DayButtons(days models.DaysSignals) {
 			<label for={ models.Days[i].NameLower() }>
 				{ models.Days[i].Short() }
 				<input 
-					data-bind={ fmt.Sprintf("days.%s", models.Days[i].NameLower()) } 
+					data-bind={ fmt.Sprintf("period.days.%s", models.Days[i].NameLower()) } 
 					name="days" 
 					type="checkbox" 
 					id={ models.Days[i].NameLower() } 

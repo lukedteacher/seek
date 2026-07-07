@@ -41,14 +41,14 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form data-on:submit=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"edit-schedule-form\" data-on:submit=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/schedules/%s/edit", schedule.Id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 16, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 16, Col: 99}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -73,7 +73,7 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "title",
 				Name:     "title",
-				DataBind: "title",
+				DataBind: "schedule.title",
 				DataOn:   fmt.Sprintf("/schedules/%s/edit/validate", schedule.Id),
 				HasError: validation["title"].State == "error",
 				IsValid:  validation["title"].State == "valid",
@@ -182,7 +182,7 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 			templ_7745c5c3_Err = selectbox.Select(selectbox.Props{
 				ID:           "teacher-select",
 				Placeholder:  "select a teacher",
-				DataBind:     "teacher_id",
+				DataBind:     "schedule.teacher_id",
 				DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", schedule.Id),
 				HasError:     validation["teacher_id"].State == "error",
 				IsValid:      validation["teacher_id"].State == "valid",
@@ -305,7 +305,7 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 			})
 			templ_7745c5c3_Err = selectbox.Select(selectbox.Props{
 				ID:           "periods-multiselect",
-				DataBind:     "period_ids",
+				DataBind:     "schedule.period_ids",
 				DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", schedule.Id),
 				HasError:     validation["periods"].State == "error",
 				IsValid:      validation["periods"].State == "valid",
@@ -326,20 +326,24 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</section><footer><button type=\"button\" data-on:click=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</section><section></section><footer><button type=\"button\" style=\"background-color: var(--gruvbox-red-neutral-0);\" data-on:click=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/schedules/%s/delete", schedule.Id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 102, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 105, Col: 73}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\">delete</button> <button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = CreatePeriodForm(nil).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

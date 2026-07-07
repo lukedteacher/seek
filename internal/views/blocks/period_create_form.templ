@@ -2,14 +2,16 @@ package blocks
 
 import (
 	"seek/internal/features/period"
-
-	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/components/day_buttons"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
+
+	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/domain/models"
 )
 
 templ CreatePeriodForm(validation map[string]period.Validation) {
-	<form data-on:submit={ datastar.PostSSE("/period/create") }>
+	<form id="create-period-form" data-on:submit={ datastar.PostSSE("/periods/create") }>
 		<hgroup>
 			<h2>CREATE A PERIOD</h2>
 			<p>create a new period.</p>
@@ -25,8 +27,8 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 				@input.Input(input.Props{
 					ID: "title",
 					Name: "title",
-					DataBind: "title",
-					DataOn: "/period/create/validate",
+					DataBind: "period.title",
+					DataOn: "/periods/create/validate",
 					HasError: validation["title"].State == "error",
 					IsValid: validation["title"].State == "valid",
 				})
@@ -42,8 +44,8 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 					@input.Input(input.Props{
 						ID: "start-time",
 						Name: "start-time",
-						DataBind: "start_time",
-						DataOn: "/period/create/validate",
+						DataBind: "period.start_time",
+						DataOn: "/periods/create/validate",
 						HasError: validation["start_time"].State == "error",
 						IsValid: validation["start_time"].State == "valid",
 						Value: "9:00",
@@ -59,8 +61,8 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 					@input.Input(input.Props{
 						ID: "end-time",
 						Name: "end-time",
-						DataBind: "end_time",
-						DataOn: "/period/create/validate",
+						DataBind: "period.end_time",
+						DataOn: "/periods/create/validate",
 						HasError: validation["end_time"].State == "error",
 						IsValid: validation["end_time"].State == "valid",
 						Value: "9:30",
@@ -68,9 +70,8 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 				}
 			</div>
 			<label for="duration">duration</label>
-			<input id="duration" name="duration" data-bind:duration type="number" />
-			<label for="days">days</label>
-			<input id="days" name="days" data-bind:days type="number" />
+			<input id="duration" name="duration" data-bind:period.duration type="number" />
+			@day_buttons.DayButtons(models.DaysSignals{})
 		</section>
 		<footer>
 			<button 

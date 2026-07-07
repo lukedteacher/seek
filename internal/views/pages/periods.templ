@@ -24,12 +24,6 @@ templ Periods(view int64, periods []models.Period) {
 						@components.Icon("solar:widget-bold-duotone")
 						<span>cards</span>
 					</button>
-					<a href="/period/create">
-						<button>
-							@components.Icon("solar:widget-bold-duotone")
-							<span>create</span>
-						</button>
-					</a>
 				</div>
 				if view == 0 {
 					@blocks.PeriodList(periods)

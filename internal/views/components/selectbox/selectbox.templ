@@ -18,6 +18,7 @@ type Props struct {
 	DataBind     string
 	DataOnChange string
 	Multiple     bool
+	SelectedContent string
 }
 
 templ SelectStyles() {
@@ -197,7 +198,13 @@ templ Select(props ...Props) {
 		}
 		{ p.Attributes... }
 	>
-		<button style="background: var(--bg-transparent); color: inherit; padding: 0;"><selectedcontent></selectedcontent></button>
+		<button style="background: var(--bg-transparent); color: inherit; padding: 0;">
+			<selectedcontent>
+				if p.SelectedContent != "" {
+					{ p.SelectedContent }
+				}
+			</selectedcontent>
+		</button>
 		if p.Placeholder != "" {
 			<option>{ p.Placeholder }</option>
 		}

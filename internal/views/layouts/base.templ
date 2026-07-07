@@ -24,9 +24,9 @@ templ Base(title string) {
 					data-init={ views.HotReloadSSE() }
 				}
 			>
-				@components.Header()
+				@components.MainHeader()
 				{ children... }
-				@components.Footer()
+				@components.MainFooter()
 			</body>
 	</html>
 }

@@ -15,7 +15,7 @@ import (
 	"seek/internal/views/layouts"
 )
 
-func CreateSchedule(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) templ.Component {
+func CreateSchedule(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacher *models.Teacher) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -52,7 +52,7 @@ func CreateSchedule(schedule models.Schedule, teachers []models.Teacher, periods
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.CreateScheduleForm(schedule, teachers, periods, validation, selectedTeacherId).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.CreateScheduleForm(schedule, teachers, periods, validation, selectedTeacher).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

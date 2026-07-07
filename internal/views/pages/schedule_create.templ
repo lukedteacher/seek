@@ -7,11 +7,11 @@ import (
 	"seek/internal/views/blocks"
 )
 
-templ CreateSchedule(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) {
+templ CreateSchedule(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacher *models.Teacher) {
 	@layouts.Base("SEEK: create period") {
 		<main>
 			<section>
-				@blocks.CreateScheduleForm(schedule, teachers, periods, validation, selectedTeacherId)
+				@blocks.CreateScheduleForm(schedule, teachers, periods, validation, selectedTeacher)
 			</section>
 		</main>
 	}

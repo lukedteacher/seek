@@ -73,7 +73,7 @@ func EditStudentForm(student models.Student, validation map[string]student.Valid
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "first-name",
 				Name:     "first-name",
-				DataBind: "first_name",
+				DataBind: "student.first_name",
 				DataOn:   fmt.Sprintf("/students/%s/edit/validate", student.Id),
 				HasError: validation["first_name"].State == "error",
 				IsValid:  validation["first_name"].State == "valid",
@@ -113,7 +113,7 @@ func EditStudentForm(student models.Student, validation map[string]student.Valid
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "chosen-name",
 				Name:     "chosen-name",
-				DataBind: "chosen_name",
+				DataBind: "student.chosen_name",
 				DataOn:   fmt.Sprintf("/students/%s/edit/validate", student.Id),
 				HasError: validation["chosen_name"].State == "error",
 				IsValid:  validation["chosen_name"].State == "valid",
@@ -149,7 +149,7 @@ func EditStudentForm(student models.Student, validation map[string]student.Valid
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "last-name",
 				Name:     "last-name",
-				DataBind: "last_name",
+				DataBind: "student.last_name",
 				DataOn:   fmt.Sprintf("/students/%s/edit/validate", student.Id),
 				HasError: validation["last_name"].State == "error",
 				IsValid:  validation["last_name"].State == "valid",
@@ -258,7 +258,7 @@ func EditStudentForm(student models.Student, validation map[string]student.Valid
 			templ_7745c5c3_Err = selectbox.Select(selectbox.Props{
 				ID:           "grade-select",
 				Placeholder:  "select a grade",
-				DataBind:     "grade",
+				DataBind:     "student.grade",
 				DataOnChange: fmt.Sprintf("/students/%s/edit/validate", student.Id),
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -295,7 +295,7 @@ func EditStudentForm(student models.Student, validation map[string]student.Valid
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "homeroom",
 				Name:     "homeroom",
-				DataBind: "homeroom",
+				DataBind: "student.homeroom",
 				DataOn:   fmt.Sprintf("/students/%s/edit/validate", student.Id),
 				HasError: validation["homeroom"].State == "error",
 				IsValid:  validation["homeroom"].State == "valid",
@@ -335,7 +335,7 @@ func EditStudentForm(student models.Student, validation map[string]student.Valid
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "case-manager",
 				Name:     "case-manager",
-				DataBind: "case_manager",
+				DataBind: "student.case_manager",
 				DataOn:   fmt.Sprintf("/students/%s/edit/validate", student.Id),
 				HasError: validation["case_manager"].State == "error",
 				IsValid:  validation["case_manager"].State == "valid",

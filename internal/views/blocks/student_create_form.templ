@@ -29,7 +29,7 @@ templ CreateStudentForm(student models.Student, validation map[string]student.Va
 				@input.Input(input.Props{
 					ID: "first-name",
 					Name: "first-name",
-					DataBind: "first_name",
+					DataBind: "student.first_name",
 					DataOn: fmt.Sprintf("/students/create/validate"),
 					HasError: validation["first_name"].State == "error",
 					IsValid: validation["first_name"].State == "valid",
@@ -52,7 +52,7 @@ templ CreateStudentForm(student models.Student, validation map[string]student.Va
 				@input.Input(input.Props{
 					ID: "chosen-name",
 					Name: "chosen-name",
-					DataBind: "chosen_name",
+					DataBind: "student.chosen_name",
 					DataOn: fmt.Sprintf("/students/create/validate"),
 					HasError: validation["chosen_name"].State == "error",
 					IsValid: validation["chosen_name"].State == "valid",
@@ -69,7 +69,7 @@ templ CreateStudentForm(student models.Student, validation map[string]student.Va
 				@input.Input(input.Props{
 					ID: "last-name",
 					Name: "last-name",
-					DataBind: "last_name",
+					DataBind: "student.last_name",
 					DataOn: fmt.Sprintf("/students/create/validate"),
 					HasError: validation["last_name"].State == "error",
 					IsValid: validation["last_name"].State == "valid",
@@ -88,7 +88,7 @@ templ CreateStudentForm(student models.Student, validation map[string]student.Va
 				@selectbox.Select(selectbox.Props{
 					ID: "grade-select",
 					Placeholder: "select a grade",
-					DataBind: "grade",
+					DataBind: "student.grade",
 					DataOnChange: fmt.Sprintf("/students/create/validate"),
 				}) {
 					for index, grade := range models.GradeList {
@@ -116,7 +116,7 @@ templ CreateStudentForm(student models.Student, validation map[string]student.Va
 				@input.Input(input.Props{
 					ID: "homeroom",
 					Name: "homeroom",
-					DataBind: "homeroom",
+					DataBind: "student.homeroom",
 					DataOn: fmt.Sprintf("/students/create/validate"),
 					HasError: validation["homeroom"].State == "error",
 					IsValid: validation["homeroom"].State == "valid",
@@ -139,7 +139,7 @@ templ CreateStudentForm(student models.Student, validation map[string]student.Va
 				@input.Input(input.Props{
 					ID: "case-manager",
 					Name: "case-manager",
-					DataBind: "case_manager",
+					DataBind: "student.case_manager",
 					DataOn: fmt.Sprintf("/students/create/validate"),
 					HasError: validation["case_manager"].State == "error",
 					IsValid: validation["case_manager"].State == "valid",

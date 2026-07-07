@@ -13,16 +13,16 @@ import (
 )
 
 func (s Server) teacherRoutes(r chi.Router) {
-	r.Get("/teachers", s.teachers)
+	r.Get("/teachers", s.getTeachersList)
 	r.Get("/teachers/stream", s.teachersStream)
-	r.Get("/teacher/{id}", s.teacher)
-	r.Delete("/teacher/{id}", s.deleteTeacher)
-	r.Post("/teacher", s.createTeacher)
-	r.Get("/teacher/create", s.createTeacherForm)
+	r.Get("/teachers/{id}", s.getTeacher)
+	r.Get("/teachers/create", s.getCreateTeacherForm)
+	r.Post("/teachers/create", s.createTeacher)
+	r.Delete("/teachers/{id}", s.deleteTeacher)
 }
 
-// GET request to /teacher/{id}
-func (s Server) teacher(w http.ResponseWriter, r *http.Request) {
+// GET request to /teachers/{id}
+func (s Server) getTeacher(w http.ResponseWriter, r *http.Request) {
 	teacherID := chi.URLParam(r, "id")
 	teacher, err := s.Teachers.Get(r.Context(), teacherID)
 	if err != nil {
@@ -34,7 +34,7 @@ func (s Server) teacher(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET request to /teachers
-func (s Server) teachers(w http.ResponseWriter, r *http.Request) {
+func (s Server) getTeachersList(w http.ResponseWriter, r *http.Request) {
 	type Signals struct {
 		View int64 `json:"view"`
 	}
@@ -81,12 +81,12 @@ func (s Server) teachersStream(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GET request to /teacher/create
-func (s Server) createTeacherForm(w http.ResponseWriter, r *http.Request) {
+// GET request to /teachers/create
+func (s Server) getCreateTeacherForm(w http.ResponseWriter, r *http.Request) {
 	_ = pages.CreateTeacher().Render(r.Context(), w)
 }
 
-// POST request to /teacher
+// POST request to /teachers/create
 func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 	type Signals struct {
 		FirstName  string `json:"first_name"`
@@ -119,7 +119,7 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// POST request to /teacher/{id}/delete
+// POST request to /teachers/{id}/delete
 func (s Server) deleteTeacher(w http.ResponseWriter, r *http.Request) {
 	teacherID := chi.URLParam(r, "id")
 	_, err := teacher.DeleteTeacherCommandHandler(r.Context(), teacher.DeleteTeacherCommand{

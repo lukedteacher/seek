@@ -10,10 +10,12 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/features/period"
-
-	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/components/day_buttons"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
+
+	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/domain/models"
 )
 
 func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
@@ -37,14 +39,14 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form data-on:submit=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"create-period-form\" data-on:submit=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/period/create"))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/create"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_create_form.templ`, Line: 12, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_create_form.templ`, Line: 14, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -69,8 +71,8 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "title",
 				Name:     "title",
-				DataBind: "title",
-				DataOn:   "/period/create/validate",
+				DataBind: "period.title",
+				DataOn:   "/periods/create/validate",
 				HasError: validation["title"].State == "error",
 				IsValid:  validation["title"].State == "valid",
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -108,8 +110,8 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "start-time",
 				Name:     "start-time",
-				DataBind: "start_time",
-				DataOn:   "/period/create/validate",
+				DataBind: "period.start_time",
+				DataOn:   "/periods/create/validate",
 				HasError: validation["start_time"].State == "error",
 				IsValid:  validation["start_time"].State == "valid",
 				Value:    "9:00",
@@ -144,8 +146,8 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "end-time",
 				Name:     "end-time",
-				DataBind: "end_time",
-				DataOn:   "/period/create/validate",
+				DataBind: "period.end_time",
+				DataOn:   "/periods/create/validate",
 				HasError: validation["end_time"].State == "error",
 				IsValid:  validation["end_time"].State == "valid",
 				Value:    "9:30",
@@ -165,7 +167,15 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><label for=\"duration\">duration</label> <input id=\"duration\" name=\"duration\" data-bind:duration type=\"number\"> <label for=\"days\">days</label> <input id=\"days\" name=\"days\" data-bind:days type=\"number\"></section><footer><button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><label for=\"duration\">duration</label> <input id=\"duration\" name=\"duration\" data-bind:period.duration type=\"number\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = day_buttons.DayButtons(models.DaysSignals{}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><footer><button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

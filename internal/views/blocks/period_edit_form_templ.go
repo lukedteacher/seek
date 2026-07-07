@@ -40,14 +40,14 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form data-on:submit=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"edit-period-form\" data-on:submit=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/period/%s/edit", period.ID))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/%s/edit", period.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 15, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 15, Col: 93}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -72,8 +72,8 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "title",
 				Name:     "title",
-				DataBind: "title",
-				DataOn:   fmt.Sprintf("/period/%s/edit/validate", period.ID),
+				DataBind: "period.title",
+				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", period.ID),
 				HasError: validation["title"].State == "error",
 				IsValid:  validation["title"].State == "valid",
 				Value:    period.Title,
@@ -112,8 +112,8 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "start-time",
 				Name:     "start-time",
-				DataBind: "start_time",
-				DataOn:   fmt.Sprintf("/period/%s/edit/validate", period.ID),
+				DataBind: "period.start_time",
+				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", period.ID),
 				HasError: validation["start_time"].State == "error",
 				IsValid:  validation["start_time"].State == "valid",
 				Value:    period.StartTime,
@@ -148,8 +148,8 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "end-time",
 				Name:     "end-time",
-				DataBind: "end_time",
-				DataOn:   fmt.Sprintf("/period/%s/edit/validate", period.ID),
+				DataBind: "period.end_time",
+				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", period.ID),
 				HasError: validation["end_time"].State == "error",
 				IsValid:  validation["end_time"].State == "valid",
 				Value:    "9:30",
@@ -169,14 +169,14 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><label for=\"duration\">duration</label> <input id=\"duration\" name=\"duration\" data-bind:duration type=\"number\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><label for=\"duration\">duration</label> <input id=\"duration\" name=\"duration\" data-bind:period.duration type=\"number\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(period.Duration)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 75, Col: 96}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 75, Col: 103}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 		if templ_7745c5c3_Err != nil {
@@ -195,9 +195,9 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/period/%s/delete", period.ID))
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/%s/delete", period.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 81, Col: 68}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 81, Col: 69}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {

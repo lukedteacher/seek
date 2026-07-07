@@ -3,6 +3,7 @@ package pages
 import (
 	"seek/internal/views/components/popover"
 	"seek/internal/views/layouts"
+	"seek/internal/views/components/card"
 )
 
 templ Index() {
@@ -13,17 +14,99 @@ templ Index() {
 				<p>aka shared educational environment knowledge</p>
 				<p>many features to come</p>
 			</section>
-			<section>
-			<ul style="display: flex; flex-direction: column; gap: 10px;">
-				<a href="/periods"><li>list periods</li></a>
-				<a href="/period/create"><li>create a period</li></a>
-				<a href="/students"><li>list students</li></a>
-				<a href="/students/create"><li>create a student</li></a>
-				<a href="/teachers"><li>list teachers</li></a>
-				<a href="/teacher/create"><li>create a teacher</li></a>
-				<a href="/schedules"><li>list schedules</li></a>
-				<a href="/schedules/create"><li>create a schedule</li></a>
-			</ul>
+			<section style="display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+				@card.CardStyles()
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							schedules
+						}
+						@card.Description() {
+							view, create, and manage schedules
+						}
+					}
+					@card.Content() {
+							<h4>features (coming soon)</h4>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>notifications on change</li>
+								<li>plan for actual calendar dates</li>
+								<li>printable version for student visual schedule</li>
+								<li>collaborative schedule creation</li>
+							</ul>
+					}
+					@card.Footer() {
+						<a href="/schedules"><button>list</button></a>	
+						<a href="/schedules/create"><button>create</button></a>
+					}
+				}
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							periods
+						}
+						@card.Description() {
+							periods make up schedules.
+						}
+					}
+					@card.Content() {
+							<h4>features (coming soon)</h4>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>notifications on change</li>
+								<li>assign students with relevant goals</li>
+								<li>take attendance</li>
+								<li>lesson plans</li>
+							</ul>
+					}
+					@card.Footer() {
+						<a href="/periods"><button>list</button></a>	
+						<a href="/periods/create"><button>create</button></a>
+					}
+				}
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							students
+						}
+						@card.Description() {
+							can't live with them, can't live without their funding.
+						}
+					}
+					@card.Content() {
+							<h4>features (coming soon)</h4>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>pictures?</li>
+								<li>SPED data</li>
+								<li>schedule view</li>
+							</ul>
+					}
+					@card.Footer() {
+						<a href="/students"><button>list</button></a>	
+						<a href="/students/create"><button>create</button></a>
+					}
+				}
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							teachers
+						}
+						@card.Description() {
+							they do the work of learning the students.
+						}
+					}
+					@card.Content() {
+							<h4>features (coming soon)</h4>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>profiles?</li>
+								<li>view their schedule</li>
+								<li>caseloads</li>
+								<li>idk</li>
+							</ul>
+					}
+					@card.Footer() {
+						<a href="/teachers"><button>list</button></a>	
+						<a href="/teachers/create"><button>create</button></a>
+					}
+				}
 			</section>
 			@popover.Trigger(popover.TriggerProps{
 				ID: "trigger",

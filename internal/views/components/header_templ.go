@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import ()
 
-func Header() templ.Component {
+func MainHeader() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -47,7 +47,7 @@ func Header() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = HeaderStyles().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = MainHeaderStyles().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -55,7 +55,7 @@ func Header() templ.Component {
 	})
 }
 
-func HeaderStyles() templ.Component {
+func MainHeaderStyles() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -76,7 +76,7 @@ func HeaderStyles() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<style>\n\t\tbody > header {\n\t\t\tcolor: var(--secondary-2-on);\n\t\t\tbackground-color: var(--secondary-2);\n\t\t\twidth: 100%;\n\t\t\theight: 6rem;\n\t\t\talign-items: center;\n\t\t\tdisplay: flex;\n\t\t\tflex-direction: row;\n\t\t\tpadding-left: var(--size-4);\n\n\t\t\th3 {\n\t\t\t\tfont-weight: var(--font-weight-thin);\n\t\t\t\tfont-size: var(--font-size--2);\n\t\t\t\tcolor: var(--secondary-4-on);\n\t\t\t\tletter-spacing: (--font-letter-spacing--2);\n\t\t\t\t\n\t\t\t}\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<style>\r\n\t\tbody > header {\r\n\t\t\tcolor: var(--primary-6-on);\r\n\t\t\tbackground-color: var(--primary-6);\r\n\t\t\twidth: 100%;\r\n\t\t\theight: 6rem;\r\n\t\t\talign-items: center;\r\n\t\t\tdisplay: flex;\r\n\t\t\tflex-direction: row;\r\n\t\t\tpadding-left: var(--size-4);\r\n\r\n\t\t\th3 {\r\n\t\t\t\tfont-weight: var(--font-weight-thin);\r\n\t\t\t\tfont-size: var(--font-size--2);\r\n\t\t\t\tcolor: var(--primary-5-on);\r\n\t\t\t\tletter-spacing: (--font-letter-spacing--2);\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
