@@ -61,11 +61,12 @@ templ CardStyles() {
 			display: flex;
 			flex-direction: column;
 			width: 100%;
+			border-style: solid;
 			border-radius: var(--border-radius-0);
 			border-width: var(--border-width-0);
-			border-style: solid;
-			background-color: var(--neutral-6);
-			color: var(--neutral-6-on);
+			border-color: var(--primary-6-dim);
+			background-color: var(--primary-6);
+			color: var(--primary-6-on);
 			padding: var(--size-1);
 
 			hgroup {
@@ -74,6 +75,9 @@ templ CardStyles() {
 				padding-bottom: var(--size-0);
 
 				h3 {
+					display: flex;
+					align-items: center;
+					gap: var(--size--2);
 					font-family: var(--font-industrial);
 					font-size: var(--font-size-1);
 					font-weight: var(--font-weight-medium);
@@ -83,7 +87,7 @@ templ CardStyles() {
 
 				p {
 					font-size: var(--font-size--1);
-					color: color-mix(in oklch, var(--neutral-6-on) 85%, black 15%);
+					color: color-mix(in oklch, var(--primary-6-on) 85%, black 15%);
 				}
 			}
 

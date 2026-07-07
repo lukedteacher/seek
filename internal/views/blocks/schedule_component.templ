@@ -7,8 +7,8 @@ import (
 )
 
 type ScheduleComponentViewModel struct {
-	Schedule models.ScheduleSignals
-	Periods  []models.PeriodSignals
+	Schedule         models.ScheduleSignals
+	PeriodViewModels []period_card.PeriodCardViewModel
 }
 
 templ ScheduleStyle() {
@@ -70,10 +70,8 @@ templ ScheduleComponent(vm ScheduleComponentViewModel) {
 		@GridContainer() {
 			@TimeGrid(30, 480)
 			@DayGrid()
-			for i := range vm.Periods {
-				@period_card.PeriodCard(period_card.PeriodCardViewModel{
-					Period: vm.Periods[i],
-				})
+			for _, pcvm := range vm.PeriodViewModels {
+				@period_card.PeriodCards(pcvm)
 			}
 		}
 		@ScheduleStyle()

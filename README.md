@@ -18,10 +18,10 @@ a tool for educators.
 - [ ] schedules
   - [x] CRUD operations
 	- [x] add period to schedule
-	- [ ] add periodS to schedule
+	- [x] add periodS to schedule
 	- [ ] actual delete?
-	- [ ] validate period isn't already in schedule
-  - [ ] show periods
+	- [x] validate period isn't already in schedule
+  - [x] show periods
 
 - [ ] everything else
 
@@ -54,6 +54,7 @@ a tool for educators.
   - fixed with stringPtr function from orisun
 - [ ] teacher validation breaks when chosen name is empty
   - probably just should refactor validation
+- [ ] after removing periods from a schedule, they cannot be re-added?
 
 ### reminders
 - camelCase for event sourcing

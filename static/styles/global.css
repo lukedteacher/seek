@@ -27,6 +27,7 @@ body {
 		height: 6rem;
 		align-items: center;
 		display: flex;
+		gap: var(--size-2);
 		flex-direction: row;
 		padding-left: var(--size-4);
 

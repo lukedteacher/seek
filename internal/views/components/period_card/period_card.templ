@@ -7,12 +7,19 @@ import (
 
 type PeriodCardViewModel struct {
 	Period models.PeriodSignals
+	Columns []int
 }
 
-templ PeriodCard(vm PeriodCardViewModel) {
+templ PeriodCards(vm PeriodCardViewModel) {
+	for i := range vm.Columns {
+		@PeriodCard(vm, vm.Columns[i])
+	}
+}
+
+templ PeriodCard(vm PeriodCardViewModel, column int) {
 	<div 
 		class="period-card"
-		style={fmt.Sprintf("grid-column: 2; grid-row: %s / span %d;", models.TimeToRow(vm.Period.StartTime, 479), vm.Period.Duration)}
+		style={fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, models.TimeToRow(vm.Period.StartTime, 479), vm.Period.Duration)}
 	>
 		<h3>{ vm.Period.Title }</h3>
 	</div>

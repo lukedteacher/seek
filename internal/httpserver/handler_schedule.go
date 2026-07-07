@@ -2,12 +2,14 @@ package httpserver
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
 	"seek/internal/features/schedule"
 	"seek/internal/views/blocks"
+	"seek/internal/views/components/period_card"
 	"seek/internal/views/pages"
 	"seek/internal/viewstore"
 
@@ -111,8 +113,9 @@ func (s Server) getEditSchedule(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	efvm := s.newViewModel(ctx, *scheduleRes)
-	_ = pages.EditSchedule(efvm).Render(ctx, w)
+	efvm, _ := s.newEditScheduleViewModel(ctx, scheduleRes)
+	scvm, _ := s.newScheduleComponentViewModel(ctx, scheduleRes)
+	_ = pages.EditSchedule(efvm, scvm).Render(ctx, w)
 }
 
 func (s Server) editScheduleStream(w http.ResponseWriter, r *http.Request) {
@@ -170,8 +173,9 @@ func (s Server) editScheduleStream(w http.ResponseWriter, r *http.Request) {
 				println("up: ", err.Error())
 				return
 			}
-			efvm := s.newViewModel(ctx, model)
-			sse.PatchElementTempl(pages.EditSchedule(efvm))
+			efvm, _ := s.newEditScheduleViewModel(ctx, &model)
+			scvm, _ := s.newScheduleComponentViewModel(ctx, &model)
+			sse.PatchElementTempl(pages.EditSchedule(efvm, scvm))
 		}
 	}
 }
@@ -311,58 +315,59 @@ func (s Server) refreshScheduleViewState(ctx context.Context, scheduleID string)
 // builds a view model for the edit schedule view
 // TODO genericize it to be used for other contexts?
 // TODO save it in the state?
-func (s Server) newViewModel(ctx context.Context, scheduleRes models.Schedule) blocks.EditScheduleViewModel {
-	periodIDs, _ := s.Schedules.ListSchedulePeriodIDs(ctx, scheduleRes.Id)
+func (s *Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedule) (blocks.EditScheduleViewModel, error) {
+	if sm == nil {
+		return blocks.EditScheduleViewModel{}, nil
+	}
+	periodIDs, err := s.Schedules.ListSchedulePeriodIDs(ctx, sm.Id)
+	if err != nil {
+		return blocks.EditScheduleViewModel{}, fmt.Errorf("list schedule periods %d: %w", sm.Id, err)
+	}
 
-	schedulePeriodsSignals := []models.PeriodSignals{}
+	schedulePeriodsSignals := make([]models.PeriodSignals, 0, len(periodIDs))
 	for _, periodID := range periodIDs {
-		periodRes, _ := s.Periods.Get(ctx, periodID)
-		daysBitmask := models.DaysBitmaskToDaysSignals(periodRes.Days)
-		periodSignals := models.PeriodSignals{
-			ID:        periodRes.Id,
-			Title:     periodRes.Title,
-			StartTime: periodRes.StartTime,
-			Duration:  int(periodRes.Duration),
-			Days:      daysBitmask,
+		pm, err := s.Periods.Get(ctx, periodID)
+		if err != nil {
+			return blocks.EditScheduleViewModel{}, fmt.Errorf("get period %d: %w", periodID, err)
 		}
+		periodSignals := s.periodToSignals(pm)
 		schedulePeriodsSignals = append(schedulePeriodsSignals, periodSignals)
 	}
 	scheduleSignals := models.ScheduleSignals{
-		ID:        scheduleRes.Id,
-		Title:     scheduleRes.Title,
-		TeacherID: scheduleRes.TeacherId,
+		ID:        sm.Id,
+		Title:     sm.Title,
+		TeacherID: sm.TeacherId,
 		PeriodIDs: periodIDs,
 	}
 
-	validation := schedule.Validate(scheduleRes)
+	validation := schedule.Validate(*sm)
 
-	teachers, _ := s.Teachers.List(ctx)
-	teachersSignals := []models.TeacherSignals{}
-	for _, teacher := range teachers {
+	teachers, err := s.Teachers.List(ctx)
+	if err != nil {
+		return blocks.EditScheduleViewModel{}, fmt.Errorf("list teachers: %w", err)
+	}
+	teachersSignals := make([]models.TeacherSignals, 0, len(teachers))
+	for i := range teachers {
 		chosenName := ""
-		if teacher.ChosenName != nil {
-			chosenName = *teacher.ChosenName
+		if teachers[i].ChosenName != nil {
+			chosenName = *teachers[i].ChosenName
 		}
 		teacherSignals := models.TeacherSignals{
-			ID:         teacher.ID,
-			FirstName:  teacher.FirstName,
+			ID:         teachers[i].ID,
+			FirstName:  teachers[i].FirstName,
 			ChosenName: chosenName,
-			LastName:   teacher.LastName,
+			LastName:   teachers[i].LastName,
 		}
 		teachersSignals = append(teachersSignals, teacherSignals)
 	}
 
-	periods, _ := s.Periods.List(ctx)
-	periodsSignals := []models.PeriodSignals{}
-	for _, period := range periods {
-		daysBitmask := models.DaysBitmaskToDaysSignals(period.Days)
-		periodSignals := models.PeriodSignals{
-			ID:        period.Id,
-			Title:     period.Title,
-			StartTime: period.StartTime,
-			Duration:  int(period.Duration),
-			Days:      daysBitmask,
-		}
+	periods, err := s.Periods.List(ctx)
+	if err != nil {
+		return blocks.EditScheduleViewModel{}, fmt.Errorf("list periods: %w", err)
+	}
+	periodsSignals := make([]models.PeriodSignals, 0, len(periods))
+	for i := range periods {
+		periodSignals := s.periodToSignals(&periods[i])
 		periodsSignals = append(periodsSignals, periodSignals)
 	}
 
@@ -372,5 +377,75 @@ func (s Server) newViewModel(ctx context.Context, scheduleRes models.Schedule) b
 		Validation:      validation,
 		Teachers:        teachersSignals,
 		Periods:         periodsSignals,
+	}, nil
+}
+
+func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.Schedule) (blocks.ScheduleComponentViewModel, error) {
+	if sm == nil {
+		return blocks.ScheduleComponentViewModel{}, nil
+	}
+	periodIDs, err := s.Schedules.ListSchedulePeriodIDs(ctx, sm.Id)
+	if err != nil {
+		return blocks.ScheduleComponentViewModel{}, fmt.Errorf("list period IDs: %w", err)
+	}
+	signals := models.ScheduleSignals{
+		ID:        sm.Id,
+		Title:     sm.Title,
+		TeacherID: sm.TeacherId,
+		PeriodIDs: periodIDs,
+	}
+	pcvms := make([]period_card.PeriodCardViewModel, 0, len(periodIDs))
+	for _, periodID := range periodIDs {
+		period, err := s.Periods.Get(ctx, periodID)
+		if err != nil {
+			return blocks.ScheduleComponentViewModel{}, fmt.Errorf("get period %d: %w", periodID, err)
+		}
+		pcvm := s.newPeriodCardViewModel(period)
+		pcvms = append(pcvms, pcvm)
+	}
+	return blocks.ScheduleComponentViewModel{
+		Schedule:         signals,
+		PeriodViewModels: pcvms,
+	}, nil
+}
+
+func (s *Server) newPeriodCardViewModel(period *models.Period) period_card.PeriodCardViewModel {
+	if period == nil {
+		return period_card.PeriodCardViewModel{}
+	}
+	signals := s.periodToSignals(period)
+	columnNumbers := models.DaysBitmaskToColumnNumbers(period.Days)
+	return period_card.PeriodCardViewModel{
+		Period:  signals,
+		Columns: columnNumbers,
+	}
+}
+
+func (s *Server) periodToSignals(period *models.Period) models.PeriodSignals {
+	if period == nil {
+		return models.PeriodSignals{}
+	}
+	return models.PeriodSignals{
+		ID:        period.Id,
+		Title:     period.Title,
+		StartTime: period.StartTime,
+		Duration:  int(period.Duration),
+		Days:      models.DaysBitmaskToDaysSignals(period.Days),
+	}
+}
+
+func (s *Server) teacherToSignals(teacher *models.Teacher) models.TeacherSignals {
+	if teacher == nil {
+		return models.TeacherSignals{}
+	}
+	chosenName := ""
+	if teacher.ChosenName != nil {
+		chosenName = *teacher.ChosenName
+	}
+	return models.TeacherSignals{
+		ID:         teacher.ID,
+		FirstName:  teacher.FirstName,
+		ChosenName: chosenName,
+		LastName:   teacher.LastName,
 	}
 }

@@ -15,7 +15,7 @@ import (
 	"seek/internal/views/layouts"
 )
 
-func EditSchedule(vm blocks.EditScheduleViewModel) templ.Component {
+func EditSchedule(esvm blocks.EditScheduleViewModel, scvm blocks.ScheduleComponentViewModel) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -53,9 +53,9 @@ func EditSchedule(vm blocks.EditScheduleViewModel) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE(fmt.Sprintf("/schedules/%s/edit/stream", vm.Schedule.ID)))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE(fmt.Sprintf("/schedules/%s/edit/stream", esvm.Schedule.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/pages/schedule_edit.templ`, Line: 14, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/pages/schedule_edit.templ`, Line: 14, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -65,14 +65,11 @@ func EditSchedule(vm blocks.EditScheduleViewModel) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.EditScheduleForm(vm).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.EditScheduleForm(esvm).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.ScheduleComponent(blocks.ScheduleComponentViewModel{
-				Schedule: vm.Schedule,
-				Periods:  vm.SchedulePeriods,
-			}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.ScheduleComponent(scvm).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

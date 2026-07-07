@@ -68,6 +68,16 @@ func DaysSliceToDaysBitmask(days []Day) int64 {
 	return mask
 }
 
+func DaysBitmaskToColumnNumbers(mask int64) []int {
+	columnNumbers := []int{}
+	for i, day := range Days {
+		if day.IsSet(mask) {
+			columnNumbers = append(columnNumbers, i+1)
+		}
+	}
+	return columnNumbers
+}
+
 func IsDaySet(mask int64, day Day) bool {
 	return mask&day.Bit() != 0
 }
