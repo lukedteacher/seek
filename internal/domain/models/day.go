@@ -108,11 +108,16 @@ func DaysSliceToDaysSignal(days []Day) DaysSignals {
 	ds := DaysSignals{}
 	for _, day := range days {
 		switch day {
-		case Days[0]: ds.Monday = true
-		case Days[1]: ds.Tuesday = true
-		case Days[2]: ds.Wednesday = true
-		case Days[3]: ds.Thursday = true
-		case Days[4]: ds.Friday = true
+		case Days[0]:
+			ds.Monday = true
+		case Days[1]:
+			ds.Tuesday = true
+		case Days[2]:
+			ds.Wednesday = true
+		case Days[3]:
+			ds.Thursday = true
+		case Days[4]:
+			ds.Friday = true
 		}
 	}
 	return ds
@@ -120,11 +125,16 @@ func DaysSliceToDaysSignal(days []Day) DaysSignals {
 
 func (ds *DaysSignals) IsDaySet(day Day) bool {
 	switch day {
-	case Day(time.Monday): return ds.Monday
-	case Day(time.Tuesday): return ds.Tuesday
-	case Day(time.Wednesday): return ds.Wednesday
-	case Day(time.Thursday): return ds.Thursday
-	case Day(time.Friday): return ds.Friday
+	case Day(time.Monday):
+		return ds.Monday
+	case Day(time.Tuesday):
+		return ds.Tuesday
+	case Day(time.Wednesday):
+		return ds.Wednesday
+	case Day(time.Thursday):
+		return ds.Thursday
+	case Day(time.Friday):
+		return ds.Friday
 	}
 	return false
 }

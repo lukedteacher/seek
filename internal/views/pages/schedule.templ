@@ -7,10 +7,12 @@ import (
 	"seek/internal/views/blocks"
 )
 
-templ Schedule(periods []models.Period) {
+templ Schedule(schedule models.ScheduleSignals) {
 	@layouts.Base("SEEK: schedule") {
 		<main data-init={ views.LongRunningGetSSE("/schedules/stream") }>
-			@blocks.ScheduleComponent(periods)
+			@blocks.ScheduleComponent(blocks.ScheduleComponentViewModel{
+				Schedule: schedule,
+			})
 		</main>
 	}
 }

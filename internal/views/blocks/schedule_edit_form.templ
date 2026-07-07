@@ -12,8 +12,17 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) {
-	<form id="edit-schedule-form" data-on:submit={ datastar.PostSSE("/schedules/%s/edit", schedule.Id) }>
+
+type EditScheduleViewModel struct {
+	Schedule   models.ScheduleSignals
+	SchedulePeriods []models.PeriodSignals
+	Validation map[string]schedule.Validation
+	Teachers   []models.TeacherSignals // list of teachers TODO remove this
+	Periods    []models.PeriodSignals  // list of periods TODO remove this
+}
+
+templ EditScheduleForm(vm EditScheduleViewModel) {
+	<form id="edit-schedule-form" data-on:submit={ datastar.PostSSE("/schedules/%s/edit", vm.Schedule.ID) }>
 		<hgroup>
 			<h2>EDIT A SCHEDULE</h2>
 			<p>edit the data of an existing schedule.</p>
@@ -23,17 +32,17 @@ templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, peri
 				ID: "title-label",
 				For: "title",
 				Label: "title",
-				ValidationState: validation["title"].State,
-				ValidationMessage: validation["title"].Message,
+				ValidationState: vm.Validation["title"].State,
+				ValidationMessage: vm.Validation["title"].Message,
 			}) {
 				@input.Input(input.Props{
 					ID: "title",
 					Name: "title",
 					DataBind: "schedule.title",
-					DataOn: fmt.Sprintf("/schedules/%s/edit/validate", schedule.Id),
-					HasError: validation["title"].State == "error",
-					IsValid: validation["title"].State == "valid",
-					Value: schedule.Title,
+					DataOn: fmt.Sprintf("/schedules/%s/edit/validate", vm.Schedule.ID),
+					HasError: vm.Validation["title"].State == "error",
+					IsValid: vm.Validation["title"].State == "valid",
+					Value: vm.Schedule.Title,
 				})
 			}
 		</section>
@@ -42,26 +51,26 @@ templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, peri
 				ID: "teacher-select-label",
 				For: "teacher-select",
 				Label: "teacher",
-				ValidationState: validation["teacher_id"].State,
-				ValidationMessage: validation["teacher_id"].Message,
+				ValidationState: vm.Validation["teacher_id"].State,
+				ValidationMessage: vm.Validation["teacher_id"].Message,
 			}) {
 				@selectbox.Select(selectbox.Props{
 					ID: "teacher-select",
 					Placeholder: "select a teacher",
 					DataBind: "schedule.teacher_id",
-					DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", schedule.Id),
-					HasError: validation["teacher_id"].State == "error",
-					IsValid: validation["teacher_id"].State == "valid",
+					DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", vm.Schedule.ID),
+					HasError: vm.Validation["teacher_id"].State == "error",
+					IsValid: vm.Validation["teacher_id"].State == "valid",
 				}) {
-					for index, teacher := range teachers {
+					for index, teacher := range vm.Teachers {
 						<option 
 						id={ fmt.Sprintf( "option-%d", index ) }
-						if teacher.ID == selectedTeacherId {
+						if teacher.ID == vm.Schedule.TeacherID {
 							selected
 						}
 						value={ teacher.ID }
 						>
-							{ teacher.DisplayName() }
+							{ teacher.FirstName }
 						</option>
 					}
 				}
@@ -72,21 +81,32 @@ templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, peri
 				ID: "periods-multiselect-label",
 				For: "periods-multiselect",
 				Label: "select period(s)",
-				ValidationState: validation["periods"].State,
-				ValidationMessage: validation["periods"].Message,
+				ValidationState: vm.Validation["periods"].State,
+				ValidationMessage: vm.Validation["periods"].Message,
 			}) {
 				@selectbox.Select(selectbox.Props{
 					ID: "periods-multiselect",
 					DataBind: "schedule.period_ids",
-					DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", schedule.Id),
-					HasError: validation["periods"].State == "error",
-					IsValid: validation["periods"].State == "valid",
+					DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", vm.Schedule.ID),
+					HasError: vm.Validation["periods"].State == "error",
+					IsValid: vm.Validation["periods"].State == "valid",
 					Multiple: true,
 				}) {
-					for index, period := range periods {
+					for index, period := range vm.Periods {
+						{{
+							selected := false
+						}}
+						for _, periodID := range vm.Schedule.PeriodIDs {
+							if period.ID == periodID {
+								{{ selected = true }}
+							}
+						}
 						<option 
 						id={ fmt.Sprintf( "option-%d", index ) }
-						value={ period.Id }
+						value={ period.ID }
+						if selected {
+							selected
+						}
 						>
 							{ period.Title }
 							{ period.StartTime }
@@ -102,7 +122,7 @@ templ EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, peri
 			<button 
 				type="button"
 				style="background-color: var(--gruvbox-red-neutral-0);"
-				data-on:click={ datastar.PostSSE("/schedules/%s/delete", schedule.Id) }
+				data-on:click={ datastar.PostSSE("/schedules/%s/delete", vm.Schedule.ID) }
 			>
 				delete
 			</button>

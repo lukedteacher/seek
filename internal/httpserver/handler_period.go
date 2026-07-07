@@ -57,11 +57,12 @@ func (s Server) validateCreatePeriod(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	daysBitmask := models.DaysSignalsToDaysBitmask(signals.Period.Days)
 	model := models.Period{
 		Title:     signals.Period.Title,
 		StartTime: signals.Period.StartTime,
-		Duration:  signals.Period.Duration,
-		Days:      signals.Period.Duration,
+		Duration:  int64(signals.Period.Duration),
+		Days:      daysBitmask,
 	}
 	validation := period.Validate(model)
 	patchTempl(w, r, blocks.CreatePeriodForm(validation))
@@ -81,7 +82,7 @@ func (s Server) createPeriod(w http.ResponseWriter, r *http.Request) {
 	model := models.Period{
 		Title:     signals.Period.Title,
 		StartTime: signals.Period.StartTime,
-		Duration:  signals.Period.Duration,
+		Duration:  int64(signals.Period.Duration),
 		Days:      daysBitmask,
 	}
 	validation := period.Validate(model)
@@ -121,7 +122,7 @@ func (s Server) editPeriodForm(w http.ResponseWriter, r *http.Request) {
 		ID:        periodID,
 		Title:     periodRes.Title,
 		StartTime: periodRes.StartTime,
-		Duration:  periodRes.Duration,
+		Duration:  int(periodRes.Duration),
 		Days:      daysSignals,
 	}
 	
@@ -147,7 +148,7 @@ func (s Server) validateEditPeriod(w http.ResponseWriter, r *http.Request) {
 		Id:        signals.Period.ID,
 		Title:     signals.Period.Title,
 		StartTime: signals.Period.StartTime,
-		Duration:  signals.Period.Duration,
+		Duration:  int64(signals.Period.Duration),
 		Days:      daysBitmask,
 	}
 	validation := period.Validate(model)
@@ -171,7 +172,7 @@ func (s Server) editPeriod(w http.ResponseWriter, r *http.Request) {
 		Id:        chi.URLParam(r, "id"),
 		Title:     signals.Period.Title,
 		StartTime: signals.Period.StartTime,
-		Duration:  signals.Period.Duration,
+		Duration:  int64(signals.Period.Duration),
 		Days:      daysBitmask,
 		Metadata:  eventstore.HTTPCommandMetadata(r),
 	}

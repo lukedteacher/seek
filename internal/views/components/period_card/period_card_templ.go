@@ -8,10 +8,16 @@ package period_card
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "seek/internal/domain/models"
-import "fmt"
+import (
+	"fmt"
+	"seek/internal/domain/models"
+)
 
-func PeriodCard(period models.Period) templ.Component {
+type PeriodCardViewModel struct {
+	Period models.PeriodSignals
+}
+
+func PeriodCard(vm PeriodCardViewModel) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -37,9 +43,9 @@ func PeriodCard(period models.Period) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-column: 2; grid-row: %s / span %d;", period.TimeToRow(479), period.Duration))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-column: 2; grid-row: %s / span %d;", models.TimeToRow(vm.Period.StartTime, 479), vm.Period.Duration))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/period_card/period_card.templ`, Line: 10, Col: 103}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/period_card/period_card.templ`, Line: 15, Col: 127}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -50,9 +56,9 @@ func PeriodCard(period models.Period) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(period.Title)
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(vm.Period.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/period_card/period_card.templ`, Line: 12, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/period_card/period_card.templ`, Line: 17, Col: 23}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {

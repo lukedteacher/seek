@@ -31,23 +31,23 @@ func (s Server) scheduleRoutes(r chi.Router) {
 
 // GET request for /schedule: shows default schedule for current user
 func (s Server) schedule(w http.ResponseWriter, r *http.Request) {
-	_ = pages.Schedule([]models.Period{}).Render(r.Context(), w)
+	_ = pages.Schedule(models.ScheduleSignals{}).Render(r.Context(), w)
 }
 
 // GET request to /schedules/create
 func (s Server) createScheduleForm(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
+	ctx := r.Context()
 	emptySchedule := models.Schedule{}
 	validation := schedule.Validate(emptySchedule)
 
-	teachers, _ := s.Teachers.List(context)
-	periods, _ := s.Periods.List(context)
-	_ = pages.CreateSchedule(emptySchedule, teachers, periods, validation, nil).Render(context, w)
+	teachers, _ := s.Teachers.List(ctx)
+	periods, _ := s.Periods.List(ctx)
+	_ = pages.CreateSchedule(emptySchedule, teachers, periods, validation, nil).Render(ctx, w)
 }
 
 // POST request to /schedules/create/validate
 func (s Server) validateCreateSchedule(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
+	ctx := r.Context()
 	type Signals struct {
 		Schedule models.ScheduleSignals `json:"schedule"`
 	}
@@ -64,13 +64,13 @@ func (s Server) validateCreateSchedule(w http.ResponseWriter, r *http.Request) {
 
 	selectedTeacher := &models.Teacher{}
 
-	teachers, _ := s.Teachers.List(context)
+	teachers, _ := s.Teachers.List(ctx)
 	for _, teacher := range teachers {
 		if teacher.ID == signals.Schedule.TeacherID {
 			selectedTeacher = &teacher
 		}
 	}
-	periods, _ := s.Periods.List(context)
+	periods, _ := s.Periods.List(ctx)
 	validation := schedule.Validate(model)
 	patchTempl(w, r, blocks.CreateScheduleForm(model, teachers, periods, validation, selectedTeacher))
 }
@@ -103,44 +103,20 @@ func (s Server) createSchedule(w http.ResponseWriter, r *http.Request) {
 
 // GET request to /schedules/{id}
 func (s Server) getEditSchedule(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
-	type Signals struct {
-		Schedule models.ScheduleSignals `json:"schedule"`
-	}
-	signals := &Signals{}
-	if err := datastar.ReadSignals(r, signals); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	ctx := r.Context()
 
 	scheduleID := chi.URLParam(r, "id")
-	scheduleRes, err := s.Schedules.Get(context, scheduleID)
+	scheduleRes, err := s.Schedules.Get(ctx, scheduleID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	model := models.Schedule{
-		Id:        scheduleID,
-		Title:     signals.Schedule.Title,
-		TeacherId: signals.Schedule.TeacherID,
-	}
-	selectedTeacher := ""
-	// if the user has selected a teacher, use that as the default selection
-	// otherwise use the schedule's teacher ID data
-	if signals.Schedule.TeacherID != "" && scheduleRes.TeacherId != signals.Schedule.TeacherID {
-		selectedTeacher = signals.Schedule.TeacherID
-	} else {
-		selectedTeacher = scheduleRes.TeacherId
-	}
-
-	validation := schedule.Validate(model)
-	teachers, err := s.Teachers.List(context)
-	periods, err := s.Periods.List(context)
-	_ = pages.EditSchedule(*scheduleRes, teachers, periods, validation, selectedTeacher).Render(context, w)
+	efvm := s.newViewModel(ctx, *scheduleRes)
+	_ = pages.EditSchedule(efvm).Render(ctx, w)
 }
 
 func (s Server) editScheduleStream(w http.ResponseWriter, r *http.Request) {
-	//sse := newSSE(w, r)
+	sse := newSSE(w, r)
 	ctx := r.Context()
 	scheduleID := chi.URLParam(r, "id")
 
@@ -152,16 +128,10 @@ func (s Server) editScheduleStream(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// refreshes the view state for initial population of value
-	if err := s.refreshScheduleViewState(ctx, scheduleID); err != nil {
-		println(err.Error())
-		return
-	}
-
 	// watches that initial store
 	watcher, err := s.ViewStore.Watch(
-		ctx, 
-		scheduleID, 
+		ctx,
+		scheduleID,
 		viewstore.WatchOptions{
 			IgnoreDeletes: true,
 		},
@@ -179,9 +149,10 @@ func (s Server) editScheduleStream(w http.ResponseWriter, r *http.Request) {
 		println(err.Error())
 		return
 	}
+
 	defer sub.Close()
 
-		for {
+	for {
 		select {
 		case <-ctx.Done():
 			return
@@ -194,17 +165,20 @@ func (s Server) editScheduleStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var schedule models.Schedule
-			if err := entry.JSON(&schedule); err != nil {
-				println(err.Error())
+			var model models.Schedule
+			if err := entry.JSON(&model); err != nil {
+				println("up: ", err.Error())
 				return
 			}
-			println(schedule.Title)
+			efvm := s.newViewModel(ctx, model)
+			sse.PatchElementTempl(pages.EditSchedule(efvm))
 		}
 	}
 }
 
 // POST request to /schedules/{id}/edit/validate
+// saves the current schedule view
+// will be validated through the SSE
 func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	type Signals struct {
@@ -221,22 +195,16 @@ func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
 		Title:     signals.Schedule.Title,
 		TeacherId: signals.Schedule.TeacherID,
 	}
-	teachers, _ := s.Teachers.List(ctx)
-	periods, _ := s.Periods.List(ctx)
-	validation := schedule.Validate(model)
+
 	viewstore.PutState(ctx, s.ViewStore, scheduleID, model)
-	patchTempl(w, r, blocks.EditScheduleForm(model, teachers, periods, validation, signals.Schedule.TeacherID))
 }
 
 // POST request to /schedules/{id}/edit
 func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
 	context := r.Context()
 	type Signals struct {
-		Title     string   `json:"title"`
-		TeacherId string   `json:"teacher_id"`
-		PeriodIDs []string `json:"period_ids"`
+		Schedule models.ScheduleSignals `json:"schedule"`
 	}
-
 	signals := &Signals{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -244,7 +212,12 @@ func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 	scheduleID := chi.URLParam(r, "id")
 	currentPeriodIDs, _ := s.Schedules.ListSchedulePeriodIDs(context, scheduleID)
-	proposedPeriodIDs := signals.PeriodIDs
+	proposedPeriodIDs := []string{}
+	println("cpid: ", len(currentPeriodIDs))
+	for _, periodID := range signals.Schedule.PeriodIDs {
+		proposedPeriodIDs = append(proposedPeriodIDs, periodID)
+	}
+	println("ppid: ", len(proposedPeriodIDs))
 	if len(currentPeriodIDs) != 0 || len(proposedPeriodIDs) != 0 {
 		// build maps for O(1) lookups
 		currentMap := make(map[string]bool)
@@ -263,8 +236,8 @@ func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
 				println("remove: ", periodID)
 				result, err := schedule.RemovePeriodFromScheduleCommandHandler(context, schedule.RemovePeriodFromScheduleCommand{
 					ScheduleID: scheduleID,
-					PeriodID: periodID,
-					Metadata: eventstore.HTTPCommandMetadata(r),
+					PeriodID:   periodID,
+					Metadata:   eventstore.HTTPCommandMetadata(r),
 				}, s.EventSaver, s.EventRetriever)
 				if result != nil {
 					println("reid: ", result.EventID)
@@ -281,8 +254,8 @@ func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
 				println("add: ", periodID)
 				result, err := schedule.PeriodAddedToScheduleCommandHandler(context, schedule.PeriodAddedToScheduleCommand{
 					ScheduleID: scheduleID,
-					PeriodID: periodID,
-					Metadata: eventstore.HTTPCommandMetadata(r),
+					PeriodID:   periodID,
+					Metadata:   eventstore.HTTPCommandMetadata(r),
 				}, s.EventSaver, s.EventRetriever)
 				if result != nil {
 					println("aeid: ", result.EventID)
@@ -293,16 +266,16 @@ func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	// _, err = schedule.UpdateScheduleCommandHandler(context, schedule.UpdateScheduleCommand{
-	// 	Id:        scheduleID,
-	// 	Title:     signals.Title,
-	// 	TeacherId: signals.TeacherId,
-	// 	Metadata:  eventstore.HTTPCommandMetadata(r),
-	// }, s.EventSaver, s.EventRetriever)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
+	_, err := schedule.UpdateScheduleCommandHandler(context, schedule.UpdateScheduleCommand{
+		Id:        scheduleID,
+		Title:     signals.Schedule.Title,
+		TeacherId: signals.Schedule.TeacherID,
+		Metadata:  eventstore.HTTPCommandMetadata(r),
+	}, s.EventSaver, s.EventRetriever)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // POST request to /schedules/{id}/delete
@@ -327,9 +300,77 @@ func (s Server) schedules(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s Server) refreshScheduleViewState(ctx context.Context, scheduleID string) error {
- schedule, err := s.Schedules.Get(ctx, scheduleID)
- if err != nil {
-	return err
- }
- return viewstore.PutState(ctx, s.ViewStore, scheduleID, schedule)
+	schedule, err := s.Schedules.Get(ctx, scheduleID)
+	if err != nil {
+		return err
+	}
+
+	return viewstore.PutState(ctx, s.ViewStore, scheduleID, schedule)
+}
+
+// builds a view model for the edit schedule view
+// TODO genericize it to be used for other contexts?
+// TODO save it in the state?
+func (s Server) newViewModel(ctx context.Context, scheduleRes models.Schedule) blocks.EditScheduleViewModel {
+	periodIDs, _ := s.Schedules.ListSchedulePeriodIDs(ctx, scheduleRes.Id)
+
+	schedulePeriodsSignals := []models.PeriodSignals{}
+	for _, periodID := range periodIDs {
+		periodRes, _ := s.Periods.Get(ctx, periodID)
+		daysBitmask := models.DaysBitmaskToDaysSignals(periodRes.Days)
+		periodSignals := models.PeriodSignals{
+			ID:        periodRes.Id,
+			Title:     periodRes.Title,
+			StartTime: periodRes.StartTime,
+			Duration:  int(periodRes.Duration),
+			Days:      daysBitmask,
+		}
+		schedulePeriodsSignals = append(schedulePeriodsSignals, periodSignals)
+	}
+	scheduleSignals := models.ScheduleSignals{
+		ID:        scheduleRes.Id,
+		Title:     scheduleRes.Title,
+		TeacherID: scheduleRes.TeacherId,
+		PeriodIDs: periodIDs,
+	}
+
+	validation := schedule.Validate(scheduleRes)
+
+	teachers, _ := s.Teachers.List(ctx)
+	teachersSignals := []models.TeacherSignals{}
+	for _, teacher := range teachers {
+		chosenName := ""
+		if teacher.ChosenName != nil {
+			chosenName = *teacher.ChosenName
+		}
+		teacherSignals := models.TeacherSignals{
+			ID:         teacher.ID,
+			FirstName:  teacher.FirstName,
+			ChosenName: chosenName,
+			LastName:   teacher.LastName,
+		}
+		teachersSignals = append(teachersSignals, teacherSignals)
+	}
+
+	periods, _ := s.Periods.List(ctx)
+	periodsSignals := []models.PeriodSignals{}
+	for _, period := range periods {
+		daysBitmask := models.DaysBitmaskToDaysSignals(period.Days)
+		periodSignals := models.PeriodSignals{
+			ID:        period.Id,
+			Title:     period.Title,
+			StartTime: period.StartTime,
+			Duration:  int(period.Duration),
+			Days:      daysBitmask,
+		}
+		periodsSignals = append(periodsSignals, periodSignals)
+	}
+
+	return blocks.EditScheduleViewModel{
+		Schedule:        scheduleSignals,
+		SchedulePeriods: schedulePeriodsSignals,
+		Validation:      validation,
+		Teachers:        teachersSignals,
+		Periods:         periodsSignals,
+	}
 }

@@ -20,7 +20,15 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) templ.Component {
+type EditScheduleViewModel struct {
+	Schedule        models.ScheduleSignals
+	SchedulePeriods []models.PeriodSignals
+	Validation      map[string]schedule.Validation
+	Teachers        []models.TeacherSignals // list of teachers TODO remove this
+	Periods         []models.PeriodSignals  // list of periods TODO remove this
+}
+
+func EditScheduleForm(vm EditScheduleViewModel) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -46,9 +54,9 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/schedules/%s/edit", schedule.Id))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/schedules/%s/edit", vm.Schedule.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 16, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 25, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -74,10 +82,10 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 				ID:       "title",
 				Name:     "title",
 				DataBind: "schedule.title",
-				DataOn:   fmt.Sprintf("/schedules/%s/edit/validate", schedule.Id),
-				HasError: validation["title"].State == "error",
-				IsValid:  validation["title"].State == "valid",
-				Value:    schedule.Title,
+				DataOn:   fmt.Sprintf("/schedules/%s/edit/validate", vm.Schedule.ID),
+				HasError: vm.Validation["title"].State == "error",
+				IsValid:  vm.Validation["title"].State == "valid",
+				Value:    vm.Schedule.Title,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -88,8 +96,8 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 			ID:                "title-label",
 			For:               "title",
 			Label:             "title",
-			ValidationState:   validation["title"].State,
-			ValidationMessage: validation["title"].Message,
+			ValidationState:   vm.Validation["title"].State,
+			ValidationMessage: vm.Validation["title"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -122,7 +130,7 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				for index, teacher := range teachers {
+				for index, teacher := range vm.Teachers {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<option id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -130,7 +138,7 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("option-%d", index))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 58, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 67, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 					if templ_7745c5c3_Err != nil {
@@ -140,7 +148,7 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if teacher.ID == selectedTeacherId {
+					if teacher.ID == vm.Schedule.TeacherID {
 						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " selected")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
@@ -153,7 +161,7 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(teacher.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 62, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 71, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -164,9 +172,9 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(teacher.DisplayName())
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(teacher.FirstName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 64, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 73, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -183,9 +191,9 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 				ID:           "teacher-select",
 				Placeholder:  "select a teacher",
 				DataBind:     "schedule.teacher_id",
-				DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", schedule.Id),
-				HasError:     validation["teacher_id"].State == "error",
-				IsValid:      validation["teacher_id"].State == "valid",
+				DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", vm.Schedule.ID),
+				HasError:     vm.Validation["teacher_id"].State == "error",
+				IsValid:      vm.Validation["teacher_id"].State == "valid",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -196,8 +204,8 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 			ID:                "teacher-select-label",
 			For:               "teacher-select",
 			Label:             "teacher",
-			ValidationState:   validation["teacher_id"].State,
-			ValidationMessage: validation["teacher_id"].Message,
+			ValidationState:   vm.Validation["teacher_id"].State,
+			ValidationMessage: vm.Validation["teacher_id"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -230,15 +238,21 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				for index, period := range periods {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<option id=\"")
+				for index, period := range vm.Periods {
+					selected := false
+					for _, periodID := range vm.Schedule.PeriodIDs {
+						if period.ID == periodID {
+							selected = true
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " <option id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("option-%d", index))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 88, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 105, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 					if templ_7745c5c3_Err != nil {
@@ -249,54 +263,64 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var12 string
-					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(period.Id)
+					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(period.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 89, Col: 23}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 106, Col: 23}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if selected {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " selected")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, ">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(period.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 91, Col: 21}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 111, Col: 21}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(period.StartTime)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 92, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 112, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(period.Duration)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 93, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 113, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</option>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</option>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -306,9 +330,9 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 			templ_7745c5c3_Err = selectbox.Select(selectbox.Props{
 				ID:           "periods-multiselect",
 				DataBind:     "schedule.period_ids",
-				DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", schedule.Id),
-				HasError:     validation["periods"].State == "error",
-				IsValid:      validation["periods"].State == "valid",
+				DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", vm.Schedule.ID),
+				HasError:     vm.Validation["periods"].State == "error",
+				IsValid:      vm.Validation["periods"].State == "valid",
 				Multiple:     true,
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -320,26 +344,26 @@ func EditScheduleForm(schedule models.Schedule, teachers []models.Teacher, perio
 			ID:                "periods-multiselect-label",
 			For:               "periods-multiselect",
 			Label:             "select period(s)",
-			ValidationState:   validation["periods"].State,
-			ValidationMessage: validation["periods"].Message,
+			ValidationState:   vm.Validation["periods"].State,
+			ValidationMessage: vm.Validation["periods"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</section><section></section><footer><button type=\"button\" style=\"background-color: var(--gruvbox-red-neutral-0);\" data-on:click=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</section><section></section><footer><button type=\"button\" style=\"background-color: var(--gruvbox-red-neutral-0);\" data-on:click=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
-		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/schedules/%s/delete", schedule.Id))
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/schedules/%s/delete", vm.Schedule.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 105, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/schedule_edit_form.templ`, Line: 125, Col: 76}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\">delete</button> <button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\">delete</button> <button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

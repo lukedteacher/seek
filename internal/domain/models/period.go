@@ -39,7 +39,7 @@ type PeriodSignals struct {
 	ID        string      `json:"id"`
 	Title     string      `json:"title"`
 	StartTime string      `json:"start_time"`
-	Duration  int64       `json:"duration"`
+	Duration  int         `json:"duration"`
 	Days      DaysSignals `json:"days"`
 }
 
@@ -51,8 +51,8 @@ func (p *Period) DurationStr() string {
 	return strconv.FormatInt(p.Duration, 64)
 }
 
-func (p *Period) TimeToRow(offset int) string {
-	totalMinutes := timeToMinutes(p.StartTime)
+func TimeToRow(time string, offset int) string {
+	totalMinutes := timeToMinutes(time)
 	return strconv.Itoa(totalMinutes - offset)
 }
 

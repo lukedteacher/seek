@@ -2,19 +2,22 @@ package pages
 
 import (
 	"fmt"
-	"seek/internal/domain/models"
-	"seek/internal/features/schedule"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 	"seek/internal/views/blocks"
 )
 
-templ EditSchedule(schedule models.Schedule, teachers []models.Teacher, periods []models.Period, validation map[string]schedule.Validation, selectedTeacherId string) {
+
+
+templ EditSchedule(vm blocks.EditScheduleViewModel) {
 	@layouts.Base("SEEK: edit schedule") {
-		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/schedules/%s/edit/stream", schedule.Id)) }>
+		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/schedules/%s/edit/stream", vm.Schedule.ID)) }>
 			<section style="display: flex;">
-				@blocks.EditScheduleForm(schedule, teachers, periods, validation, selectedTeacherId)
-				@blocks.ScheduleComponent(periods)
+				@blocks.EditScheduleForm(vm)
+				@blocks.ScheduleComponent(blocks.ScheduleComponentViewModel{
+					Schedule: vm.Schedule,
+					Periods: vm.SchedulePeriods,
+				})
 			</section>
 		</main>
 	}

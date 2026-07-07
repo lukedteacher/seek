@@ -6,6 +6,11 @@ import (
 	"seek/internal/views/components/period_card"
 )
 
+type ScheduleComponentViewModel struct {
+	Schedule models.ScheduleSignals
+	Periods  []models.PeriodSignals
+}
+
 templ ScheduleStyle() {
 	<style>
 		#schedule-component {
@@ -58,15 +63,17 @@ templ ScheduleStyle() {
 	</style>
 }
 
-templ ScheduleComponent(periods []models.Period) {
+templ ScheduleComponent(vm ScheduleComponentViewModel) {
 	<div id="schedule-component">
 		@DayHeaders()
 		@TimeColumn()
 		@GridContainer() {
 			@TimeGrid(30, 480)
 			@DayGrid()
-			for i := range periods {
-				@period_card.PeriodCard(periods[i])
+			for i := range vm.Periods {
+				@period_card.PeriodCard(period_card.PeriodCardViewModel{
+					Period: vm.Periods[i],
+				})
 			}
 		}
 		@ScheduleStyle()
