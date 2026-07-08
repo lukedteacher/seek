@@ -4,10 +4,39 @@ templ Nav() {
 	<nav>
 		<ul>
 			<li><a href="/">home</a></li>
-			<li><a href="/schedules">schedules</a></li>
+			<li>
+				<a href="/schedules">
+					@Icon("mdi:calendar")
+					<span>schedules</span>
+				</a>
+			</li>
 			<li><a href="/periods">periods</a></li>
 			<li><a href="/students">students</a></li>
 			<li><a href="/teachers">teachers</a></li>
 		</ul>
 	</nav>
+	@NavStyles()
+}
+
+templ NavStyles() {
+	<style>
+		body > header nav {
+			ul {
+				display: flex;
+				flex-direction: row;
+				gap: var(--size-4);
+
+				li a {
+					display: flex;
+					gap: var(--size--2);
+					align-items: center;
+					padding: var(--size--1) var(--size-2);
+					border-radius: var(--border-radius-2);
+					&:hover {
+						background-color: var(--secondary-5);
+					}
+				}
+			}
+		}
+	</style>
 }

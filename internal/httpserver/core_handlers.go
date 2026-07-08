@@ -10,8 +10,13 @@ import (
 
 func (s Server) coreRoutes(r chi.Router) {
 	r.Get("/", s.index)
+	r.Get("/components", s.components)
 }
 
 func (s Server) index(w http.ResponseWriter, r *http.Request) {
 	_ = pages.Index().Render(r.Context(), w)
+}
+
+func (s Server) components(w http.ResponseWriter, r *http.Request) {
+	_ = pages.Components().Render(r.Context(), w)
 }

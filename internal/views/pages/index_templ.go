@@ -47,7 +47,7 @@ func Index() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><section style=\"margin-bottom: var(--size-2)\"><p>welcome to SEEK (aka shared educational environment knowledge)</p><p>there many features to come</p><p>below are some of the current ones</p></section><section style=\"display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><section style=\"margin-bottom: var(--size-2)\"><p>welcome to SEEK (aka shared educational environment knowledge)</p><p>there many features to come</p><p>below are some of the current ones</p></section><section style=\"display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
