@@ -321,14 +321,14 @@ func (s *Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedu
 	}
 	periodIDs, err := s.Schedules.ListSchedulePeriodIDs(ctx, sm.Id)
 	if err != nil {
-		return blocks.EditScheduleViewModel{}, fmt.Errorf("list schedule periods %d: %w", sm.Id, err)
+		return blocks.EditScheduleViewModel{}, fmt.Errorf("list schedule periods %s: %w", sm.Id, err)
 	}
 
 	schedulePeriodsSignals := make([]models.PeriodSignals, 0, len(periodIDs))
 	for _, periodID := range periodIDs {
 		pm, err := s.Periods.Get(ctx, periodID)
 		if err != nil {
-			return blocks.EditScheduleViewModel{}, fmt.Errorf("get period %d: %w", periodID, err)
+			return blocks.EditScheduleViewModel{}, fmt.Errorf("get period %s: %w", periodID, err)
 		}
 		periodSignals := s.periodToSignals(pm)
 		schedulePeriodsSignals = append(schedulePeriodsSignals, periodSignals)
@@ -398,7 +398,7 @@ func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.S
 	for _, periodID := range periodIDs {
 		period, err := s.Periods.Get(ctx, periodID)
 		if err != nil {
-			return blocks.ScheduleComponentViewModel{}, fmt.Errorf("get period %d: %w", periodID, err)
+			return blocks.ScheduleComponentViewModel{}, fmt.Errorf("get period %s: %w", periodID, err)
 		}
 		pcvm := s.newPeriodCardViewModel(period)
 		pcvms = append(pcvms, pcvm)
@@ -418,19 +418,6 @@ func (s *Server) newPeriodCardViewModel(period *models.Period) period_card.Perio
 	return period_card.PeriodCardViewModel{
 		Period:  signals,
 		Columns: columnNumbers,
-	}
-}
-
-func (s *Server) periodToSignals(period *models.Period) models.PeriodSignals {
-	if period == nil {
-		return models.PeriodSignals{}
-	}
-	return models.PeriodSignals{
-		ID:        period.Id,
-		Title:     period.Title,
-		StartTime: period.StartTime,
-		Duration:  int(period.Duration),
-		Days:      models.DaysBitmaskToDaysSignals(period.Days),
 	}
 }
 

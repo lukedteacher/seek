@@ -1,0 +1,32 @@
+package periods
+
+import (
+	"seek/internal/views"
+	"seek/internal/views/blocks"
+	"seek/internal/views/layouts"
+	"seek/internal/domain/models"
+)
+
+type PeriodCreateView struct {
+	formView blocks.PeriodCreateFormView
+}
+
+func NewPeriodCreateView(p *models.Period) PeriodCreateView {
+	if p == nil {
+		return PeriodCreateView{}
+	}
+
+	return PeriodCreateView{
+		formView: blocks.NewPeriodCreateFormView(p),
+	}
+}
+
+templ Create(cpv PeriodCreateView) {
+	@layouts.Base("SEEK: create period") {
+		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
+			<section>
+				@blocks.CreatePeriodForm(cpv.formView)
+			</section>
+		</main>
+	}
+}

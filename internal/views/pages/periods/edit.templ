@@ -1,4 +1,4 @@
-package pages
+package periods
 
 import (
 	"seek/internal/domain/models"
@@ -7,7 +7,7 @@ import (
 	"seek/internal/views/blocks"
 )
 
-templ EditPeriod(period, editedPeriod models.PeriodSignals, validation map[string]period.Validation) {
+templ Edit(period, editedPeriod models.PeriodSignals, validation map[string]period.Validation) {
 	@layouts.Base("SEEK: edit period") {
 		<main>
 			<section>

@@ -14,11 +14,28 @@ import (
 	"seek/internal/views/components/day_buttons"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
+	"seek/internal/views/dto"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
+type PeriodCreateFormView struct {
+	Period     dto.PeriodView
+	Validation map[string]period.Validation
+}
+
+func NewPeriodCreateFormView(p *models.Period) PeriodCreateFormView {
+	if p == nil {
+		return PeriodCreateFormView{}
+	}
+
+	return PeriodCreateFormView{
+		Period:     dto.NewViewFromPeriod(p),
+		Validation: period.Validate(p),
+	}
+}
+
+func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -46,7 +63,7 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/create"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_create_form.templ`, Line: 14, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_create_form.templ`, Line: 31, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -73,8 +90,8 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 				Name:     "title",
 				DataBind: "period.title",
 				DataOn:   "/periods/create/validate",
-				HasError: validation["title"].State == "error",
-				IsValid:  validation["title"].State == "valid",
+				HasError: view.Validation["title"].State == "error",
+				IsValid:  view.Validation["title"].State == "valid",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -85,8 +102,8 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 			ID:                "title-label",
 			For:               "title",
 			Label:             "title",
-			ValidationState:   validation["title"].State,
-			ValidationMessage: validation["title"].Message,
+			ValidationState:   view.Validation["title"].State,
+			ValidationMessage: view.Validation["title"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -110,10 +127,10 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "start-time",
 				Name:     "start-time",
-				DataBind: "period.start_time",
+				DataBind: "period.starttime",
 				DataOn:   "/periods/create/validate",
-				HasError: validation["start_time"].State == "error",
-				IsValid:  validation["start_time"].State == "valid",
+				HasError: view.Validation["start_time"].State == "error",
+				IsValid:  view.Validation["start_time"].State == "valid",
 				Value:    "9:00",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -125,8 +142,8 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 			ID:                "start-time-label",
 			For:               "start-time",
 			Label:             "start time",
-			ValidationState:   validation["start_time"].State,
-			ValidationMessage: validation["start_time"].Message,
+			ValidationState:   view.Validation["start_time"].State,
+			ValidationMessage: view.Validation["start_time"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -148,8 +165,8 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 				Name:     "end-time",
 				DataBind: "period.end_time",
 				DataOn:   "/periods/create/validate",
-				HasError: validation["end_time"].State == "error",
-				IsValid:  validation["end_time"].State == "valid",
+				HasError: view.Validation["end_time"].State == "error",
+				IsValid:  view.Validation["end_time"].State == "valid",
 				Value:    "9:30",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -161,8 +178,8 @@ func CreatePeriodForm(validation map[string]period.Validation) templ.Component {
 			ID:                "end-time-label",
 			For:               "end-time",
 			Label:             "end time",
-			ValidationState:   validation["end_time"].State,
-			ValidationMessage: validation["end_time"].Message,
+			ValidationState:   view.Validation["end_time"].State,
+			ValidationMessage: view.Validation["end_time"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

@@ -6,11 +6,28 @@ import (
 	"seek/internal/views/components/day_buttons"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
+	"seek/internal/views/dto"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ CreatePeriodForm(validation map[string]period.Validation) {
+type PeriodCreateFormView struct {
+	Period dto.PeriodView
+	Validation map[string]period.Validation
+}
+
+func NewPeriodCreateFormView(p *models.Period) PeriodCreateFormView {
+	if p == nil {
+		return PeriodCreateFormView{}
+	}
+
+	return PeriodCreateFormView{
+		Period: dto.NewViewFromPeriod(p),
+		Validation: period.Validate(p),
+	}
+}
+
+templ CreatePeriodForm(view PeriodCreateFormView) {
 	<form id="create-period-form" data-on:submit={ datastar.PostSSE("/periods/create") }>
 		<hgroup>
 			<h2>CREATE A PERIOD</h2>
@@ -21,16 +38,16 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 				ID: "title-label",
 				For: "title",
 				Label: "title",
-				ValidationState: validation["title"].State,
-				ValidationMessage: validation["title"].Message,
+				ValidationState: view.Validation["title"].State,
+				ValidationMessage: view.Validation["title"].Message,
 			}) {
 				@input.Input(input.Props{
 					ID: "title",
 					Name: "title",
 					DataBind: "period.title",
 					DataOn: "/periods/create/validate",
-					HasError: validation["title"].State == "error",
-					IsValid: validation["title"].State == "valid",
+					HasError: view.Validation["title"].State == "error",
+					IsValid: view.Validation["title"].State == "valid",
 				})
 			}
 			<div style="display: flex; justify-content: space-between; gap: var(--size-1);">
@@ -38,16 +55,16 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 					ID: "start-time-label",
 					For: "start-time",
 					Label: "start time",
-					ValidationState: validation["start_time"].State,
-					ValidationMessage: validation["start_time"].Message,
+					ValidationState: view.Validation["start_time"].State,
+					ValidationMessage: view.Validation["start_time"].Message,
 				}) {
 					@input.Input(input.Props{
 						ID: "start-time",
 						Name: "start-time",
-						DataBind: "period.start_time",
+						DataBind: "period.starttime",
 						DataOn: "/periods/create/validate",
-						HasError: validation["start_time"].State == "error",
-						IsValid: validation["start_time"].State == "valid",
+						HasError: view.Validation["start_time"].State == "error",
+						IsValid: view.Validation["start_time"].State == "valid",
 						Value: "9:00",
 					})
 				}
@@ -55,16 +72,16 @@ templ CreatePeriodForm(validation map[string]period.Validation) {
 					ID: "end-time-label",
 					For: "end-time",
 					Label: "end time",
-					ValidationState: validation["end_time"].State,
-					ValidationMessage: validation["end_time"].Message,
+					ValidationState: view.Validation["end_time"].State,
+					ValidationMessage: view.Validation["end_time"].Message,
 				}) {
 					@input.Input(input.Props{
 						ID: "end-time",
 						Name: "end-time",
 						DataBind: "period.end_time",
 						DataOn: "/periods/create/validate",
-						HasError: validation["end_time"].State == "error",
-						IsValid: validation["end_time"].State == "valid",
+						HasError: view.Validation["end_time"].State == "error",
+						IsValid: view.Validation["end_time"].State == "valid",
 						Value: "9:30",
 					})
 				}

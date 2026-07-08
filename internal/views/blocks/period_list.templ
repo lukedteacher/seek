@@ -4,11 +4,13 @@ import (
 	"fmt"
 
 	"seek/internal/domain/models"
+	"seek/internal/views/components"
 )
 
 templ PeriodList(periods []models.Period) {
 	<table>
 		<thead>
+			<th>link</th>
 			<th>title</th>
 			<th>start time</th>
 			<th>duration</th>
@@ -18,8 +20,11 @@ templ PeriodList(periods []models.Period) {
 			for _, period := range periods {
 				<tr>
 					<td>
-						<a href={ fmt.Sprintf("/periods/%s", period.Id) }>{ period.Title }</a>
+						<a href={ fmt.Sprintf("/periods/%s", period.ID) }>
+							@components.Icon("mdi:link")
+						</a>
 					</td>
+					<td>{ period.Title }</td>
 					<td>{ period.StartTime }</td>
 					<td>{ period.Duration }</td>
 					<td>{ period.Days }</td>

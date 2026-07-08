@@ -1,4 +1,4 @@
-package pages
+package periods
 
 import (
 	"seek/internal/domain/models"
@@ -8,7 +8,7 @@ import (
 	"seek/internal/views/layouts"
 )
 
-templ Periods(view int64, periods []models.Period) {
+templ List(view int, periods []models.Period) {
 	@layouts.Base("SEEK: students") {
 		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/students/stream") }>
 			<section>

@@ -12,7 +12,6 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-
 type EditScheduleViewModel struct {
 	Schedule   models.ScheduleSignals
 	SchedulePeriods []models.PeriodSignals
@@ -138,6 +137,5 @@ templ EditScheduleForm(vm EditScheduleViewModel) {
 			</button>
 		</footer>
 	</form>
-	@CreatePeriodForm(nil)
 }
 				

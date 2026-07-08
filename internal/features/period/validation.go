@@ -13,23 +13,26 @@ type Validation struct {
 	State   string // "error", "empty", "valid"
 }
 
-func Validate(period models.Period) map[string]Validation {
+func Validate(p *models.Period) map[string]Validation {
 	errors := make(map[string]Validation)
-	errors["title"] = ValidateTitle(period.Title)
+	if p == nil {
+		return errors
+	}
+	errors["title"] = ValidateTitle(p.Title)
 
-	if period.StartTime == "" {
+	if p.StartTime == "" {
 		errors["startTime"] = Validation{Message: "required", State: "empty"}
 	} else {
 		errors["startTime"] = Validation{Message: "required", State: "valid"}
 	}
 
-	if period.Duration < 0 {
+	if p.Duration < 0 {
 		errors["duration"] = Validation{Message: "1-60 minutes", State: "error"}
 	} else {
 		errors["duration"] = Validation{Message: "1-60 minutes", State: "valid"}
 	}
 
-	if period.Days > 16 {
+	if p.Days > 16 {
 		errors["class"] = Validation{Message: "required", State: "empty"}
 	} else {
 		errors["class"] = Validation{Message: "required", State: "valid"}

@@ -19,7 +19,7 @@ templ PeriodCards(vm PeriodCardViewModel) {
 templ PeriodCard(vm PeriodCardViewModel, column int) {
 	<div 
 		class="period-card"
-		style={fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, models.TimeToRow(vm.Period.StartTime, 479), vm.Period.Duration)}
+		style={fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, "1", vm.Period.Duration)}
 	>
 		<h3>{ vm.Period.Title }</h3>
 	</div>

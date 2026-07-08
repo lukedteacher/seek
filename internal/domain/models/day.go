@@ -94,45 +94,6 @@ type DaysSignals struct {
 	Friday    bool `json:"friday"`
 }
 
-func DaysSignalToDaysSlice(ds DaysSignals) []Day {
-	days := []Day{}
-	if ds.Monday {
-		days = append(days, Day(time.Monday))
-	}
-	if ds.Tuesday {
-		days = append(days, Day(time.Tuesday))
-	}
-	if ds.Wednesday {
-		days = append(days, Day(time.Wednesday))
-	}
-	if ds.Thursday {
-		days = append(days, Day(time.Thursday))
-	}
-	if ds.Friday {
-		days = append(days, Day(time.Friday))
-	}
-	return days
-}
-
-func DaysSliceToDaysSignal(days []Day) DaysSignals {
-	ds := DaysSignals{}
-	for _, day := range days {
-		switch day {
-		case Days[0]:
-			ds.Monday = true
-		case Days[1]:
-			ds.Tuesday = true
-		case Days[2]:
-			ds.Wednesday = true
-		case Days[3]:
-			ds.Thursday = true
-		case Days[4]:
-			ds.Friday = true
-		}
-	}
-	return ds
-}
-
 func (ds *DaysSignals) IsDaySet(day Day) bool {
 	switch day {
 	case Day(time.Monday):
@@ -150,13 +111,34 @@ func (ds *DaysSignals) IsDaySet(day Day) bool {
 }
 
 func DaysBitmaskToDaysSignals(mask int64) DaysSignals {
-	days := DaysBitmaskToDaysSlice(mask)
-	daysSignals := DaysSliceToDaysSignal(days)
-	return daysSignals
+    ds := DaysSignals{}
+    for _, d := range Days {
+        set := mask&d.Bit() != 0
+        switch d {
+        case Day(time.Monday):    ds.Monday = set
+        case Day(time.Tuesday):   ds.Tuesday = set
+        case Day(time.Wednesday): ds.Wednesday = set
+        case Day(time.Thursday):  ds.Thursday = set
+        case Day(time.Friday):    ds.Friday = set
+        }
+    }
+    return ds
 }
 
 func DaysSignalsToDaysBitmask(ds DaysSignals) int64 {
-	days := DaysSignalToDaysSlice(ds)
-	mask := DaysSliceToDaysBitmask(days)
-	return mask
+    mask := int64(0)
+    for _, d := range Days {
+        var set bool
+        switch d {
+        case Day(time.Monday):    set = ds.Monday
+        case Day(time.Tuesday):   set = ds.Tuesday
+        case Day(time.Wednesday): set = ds.Wednesday
+        case Day(time.Thursday):  set = ds.Thursday
+        case Day(time.Friday):    set = ds.Friday
+        }
+        if set {
+            mask |= d.Bit()
+        }
+    }
+    return mask
 }

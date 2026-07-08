@@ -4,11 +4,13 @@ import (
 	"fmt"
 
 	"seek/internal/domain/models"
+	"seek/internal/views/components"
 )
 
 templ StudentList(students []models.Student) {
 	<table>
 		<thead>
+			<th>link</th>
 			<th>first</th>
 			<th>chosen</th>
 			<th>last</th>
@@ -20,8 +22,11 @@ templ StudentList(students []models.Student) {
 			for _, student := range students {
 				<tr>
 					<td>
-						<a href={ fmt.Sprintf("/students/%s", student.Id) }>{ student.FirstName }</a>
+						<a href={ fmt.Sprintf("/students/%s", student.Id) }>
+							@components.Icon("mdi:link")
+						</a>
 					</td>
+					<td>{ student.FirstName }</td>
 					<td>
 						if student.ChosenName != nil {
 							{*student.ChosenName}

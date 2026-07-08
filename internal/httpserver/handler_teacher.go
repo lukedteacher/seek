@@ -176,7 +176,6 @@ func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
 	}
 	if result.Skipped == true {
 		println("update skipped")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }

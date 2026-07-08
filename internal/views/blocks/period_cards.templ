@@ -11,7 +11,7 @@ templ PeriodCards(periods []models.Period) {
 	<div class="card-grid">
 		for _, period := range periods {
 			<div class="card">
-				<a href={ fmt.Sprintf("/periods/%s", period.Id) }>
+				<a href={ fmt.Sprintf("/periods/%s", period.ID) }>
 					<button>
 						@components.Icon("mdi:link")
 					</button>
