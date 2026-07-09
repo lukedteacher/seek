@@ -15,11 +15,28 @@ import (
 	"seek/internal/views/components/day_buttons"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
+	"seek/internal/views/dto"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[string]period.Validation) templ.Component {
+type PeriodEditFormView struct {
+	Period     dto.PeriodView
+	Validation map[string]period.Validation
+}
+
+func NewPeriodEditFormView(p *models.Period) PeriodEditFormView {
+	if p == nil {
+		return PeriodEditFormView{}
+	}
+
+	return PeriodEditFormView{
+		Period:     dto.NewViewFromPeriod(p),
+		Validation: period.Validate(p),
+	}
+}
+
+func EditPeriodForm(view PeriodEditFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -45,9 +62,9 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/%s/edit", period.ID))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/%s/edit", view.Period.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 15, Col: 93}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 32, Col: 98}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -73,10 +90,10 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 				ID:       "title",
 				Name:     "title",
 				DataBind: "period.title",
-				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", period.ID),
-				HasError: validation["title"].State == "error",
-				IsValid:  validation["title"].State == "valid",
-				Value:    period.Title,
+				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
+				HasError: view.Validation["title"].State == "error",
+				IsValid:  view.Validation["title"].State == "valid",
+				Value:    view.Period.Title,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -87,8 +104,8 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			ID:                "title-label",
 			For:               "title",
 			Label:             "title",
-			ValidationState:   validation["title"].State,
-			ValidationMessage: validation["title"].Message,
+			ValidationState:   view.Validation["title"].State,
+			ValidationMessage: view.Validation["title"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -113,10 +130,10 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 				ID:       "start-time",
 				Name:     "start-time",
 				DataBind: "period.start_time",
-				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", period.ID),
-				HasError: validation["start_time"].State == "error",
-				IsValid:  validation["start_time"].State == "valid",
-				Value:    period.StartTime,
+				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
+				HasError: view.Validation["start_time"].State == "error",
+				IsValid:  view.Validation["start_time"].State == "valid",
+				Value:    view.Period.StartTime,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -127,8 +144,8 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			ID:                "start-time-label",
 			For:               "start-time",
 			Label:             "start time",
-			ValidationState:   validation["start_time"].State,
-			ValidationMessage: validation["start_time"].Message,
+			ValidationState:   view.Validation["start_time"].State,
+			ValidationMessage: view.Validation["start_time"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -149,10 +166,10 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 				ID:       "end-time",
 				Name:     "end-time",
 				DataBind: "period.end_time",
-				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", period.ID),
-				HasError: validation["end_time"].State == "error",
-				IsValid:  validation["end_time"].State == "valid",
-				Value:    "9:30",
+				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
+				HasError: view.Validation["end_time"].State == "error",
+				IsValid:  view.Validation["end_time"].State == "valid",
+				Value:    view.Period.EndTime,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -163,8 +180,8 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			ID:                "end-time-label",
 			For:               "end-time",
 			Label:             "end time",
-			ValidationState:   validation["end_time"].State,
-			ValidationMessage: validation["end_time"].Message,
+			ValidationState:   view.Validation["end_time"].State,
+			ValidationMessage: view.Validation["end_time"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -174,9 +191,9 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(period.Duration)
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(view.Period.Duration)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 75, Col: 103}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 92, Col: 108}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 		if templ_7745c5c3_Err != nil {
@@ -186,7 +203,7 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = day_buttons.DayButtons(period.Days).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = day_buttons.DayButtons(view.Period.Days).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -195,9 +212,9 @@ func EditPeriodForm(period, editedPeriod models.PeriodSignals, validation map[st
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/%s/delete", period.ID))
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/%s/delete", view.Period.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 81, Col: 69}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 98, Col: 74}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {

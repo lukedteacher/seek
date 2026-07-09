@@ -99,15 +99,15 @@ func PeriodReadModelEventHandlerQuery() eventstore.Query {
 func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	id, _ := scope["id"].(string)
-	if id == "" {
+	periodID, _ := scope["id"].(string)
+	if periodID == "" {
 		return fmt.Errorf("no id provided for read model event")
 	}
 
 	switch resolved.Event.EventType {
 	case PeriodCreated:
 		periodCreated := PeriodCreatedProjection{
-			Id:        id,
+			Id:        periodID,
 			Title:     data["title"].(string),
 			StartTime: data["startTime"].(string),
 			Duration:  int64(data["duration"].(float64)),
@@ -119,7 +119,7 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 		}
 	case PeriodUpdated:
 		periodUpdated := PeriodUpdatedProjection{
-			Id:        id,
+			Id:        periodID,
 			Title:     data["title"].(string),
 			StartTime: data["startTime"].(string),
 			Duration:  int64(data["duration"].(float64)),
@@ -132,7 +132,7 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 	case PeriodDeleted:
 		periodDeleted := PeriodDeletedProjection{
 			Position:  resolved.Position,
-			Id:        id,
+			Id:        periodID,
 			DeletedAt: parseTime(data["deletedAt"]),
 		}
 		if err := h.readModel.DeletePeriod(ctx, periodDeleted); err != nil {
@@ -141,6 +141,7 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 	default:
 		return fmt.Errorf("unhandled period read model event type %q", resolved.Event.EventType)
 	}
-	// TODO not sure if this is the fix
-	return nil
+	// so the SSE stream will update
+	// s.Subscriber.Subscribe(ctx, period.Channel(periodID).. etc)
+	return h.publisher.Publish(ctx, Channel(periodID), map[string]string{"periodID": periodID})
 }

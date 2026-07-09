@@ -127,7 +127,7 @@ func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 			templ_7745c5c3_Err = input.Input(input.Props{
 				ID:       "start-time",
 				Name:     "start-time",
-				DataBind: "period.starttime",
+				DataBind: "period.start_time",
 				DataOn:   "/periods/create/validate",
 				HasError: view.Validation["start_time"].State == "error",
 				IsValid:  view.Validation["start_time"].State == "valid",

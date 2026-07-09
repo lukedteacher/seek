@@ -46,7 +46,7 @@ func StartEmbeddedOrisun(ctx context.Context, cfg EmbeddedConfig) (*EmbeddedOris
 
 	appConfig.Backend.Type = "sqlite"
 	appConfig.Sqlite.Dir = cfg.SQLiteDir
-	appConfig.Boundaries = fmt.Sprintf(`[{"name":%q,"description":"Starter app events"},{"name":"orisun_admin","description":"Orisun admin boundary"}]`, cfg.Boundary)
+	appConfig.Boundaries = fmt.Sprintf(`[{"name":%q,"description":"starter app events"},{"name":"orisun_admin","description":"orisun admin boundary"}]`, cfg.Boundary)
 	if err := appConfig.ParseBoundaries(); err != nil {
 		return nil, err
 	}

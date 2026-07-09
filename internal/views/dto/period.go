@@ -7,13 +7,13 @@ import (
 )
 
 type PeriodView struct {
-	ID        string             `json:"period.id"`
-	Title     string             `json:"period.title"`
-	StartTime string             `json:"period.start_time"`
-	EndTime   string             `json:"period.end_time"`
-	Duration  int                `json:"period.duration"`
-	Days      models.DaysSignals `json:"period.days"`
-	Row       string             `json:"period.row"`
+	ID        string             `json:"id"`
+	Title     string             `json:"title"`
+	StartTime string             `json:"start_time"`
+	EndTime   string             `json:"end_time"`
+	Duration  int                `json:"duration"`
+	Days      models.DaysSignals `json:"days"`
+	Row       string             `json:"row"`
 }
 
 func NewViewFromPeriod(p *models.Period) PeriodView {

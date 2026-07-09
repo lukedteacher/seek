@@ -1,6 +1,8 @@
 package httpserver
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 
 	"seek/internal/domain/models"
@@ -9,27 +11,28 @@ import (
 	"seek/internal/views/blocks"
 	"seek/internal/views/dto"
 	pages "seek/internal/views/pages/periods"
+	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/starfederation/datastar-go/datastar"
 )
 
 func (s Server) periodRoutes(r chi.Router) {
-	r.Get("/periods", s.getPeriods)
+	r.Get("/periods", s.getPeriodsList)
 	r.Get("/periods/create", s.getPeriodCreate)
 	r.Post("/periods/create/validate", s.postPeriodCreateValidate)
 	r.Post("/periods/create", s.postPeriodCreate)
 	r.Get("/periods/{id}", s.getPeriodView)
+	r.Get("/periods/{id}/stream", s.getPeriodViewStream)
 	r.Get("/periods/{id}/edit", s.getPeriodEdit)
+	r.Get("/periods/{id}/edit/stream", s.getPeriodEditStream)
 	r.Post("/periods/{id}/edit", s.postPeriodEdit)
 	r.Post("/periods/{id}/edit/validate", s.postPeriodEditValidate)
 	r.Delete("/periods/{id}", s.deletePeriod)
 }
 
 // GET request to /periods
-// lists all periods
-// probably won't need this later
-func (s Server) getPeriods(w http.ResponseWriter, r *http.Request) {
+func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 	// defines the view (card or list or... something else?)
 	type Signals struct {
 		View int `json:"view"`
@@ -56,39 +59,42 @@ func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 
 // POST request to /periods/create/validate
 func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request) {
-	periodView := &dto.PeriodView{}
-	if err := datastar.ReadSignals(r, periodView); err != nil {
+	signals := &struct {
+		Period dto.PeriodView `json:"period"`
+	}{}
+	if err := datastar.ReadSignals(r, signals); err != nil {
 		println("pcv signal read: ", err.Error())
 		return
 	}
-	println("t: ", periodView.StartTime)
-	model := dto.NewPeriodFromView(periodView)
+	model := dto.NewPeriodFromView(&signals.Period)
 	formView := blocks.NewPeriodCreateFormView(&model)
 	patchTempl(w, r, blocks.CreatePeriodForm(formView))
 }
 
 // POST request to /periods/create
 func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
-	periodView := &dto.PeriodView{}
-	if err := datastar.ReadSignals(r, periodView); err != nil {
+	signals := &struct {
+		Period dto.PeriodView `json:"period"`
+	}{}
+	if err := datastar.ReadSignals(r, signals); err != nil {
 		println("pc signal read: ", err.Error())
 		return
 	}
-	model := dto.NewPeriodFromView(periodView)
+	model := dto.NewPeriodFromView(&signals.Period)
 	validation := period.Validate(&model)
 	if validation == nil {
 		println("some error")
 		return
 		// TODO actually validate
 	}
-	command := period.CreatePeriodCommand{
+	createPeriodCommand := period.CreatePeriodCommand{
 		Title:     model.Title,
 		StartTime: model.StartTime,
 		Duration:  model.Duration,
 		Days:      model.Days,
 		Metadata:  eventstore.HTTPCommandMetadata(r),
 	}
-	_, err := period.CreatePeriodCommandHandler(r.Context(), command, s.EventSaver)
+	_, err := period.CreatePeriodCommandHandler(r.Context(), createPeriodCommand, s.EventSaver)
 	if err != nil {
 		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
 			return flashError(sse, err.Error())
@@ -118,75 +124,181 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GET request to /period/{id}/stream
+func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
+	sse := newSSE(w, r)
+	ctx := r.Context()
+	periodID := chi.URLParam(r, "id")
+
+	updates := make(chan struct{}, 1)
+	notify := func() {
+		select {
+		case updates <- struct{}{}:
+		default:
+		}
+	}
+
+	// watches the kv store for ephemeral changes
+	// lasts 5m
+	watcher, err := s.ViewStore.Watch(
+		ctx,
+		periodID + ".view",
+		viewstore.WatchOptions{
+			IgnoreDeletes: true,
+		},
+	)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	defer watcher.Stop()
+
+	sub, err := s.Subscriber.Subscribe(ctx, period.Channel(periodID), func(context.Context, []byte) {
+		notify()
+	})
+	if err != nil {
+		println(err.Error())
+		return
+	}
+
+	defer sub.Close()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-updates: // triggers when the read model publishes
+			if err := s.refreshPeriodViewState(ctx, periodID); err != nil {
+				println(err.Error())
+				return
+			}
+		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
+			if !ok {
+				return
+			}
+			var model models.Period
+			if err := entry.JSON(&model); err != nil {
+				print(fmt.Errorf("period SSE json error: %w", err))
+				return
+			}
+			view := dto.NewViewFromPeriod(&model)
+			sse.PatchElementTempl(pages.View(view))
+		}
+	}
+}
+
 // GET request to /periods/{id}/edit
 func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	periodID := chi.URLParam(r, "id")
-	pm, err := s.Periods.Get(r.Context(), periodID)
+	model, err := s.Periods.Get(ctx, periodID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}	
+	view := blocks.NewPeriodEditFormView(model)
+	_ = pages.Edit(view).Render(ctx, w)
+}
+
+// GET request to /period/{id}/stream
+func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
+	sse := newSSE(w, r)
+	ctx := r.Context()
+	periodID := chi.URLParam(r, "id")
+
+	updates := make(chan struct{}, 1)
+	notify := func() {
+		select {
+		case updates <- struct{}{}:
+		default:
+		}
 	}
-	daysSignals := models.DaysBitmaskToDaysSignals(pm.Days)
-	signals := models.PeriodSignals{
-		ID:        periodID,
-		Title:     pm.Title,
-		StartTime: pm.StartTime,
-		Duration:  int(pm.Duration),
-		Days:      daysSignals,
+
+	// watches the period edit view state kv
+	watcher, err := s.ViewStore.Watch(
+		ctx,
+		periodID + ".edit",
+		viewstore.WatchOptions{
+			IgnoreDeletes: true,
+		},
+	)
+	if err != nil {
+		println(err.Error())
+		return
 	}
-	
-	validation := period.Validate(pm)
-	_ = pages.Edit(signals, signals, validation).Render(r.Context(), w)
+	defer watcher.Stop()
+
+	sub, err := s.Subscriber.Subscribe(ctx, period.Channel(periodID), func(context.Context, []byte) {
+		notify()
+	})
+	if err != nil {
+		println(err.Error())
+		return
+	}
+
+	defer sub.Close()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-updates:
+			if err := s.refreshPeriodEditState(ctx, periodID); err != nil {
+				println(err.Error())
+				return
+			}
+		case entry, ok := <-watcher.Updates():
+			if !ok {
+				return
+			}
+			var model models.Period
+			if err := entry.JSON(&model); err != nil {
+				print(fmt.Errorf("period edit SSE json error: %w", err))
+				return
+			}
+			view := blocks.NewPeriodEditFormView(&model)
+			sse.PatchElementTempl(pages.Edit(view))
+		}
+	}
 }
 
 // POST request to /periods/{id}/edit/validate
 func (s Server) postPeriodEditValidate(w http.ResponseWriter, r *http.Request) {
-	type Signals struct {
-		Period models.PeriodSignals `json:"period"`
-	}
-	signals := &Signals{}
+	ctx := r.Context()
+	periodID := chi.URLParam(r, "id")
+	signals := &struct {
+		Period dto.PeriodView `json:"period"`
+	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		println("vep signals: ", err.Error())
 		return
 	}
-
-	signals.Period.ID = chi.URLParam(r, "id")
-	daysBitmask := models.DaysSignalsToDaysBitmask(signals.Period.Days)
-
-	model := models.Period{
-		ID:        signals.Period.ID,
-		Title:     signals.Period.Title,
-		StartTime: signals.Period.StartTime,
-		Duration:  int64(signals.Period.Duration),
-		Days:      daysBitmask,
-	}
-	validation := period.Validate(&model)
-	patchTempl(w, r, blocks.EditPeriodForm(signals.Period, signals.Period , validation))
+	signals.Period.ID = periodID
+	model := dto.NewPeriodFromView(&signals.Period)
+	viewstore.PutState(ctx, s.ViewStore, periodID, model)
 }
 
 // POST request to /periods/{id}/edit
 func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
-	type Signals struct {
-		Period models.PeriodSignals `json:"period"`
-	}
-	signals := &Signals{}
+	ctx := r.Context()
+	signals := &struct {
+		Period dto.PeriodView `json:"period"`
+	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		println("ep signals: ", err.Error())
 		return
 	}
-
-	daysBitmask := models.DaysSignalsToDaysBitmask(signals.Period.Days)
-
+	periodID := chi.URLParam(r, "id")
+	days := models.DaysSignalsToDaysBitmask(signals.Period.Days)
 	updatePeriodCommand := period.UpdatePeriodCommand{
-		Id:        chi.URLParam(r, "id"),
+		Id:        periodID,
 		Title:     signals.Period.Title,
 		StartTime: signals.Period.StartTime,
 		Duration:  int64(signals.Period.Duration),
-		Days:      daysBitmask,
+		Days:      days,
 		Metadata:  eventstore.HTTPCommandMetadata(r),
 	}
-
-	result, err := period.UpdatePeriodCommandHandler(r.Context(), updatePeriodCommand, s.EventSaver, s.EventRetriever)
+	result, err := period.UpdatePeriodCommandHandler(ctx, updatePeriodCommand, s.EventSaver, s.EventRetriever)
 	if err != nil {
 		println("upch e: ", err.Error())
 		return
@@ -205,6 +317,22 @@ func (s Server) deletePeriod(w http.ResponseWriter, r *http.Request) {
 		Metadata: eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)
 	emptySSE(w, r, err)
+}
+
+func (s Server) refreshPeriodViewState(ctx context.Context, periodID string) error {
+	period, err := s.Periods.Get(ctx, periodID)
+	if err != nil {
+		return err
+	}
+	return viewstore.PutState(ctx, s.ViewStore, period.ID + ".view", period)
+}
+
+func (s Server) refreshPeriodEditState(ctx context.Context, periodID string) error {
+	period, err := s.Periods.Get(ctx, periodID)
+	if err != nil {
+		return err
+	}
+	return viewstore.PutState(ctx, s.ViewStore, period.ID + ".edit", period)
 }
 
 func (s *Server) periodToSignals(period *models.Period) models.PeriodSignals {

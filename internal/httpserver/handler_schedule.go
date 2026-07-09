@@ -18,26 +18,31 @@ import (
 )
 
 func (s Server) scheduleRoutes(r chi.Router) {
-	r.Get("/schedule", s.schedule)
-	r.Get("/schedules/create", s.createScheduleForm)
-	r.Post("/schedules/create/validate", s.validateCreateSchedule)
-	r.Post("/schedules/create", s.createSchedule)
-	r.Get("/schedules/{id}", s.getEditSchedule)
-	r.Get("/schedules/{id}/edit", s.getEditSchedule)
-	r.Get("/schedules/{id}/edit/stream", s.editScheduleStream)
-	r.Post("/schedules/{id}/edit/validate", s.validateEditSchedule)
-	r.Post("/schedules/{id}/edit", s.editSchedule)
+	r.Get("/schedules", s.getSchedules)
+	r.Get("/schedules/create", s.getScheduleCreate)
+	r.Post("/schedules/create/validate", s.postScheduleCreateValidate)
+	r.Post("/schedules/create", s.postScheduleCreate)
+	r.Get("/schedules/{id}", s.getScheduleEdit)
+	r.Get("/schedules/{id}/edit", s.getScheduleEdit)
+	r.Get("/schedules/{id}/edit/stream", s.getScheduleEditStream)
+	r.Post("/schedules/{id}/edit/validate", s.postScheduleEditValidate)
+	r.Post("/schedules/{id}/edit", s.postScheduleEdit)
 	r.Post("/schedules/{id}/delete", s.deleteSchedule)
-	r.Get("/schedules", s.schedules)
 }
 
-// GET request for /schedule: shows default schedule for current user
-func (s Server) schedule(w http.ResponseWriter, r *http.Request) {
-	_ = pages.Schedule(models.ScheduleSignals{}).Render(r.Context(), w)
+// GET request to /schedules
+func (s Server) getSchedules(w http.ResponseWriter, r *http.Request) {
+	schedules, err := s.Schedules.List(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_ = pages.Schedules(schedules).Render(r.Context(), w)
 }
 
 // GET request to /schedules/create
-func (s Server) createScheduleForm(w http.ResponseWriter, r *http.Request) {
+func (s Server) getScheduleCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	emptySchedule := models.Schedule{}
 	validation := schedule.Validate(emptySchedule)
@@ -48,7 +53,7 @@ func (s Server) createScheduleForm(w http.ResponseWriter, r *http.Request) {
 }
 
 // POST request to /schedules/create/validate
-func (s Server) validateCreateSchedule(w http.ResponseWriter, r *http.Request) {
+func (s Server) postScheduleCreateValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	type Signals struct {
 		Schedule models.ScheduleSignals `json:"schedule"`
@@ -78,7 +83,7 @@ func (s Server) validateCreateSchedule(w http.ResponseWriter, r *http.Request) {
 }
 
 // POST request to /schedules/create
-func (s Server) createSchedule(w http.ResponseWriter, r *http.Request) {
+func (s Server) postScheduleCreate(w http.ResponseWriter, r *http.Request) {
 	type Signals struct {
 		Schedule models.ScheduleSignals `json:"schedule"`
 	}
@@ -104,7 +109,7 @@ func (s Server) createSchedule(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET request to /schedules/{id}
-func (s Server) getEditSchedule(w http.ResponseWriter, r *http.Request) {
+func (s Server) getScheduleEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	scheduleID := chi.URLParam(r, "id")
@@ -118,7 +123,8 @@ func (s Server) getEditSchedule(w http.ResponseWriter, r *http.Request) {
 	_ = pages.EditSchedule(efvm, scvm).Render(ctx, w)
 }
 
-func (s Server) editScheduleStream(w http.ResponseWriter, r *http.Request) {
+// GET request to /schedules/{id}/stream
+func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 	sse := newSSE(w, r)
 	ctx := r.Context()
 	scheduleID := chi.URLParam(r, "id")
@@ -183,7 +189,7 @@ func (s Server) editScheduleStream(w http.ResponseWriter, r *http.Request) {
 // POST request to /schedules/{id}/edit/validate
 // saves the current schedule view
 // will be validated through the SSE
-func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
+func (s Server) postScheduleEditValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	type Signals struct {
 		Schedule models.ScheduleSignals `json:"schedule"`
@@ -204,7 +210,7 @@ func (s Server) validateEditSchedule(w http.ResponseWriter, r *http.Request) {
 }
 
 // POST request to /schedules/{id}/edit
-func (s Server) editSchedule(w http.ResponseWriter, r *http.Request) {
+func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 	context := r.Context()
 	type Signals struct {
 		Schedule models.ScheduleSignals `json:"schedule"`
@@ -290,17 +296,6 @@ func (s Server) deleteSchedule(w http.ResponseWriter, r *http.Request) {
 		Metadata:   eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)
 	emptySSE(w, r, err)
-}
-
-// GET request to /schedules
-func (s Server) schedules(w http.ResponseWriter, r *http.Request) {
-	schedules, err := s.Schedules.List(r.Context())
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	_ = pages.Schedules(schedules).Render(r.Context(), w)
 }
 
 func (s Server) refreshScheduleViewState(ctx context.Context, scheduleID string) error {

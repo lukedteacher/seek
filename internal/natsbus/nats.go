@@ -44,6 +44,7 @@ func (b *Bus) Publish(ctx context.Context, subject string, data any) error {
 	if err != nil {
 		return err
 	}
+	println("s: ", subject)
 	return b.conn.Publish(subject, payload)
 }
 

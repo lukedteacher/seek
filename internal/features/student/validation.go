@@ -16,7 +16,7 @@ func Validate(student *models.Student) map[string]Validation {
 		return errors
 	}
 	if student.ChosenName == nil {
-		println("howdy")
+		println("student chosen name nil in validate student")
 	}
 	errors["first_name"] = ValidateFirstName(student.FirstName)
 	errors["chosen_name"] = ValidateChosenName(*student.ChosenName)

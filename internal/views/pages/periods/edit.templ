@@ -1,17 +1,17 @@
 package periods
 
 import (
-	"seek/internal/domain/models"
-	"seek/internal/features/period"
+	"fmt"
+	"seek/internal/views"
 	"seek/internal/views/layouts"
 	"seek/internal/views/blocks"
 )
 
-templ Edit(period, editedPeriod models.PeriodSignals, validation map[string]period.Validation) {
+templ Edit(view blocks.PeriodEditFormView) {
 	@layouts.Base("SEEK: edit period") {
-		<main>
+		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/edit/stream", view.Period.ID)) }>
 			<section>
-				@blocks.EditPeriodForm(period, editedPeriod, validation)
+				@blocks.EditPeriodForm(view)
 			</section>
 		</main>
 	}

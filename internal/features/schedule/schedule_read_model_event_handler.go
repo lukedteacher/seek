@@ -159,7 +159,6 @@ func (h *ScheduleReadModelEventHandler) handle(ctx context.Context, resolved eve
 	case SchedulePeriodRemoved:
 		scheduleID, _ := data["scheduleID"].(string)
 		periodID, _ := data["periodID"].(string)
-		println("eh: ", data["periodRemovedAt"].(string))
 		if err := h.readModel.RemoveSchedulePeriod(ctx, SchedulePeriodRemovedProjection{
 			Position:                resolved.Position,
 			ScheduleID:              scheduleID,
@@ -180,5 +179,5 @@ func (h *ScheduleReadModelEventHandler) handle(ctx context.Context, resolved eve
 		return fmt.Errorf("unhandled schedule read model event type %q", resolved.Event.EventType)
 	}
 	// so the SSE stream will update?
-	return h.publisher.Publish(ctx, Channel("idk"), "test")
+	return h.publisher.Publish(ctx, Channel(id), "schedule read model")
 }
