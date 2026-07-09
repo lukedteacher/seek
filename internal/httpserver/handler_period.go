@@ -126,19 +126,28 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 
 // GET request to /period/{id}/stream
 func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
-	sse := newSSE(w, r)
 	ctx := r.Context()
 	periodID := chi.URLParam(r, "id")
+	sse := newSSE(w, r)
 
-	updates := make(chan struct{}, 1)
-	notify := func() {
-		select {
-		case updates <- struct{}{}:
-		default:
-		}
+	notifier := NewDedupeNotifier()
+	// subscribes to the channel which publishes changes to the underlying model
+	sub, err := s.Subscriber.Subscribe(ctx, period.Channel(periodID), func(context.Context, []byte) {
+		notifier.Notify()
+	})
+	if err != nil {
+		println(err.Error())
+		return
 	}
+	defer sub.Close()
 
-	// watches the kv store for ephemeral changes
+
+	if err := s.refreshPeriodViewState(ctx, periodID); err != nil {
+		println("pvs first refresh: ", err.Error())
+		return
+	}
+	
+	// watches the key value stream for ephemeral changes
 	// lasts 5m
 	watcher, err := s.ViewStore.Watch(
 		ctx,
@@ -153,23 +162,16 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 	}
 	defer watcher.Stop()
 
-	sub, err := s.Subscriber.Subscribe(ctx, period.Channel(periodID), func(context.Context, []byte) {
-		notify()
-	})
-	if err != nil {
-		println(err.Error())
-		return
-	}
-
-	defer sub.Close()
-
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-updates: // triggers when the read model publishes
+		case <-notifier.Signal(): // triggers when the read model publishes
 			if err := s.refreshPeriodViewState(ctx, periodID); err != nil {
-				println(err.Error())
+				println("pvs second refresh: ", err.Error())
+				if err.Error() == "period not found" {
+					sse.PatchElementTempl(pages.NotFound())
+				}
 				return
 			}
 		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
@@ -178,7 +180,7 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 			}
 			var model models.Period
 			if err := entry.JSON(&model); err != nil {
-				print(fmt.Errorf("period SSE json error: %w", err))
+				println(err.Error())
 				return
 			}
 			view := dto.NewViewFromPeriod(&model)
@@ -202,17 +204,20 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 
 // GET request to /period/{id}/stream
 func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
-	sse := newSSE(w, r)
 	ctx := r.Context()
 	periodID := chi.URLParam(r, "id")
+	sse := newSSE(w, r)
 
-	updates := make(chan struct{}, 1)
-	notify := func() {
-		select {
-		case updates <- struct{}{}:
-		default:
-		}
+	notifier := NewDedupeNotifier()
+	// subscribes to the channel which publishes changes to the underlying model
+	sub, err := s.Subscriber.Subscribe(ctx, period.Channel(periodID), func(context.Context, []byte) {
+		notifier.Notify()
+	})
+	if err != nil {
+		println(err.Error())
+		return
 	}
+	defer sub.Close()
 
 	// watches the period edit view state kv
 	watcher, err := s.ViewStore.Watch(
@@ -228,23 +233,16 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 	}
 	defer watcher.Stop()
 
-	sub, err := s.Subscriber.Subscribe(ctx, period.Channel(periodID), func(context.Context, []byte) {
-		notify()
-	})
-	if err != nil {
-		println(err.Error())
-		return
-	}
-
-	defer sub.Close()
-
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-updates:
+		case <-notifier.Signal():
 			if err := s.refreshPeriodEditState(ctx, periodID); err != nil {
 				println(err.Error())
+				if err.Error() == "period not found" {
+					sse.PatchElementTempl(pages.NotFound())
+				}
 				return
 			}
 		case entry, ok := <-watcher.Updates():
@@ -253,7 +251,7 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			var model models.Period
 			if err := entry.JSON(&model); err != nil {
-				print(fmt.Errorf("period edit SSE json error: %w", err))
+				println(err.Error())
 				return
 			}
 			view := blocks.NewPeriodEditFormView(&model)
@@ -300,7 +298,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	result, err := period.UpdatePeriodCommandHandler(ctx, updatePeriodCommand, s.EventSaver, s.EventRetriever)
 	if err != nil {
-		println("upch e: ", err.Error())
+		println(fmt.Errorf("upch error: %w", err))
 		return
 	}
 	if result.Skipped == true {
@@ -316,13 +314,21 @@ func (s Server) deletePeriod(w http.ResponseWriter, r *http.Request) {
 		PeriodID: periodID,
 		Metadata: eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)
-	emptySSE(w, r, err)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	sse := newSSE(w, r)
+	sse.Redirect("/periods")
 }
 
 func (s Server) refreshPeriodViewState(ctx context.Context, periodID string) error {
 	period, err := s.Periods.Get(ctx, periodID)
 	if err != nil {
 		return err
+	}
+	if period.DeletedAt != "" {
+		println("this period was deleted")
 	}
 	return viewstore.PutState(ctx, s.ViewStore, period.ID + ".view", period)
 }

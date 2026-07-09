@@ -11,7 +11,7 @@ import (
 
 templ View(period dto.PeriodView) {
 	@layouts.Base("SEEK: period") {
-		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/stream", period.ID)) }>
+		<main id="main" data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/stream", period.ID)) }>
 			<section>
 				@card.Card(card.Props{
 					ID: fmt.Sprintf("period-%s-card", period.ID),

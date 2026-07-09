@@ -7,6 +7,33 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
+// sends a non-blocking signal
+// if there is already a signal pending, drop remaining signals
+type DedupeNotifier struct {
+	ch chan struct{}
+}
+
+// creates a notifier with a 1-capacity buffer
+func NewDedupeNotifier() *DedupeNotifier {
+	return &DedupeNotifier{
+		ch: make(chan struct{}, 1),
+	}
+}
+
+// notify sends a signal to the buffer without blocking
+func (n *DedupeNotifier) Notify() {
+	select {
+	case n.ch <- struct{}{}:
+	default:
+	}
+}
+
+// returns the recieve-only channel
+// use `<-notifier.Signal()` to be notified of updates
+func (n *DedupeNotifier) Signal() <-chan struct{} {
+	return n.ch
+}
+
 func writeSSE(w http.ResponseWriter, r *http.Request, fn func(*datastar.ServerSentEventGenerator) error) {
 	_ = fn(newSSE(w, r))
 }

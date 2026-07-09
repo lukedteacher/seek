@@ -1,5 +1,5 @@
 -- name: GetPeriod :one
-SELECT id, title, start_time, duration, days
+SELECT id, title, start_time, duration, days, created_at, updated_at, deleted_at
 FROM periods
 WHERE deleted_at IS NULL
 	AND id = @id;

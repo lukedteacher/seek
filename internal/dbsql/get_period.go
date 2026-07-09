@@ -8,11 +8,14 @@ import (
 )
 
 type GetPeriodRes struct {
-	Id        string `json:"id"`
-	Title     string `json:"title"`
-	StartTime string `json:"start_time"`
-	Duration  int64  `json:"duration"`
-	Days      int64  `json:"days"`
+	Id        string  `json:"id"`
+	Title     string  `json:"title"`
+	StartTime string  `json:"start_time"`
+	Duration  int64   `json:"duration"`
+	Days      int64   `json:"days"`
+	CreatedAt string  `json:"created_at"`
+	UpdatedAt string  `json:"updated_at"`
+	DeletedAt *string `json:"deleted_at"`
 }
 
 type GetPeriodStmt struct {
@@ -24,7 +27,7 @@ type GetPeriodStmt struct {
 
 func GetPeriod(tx *sqlite.Conn) *GetPeriodStmt {
 	const querySQL = `
-SELECT id, title, start_time, duration, days
+SELECT id, title, start_time, duration, days, created_at, updated_at, deleted_at
 FROM periods
 WHERE deleted_at IS NULL
 	AND id = ?1
@@ -79,6 +82,13 @@ func (ps *GetPeriodStmt) Run(
 		row.StartTime = stmt.ColumnText(2)
 		row.Duration = stmt.ColumnInt64(3)
 		row.Days = stmt.ColumnInt64(4)
+		row.CreatedAt = stmt.ColumnText(5)
+		row.UpdatedAt = stmt.ColumnText(6)
+		isNullDeletedAt := stmt.ColumnIsNull(7)
+		if !isNullDeletedAt {
+			tmp := stmt.ColumnText(7)
+			row.DeletedAt = &tmp
+		}
 		res = &row
 	}
 

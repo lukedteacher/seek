@@ -29,17 +29,22 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.Period, error) 
 	}); err != nil {
 		return nil, err
 	}
-
 	if row == nil {
 		return nil, fmt.Errorf("period not found")
 	}
-
+	deletedAt := ""
+	if row.DeletedAt != nil {
+		deletedAt = *row.DeletedAt
+	}
 	period := &models.Period{
 		ID:        row.Id,
 		Title:     row.Title,
 		StartTime: row.StartTime,
 		Duration:  row.Duration,
 		Days:      row.Days,
+		CreatedAt: row.CreatedAt,
+		UpdatedAt: row.UpdatedAt,
+		DeletedAt: deletedAt,
 	}
 
 	return period, nil

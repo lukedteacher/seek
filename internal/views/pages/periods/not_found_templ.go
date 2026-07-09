@@ -45,7 +45,7 @@ func NotFound() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><section><h3>not found</h3><p>that period doesn't seem to exist. are you sure you're in the right place?</p></section></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main id=\"main\"><section><h3>not found</h3><p>that period doesn't seem to exist. are you sure you're in the right place?</p></section></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
