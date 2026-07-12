@@ -99,7 +99,7 @@ func PeriodReadModelEventHandlerQuery() eventstore.Query {
 func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	periodID, _ := scope["id"].(string)
+	periodID, _ := scope[PeriodIDField].(string)
 	if periodID == "" {
 		return fmt.Errorf("no id provided for read model event")
 	}
@@ -108,11 +108,11 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 	case PeriodCreated:
 		periodCreated := PeriodCreatedProjection{
 			Id:        periodID,
-			Title:     data["title"].(string),
-			StartTime: data["startTime"].(string),
-			Duration:  int64(data["duration"].(float64)),
-			Days:      int64(data["days"].(float64)),
-			CreatedAt: parseTime(data["createdAt"]),
+			Title:     data[PeriodTitleField].(string),
+			StartTime: data[PeriodStartTimeField].(string),
+			Duration:  int64(data[PeriodDurationField].(float64)),
+			Days:      int64(data[PeriodDaysField].(float64)),
+			CreatedAt: parseTime(data[PeriodCreatedAtField]),
 		}
 		if err := h.readModel.InsertCreatedPeriod(ctx, periodCreated); err != nil {
 			return err
@@ -120,11 +120,11 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 	case PeriodUpdated:
 		periodUpdated := PeriodUpdatedProjection{
 			Id:        periodID,
-			Title:     data["title"].(string),
-			StartTime: data["startTime"].(string),
-			Duration:  int64(data["duration"].(float64)),
-			Days:      int64(data["days"].(float64)),
-			UpdatedAt: parseTime(data["updatedAt"]),
+			Title:     data[PeriodTitleField].(string),
+			StartTime: data[PeriodStartTimeField].(string),
+			Duration:  int64(data[PeriodDurationField].(float64)),
+			Days:      int64(data[PeriodDaysField].(float64)),
+			UpdatedAt: parseTime(data[PeriodUpdatedAtField]),
 		}
 		if err := h.readModel.UpdatePeriod(ctx, periodUpdated); err != nil {
 			return err
@@ -133,7 +133,7 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 		periodDeleted := PeriodDeletedProjection{
 			Position:  resolved.Position,
 			Id:        periodID,
-			DeletedAt: parseTime(data["deletedAt"]),
+			DeletedAt: parseTime(data[PeriodDeletedAtField]),
 		}
 		if err := h.readModel.DeletePeriod(ctx, periodDeleted); err != nil {
 			return err

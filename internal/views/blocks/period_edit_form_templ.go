@@ -21,18 +21,20 @@ import (
 )
 
 type PeriodEditFormView struct {
-	Period     dto.PeriodView
-	Validation map[string]period.Validation
+	Period      dto.PeriodView
+	Validation  map[string]period.Validation
+	StudentList []StudentMultiselectView
 }
 
-func NewPeriodEditFormView(p *models.Period) PeriodEditFormView {
+func NewPeriodEditFormView(p *models.Period, s []models.Student) PeriodEditFormView {
 	if p == nil {
 		return PeriodEditFormView{}
 	}
 
 	return PeriodEditFormView{
-		Period:     dto.NewViewFromPeriod(p),
-		Validation: period.Validate(p),
+		Period:      dto.NewViewFromPeriod(p),
+		StudentList: NewViewFromStudents(s),
+		Validation:  period.Validate(p),
 	}
 }
 
@@ -64,7 +66,7 @@ func EditPeriodForm(view PeriodEditFormView) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/%s/edit", view.Period.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 32, Col: 98}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 34, Col: 98}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -193,7 +195,7 @@ func EditPeriodForm(view PeriodEditFormView) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(view.Period.Duration)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 92, Col: 108}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 94, Col: 108}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 		if templ_7745c5c3_Err != nil {
@@ -207,6 +209,10 @@ func EditPeriodForm(view PeriodEditFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = StudentMultiselect(view.StudentList).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</section><footer><button type=\"button\" data-on:click=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -214,7 +220,7 @@ func EditPeriodForm(view PeriodEditFormView) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/%s/delete", view.Period.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 98, Col: 74}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_edit_form.templ`, Line: 101, Col: 74}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {

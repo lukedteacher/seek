@@ -15,15 +15,17 @@ import (
 type PeriodEditFormView struct {
 	Period dto.PeriodView
 	Validation map[string]period.Validation
+	StudentList []StudentMultiselectView
 }
 
-func NewPeriodEditFormView(p *models.Period) PeriodEditFormView {
+func NewPeriodEditFormView(p *models.Period, s []models.Student) PeriodEditFormView {
 	if p == nil {
 		return PeriodEditFormView{}
 	}
 
 	return PeriodEditFormView{
 		Period: dto.NewViewFromPeriod(p),
+		StudentList : NewViewFromStudents(s),
 		Validation: period.Validate(p),
 	}
 }
@@ -91,6 +93,7 @@ templ EditPeriodForm(view PeriodEditFormView) {
 			<label for="duration">duration</label>
 			<input id="duration" name="duration" data-bind:period.duration type="number" value={ view.Period.Duration } />
 			@day_buttons.DayButtons(view.Period.Days)
+			@StudentMultiselect(view.StudentList)
 		</section>
 		<footer>
 			<button 

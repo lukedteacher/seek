@@ -18,20 +18,26 @@ type CreatePeriodCommand struct {
 }
 
 type CreatePeriodResult struct {
-	Id string
+	PeriodID string
 }
 
 func CreatePeriodCommandHandler(ctx context.Context, command CreatePeriodCommand, saver eventstore.Saver) (CreatePeriodResult, error) {
-	model, err := newCreatePeriodContext(command)
+	context, err := newCreatePeriodContext(command)
 	if err != nil {
 		return CreatePeriodResult{}, err
 	}
-
-	event := NewPeriodCreatedEvent(model.id, model.title, model.startTime, model.duration, model.days, time.Now(), metadataWithQuery(command.Metadata, model.query))
-	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, model.query); err != nil {
+	event := NewPeriodCreatedEvent(
+		context.id,
+		context.title,
+		context.startTime,
+		context.duration,
+		context.days,
+		time.Now(),
+		metadataWithQuery(command.Metadata, context.query))
+	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, context.query); err != nil {
 		return CreatePeriodResult{}, err
 	}
-	return CreatePeriodResult{Id: model.id}, nil
+	return CreatePeriodResult{PeriodID: context.id}, nil
 }
 
 type createPeriodContext struct {
@@ -44,13 +50,13 @@ type createPeriodContext struct {
 }
 
 func newCreatePeriodContext(command CreatePeriodCommand) (*createPeriodContext, error) {
-	id := uuidv7.NewString()
+	periodID := uuidv7.NewString()
 	return &createPeriodContext{
-		id:        id,
+		id:        periodID,
 		title:     command.Title,
 		startTime: command.StartTime,
 		duration:  command.Duration,
 		days:      command.Days,
-		query:     streamQuery(id),
+		query:     streamQuery(periodID),
 	}, nil
 }

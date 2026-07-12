@@ -56,17 +56,18 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 	}); err != nil {
 		return nil, err
 	}
-	students := make([]models.Student, 0, len(rows))
-	for _, row := range rows {
-		students = append(students, models.Student{
-			Id:          row.Id,
-			FirstName:   row.FirstName,
-			ChosenName:  row.ChosenName,
-			LastName:    row.LastName,
-			Grade:       row.Grade,
-			Homeroom:    row.Homeroom,
-			CaseManager: row.CaseManager,
-		})
+	
+	students := make([]models.Student, len(rows))
+	for i := range rows {
+		students[i] = models.Student{
+			Id:          rows[i].Id,
+			FirstName:   rows[i].FirstName,
+			ChosenName:  rows[i].ChosenName,
+			LastName:    rows[i].LastName,
+			Grade:       rows[i].Grade,
+			Homeroom:    rows[i].Homeroom,
+			CaseManager: rows[i].CaseManager,
+		}
 	}
 	return students, nil
 }

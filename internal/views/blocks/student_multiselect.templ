@@ -1,0 +1,46 @@
+package blocks
+
+import (
+	"fmt"
+
+  "seek/internal/views/components/selectbox"
+	"seek/internal/domain/models"
+)
+
+type StudentMultiselectView struct {
+	StudentID string
+	DisplayName string
+	Selected bool
+}
+
+func NewViewFromStudents(s []models.Student) []StudentMultiselectView {
+	view := make([]StudentMultiselectView, len(s))
+	for i := range s {
+		view[i] = StudentMultiselectView{
+			StudentID:   s[i].Id,
+			DisplayName: s[i].DisplayName(),
+			Selected:    false,
+		}
+	}
+	return view
+}
+
+templ StudentMultiselect(s []StudentMultiselectView) {
+	@selectbox.Select(selectbox.Props{
+		ID: "student-multiselect",
+		Multiple: true,
+		DataBind: "period.student_ids",
+	}) {
+		for i := range s {
+			<option 
+			id={ fmt.Sprintf( "option-%d", i ) }
+			value={ s[i].StudentID }
+			if s[i].Selected {
+				selected
+			}
+			>
+				{ s[i].DisplayName }
+			</option>
+		}
+	}
+}

@@ -9,9 +9,11 @@ import (
 )
 
 var (
-	ErrNotFound     = errors.New("not found")
-	ErrConflict     = errors.New("event position conflict")
-	ErrInvalidEvent = errors.New("invalid event")
+	ErrNotFound        = errors.New("not found")
+	ErrPeriodNotFound  = errors.New("period not found")
+	ErrStudentNotFound = errors.New("student not found")
+	ErrConflict        = errors.New("event position conflict")
+	ErrInvalidEvent    = errors.New("invalid event")
 )
 
 type Position struct {

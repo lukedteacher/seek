@@ -20,18 +20,20 @@ import (
 )
 
 type PeriodCreateFormView struct {
-	Period     dto.PeriodView
-	Validation map[string]period.Validation
+	Period      dto.PeriodView
+	StudentList []StudentMultiselectView
+	Validation  map[string]period.Validation
 }
 
-func NewPeriodCreateFormView(p *models.Period) PeriodCreateFormView {
+func NewPeriodCreateFormView(p *models.Period, s []models.Student) PeriodCreateFormView {
 	if p == nil {
 		return PeriodCreateFormView{}
 	}
 
 	return PeriodCreateFormView{
-		Period:     dto.NewViewFromPeriod(p),
-		Validation: period.Validate(p),
+		Period:      dto.NewViewFromPeriod(p),
+		StudentList: NewViewFromStudents(s),
+		Validation:  period.Validate(p),
 	}
 }
 
@@ -63,7 +65,7 @@ func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/create"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_create_form.templ`, Line: 31, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_create_form.templ`, Line: 33, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -193,6 +195,10 @@ func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = day_buttons.DayButtons(models.DaysSignals{}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = StudentMultiselect(view.StudentList).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

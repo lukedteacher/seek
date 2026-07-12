@@ -13,50 +13,54 @@ const (
 )
 
 const (
-	StudentIDField               = "studentID"
-	StudentUserRegisteredIDField = "userRegisteredId"
-	StudentFirstNameField        = "firstName"
-	StudentCreatedAtField        = "createdAt"
-	StudentUpdatedIDField        = "studentUpdatedId"
-	StudentUpdatedAtField        = "updatedAt"
-	StudentDeletedIDField        = "studentDeletedId"
-	StudentDeletedAtField        = "deletedAt"
-	StudentScopeIDField          = "scope.id"
+	StudentIDField          = "student_id"
+	StudentFirstNameField   = "first_name"
+	StudentChosenNameField  = "chosen_name"
+	StudentLastNameField    = "last_name"
+	StudentGradeField       = "grade"
+	StudentHomeroomField    = "homeroom"
+	StudentCaseManagerField = "case_manager"
+	StudentCreatedIDField   = "student_created_id"
+	StudentCreatedAtField   = "created_at"
+	StudentUpdatedIDField   = "student_updated_id"
+	StudentUpdatedAtField   = "updated_at"
+	StudentDeletedIDField   = "student_deleted_id"
+	StudentDeletedAtField   = "deleted_at"
+	StudentScopeIDField     = "scope.student_id"
 )
 
 type StudentCreatedEvent struct {
-	ID          string       `json:"id"`
-	FirstName   string       `json:"firstName"`
-	ChosenName  string       `json:"chosenName"`
-	LastName    string       `json:"lastName"`
-	Grade       int64        `json:"grade"`
-	Homeroom    string       `json:"homeroom"`
-	CaseManager string       `json:"caseManager"`
-	CreatedAt   string       `json:"createdAt"`
-	Scope       StudentScope `json:"scope"`
+	StudentCreatedEventID string       `json:"student_created_id"`
+	FirstName             string       `json:"first_name"`
+	ChosenName            string       `json:"chosen_name"`
+	LastName              string       `json:"last_name"`
+	Grade                 int64        `json:"grade"`
+	Homeroom              string       `json:"homeroom"`
+	CaseManager           string       `json:"case_manager"`
+	CreatedAt             string       `json:"created_at"`
+	Scope                 StudentScope `json:"scope"`
 }
 
 type StudentUpdatedEvent struct {
-	StudentUpdatedID string       `json:"studentUpdatedId"`
-	FirstName        string       `json:"firstName"`
-	ChosenName       string       `json:"chosenName"`
-	LastName         string       `json:"lastName"`
-	Grade            int64        `json:"grade"`
-	Homeroom         string       `json:"homeroom"`
-	CaseManager      string       `json:"caseManager"`
-	UpdatedAt        string       `json:"updatedAt"`
-	Scope            StudentScope `json:"scope"`
+	StudentUpdatedEventID string       `json:"student_updated_id"`
+	FirstName             string       `json:"first_name"`
+	ChosenName            string       `json:"chosen_name"`
+	LastName              string       `json:"last_name"`
+	Grade                 int64        `json:"grade"`
+	Homeroom              string       `json:"homeroom"`
+	CaseManager           string       `json:"case_manager"`
+	UpdatedAt             string       `json:"updated_at"`
+	Scope                 StudentScope `json:"scope"`
 }
 
 type StudentDeletedEvent struct {
-	StudentDeletedID string       `json:"studentDeletedId"`
-	DeletedAt        string       `json:"deletedAt"`
-	Scope            StudentScope `json:"scope"`
+	StudentDeletedEventID string       `json:"student_deleted_id"`
+	DeletedAt             string       `json:"deleted_at"`
+	Scope                 StudentScope `json:"scope"`
 }
 
 type StudentScope struct {
-	ID               string `json:"id"`
-	UserRegisteredID string `json:"userRegisteredId"`
+	ID string `json:"student_id"`
 }
 
 func NewStudentCreatedEvent(id, firstName, chosenName, lastName string, grade int64, homeroom, caseManager string, createdAt time.Time, metadata map[string]any) eventstore.DomainEvent {
@@ -64,15 +68,15 @@ func NewStudentCreatedEvent(id, firstName, chosenName, lastName string, grade in
 		EventID:   id,
 		EventType: StudentCreated,
 		Data: eventstore.MustData(StudentCreatedEvent{
-			ID:          id,
-			FirstName:   firstName,
-			ChosenName:  chosenName,
-			LastName:    lastName,
-			Grade:       grade,
-			Homeroom:    homeroom,
-			CaseManager: caseManager,
-			CreatedAt:   createdAt.Format(time.RFC3339),
-			Scope:       studentScope(id),
+			StudentCreatedEventID: id,
+			FirstName:             firstName,
+			ChosenName:            chosenName,
+			LastName:              lastName,
+			Grade:                 grade,
+			Homeroom:              homeroom,
+			CaseManager:           caseManager,
+			CreatedAt:             createdAt.Format(time.RFC3339),
+			Scope:                 studentScope(id),
 		}),
 		Metadata: metadata,
 	}
@@ -83,15 +87,15 @@ func NewStudentUpdatedEvent(eventId, id, firstName, chosenName, lastName string,
 		EventID:   eventId,
 		EventType: StudentUpdated,
 		Data: eventstore.MustData(StudentUpdatedEvent{
-			StudentUpdatedID: id,
-			FirstName:        firstName,
-			ChosenName:       chosenName,
-			LastName:         lastName,
-			Grade:            grade,
-			Homeroom:         homeroom,
-			CaseManager:      caseManager,
-			UpdatedAt:        updatedAt.Format(time.RFC3339),
-			Scope:            studentScope(id),
+			StudentUpdatedEventID: id,
+			FirstName:             firstName,
+			ChosenName:            chosenName,
+			LastName:              lastName,
+			Grade:                 grade,
+			Homeroom:              homeroom,
+			CaseManager:           caseManager,
+			UpdatedAt:             updatedAt.Format(time.RFC3339),
+			Scope:                 studentScope(id),
 		}),
 		Metadata: metadata,
 	}
@@ -102,9 +106,9 @@ func NewStudentDeletedEvent(studentDeletedID, id string, deletedAt time.Time, me
 		EventID:   studentDeletedID,
 		EventType: StudentDeleted,
 		Data: eventstore.MustData(StudentDeletedEvent{
-			StudentDeletedID: studentDeletedID,
-			DeletedAt:        deletedAt.Format(time.RFC3339),
-			Scope:            studentScope(id),
+			StudentDeletedEventID: studentDeletedID,
+			DeletedAt:             deletedAt.Format(time.RFC3339),
+			Scope:                 studentScope(id),
 		}),
 		Metadata: metadata,
 	}
@@ -114,6 +118,6 @@ func studentScope(id string) StudentScope {
 	return StudentScope{ID: id}
 }
 
-func Channel(userRegisteredID string) string {
-	return "student." + userRegisteredID
+func Channel(id string) string {
+	return "student." + id
 }

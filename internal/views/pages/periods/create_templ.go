@@ -9,27 +9,12 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
 	"seek/internal/views"
 	"seek/internal/views/blocks"
 	"seek/internal/views/layouts"
 )
 
-type PeriodCreateView struct {
-	formView blocks.PeriodCreateFormView
-}
-
-func NewPeriodCreateView(p *models.Period) PeriodCreateView {
-	if p == nil {
-		return PeriodCreateView{}
-	}
-
-	return PeriodCreateView{
-		formView: blocks.NewPeriodCreateFormView(p),
-	}
-}
-
-func Create(cpv PeriodCreateView) templ.Component {
+func Create(view blocks.PeriodCreateFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -69,7 +54,7 @@ func Create(cpv PeriodCreateView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/periods/create/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/pages/periods/create.templ`, Line: 26, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/pages/periods/create.templ`, Line: 11, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -79,7 +64,7 @@ func Create(cpv PeriodCreateView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.CreatePeriodForm(cpv.formView).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.CreatePeriodForm(view).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

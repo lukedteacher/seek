@@ -7,6 +7,7 @@ import (
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
 	"seek/internal/features/student"
+	"seek/internal/views/dto"
 	"seek/internal/views/pages"
 	"seek/internal/viewstore"
 
@@ -94,76 +95,62 @@ func (s Server) createStudentForm(w http.ResponseWriter, r *http.Request) {
 
 // POST request to /students/create/validate
 func (s Server) validateCreateStudent(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
-	type Signals struct {
-		FirstName   string `json:"first_name"`
-		ChosenName  string `json:"chosen_name"`
-		LastName    string `json:"last_name"`
-		Grade       string `json:"grade"`
-		Homeroom    string `json:"homeroom"`
-		CaseManager string `json:"case_manager"`
-	}
-	signals := &Signals{}
+	ctx := r.Context()
+	signals := &struct {
+		Student dto.StudentView `json:"student"`
+	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		println(err.Error())
 		return
 	}
 
-	selectedGrade := signals.Grade
+	selectedGrade := signals.Student.Grade
 
 	var grade int64
-	if signals.Grade == "select a grade" {
+	if signals.Student.Grade == "select a grade" {
 		grade = -1
 	} else {
-		grade, _ = strconv.ParseInt(signals.Grade, 10, 64)
+		grade, _ = strconv.ParseInt(signals.Student.Grade, 10, 64)
 	}
 
 	studentToValidate := models.Student{
-		FirstName:   signals.FirstName,
-		ChosenName:  &signals.ChosenName,
-		LastName:    signals.LastName,
+		FirstName:   signals.Student.FirstName,
+		ChosenName:  &signals.Student.ChosenName,
+		LastName:    signals.Student.LastName,
 		Grade:       grade,
-		Homeroom:    signals.Homeroom,
-		CaseManager: &signals.CaseManager,
+		Homeroom:    signals.Student.Homeroom,
+		CaseManager: &signals.Student.CaseManager,
 	}
 
 	validation := student.Validate(&studentToValidate)
-	_ = pages.CreateStudent(studentToValidate, validation, selectedGrade).Render(context, w)
+	_ = pages.CreateStudent(studentToValidate, validation, selectedGrade).Render(ctx, w)
 }
 
 // POST request to /student/create
 func (s Server) createStudent(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
-	type Signals struct {
-		FirstName   string `json:"first_name"`
-		ChosenName  string `json:"chosen_name"`
-		LastName    string `json:"last_name"`
-		Grade       string `json:"grade"`
-		Homeroom    string `json:"homeroom"`
-		CaseManager string `json:"case_manager"`
-	}
-	signals := &Signals{}
+	ctx := r.Context()
+	signals := &struct {
+		Student dto.StudentView `json:"student"`
+	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		println(err.Error())
 		return
 	}
 
 	var grade int64
-	if signals.Grade == "select a grade" {
+	if signals.Student.Grade == "select a grade" {
 		grade = -1
 	} else {
-		grade, _ = strconv.ParseInt(signals.Grade, 10, 64)
+		grade, _ = strconv.ParseInt(signals.Student.Grade, 10, 64)
 	}
 
-	_, err := student.CreateStudentCommandHandler(context, student.CreateStudentCommand{
-		FirstName:   signals.FirstName,
-		ChosenName:  signals.ChosenName,
-		LastName:    signals.LastName,
+	_, err := student.CreateStudentCommandHandler(ctx, student.CreateStudentCommand{
+		FirstName:   signals.Student.FirstName,
+		ChosenName:  signals.Student.ChosenName,
+		LastName:    signals.Student.LastName,
 		Grade:       grade,
-		Homeroom:    signals.Homeroom,
-		CaseManager: signals.CaseManager,
+		Homeroom:    signals.Student.Homeroom,
+		CaseManager: signals.Student.CaseManager,
 		Metadata:    eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver)
 	if err != nil {
@@ -172,10 +159,6 @@ func (s Server) createStudent(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
-	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-		return clearSignals(&Signals{}, sse)
-	})
 }
 
 // GET request to /students/{id}/edit

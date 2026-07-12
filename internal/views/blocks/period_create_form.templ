@@ -13,16 +13,18 @@ import (
 
 type PeriodCreateFormView struct {
 	Period dto.PeriodView
+	StudentList []StudentMultiselectView
 	Validation map[string]period.Validation
 }
 
-func NewPeriodCreateFormView(p *models.Period) PeriodCreateFormView {
+func NewPeriodCreateFormView(p *models.Period, s []models.Student) PeriodCreateFormView {
 	if p == nil {
 		return PeriodCreateFormView{}
 	}
 
 	return PeriodCreateFormView{
 		Period: dto.NewViewFromPeriod(p),
+		StudentList : NewViewFromStudents(s),
 		Validation: period.Validate(p),
 	}
 }
@@ -90,6 +92,7 @@ templ CreatePeriodForm(view PeriodCreateFormView) {
 			<input id="duration" name="duration" data-bind:period.duration type="number" />
 			@DurationSlider(30)
 			@day_buttons.DayButtons(models.DaysSignals{})
+			@StudentMultiselect(view.StudentList)
 		</section>
 		<footer>
 			<button 

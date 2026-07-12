@@ -8,6 +8,7 @@ import (
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
 	"seek/internal/features/period"
+	psevents "seek/internal/features/periods_students/events"
 	"seek/internal/views/blocks"
 	"seek/internal/views/dto"
 	pages "seek/internal/views/pages/periods"
@@ -52,13 +53,19 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 // GET request to /periods/create
 // TODO figure out if there's a way to have this use the same form as edit?
 func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	empty := &models.Period{}
-	view := pages.NewPeriodCreateView(empty)
+	students, err := s.Students.List(ctx)
+	if err != nil {
+		println(err.Error())
+	}
+	view := blocks.NewPeriodCreateFormView(empty, students)
 	_ = pages.Create(view).Render(r.Context(), w)
 }
 
 // POST request to /periods/create/validate
 func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	signals := &struct {
 		Period dto.PeriodView `json:"period"`
 	}{}
@@ -67,12 +74,17 @@ func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	model := dto.NewPeriodFromView(&signals.Period)
-	formView := blocks.NewPeriodCreateFormView(&model)
+	students, err := s.Students.List(ctx)
+	if err != nil {
+		println(err.Error())
+	}
+	formView := blocks.NewPeriodCreateFormView(&model, students)
 	patchTempl(w, r, blocks.CreatePeriodForm(formView))
 }
 
 // POST request to /periods/create
 func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	signals := &struct {
 		Period dto.PeriodView `json:"period"`
 	}{}
@@ -94,14 +106,28 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 		Days:      model.Days,
 		Metadata:  eventstore.HTTPCommandMetadata(r),
 	}
-	_, err := period.CreatePeriodCommandHandler(r.Context(), createPeriodCommand, s.EventSaver)
+	result, err := period.CreatePeriodCommandHandler(r.Context(), createPeriodCommand, s.EventSaver)
 	if err != nil {
-		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-			return flashError(sse, err.Error())
-		})
+		println("ph cpch error: ", err.Error())
 		return
 	}
-
+	
+	for _, studentID := range signals.Period.StudentIDs {
+		periodStudentAddCommand := psevents.PeriodStudentAddCommand{
+			PeriodID:  result.PeriodID,
+			StudentID: studentID,
+			Metadata:  eventstore.HTTPCommandMetadata(r),
+		}
+		_, err := psevents.PeriodStudentAddCommandHandler(
+			ctx,
+			periodStudentAddCommand,
+			s.EventSaver,
+			s.EventRetriever,
+		)
+		if err != nil {
+			println(err.Error())
+		}
+	}
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
 		return clearSignals(&dto.PeriodView{}, sse)
 	})
@@ -141,17 +167,16 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 	}
 	defer sub.Close()
 
-
 	if err := s.refreshPeriodViewState(ctx, periodID); err != nil {
 		println("pvs first refresh: ", err.Error())
 		return
 	}
-	
+
 	// watches the key value stream for ephemeral changes
 	// lasts 5m
 	watcher, err := s.ViewStore.Watch(
 		ctx,
-		periodID + ".view",
+		periodID+".view",
 		viewstore.WatchOptions{
 			IgnoreDeletes: true,
 		},
@@ -197,8 +222,12 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}	
-	view := blocks.NewPeriodEditFormView(model)
+	}
+	students, err := s.Students.List(ctx)
+	if err != nil {
+		println(err.Error())
+	}
+	view := blocks.NewPeriodEditFormView(model, students)
 	_ = pages.Edit(view).Render(ctx, w)
 }
 
@@ -222,7 +251,7 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 	// watches the period edit view state kv
 	watcher, err := s.ViewStore.Watch(
 		ctx,
-		periodID + ".edit",
+		periodID+".edit",
 		viewstore.WatchOptions{
 			IgnoreDeletes: true,
 		},
@@ -254,7 +283,11 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 				println(err.Error())
 				return
 			}
-			view := blocks.NewPeriodEditFormView(&model)
+			students, err := s.Students.List(ctx)
+			if err != nil {
+				println(err.Error())
+			}
+			view := blocks.NewPeriodEditFormView(&model, students)
 			sse.PatchElementTempl(pages.Edit(view))
 		}
 	}
@@ -305,6 +338,24 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		println("update skipped")
 		return
 	}
+	for _, studentID := range signals.Period.StudentIDs {
+		println("sid: ", studentID)
+		println("pid: ", periodID)
+		periodStudentAddCommand := psevents.PeriodStudentAddCommand{
+			PeriodID:  periodID,
+			StudentID: studentID,
+			Metadata:  eventstore.HTTPCommandMetadata(r),
+		}
+		_, err := psevents.PeriodStudentAddCommandHandler(
+			ctx,
+			periodStudentAddCommand,
+			s.EventSaver,
+			s.EventRetriever,
+		)
+		if err != nil {
+			println(err.Error())
+		}
+	}
 }
 
 // DELETE request to /periods/{id}
@@ -330,7 +381,7 @@ func (s Server) refreshPeriodViewState(ctx context.Context, periodID string) err
 	if period.DeletedAt != "" {
 		println("this period was deleted")
 	}
-	return viewstore.PutState(ctx, s.ViewStore, period.ID + ".view", period)
+	return viewstore.PutState(ctx, s.ViewStore, period.ID+".view", period)
 }
 
 func (s Server) refreshPeriodEditState(ctx context.Context, periodID string) error {
@@ -338,7 +389,7 @@ func (s Server) refreshPeriodEditState(ctx context.Context, periodID string) err
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, s.ViewStore, period.ID + ".edit", period)
+	return viewstore.PutState(ctx, s.ViewStore, period.ID+".edit", period)
 }
 
 func (s *Server) periodToSignals(period *models.Period) models.PeriodSignals {
