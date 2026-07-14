@@ -1,0 +1,19 @@
+package pages
+
+import (
+	"fmt"
+	
+	"seek/internal/features/periods/blocks"
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+)
+
+templ Edit(view blocks.PeriodEditFormView) {
+	@layouts.Base("SEEK: edit period") {
+		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/edit/stream", view.Period.ID)) }>
+			<section>
+				@blocks.EditPeriodForm(view)
+			</section>
+		</main>
+	}
+}

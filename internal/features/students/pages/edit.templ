@@ -1,0 +1,19 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/features/students/blocks"
+	"seek/internal/features/students/events"
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+)
+
+templ Edit(student models.Student, validation map[string]events.Validation, selectedGrade string) {
+	@layouts.Base("SEEK: edit student") {
+		<main data-init={ views.LongRunningGetSSE("/students/edit/stream") }>
+			<section>
+				@blocks.EditStudentForm(student, validation, selectedGrade)
+			</section>
+		</main>
+	}
+}

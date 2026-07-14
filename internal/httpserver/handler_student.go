@@ -6,9 +6,9 @@ import (
 
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
-	"seek/internal/features/student"
+	"seek/internal/features/students/events"
+	"seek/internal/features/students/pages"
 	"seek/internal/views/dto"
-	"seek/internal/views/pages"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -36,7 +36,7 @@ func (s Server) studentInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = pages.Student(student).Render(r.Context(), w)
+	_ = pages.View(student).Render(r.Context(), w)
 }
 
 func (s Server) students(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +51,7 @@ func (s Server) students(w http.ResponseWriter, r *http.Request) {
 	}
 	datastar.ReadSignals(r, signals)
 
-	_ = pages.Students(signals.View, students).Render(r.Context(), w)
+	_ = pages.List(signals.View, students).Render(r.Context(), w)
 }
 
 func (s Server) studentsStream(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +78,7 @@ func (s Server) studentsStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			page := pages.Students(0, students)
+			page := pages.List(0, students)
 			if err := sse.PatchElementTempl(page); err != nil {
 				return
 			}
@@ -89,8 +89,8 @@ func (s Server) studentsStream(w http.ResponseWriter, r *http.Request) {
 // GET request to /students/create
 func (s Server) createStudentForm(w http.ResponseWriter, r *http.Request) {
 	emptyStudent := models.Student{}
-	validation := student.Validate(nil)
-	_ = pages.CreateStudent(emptyStudent, validation, "").Render(r.Context(), w)
+	validation := events.Validate(nil)
+	_ = pages.Create(emptyStudent, validation, "").Render(r.Context(), w)
 }
 
 // POST request to /students/create/validate
@@ -122,8 +122,8 @@ func (s Server) validateCreateStudent(w http.ResponseWriter, r *http.Request) {
 		CaseManager: &signals.Student.CaseManager,
 	}
 
-	validation := student.Validate(&studentToValidate)
-	_ = pages.CreateStudent(studentToValidate, validation, selectedGrade).Render(ctx, w)
+	validation := events.Validate(&studentToValidate)
+	_ = pages.Create(studentToValidate, validation, selectedGrade).Render(ctx, w)
 }
 
 // POST request to /student/create
@@ -144,7 +144,7 @@ func (s Server) createStudent(w http.ResponseWriter, r *http.Request) {
 		grade, _ = strconv.ParseInt(signals.Student.Grade, 10, 64)
 	}
 
-	_, err := student.CreateStudentCommandHandler(ctx, student.CreateStudentCommand{
+	_, err := events.CreateStudentCommandHandler(ctx, events.CreateStudentCommand{
 		FirstName:   signals.Student.FirstName,
 		ChosenName:  signals.Student.ChosenName,
 		LastName:    signals.Student.LastName,
@@ -207,8 +207,8 @@ func (s Server) editStudentForm(w http.ResponseWriter, r *http.Request) {
 		CaseManager: &signals.Student.CaseManager,
 	}
 
-	validation := student.Validate(&model)
-	_ = pages.EditStudent(*studentRes, validation, selectedGrade).Render(context, w)
+	validation := events.Validate(&model)
+	_ = pages.Edit(*studentRes, validation, selectedGrade).Render(context, w)
 }
 
 // POST request to /students/{id}/edit/validate
@@ -257,8 +257,8 @@ func (s Server) validateEditStudent(w http.ResponseWriter, r *http.Request) {
 		CaseManager: &signals.Student.CaseManager,
 	}
 
-	validation := student.Validate(&model)
-	_ = pages.EditStudent(*studentRes, validation, selectedGrade).Render(context, w)
+	validation := events.Validate(&model)
+	_ = pages.Edit(*studentRes, validation, selectedGrade).Render(context, w)
 }
 
 // POST request to /students/{id}/edit
@@ -278,7 +278,7 @@ func (s Server) editStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	studentID := chi.URLParam(r, "id")
-	result, err := student.UpdateStudentCommandHandler(context, student.UpdateStudentCommand{
+	result, err := events.UpdateStudentCommandHandler(context, events.UpdateStudentCommand{
 		Id:          studentID,
 		FirstName:   signals.Student.FirstName,
 		ChosenName:  signals.Student.ChosenName,
@@ -301,7 +301,7 @@ func (s Server) editStudent(w http.ResponseWriter, r *http.Request) {
 // POST request to /students/{id}/delete
 func (s Server) deleteStudent(w http.ResponseWriter, r *http.Request) {
 	studentID := chi.URLParam(r, "id")
-	_, err := student.DeleteStudentCommandHandler(r.Context(), student.DeleteStudentCommand{
+	_, err := events.DeleteStudentCommandHandler(r.Context(), events.DeleteStudentCommand{
 		StudentID: studentID,
 		Metadata:  eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)

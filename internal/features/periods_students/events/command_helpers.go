@@ -2,8 +2,8 @@ package events
 
 import (
 	"seek/internal/eventstore"
-	"seek/internal/features/period"
-	"seek/internal/features/student"
+	period "seek/internal/features/periods/events"
+	student "seek/internal/features/students/events"
 )
 
 type CommandMetadata = eventstore.CommandMetadata

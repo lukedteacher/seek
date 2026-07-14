@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"seek/internal/eventstore"
-	"seek/internal/features/period"
-	"seek/internal/features/student"
+	period "seek/internal/features/periods/events"
+	student "seek/internal/features/students/events"
 )
 
 const PeriodStudentReadModelEventHandlerName = "period_student_read_model_event_handler"

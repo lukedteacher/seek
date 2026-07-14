@@ -1,0 +1,19 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/features/students/events"
+	"seek/internal/views"
+	"seek/internal/features/students/blocks"
+	"seek/internal/views/layouts"
+)
+
+templ Create(student models.Student, validation map[string]events.Validation, selectedGrade string) {
+	@layouts.Base("SEEK: create student") {
+		<main data-init={ views.LongRunningGetSSE("/students/create/stream") }>
+			<section>
+				@blocks.CreateStudentForm(student, validation, selectedGrade)
+			</section>
+		</main>
+	}
+}

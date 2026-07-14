@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"seek/internal/eventstore"
-	"seek/internal/features/period"
+	period "seek/internal/features/periods/events"
 	pse "seek/internal/features/periods_students/events"
 	"seek/internal/features/schedule"
-	"seek/internal/features/student"
+	student "seek/internal/features/students/events"
 	"seek/internal/features/teacher"
 	"seek/internal/resources"
 	"seek/internal/viewstore"

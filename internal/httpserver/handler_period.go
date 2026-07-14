@@ -7,12 +7,11 @@ import (
 
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
-	"seek/internal/features/period"
-	pse "seek/internal/features/periods_students/events"
+	period "seek/internal/features/periods/events"
 	psevents "seek/internal/features/periods_students/events"
-	"seek/internal/views/blocks"
+	"seek/internal/features/periods/blocks"
 	"seek/internal/views/dto"
-	pages "seek/internal/views/pages/periods"
+	pages "seek/internal/features/periods/pages"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -410,7 +409,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		// find deletions
 		for _, studentID := range current {
 			if !proposedMap[studentID] {
-				result, err := pse.PeriodStudentRemoveCommandHandler(ctx, pse.PeriodStudentRemoveCommand{
+				result, err := psevents.PeriodStudentRemoveCommandHandler(ctx, psevents.PeriodStudentRemoveCommand{
 					PeriodID:  periodID,
 					StudentID: studentID,
 					Metadata:  eventstore.HTTPCommandMetadata(r),
@@ -427,7 +426,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		// find additions
 		for _, studentID := range proposed {
 			if !currentMap[studentID] {
-				result, err := pse.PeriodStudentAddCommandHandler(ctx, pse.PeriodStudentAddCommand{
+				result, err := psevents.PeriodStudentAddCommandHandler(ctx, psevents.PeriodStudentAddCommand{
 					PeriodID:  periodID,
 					StudentID: studentID,
 					Metadata:  eventstore.HTTPCommandMetadata(r),

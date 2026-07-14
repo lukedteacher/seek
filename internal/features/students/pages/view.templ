@@ -1,0 +1,35 @@
+package pages
+
+import (
+	"fmt"
+
+	"seek/internal/domain/models"
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+)
+
+templ View(student *models.Student) {
+	@layouts.Base("SEEK: students") {
+		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/students/%s/stream", student.Id)) }>
+			<section>
+				<h2>{ student.FirstLast() }</h2>
+				<p><strong>first: </strong>{ student.FirstName }</p>
+				if student.ChosenName != nil {
+					<p><strong>chosen: </strong>{ *student.ChosenName }</p>
+				}
+				<p><strong>last: </strong>{ student.LastName }</p>
+				<p><strong>grade: </strong>{ student.GradeOrdinal() }</p>
+				<p><strong>homeroom: </strong>{ student.Homeroom }</p>
+				if student.CaseManager != nil {
+					<p><strong>case manager: </strong>{ *student.CaseManager }</p>
+				}
+				<footer>
+					<a href={ fmt.Sprintf("/students/%s/edit", student.Id) }>
+						<button>edit</button>
+					</a>
+					<button data-on:click={ fmt.Sprintf("@delete('/students/%s')", student.Id) }>delete</button>
+				</footer>
+			</section>
+		</main>
+	}
+}

@@ -1,0 +1,17 @@
+package pages
+
+import (
+	"seek/internal/views"
+	"seek/internal/features/periods/blocks"
+	"seek/internal/views/layouts"
+)
+
+templ Create(view blocks.PeriodCreateFormView) {
+	@layouts.Base("SEEK: create period") {
+		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
+			<section>
+				@blocks.CreatePeriodForm(view)
+			</section>
+		</main>
+	}
+}
