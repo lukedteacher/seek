@@ -2,26 +2,21 @@ package period_card
 
 import (
 	"fmt"
-	"seek/internal/domain/models"
+	"seek/internal/views/dto"
 )
 
-type PeriodCardViewModel struct {
-	Period models.PeriodSignals
-	Columns []int
-}
-
-templ PeriodCards(vm PeriodCardViewModel) {
-	for i := range vm.Columns {
-		@PeriodCard(vm, vm.Columns[i])
+templ PeriodCards(views dto.PeriodView) {
+	for i := range views.Columns {
+		@PeriodCard(views, views.Columns[i])
 	}
 }
 
-templ PeriodCard(vm PeriodCardViewModel, column int) {
+templ PeriodCard(view dto.PeriodView, column int) {
 	<div 
 		class="period-card"
-		style={fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, "1", vm.Period.Duration)}
+		style={fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, view.Row, view.Duration)}
 	>
-		<h3>{ vm.Period.Title }</h3>
+		<h3>{ view.Title }</h3>
 	</div>
 	@PeriodCardStyles()
 }

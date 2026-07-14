@@ -15,15 +15,14 @@ const ScheduleReadModelEventHandlerName = "schedule_read_model_event_handler"
 type ScheduleReadModelReader interface {
 	Get(ctx context.Context, scheduleID string) (*models.Schedule, error)
 	List(ctx context.Context) ([]models.Schedule, error)
-	ListSchedulePeriodIDs(ctx context.Context, scheduleID string) ([]string, error)
-	UpdateSchedulePeriods(ctx context.Context, currentPeriodIDs, proposedPeriodIDs []string) error
+	ListPeriodIDsForSchedule(ctx context.Context, scheduleID string) ([]string, error)
 }
 
 type ScheduleReadModelWriter interface {
 	InsertCreatedSchedule(ctx context.Context, event ScheduleCreatedProjection) error
 	UpdateSchedule(ctx context.Context, event ScheduleUpdatedProjection) error
-	AddSchedulePeriod(ctx context.Context, event SchedulePeriodAddedProjection) error
-	RemoveSchedulePeriod(ctx context.Context, event SchedulePeriodRemovedProjection) error
+	AddPeriodToSchedule(ctx context.Context, event SchedulePeriodAddedProjection) error
+	RemovePeriodFromSchedule(ctx context.Context, event SchedulePeriodRemovedProjection) error
 	DeleteSchedule(ctx context.Context, event ScheduleDeletedProjection) error
 }
 
@@ -148,7 +147,7 @@ func (h *ScheduleReadModelEventHandler) handle(ctx context.Context, resolved eve
 	case SchedulePeriodAdded:
 		scheduleID, _ := data["scheduleID"].(string)
 		periodID, _ := data["periodID"].(string)
-		if err := h.readModel.AddSchedulePeriod(ctx, SchedulePeriodAddedProjection{
+		if err := h.readModel.AddPeriodToSchedule(ctx, SchedulePeriodAddedProjection{
 			Position:                resolved.Position,
 			ScheduleID:              scheduleID,
 			PeriodID:                periodID,
@@ -159,7 +158,7 @@ func (h *ScheduleReadModelEventHandler) handle(ctx context.Context, resolved eve
 	case SchedulePeriodRemoved:
 		scheduleID, _ := data["scheduleID"].(string)
 		periodID, _ := data["periodID"].(string)
-		if err := h.readModel.RemoveSchedulePeriod(ctx, SchedulePeriodRemovedProjection{
+		if err := h.readModel.RemovePeriodFromSchedule(ctx, SchedulePeriodRemovedProjection{
 			Position:                resolved.Position,
 			ScheduleID:              scheduleID,
 			PeriodID:                periodID,

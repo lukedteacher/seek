@@ -7,28 +7,27 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type ListSchedulePeriodsRes struct {
-	ScheduleId string `json:"schedule_id"`
-	PeriodId   string `json:"period_id"`
+type ListPeriodIdsForStudentRes struct {
+	PeriodId  string `json:"period_id"`
+	StudentId string `json:"student_id"`
 }
 
-type ListSchedulePeriodsStmt struct {
+type ListPeriodIdsForStudentStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func ListSchedulePeriods(tx *sqlite.Conn) *ListSchedulePeriodsStmt {
+func ListPeriodIdsForStudent(tx *sqlite.Conn) *ListPeriodIdsForStudentStmt {
 	const querySQL = `
-SELECT schedule_id, period_id
-FROM schedule_periods
-WHERE schedule_id = ?1 AND
-	deleted_at IS NULL
-ORDER BY schedule_id DESC
+SELECT period_id, student_id
+FROM periods_students
+WHERE student_id = ?1
+ORDER BY student_id DESC
     `
 
-	ps := &ListSchedulePeriodsStmt{
+	ps := &ListPeriodIdsForStudentStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -41,10 +40,10 @@ ORDER BY schedule_id DESC
 	return ps
 }
 
-func (ps *ListSchedulePeriodsStmt) Run(
-	scheduleId string,
+func (ps *ListPeriodIdsForStudentStmt) Run(
+	studentId string,
 ) (
-	res []ListSchedulePeriodsRes,
+	res []ListPeriodIdsForStudentRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
@@ -63,7 +62,7 @@ func (ps *ListSchedulePeriodsStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, scheduleId)
+	stmt.BindText(bindIndex, studentId)
 
 	bindIndex++
 
@@ -75,25 +74,25 @@ func (ps *ListSchedulePeriodsStmt) Run(
 			break
 		}
 
-		row := ListSchedulePeriodsRes{}
-		row.ScheduleId = stmt.ColumnText(0)
-		row.PeriodId = stmt.ColumnText(1)
+		row := ListPeriodIdsForStudentRes{}
+		row.PeriodId = stmt.ColumnText(0)
+		row.StudentId = stmt.ColumnText(1)
 		res = append(res, row)
 	}
 
 	return res, nil
 }
 
-func OnceListSchedulePeriods(
+func OnceListPeriodIdsForStudent(
 	tx *sqlite.Conn,
-	scheduleId string,
+	studentId string,
 ) (
-	res []ListSchedulePeriodsRes,
+	res []ListPeriodIdsForStudentRes,
 	err error,
 ) {
-	ps := ListSchedulePeriods(tx)
+	ps := ListPeriodIdsForStudent(tx)
 
 	return ps.Run(
-		scheduleId,
+		studentId,
 	)
 }

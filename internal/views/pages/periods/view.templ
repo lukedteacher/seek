@@ -27,7 +27,11 @@ templ View(period dto.PeriodView) {
 					@card.Content() {
 						<p>teacher: ...</p>
 						<p>location: ...</p>
-						<p>students: ...</p>
+						<p>students:
+							for i := range period.StudentIDs {
+								{ period.StudentIDs[i] + ", "}
+							}
+						</p>
 					}
 					@card.Footer() {
 						<a href={ fmt.Sprintf("/periods/%s/edit", period.ID) }>

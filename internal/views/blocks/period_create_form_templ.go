@@ -20,19 +20,22 @@ import (
 )
 
 type PeriodCreateFormView struct {
-	Period      dto.PeriodView
+	Period      dto.PeriodFormView
 	StudentList []StudentMultiselectView
 	Validation  map[string]period.Validation
 }
 
-func NewPeriodCreateFormView(p *models.Period, s []models.Student) PeriodCreateFormView {
+func NewPeriodCreateFormView(p *models.Period, all []models.Student, selected []string) PeriodCreateFormView {
 	if p == nil {
 		return PeriodCreateFormView{}
 	}
-
+	view, err := dto.NewFormViewFromPeriod(p)
+	if err != nil {
+		println("error: ", err.Error())
+	}
 	return PeriodCreateFormView{
-		Period:      dto.NewViewFromPeriod(p),
-		StudentList: NewViewFromStudents(s),
+		Period:      view,
+		StudentList: NewStudentMultiselectView(all, selected),
 		Validation:  period.Validate(p),
 	}
 }
@@ -65,7 +68,7 @@ func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/create"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_create_form.templ`, Line: 33, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_create_form.templ`, Line: 36, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -94,6 +97,7 @@ func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 				DataOn:   "/periods/create/validate",
 				HasError: view.Validation["title"].State == "error",
 				IsValid:  view.Validation["title"].State == "valid",
+				Value:    view.Period.Title,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -133,7 +137,7 @@ func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 				DataOn:   "/periods/create/validate",
 				HasError: view.Validation["start_time"].State == "error",
 				IsValid:  view.Validation["start_time"].State == "valid",
-				Value:    "9:00",
+				Value:    view.Period.StartTime,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -169,7 +173,7 @@ func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 				DataOn:   "/periods/create/validate",
 				HasError: view.Validation["end_time"].State == "error",
 				IsValid:  view.Validation["end_time"].State == "valid",
-				Value:    "9:30",
+				Value:    view.Period.EndTime,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -186,7 +190,20 @@ func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><label for=\"duration\">duration</label> <input id=\"duration\" name=\"duration\" data-bind:period.duration type=\"number\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><label for=\"duration\">duration</label> <input id=\"duration\" name=\"duration\" data-bind:period.duration type=\"number\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(view.Period.Duration)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/period_create_form.templ`, Line: 96, Col: 108}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -194,7 +211,7 @@ func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = day_buttons.DayButtons(models.DaysSignals{}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = day_buttons.DayButtons(view.Period.Days).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -202,7 +219,7 @@ func CreatePeriodForm(view PeriodCreateFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><footer><button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</section><footer><button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -31,7 +31,7 @@ func UpdatePeriodCommandHandler(ctx context.Context, command UpdatePeriodCommand
 	if err := model.requireActive(); err != nil {
 		return UpdatePeriodResult{}, err
 	}
-	if model.title == command.Title && model.startTime == command.StartTime && model.duration == command.Duration && model.days == command.Days {
+		if model.title == command.Title && model.startTime == command.StartTime && model.duration == command.Duration && model.days == command.Days {
 		return UpdatePeriodResult{Skipped: true}, nil
 	}
 
@@ -84,15 +84,15 @@ func (m *updatePeriodContext) handle(resolved eventstore.ResolvedEvent) {
 	case PeriodCreated:
 		m.exists = true
 		m.deleted = false
-		m.title, _ = data["title"].(string)
-		m.startTime, _ = data["startTime"].(string)
-		m.duration = int64(data["duration"].(float64))
-		m.days = int64(data["days"].(float64))
+		m.title, _ = data[PeriodTitleField].(string)
+		m.startTime, _ = data[PeriodStartTimeField].(string)
+		m.duration = int64(data[PeriodDurationField].(float64))
+		m.days = int64(data[PeriodDaysField].(float64))
 	case PeriodUpdated:
-		m.title, _ = data["title"].(string)
-		m.startTime, _ = data["startTime"].(string)
-		m.duration = int64(data["duration"].(float64))
-		m.days = int64(data["days"].(float64))
+		m.title, _ = data[PeriodTitleField].(string)
+		m.startTime, _ = data[PeriodStartTimeField].(string)
+		m.duration = int64(data[PeriodDurationField].(float64))
+		m.days = int64(data[PeriodDaysField].(float64))
 	case PeriodDeleted:
 		m.deleted = true
 	}

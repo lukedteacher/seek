@@ -40,16 +40,9 @@ func PeriodStudentRemoveCommandHandler(
 		return nil, err
 	}
 
-	skipped := true
-	if len(model.studentIDs) > 0 {
-		for _, studentID := range model.studentIDs {
-			if studentID == command.StudentID {
-				skipped = false
-			}
-		}
-	}
-	if skipped {
-		return &PeriodStudentRemoveResult{Skipped: skipped}, nil
+	skip := !model.studentAdded
+	if skip {
+		return &PeriodStudentRemoveResult{Skipped: skip}, nil
 	}
 	eventID := uuidv7.NewString()
 	event := NewPeriodStudentRemovedEvent(eventID, command.PeriodID, command.StudentID, time.Now(), metadataWithQuery(command.Metadata, model.query))
@@ -65,7 +58,7 @@ type periodStudentRemoveContext struct {
 	periodDeleted  bool
 	studentCreated bool
 	studentDeleted bool
-	studentIDs     []string
+	studentAdded   bool
 	position       eventstore.Position
 	events         []eventstore.ResolvedEvent
 	query          eventstore.Query
@@ -109,7 +102,6 @@ func (c *periodStudentRemoveContext) isStudentActive() error {
 }
 
 func (c *periodStudentRemoveContext) handle(resolved eventstore.ResolvedEvent) {
-	data := resolved.Event.Data
 	switch resolved.Event.EventType {
 	case PeriodCreated:
 		c.periodCreated = true
@@ -122,19 +114,9 @@ func (c *periodStudentRemoveContext) handle(resolved eventstore.ResolvedEvent) {
 	case StudentDeleted:
 		c.studentDeleted = true
 	case PeriodStudentAdded:
-		// TODO should there be more to this?
-		studentID := data["student_id"].(string)
-		c.studentIDs = append(c.studentIDs, studentID)
+		c.studentAdded = true
 	case PeriodStudentRemoved:
-		studentIDToRemove := data["studentID"].(string)
-		n := 0
-		for index, studentID := range c.studentIDs {
-			if c.studentIDs[index] == studentIDToRemove {
-				c.studentIDs[n] = studentID
-				n++
-			}
-		}
-		c.studentIDs = c.studentIDs[:n]
+		c.studentAdded = false
 	}
 	if resolved.Position.After(c.position) {
 		c.position = resolved.Position

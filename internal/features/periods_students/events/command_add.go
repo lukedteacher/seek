@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"seek/internal/eventstore"
-	"seek/internal/features/student"
 	"seek/internal/uuidv7"
 )
 
@@ -41,17 +40,9 @@ func PeriodStudentAddCommandHandler(
 		return nil, err
 	}
 
-	skipped := false
-	if len(model.studentIDs) > 0 {
-		for _, studentID := range model.studentIDs {
-			if studentID == command.StudentID {
-				println("skipped is true")
-				skipped = true
-			}
-		}
-	}
-	if skipped {
-		return &PeriodStudentAddResult{Skipped: skipped}, nil
+	skip := model.studentAdded
+	if skip {
+		return &PeriodStudentAddResult{Skipped: skip}, nil
 	}
 	eventID := uuidv7.NewString()
 	event := NewPeriodStudentAddedEvent(
@@ -73,7 +64,7 @@ type periodStudentAddContext struct {
 	periodDeleted  bool
 	studentCreated bool
 	studentDeleted bool
-	studentIDs     []string
+	studentAdded   bool
 	position       eventstore.Position
 	events         []eventstore.ResolvedEvent
 	query          eventstore.Query
@@ -90,15 +81,12 @@ func loadPeriodStudentAddContext(
 ) {
 	query := streamQuery(periodID, studentID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
-	println("events length: ", len(events))
 	if err != nil {
 		return nil, err
 	}
 
 	model := &periodStudentAddContext{position: eventstore.NoEventPosition, events: events, query: query}
-	println("criteria length: ", len(model.query.Criteria))
 	for _, event := range events {
-		println("event type: ", event.Event.EventType)
 		model.handle(event)
 	}
 
@@ -120,7 +108,6 @@ func (c *periodStudentAddContext) isStudentActive() error {
 }
 
 func (c *periodStudentAddContext) handle(resolved eventstore.ResolvedEvent) {
-	data := resolved.Event.Data
 	switch resolved.Event.EventType {
 	case PeriodCreated:
 		c.periodCreated = true
@@ -133,21 +120,9 @@ func (c *periodStudentAddContext) handle(resolved eventstore.ResolvedEvent) {
 	case StudentDeleted:
 		c.studentDeleted = true
 	case PeriodStudentAdded:
-		// TODO could this be easier?
-		studentID := data[student.StudentIDField].(string)
-		c.studentIDs = append(c.studentIDs, studentID)
-		println("handle, case psa: ", len(c.studentIDs))
+		c.studentAdded = true
 	case PeriodStudentRemoved:
-		studentIDToRemove := data[student.StudentIDField].(string)
-		n := 0
-		for index, studentID := range c.studentIDs {
-			if c.studentIDs[index] == studentIDToRemove {
-				c.studentIDs[n] = studentID
-				n++
-			}
-		}
-		c.studentIDs = c.studentIDs[:n]
-		println("handle, case psr: ", len(c.studentIDs))
+		c.studentAdded = false
 	}
 	if resolved.Position.After(c.position) {
 		c.position = resolved.Position

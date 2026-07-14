@@ -21,13 +21,17 @@ type StudentMultiselectView struct {
 	Selected    bool
 }
 
-func NewViewFromStudents(s []models.Student) []StudentMultiselectView {
-	view := make([]StudentMultiselectView, len(s))
-	for i := range s {
+func NewStudentMultiselectView(all []models.Student, selected []string) []StudentMultiselectView {
+	view := make([]StudentMultiselectView, len(all))
+	selectedMap := make(map[string]bool, len(selected))
+	for i := range selected {
+		selectedMap[selected[i]] = true
+	}
+	for i := range all {
 		view[i] = StudentMultiselectView{
-			StudentID:   s[i].Id,
-			DisplayName: s[i].DisplayName(),
-			Selected:    false,
+			StudentID:   all[i].Id,
+			DisplayName: all[i].FirstLast(),
+			Selected:    selectedMap[all[i].Id],
 		}
 	}
 	return view
@@ -74,7 +78,7 @@ func StudentMultiselect(s []StudentMultiselectView) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("option-%d", i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/student_multiselect.templ`, Line: 36, Col: 37}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/student_multiselect.templ`, Line: 40, Col: 37}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 				if templ_7745c5c3_Err != nil {
@@ -87,7 +91,7 @@ func StudentMultiselect(s []StudentMultiselectView) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(s[i].StudentID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/student_multiselect.templ`, Line: 37, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/student_multiselect.templ`, Line: 41, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
@@ -110,7 +114,7 @@ func StudentMultiselect(s []StudentMultiselectView) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(s[i].DisplayName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/student_multiselect.templ`, Line: 42, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/student_multiselect.templ`, Line: 46, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {

@@ -7,29 +7,29 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type AddSchedulePeriodParams struct {
-	ScheduleId               string `json:"schedule_id"`
+type AddStudentToPeriodParams struct {
 	PeriodId                 string `json:"period_id"`
+	StudentId                string `json:"student_id"`
 	CreatedAt                string `json:"created_at"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 }
 
-type AddSchedulePeriodStmt struct {
+type AddStudentToPeriodStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func AddSchedulePeriod(tx *sqlite.Conn) *AddSchedulePeriodStmt {
+func AddStudentToPeriod(tx *sqlite.Conn) *AddStudentToPeriodStmt {
 	const querySQL = `
-INSERT INTO schedule_periods (schedule_id, period_id, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
+INSERT INTO periods_students (period_id, student_id, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
 VALUES (?1, ?2, ?3, ?3, ?4, ?5)
-ON CONFLICT (schedule_id, period_id) DO NOTHING
+ON CONFLICT (period_id, student_id) DO NOTHING
     `
 
-	ps := &AddSchedulePeriodStmt{
+	ps := &AddStudentToPeriodStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -42,8 +42,8 @@ ON CONFLICT (schedule_id, period_id) DO NOTHING
 	return ps
 }
 
-func (ps *AddSchedulePeriodStmt) Run(
-	params AddSchedulePeriodParams,
+func (ps *AddStudentToPeriodStmt) Run(
+	params AddStudentToPeriodParams,
 ) (
 	err error,
 ) {
@@ -63,10 +63,10 @@ func (ps *AddSchedulePeriodStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, params.ScheduleId)
+	stmt.BindText(bindIndex, params.PeriodId)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.PeriodId)
+	stmt.BindText(bindIndex, params.StudentId)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.CreatedAt)
@@ -81,19 +81,19 @@ func (ps *AddSchedulePeriodStmt) Run(
 
 	// Execute the query
 	if _, err := stmt.Step(); err != nil {
-		return fmt.Errorf("failed to execute addscheduleperiod SQL: %w", err)
+		return fmt.Errorf("failed to execute addstudenttoperiod SQL: %w", err)
 	}
 
 	return nil
 }
 
-func OnceAddSchedulePeriod(
+func OnceAddStudentToPeriod(
 	tx *sqlite.Conn,
-	params AddSchedulePeriodParams,
+	params AddStudentToPeriodParams,
 ) (
 	err error,
 ) {
-	ps := AddSchedulePeriod(tx)
+	ps := AddStudentToPeriod(tx)
 
 	return ps.Run(
 		params,

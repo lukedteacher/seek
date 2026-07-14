@@ -29,15 +29,7 @@ func PeriodAddedToScheduleCommandHandler(ctx context.Context, command PeriodAdde
 		return nil, err
 	}
 
-	skipped := false
-
-	if len(model.periodIDs) > 0 {
-		for _, periodID := range model.periodIDs {
-			if periodID == command.PeriodID {
-				skipped = true
-			}
-		}
-	}
+	skipped := model.added
 	if skipped {
 		return &SchedulePeriodAddedResult{Skipped: skipped}, nil
 	}
@@ -53,7 +45,7 @@ func PeriodAddedToScheduleCommandHandler(ctx context.Context, command PeriodAdde
 type periodAddedToScheduleContext struct {
 	exists   bool
 	deleted  bool
-	periodIDs []string
+	added    bool
 	position eventstore.Position
 	events   []eventstore.ResolvedEvent
 	query    eventstore.Query
@@ -74,36 +66,26 @@ func loadPeriodAddedToScheduleContext(ctx context.Context, retriever eventstore.
 	return model, nil
 }
 
-func (m *periodAddedToScheduleContext) requireActive() error {
-	if !m.exists || m.deleted {
+func (c *periodAddedToScheduleContext) requireActive() error {
+	if !c.exists || c.deleted {
 		return eventstore.ErrNotFound
 	}
 	return nil
 }
 
-func (m *periodAddedToScheduleContext) handle(resolved eventstore.ResolvedEvent) {
-	data := resolved.Event.Data
+func (c *periodAddedToScheduleContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case ScheduleCreated:
-		m.exists = true
-		m.deleted = false
+		c.exists = true
+		c.deleted = false
 	case SchedulePeriodAdded:
-		// TODO should there be more to this?
-		m.periodIDs = append(m.periodIDs, data["periodID"].(string))
+		c.added = true
 	case SchedulePeriodRemoved:
-		periodToRemove := data["periodID"].(string)
-		n := 0
-		for index, periodID := range m.periodIDs {
-				if m.periodIDs[index] == periodToRemove {
-						m.periodIDs[n] = periodID
-						n++
-				}
-		}
-		m.periodIDs = m.periodIDs[:n]
+		c.added = false
 	case ScheduleDeleted:
-		m.deleted = true
+		c.deleted = true
 	}
-	if resolved.Position.After(m.position) {
-		m.position = resolved.Position
+	if resolved.Position.After(c.position) {
+		c.position = resolved.Position
 	}
 }

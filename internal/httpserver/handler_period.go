@@ -8,6 +8,7 @@ import (
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
 	"seek/internal/features/period"
+	pse "seek/internal/features/periods_students/events"
 	psevents "seek/internal/features/periods_students/events"
 	"seek/internal/views/blocks"
 	"seek/internal/views/dto"
@@ -21,6 +22,7 @@ import (
 func (s Server) periodRoutes(r chi.Router) {
 	r.Get("/periods", s.getPeriodsList)
 	r.Get("/periods/create", s.getPeriodCreate)
+	r.Get("/periods/create/stream", s.getPeriodCreateStream)
 	r.Post("/periods/create/validate", s.postPeriodCreateValidate)
 	r.Post("/periods/create", s.postPeriodCreate)
 	r.Get("/periods/{id}", s.getPeriodView)
@@ -54,32 +56,74 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 // TODO figure out if there's a way to have this use the same form as edit?
 func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	empty := &models.Period{}
+	empty := models.NewPeriod()
 	students, err := s.Students.List(ctx)
 	if err != nil {
 		println(err.Error())
 	}
-	view := blocks.NewPeriodCreateFormView(empty, students)
+	selected := []string{}
+	view := blocks.NewPeriodCreateFormView(empty, students, selected)
 	_ = pages.Create(view).Render(r.Context(), w)
+}
+
+// GET request to /periods/create/stream
+func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	sse := newSSE(w, r)
+
+	// watches the key value stream for ephemeral changes
+	// lasts 5m
+	watcher, err := s.ViewStore.Watch(
+		ctx,
+		"new",
+		viewstore.WatchOptions{
+			IgnoreDeletes: true,
+		},
+	)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	defer watcher.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
+			println("watcher update")
+			if !ok {
+				return
+			}
+			var model models.Period
+			if err := entry.JSON(&model); err != nil {
+				println(err.Error())
+				return
+			}
+			students, err := s.Students.List(ctx)
+			if err != nil {
+				println(err.Error())
+			}
+			view := blocks.NewPeriodCreateFormView(&model, students, model.StudentIDs)
+			sse.PatchElementTempl(pages.Create(view))
+		}
+	}
 }
 
 // POST request to /periods/create/validate
 func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	signals := &struct {
-		Period dto.PeriodView `json:"period"`
+		Period dto.PeriodFormView `json:"period"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		println("pcv signal read: ", err.Error())
 		return
 	}
-	model := dto.NewPeriodFromView(&signals.Period)
-	students, err := s.Students.List(ctx)
-	if err != nil {
-		println(err.Error())
+	model := dto.NewPeriodFromFormView(&signals.Period)
+	if err := viewstore.PutState(ctx, s.ViewStore, "new", model); err != nil {
+		println("view store error ", err.Error())
 	}
-	formView := blocks.NewPeriodCreateFormView(&model, students)
-	patchTempl(w, r, blocks.CreatePeriodForm(formView))
 }
 
 // POST request to /periods/create
@@ -111,7 +155,7 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 		println("ph cpch error: ", err.Error())
 		return
 	}
-	
+
 	for _, studentID := range signals.Period.StudentIDs {
 		periodStudentAddCommand := psevents.PeriodStudentAddCommand{
 			PeriodID:  result.PeriodID,
@@ -145,12 +189,17 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 	if model == nil {
 		_ = pages.NotFound().Render(ctx, w)
 	} else {
-		view := dto.NewViewFromPeriod(model)
+		view, err := dto.NewViewFromPeriod(model)
+		if err != nil {
+			println("error: ", err.Error())
+		}
+		studentIDs, _ := s.PeriodStudents.ListStudentIDsForPeriod(ctx, model.ID)
+		view.StudentIDs = studentIDs
 		_ = pages.View(view).Render(ctx, w)
 	}
 }
 
-// GET request to /period/{id}/stream
+// GET request to /periods/{id}/stream
 func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	periodID := chi.URLParam(r, "id")
@@ -208,7 +257,12 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 				println(err.Error())
 				return
 			}
-			view := dto.NewViewFromPeriod(&model)
+			view, err := dto.NewViewFromPeriod(&model)
+			if err != nil {
+				println("error: ", err.Error())
+			}
+			studentIDs, _ := s.PeriodStudents.ListStudentIDsForPeriod(ctx, model.ID)
+			view.StudentIDs = studentIDs
 			sse.PatchElementTempl(pages.View(view))
 		}
 	}
@@ -223,11 +277,12 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	students, err := s.Students.List(ctx)
+	all, err := s.Students.List(ctx)
 	if err != nil {
 		println(err.Error())
 	}
-	view := blocks.NewPeriodEditFormView(model, students)
+	selected, _ := s.PeriodStudents.ListStudentIDsForPeriod(ctx, model.ID)
+	view := blocks.NewPeriodEditFormView(model, all, selected)
 	_ = pages.Edit(view).Render(ctx, w)
 }
 
@@ -283,11 +338,12 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 				println(err.Error())
 				return
 			}
-			students, err := s.Students.List(ctx)
+			all, err := s.Students.List(ctx)
 			if err != nil {
 				println(err.Error())
 			}
-			view := blocks.NewPeriodEditFormView(&model, students)
+			selected, _ := s.PeriodStudents.ListStudentIDsForPeriod(ctx, model.ID)
+			view := blocks.NewPeriodEditFormView(&model, all, selected)
 			sse.PatchElementTempl(pages.Edit(view))
 		}
 	}
@@ -335,25 +391,54 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if result.Skipped == true {
-		println("update skipped")
-		return
+		println("period update skipped")
 	}
-	for _, studentID := range signals.Period.StudentIDs {
-		println("sid: ", studentID)
-		println("pid: ", periodID)
-		periodStudentAddCommand := psevents.PeriodStudentAddCommand{
-			PeriodID:  periodID,
-			StudentID: studentID,
-			Metadata:  eventstore.HTTPCommandMetadata(r),
+	current, _ := s.PeriodStudents.ListStudentIDsForPeriod(ctx, periodID)
+	proposed := signals.Period.StudentIDs
+	if len(current) != 0 || len(proposed) != 0 {
+		// build maps for O(1) lookups
+		currentMap := make(map[string]bool)
+		for _, v := range current {
+			currentMap[v] = true
 		}
-		_, err := psevents.PeriodStudentAddCommandHandler(
-			ctx,
-			periodStudentAddCommand,
-			s.EventSaver,
-			s.EventRetriever,
-		)
-		if err != nil {
-			println(err.Error())
+
+		proposedMap := make(map[string]bool)
+		for _, v := range proposed {
+			proposedMap[v] = true
+		}
+
+		// find deletions
+		for _, studentID := range current {
+			if !proposedMap[studentID] {
+				result, err := pse.PeriodStudentRemoveCommandHandler(ctx, pse.PeriodStudentRemoveCommand{
+					PeriodID:  periodID,
+					StudentID: studentID,
+					Metadata:  eventstore.HTTPCommandMetadata(r),
+				}, s.EventSaver, s.EventRetriever)
+				if result != nil {
+					println("reid: ", result.EventID)
+				}
+				if err != nil {
+					println("re: ", err.Error())
+				}
+			}
+		}
+
+		// find additions
+		for _, studentID := range proposed {
+			if !currentMap[studentID] {
+				result, err := pse.PeriodStudentAddCommandHandler(ctx, pse.PeriodStudentAddCommand{
+					PeriodID:  periodID,
+					StudentID: studentID,
+					Metadata:  eventstore.HTTPCommandMetadata(r),
+				}, s.EventSaver, s.EventRetriever)
+				if result != nil {
+					println("aeid: ", result.EventID)
+				}
+				if err != nil {
+					println("ae: ", err.Error())
+				}
+			}
 		}
 	}
 }

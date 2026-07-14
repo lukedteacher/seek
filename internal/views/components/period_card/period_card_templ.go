@@ -10,15 +10,10 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"seek/internal/domain/models"
+	"seek/internal/views/dto"
 )
 
-type PeriodCardViewModel struct {
-	Period  models.PeriodSignals
-	Columns []int
-}
-
-func PeriodCards(vm PeriodCardViewModel) templ.Component {
+func PeriodCards(views dto.PeriodView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -39,8 +34,8 @@ func PeriodCards(vm PeriodCardViewModel) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		for i := range vm.Columns {
-			templ_7745c5c3_Err = PeriodCard(vm, vm.Columns[i]).Render(ctx, templ_7745c5c3_Buffer)
+		for i := range views.Columns {
+			templ_7745c5c3_Err = PeriodCard(views, views.Columns[i]).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -49,7 +44,7 @@ func PeriodCards(vm PeriodCardViewModel) templ.Component {
 	})
 }
 
-func PeriodCard(vm PeriodCardViewModel, column int) templ.Component {
+func PeriodCard(view dto.PeriodView, column int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -75,9 +70,9 @@ func PeriodCard(vm PeriodCardViewModel, column int) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, "1", vm.Period.Duration))
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, view.Row, view.Duration))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/period_card/period_card.templ`, Line: 22, Col: 97}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/period_card/period_card.templ`, Line: 17, Col: 97}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -88,9 +83,9 @@ func PeriodCard(vm PeriodCardViewModel, column int) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(vm.Period.Title)
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(view.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/period_card/period_card.templ`, Line: 24, Col: 23}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/period_card/period_card.templ`, Line: 19, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {

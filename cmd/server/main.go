@@ -16,6 +16,7 @@ import (
 	"seek/internal/eventcatalog"
 	"seek/internal/eventstore"
 	"seek/internal/features/period"
+	pse "seek/internal/features/periods_students/events"
 	"seek/internal/features/schedule"
 	"seek/internal/features/student"
 	"seek/internal/features/teacher"
@@ -30,11 +31,12 @@ type runOptions struct {
 }
 
 type appComponents struct {
-	periodReadModel   *period.ReadModel
-	scheduleReadModel *schedule.ReadModel
-	studentReadModel  *student.ReadModel
-	teacherReadModel  *teacher.ReadModel
-	checkpointer      eventstore.Checkpointer
+	periodReadModel        *period.ReadModel
+	scheduleReadModel      *schedule.ReadModel
+	studentReadModel       *student.ReadModel
+	teacherReadModel       *teacher.ReadModel
+	periodStudentReadModel *pse.ReadModel
+	checkpointer           eventstore.Checkpointer
 }
 
 func main() {
@@ -100,6 +102,7 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		Schedules:      components.scheduleReadModel,
 		Students:       components.studentReadModel,
 		Teachers:       components.teacherReadModel,
+		PeriodStudents: components.periodStudentReadModel,
 		EventSaver:     orisunStore,
 		EventRetriever: orisunStore,
 		// ProfileStorage: components.profileStorage,
@@ -147,13 +150,15 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 	scheduleReadModel := schedule.NewReadModel(db)
 	studentReadModel := student.NewReadModel(db)
 	teacherReadModel := teacher.NewReadModel(db)
+	periodStudentReadModel := pse.NewReadModel(db)
 
 	return appComponents{
-		periodReadModel:   periodReadModel,
-		scheduleReadModel: scheduleReadModel,
-		studentReadModel:  studentReadModel,
-		teacherReadModel:  teacherReadModel,
-		checkpointer:      eventstore.NewSQLiteCheckpointer(db),
+		periodReadModel:        periodReadModel,
+		scheduleReadModel:      scheduleReadModel,
+		studentReadModel:       studentReadModel,
+		teacherReadModel:       teacherReadModel,
+		periodStudentReadModel: periodStudentReadModel,
+		checkpointer:           eventstore.NewSQLiteCheckpointer(db),
 	}
 }
 

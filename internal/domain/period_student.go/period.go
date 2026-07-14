@@ -1,15 +1,14 @@
 package models
 
 type Period struct {
-	ID         string
-	Title      string
-	StartTime  string
-	Duration   int64
-	Days       int64
-	StudentIDs []string
-	CreatedAt  string
-	UpdatedAt  string
-	DeletedAt  string
+	ID        string
+	Title     string
+	StartTime string
+	Duration  int64
+	Days      int64
+	CreatedAt string
+	UpdatedAt string
+	DeletedAt string
 }
 
 type PeriodSignals struct {
@@ -20,9 +19,6 @@ type PeriodSignals struct {
 	Days      DaysSignals `json:"days"`
 }
 
-func NewPeriod() *Period {
-	return &Period{
-		StartTime: "9:30",
-		Duration:  30,
-	}
+func NewPeriod() Period {
+	return Period{}
 }

@@ -63,11 +63,11 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Schedule, error) {
 	return schedules, nil
 }
 
-func (m *ReadModel) ListSchedulePeriodIDs(ctx context.Context, id string) ([]string, error) {
-	var rows []dbsql.ListSchedulePeriodsRes
+func (m *ReadModel) ListPeriodIDsForSchedule(ctx context.Context, id string) ([]string, error) {
+	var rows []dbsql.ListPeriodIdsForScheduleRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
-		rows, err = dbsql.OnceListSchedulePeriods(conn, id)
+		rows, err = dbsql.OnceListPeriodIdsForSchedule(conn, id)
 		return err
 	}); err != nil {
 		return nil, err
@@ -77,38 +77,6 @@ func (m *ReadModel) ListSchedulePeriodIDs(ctx context.Context, id string) ([]str
 		periodIDs = append(periodIDs, row.PeriodId)
 	}
 	return periodIDs, nil
-}
-
-func (m *ReadModel) UpdateSchedulePeriods(ctx context.Context, currentPeriodIDs, proposedPeriodIDs []string) error {
-	if len(currentPeriodIDs) != 0 || len(proposedPeriodIDs) != 0 {
-		// build maps for O(1) lookups
-		currentMap := make(map[string]bool)
-		for _, v := range currentPeriodIDs {
-			currentMap[v] = true
-		}
-
-		proposedMap := make(map[string]bool)
-		for _, v := range proposedPeriodIDs {
-			proposedMap[v] = true
-		}
-
-		// find deletions
-		var toDelete []string
-		for _, v := range currentPeriodIDs {
-			if !proposedMap[v] {
-				toDelete = append(toDelete, v)
-			}
-		}
-
-		// find additions
-		var toAdd []string
-		for _, v := range proposedPeriodIDs {
-			if !currentMap[v] {
-				toAdd = append(toAdd, v)
-			}
-		}
-	}
-	return nil
 }
 
 func (m *ReadModel) InsertCreatedSchedule(ctx context.Context, event ScheduleCreatedProjection) error {
@@ -137,9 +105,9 @@ func (m *ReadModel) UpdateSchedule(ctx context.Context, event ScheduleUpdatedPro
 	})
 }
 
-func (m *ReadModel) AddSchedulePeriod(ctx context.Context, event SchedulePeriodAddedProjection) error {
+func (m *ReadModel) AddPeriodToSchedule(ctx context.Context, event SchedulePeriodAddedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceAddSchedulePeriod(conn, dbsql.AddSchedulePeriodParams{
+		return dbsql.OnceAddPeriodToSchedule(conn, dbsql.AddPeriodToScheduleParams{
 			ScheduleId:               event.ScheduleID,
 			PeriodId:                 event.PeriodID,
 			CreatedAt:                appdb.SQLTime(event.AddedAt),
@@ -149,13 +117,9 @@ func (m *ReadModel) AddSchedulePeriod(ctx context.Context, event SchedulePeriodA
 	})
 }
 
-func (m *ReadModel) RemoveSchedulePeriod(ctx context.Context, event SchedulePeriodRemovedProjection) error {
-	deletedAt := appdb.SQLTime(event.RemovedAt)
+func (m *ReadModel) RemovePeriodFromSchedule(ctx context.Context, event SchedulePeriodRemovedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceRemoveSchedulePeriod(conn, dbsql.RemoveSchedulePeriodParams{
-			DeletedAt:                &deletedAt,
-			LastEventCommitPosition:  event.Position.Commit,
-			LastEventPreparePosition: event.Position.Prepare,
+		return dbsql.OnceRemovePeriodFromSchedule(conn, dbsql.RemovePeriodFromScheduleParams{
 			ScheduleId:               event.ScheduleID,
 			PeriodId:                 event.PeriodID,
 		})

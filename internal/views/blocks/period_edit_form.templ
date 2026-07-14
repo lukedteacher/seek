@@ -13,20 +13,23 @@ import (
 )
 
 type PeriodEditFormView struct {
-	Period dto.PeriodView
+	Period dto.PeriodFormView
 	Validation map[string]period.Validation
 	StudentList []StudentMultiselectView
 }
 
-func NewPeriodEditFormView(p *models.Period, s []models.Student) PeriodEditFormView {
+func NewPeriodEditFormView(p *models.Period, all []models.Student, selected []string) PeriodEditFormView {
 	if p == nil {
 		return PeriodEditFormView{}
 	}
-
+	view, err := dto.NewFormViewFromPeriod(p)
+		if err != nil {
+			println("error: ", err.Error())
+		}
 	return PeriodEditFormView{
-		Period: dto.NewViewFromPeriod(p),
-		StudentList : NewViewFromStudents(s),
-		Validation: period.Validate(p),
+		Period:      view,
+		StudentList: NewStudentMultiselectView(all, selected),
+		Validation:  period.Validate(p),
 	}
 }
 

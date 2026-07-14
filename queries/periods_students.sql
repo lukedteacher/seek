@@ -1,15 +1,22 @@
--- name: ListStudentsForPeriod :many
+-- name: GetPeriodStudent :one
 SELECT period_id, student_id
 FROM periods_students
-WHERE period_id = @period_id AND
-	deleted_at IS NULL
+WHERE period_id = @period_id AND student_id = @student_id;
+
+-- name: ListPeriodsStudents :many
+SELECT period_id, student_id
+FROM periods_students;
+
+-- name: ListStudentIDsForPeriod :many
+SELECT period_id, student_id
+FROM periods_students
+WHERE period_id = @period_id
 ORDER BY period_id DESC;
 
--- name: ListPeriodsForStudent :many
+-- name: ListPeriodIDsForStudent :many
 SELECT period_id, student_id
 FROM periods_students
-WHERE student_id = @student_id AND
-	deleted_at IS NULL
+WHERE student_id = @student_id
 ORDER BY student_id DESC;
 
 -- name: AddStudentToPeriod :exec
@@ -18,9 +25,5 @@ VALUES (@period_id, @student_id, @created_at, @created_at, @last_event_commit_po
 ON CONFLICT (period_id, student_id) DO NOTHING;
 
 -- name: RemoveStudentFromPeriod :exec
-UPDATE periods_students
-SET deleted_at = @deleted_at,
-    updated_at = @deleted_at,
-    last_event_commit_position = @last_event_commit_position,
-    last_event_prepare_position = @last_event_prepare_position
+DELETE FROM periods_students
 WHERE period_id = @period_id AND student_id = @student_id;

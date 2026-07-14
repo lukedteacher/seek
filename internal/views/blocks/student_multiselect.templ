@@ -13,13 +13,17 @@ type StudentMultiselectView struct {
 	Selected bool
 }
 
-func NewViewFromStudents(s []models.Student) []StudentMultiselectView {
-	view := make([]StudentMultiselectView, len(s))
-	for i := range s {
+func NewStudentMultiselectView(all []models.Student, selected []string) []StudentMultiselectView {
+	view := make([]StudentMultiselectView, len(all))
+	selectedMap := make(map[string]bool, len(selected))
+	for i := range selected {
+		selectedMap[selected[i]] = true
+	}
+	for i := range all {
 		view[i] = StudentMultiselectView{
-			StudentID:   s[i].Id,
-			DisplayName: s[i].DisplayName(),
-			Selected:    false,
+			StudentID:   all[i].Id,
+			DisplayName: all[i].FirstLast(),
+			Selected:    selectedMap[all[i].Id],
 		}
 	}
 	return view

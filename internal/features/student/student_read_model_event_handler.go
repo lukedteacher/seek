@@ -106,7 +106,6 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
 	id, _ := scope[StudentIDField].(string)
-	println("handle: ", id)
 	switch resolved.Event.EventType {
 	case StudentCreated:
 		firstName, _ := data[StudentFirstNameField].(string)
@@ -115,7 +114,6 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		grade := int64(data[StudentGradeField].(float64))
 		homeroom, _ := data[StudentHomeroomField].(string)
 		caseManager, _ := data[StudentCaseManagerField].(string)
-		println("f", firstName)
 		if err := h.readModel.InsertCreatedStudent(ctx, StudentCreatedProjection{
 			Position:    resolved.Position,
 			Id:          id,

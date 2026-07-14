@@ -9,7 +9,7 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/schedule"
 	"seek/internal/views/blocks"
-	"seek/internal/views/components/period_card"
+	"seek/internal/views/dto"
 	"seek/internal/views/pages"
 	"seek/internal/viewstore"
 
@@ -211,7 +211,7 @@ func (s Server) postScheduleEditValidate(w http.ResponseWriter, r *http.Request)
 
 // POST request to /schedules/{id}/edit
 func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
+	ctx := r.Context()
 	type Signals struct {
 		Schedule models.ScheduleSignals `json:"schedule"`
 	}
@@ -221,13 +221,11 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	scheduleID := chi.URLParam(r, "id")
-	currentPeriodIDs, _ := s.Schedules.ListSchedulePeriodIDs(context, scheduleID)
+	currentPeriodIDs, _ := s.Schedules.ListPeriodIDsForSchedule(ctx, scheduleID)
 	proposedPeriodIDs := []string{}
-	println("cpid: ", len(currentPeriodIDs))
 	for _, periodID := range signals.Schedule.PeriodIDs {
 		proposedPeriodIDs = append(proposedPeriodIDs, periodID)
 	}
-	println("ppid: ", len(proposedPeriodIDs))
 	if len(currentPeriodIDs) != 0 || len(proposedPeriodIDs) != 0 {
 		// build maps for O(1) lookups
 		currentMap := make(map[string]bool)
@@ -243,8 +241,7 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 		// find deletions
 		for _, periodID := range currentPeriodIDs {
 			if !proposedMap[periodID] {
-				println("remove: ", periodID)
-				result, err := schedule.RemovePeriodFromScheduleCommandHandler(context, schedule.RemovePeriodFromScheduleCommand{
+				result, err := schedule.RemovePeriodFromScheduleCommandHandler(ctx, schedule.RemovePeriodFromScheduleCommand{
 					ScheduleID: scheduleID,
 					PeriodID:   periodID,
 					Metadata:   eventstore.HTTPCommandMetadata(r),
@@ -261,8 +258,7 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 		// find additions
 		for _, periodID := range proposedPeriodIDs {
 			if !currentMap[periodID] {
-				println("add: ", periodID)
-				result, err := schedule.PeriodAddedToScheduleCommandHandler(context, schedule.PeriodAddedToScheduleCommand{
+				result, err := schedule.PeriodAddedToScheduleCommandHandler(ctx, schedule.PeriodAddedToScheduleCommand{
 					ScheduleID: scheduleID,
 					PeriodID:   periodID,
 					Metadata:   eventstore.HTTPCommandMetadata(r),
@@ -276,7 +272,7 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	_, err := schedule.UpdateScheduleCommandHandler(context, schedule.UpdateScheduleCommand{
+	_, err := schedule.UpdateScheduleCommandHandler(ctx, schedule.UpdateScheduleCommand{
 		Id:        scheduleID,
 		Title:     signals.Schedule.Title,
 		TeacherId: signals.Schedule.TeacherID,
@@ -314,7 +310,7 @@ func (s *Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedu
 	if sm == nil {
 		return blocks.EditScheduleViewModel{}, nil
 	}
-	periodIDs, err := s.Schedules.ListSchedulePeriodIDs(ctx, sm.Id)
+	periodIDs, err := s.Schedules.ListPeriodIDsForSchedule(ctx, sm.Id)
 	if err != nil {
 		return blocks.EditScheduleViewModel{}, fmt.Errorf("list schedule periods %s: %w", sm.Id, err)
 	}
@@ -379,7 +375,7 @@ func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.S
 	if sm == nil {
 		return blocks.ScheduleComponentViewModel{}, nil
 	}
-	periodIDs, err := s.Schedules.ListSchedulePeriodIDs(ctx, sm.Id)
+	periodIDs, err := s.Schedules.ListPeriodIDsForSchedule(ctx, sm.Id)
 	if err != nil {
 		return blocks.ScheduleComponentViewModel{}, fmt.Errorf("list period IDs: %w", err)
 	}
@@ -389,31 +385,22 @@ func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.S
 		TeacherID: sm.TeacherId,
 		PeriodIDs: periodIDs,
 	}
-	pcvms := make([]period_card.PeriodCardViewModel, 0, len(periodIDs))
+	pcvms := make([]dto.PeriodView, 0, len(periodIDs))
 	for _, periodID := range periodIDs {
 		period, err := s.Periods.Get(ctx, periodID)
 		if err != nil {
-			return blocks.ScheduleComponentViewModel{}, fmt.Errorf("get period %s: %w", periodID, err)
+			println(err.Error())
 		}
-		pcvm := s.newPeriodCardViewModel(period)
-		pcvms = append(pcvms, pcvm)
+		view, err := dto.NewViewFromPeriod(period)
+		if err != nil {
+			println("error: ", err.Error())
+		}
+		pcvms = append(pcvms, view)
 	}
 	return blocks.ScheduleComponentViewModel{
 		Schedule:         signals,
 		PeriodViewModels: pcvms,
 	}, nil
-}
-
-func (s *Server) newPeriodCardViewModel(period *models.Period) period_card.PeriodCardViewModel {
-	if period == nil {
-		return period_card.PeriodCardViewModel{}
-	}
-	signals := s.periodToSignals(period)
-	columnNumbers := models.DaysBitmaskToColumnNumbers(period.Days)
-	return period_card.PeriodCardViewModel{
-		Period:  signals,
-		Columns: columnNumbers,
-	}
 }
 
 func (s *Server) teacherToSignals(teacher *models.Teacher) models.TeacherSignals {

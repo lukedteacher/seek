@@ -164,15 +164,9 @@ func (s Server) createStudent(w http.ResponseWriter, r *http.Request) {
 // GET request to /students/{id}/edit
 func (s Server) editStudentForm(w http.ResponseWriter, r *http.Request) {
 	context := r.Context()
-	type Signals struct {
-		FirstName   string `json:"first_name"`
-		ChosenName  string `json:"chosen_name"`
-		LastName    string `json:"last_name"`
-		Grade       string `json:"grade"`
-		Homeroom    string `json:"homeroom"`
-		CaseManager string `json:"case_manager"`
-	}
-	signals := &Signals{}
+	signals := &struct {
+		Student dto.StudentView `json:"student"`
+	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		println(err.Error())
@@ -190,27 +184,27 @@ func (s Server) editStudentForm(w http.ResponseWriter, r *http.Request) {
 	var selectedGrade string = "-1"
 	// if the user has selected a grade, use that as the default selection
 	// otherwise use the students existing grade data
-	if signals.Grade != "" && studentRes.GradeString() != signals.Grade {
-		selectedGrade = signals.Grade
+	if signals.Student.Grade != "" && studentRes.GradeString() != signals.Student.Grade {
+		selectedGrade = signals.Student.Grade
 	} else {
 		selectedGrade = studentRes.GradeString()
 	}
 
 	var grade int64
-	if signals.Grade == "" {
+	if signals.Student.Grade == "" {
 		grade = -1
 	} else {
-		grade, _ = strconv.ParseInt(signals.Grade, 10, 64)
+		grade, _ = strconv.ParseInt(signals.Student.Grade, 10, 64)
 	}
 
 	model := models.Student{
 		Id:          studentID,
-		FirstName:   signals.FirstName,
-		ChosenName:  &signals.ChosenName,
-		LastName:    signals.LastName,
+		FirstName:   signals.Student.FirstName,
+		ChosenName:  &signals.Student.ChosenName,
+		LastName:    signals.Student.LastName,
 		Grade:       grade,
-		Homeroom:    signals.Homeroom,
-		CaseManager: &signals.CaseManager,
+		Homeroom:    signals.Student.Homeroom,
+		CaseManager: &signals.Student.CaseManager,
 	}
 
 	validation := student.Validate(&model)
@@ -220,15 +214,9 @@ func (s Server) editStudentForm(w http.ResponseWriter, r *http.Request) {
 // POST request to /students/{id}/edit/validate
 func (s Server) validateEditStudent(w http.ResponseWriter, r *http.Request) {
 	context := r.Context()
-	type Signals struct {
-		FirstName   string `json:"first_name"`
-		ChosenName  string `json:"chosen_name"`
-		LastName    string `json:"last_name"`
-		Grade       string `json:"grade"`
-		Homeroom    string `json:"homeroom"`
-		CaseManager string `json:"case_manager"`
-	}
-	signals := &Signals{}
+	signals := &struct {
+		Student dto.StudentView `json:"student"`
+	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		println(err.Error())
@@ -246,27 +234,27 @@ func (s Server) validateEditStudent(w http.ResponseWriter, r *http.Request) {
 	var selectedGrade string = "-1"
 	// if the user has selected a grade, use that as the default selection
 	// otherwise use the students existing grade data
-	if signals.Grade != "" && studentRes.GradeString() != signals.Grade {
-		selectedGrade = signals.Grade
+	if signals.Student.Grade != "" && studentRes.GradeString() != signals.Student.Grade {
+		selectedGrade = signals.Student.Grade
 	} else {
 		selectedGrade = studentRes.GradeString()
 	}
 
 	var grade int64
-	if signals.Grade == "select a grade" {
+	if signals.Student.Grade == "select a grade" {
 		grade = -1
 	} else {
-		grade, _ = strconv.ParseInt(signals.Grade, 10, 64)
+		grade, _ = strconv.ParseInt(signals.Student.Grade, 10, 64)
 	}
 
 	model := models.Student{
 		Id:          studentID,
-		FirstName:   signals.FirstName,
-		ChosenName:  &signals.ChosenName,
-		LastName:    signals.LastName,
+		FirstName:   signals.Student.FirstName,
+		ChosenName:  &signals.Student.ChosenName,
+		LastName:    signals.Student.LastName,
 		Grade:       grade,
-		Homeroom:    signals.Homeroom,
-		CaseManager: &signals.CaseManager,
+		Homeroom:    signals.Student.Homeroom,
+		CaseManager: &signals.Student.CaseManager,
 	}
 
 	validation := student.Validate(&model)
@@ -276,29 +264,28 @@ func (s Server) validateEditStudent(w http.ResponseWriter, r *http.Request) {
 // POST request to /students/{id}/edit
 func (s Server) editStudent(w http.ResponseWriter, r *http.Request) {
 	context := r.Context()
-	type Signals struct {
-		FirstName   string `json:"first_name"`
-		ChosenName  string `json:"chosen_name"`
-		LastName    string `json:"last_name"`
-		Grade       int64  `json:"grade"`
-		Homeroom    string `json:"homeroom"`
-		CaseManager string `json:"case_manager"`
-	}
-	signals := &Signals{}
+	signals := &struct {
+		Student dto.StudentView `json:"student"`
+	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	gradeInt64, err := strconv.ParseInt(signals.Student.Grade, 10, 64)
+	if err != nil {
+		println("convert int64 error: ", err.Error())
+	}
+
 	studentID := chi.URLParam(r, "id")
 	result, err := student.UpdateStudentCommandHandler(context, student.UpdateStudentCommand{
 		Id:          studentID,
-		FirstName:   signals.FirstName,
-		ChosenName:  signals.ChosenName,
-		LastName:    signals.LastName,
-		Grade:       signals.Grade,
-		Homeroom:    signals.Homeroom,
-		CaseManager: signals.CaseManager,
+		FirstName:   signals.Student.FirstName,
+		ChosenName:  signals.Student.ChosenName,
+		LastName:    signals.Student.LastName,
+		Grade:       gradeInt64,
+		Homeroom:    signals.Student.Homeroom,
+		CaseManager: signals.Student.CaseManager,
 		Metadata:    eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {

@@ -4,11 +4,12 @@ import (
   "fmt"
 	"seek/internal/domain/models"
 	"seek/internal/views/components/period_card"
+	"seek/internal/views/dto"
 )
 
 type ScheduleComponentViewModel struct {
 	Schedule         models.ScheduleSignals
-	PeriodViewModels []period_card.PeriodCardViewModel
+	PeriodViewModels []dto.PeriodView
 }
 
 templ ScheduleStyle() {

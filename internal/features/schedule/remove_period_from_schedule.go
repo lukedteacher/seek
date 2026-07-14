@@ -2,7 +2,6 @@ package schedule
 
 import (
 	"context"
-	"slices"
 	"time"
 
 	"seek/internal/eventstore"
@@ -30,14 +29,7 @@ func RemovePeriodFromScheduleCommandHandler(ctx context.Context, command RemoveP
 		return nil, err
 	}
 
-	skipped := true
-	if len(model.periodIDs) > 0 {
-		for _, periodID := range model.periodIDs {
-			if periodID == command.PeriodID {
-				skipped = false
-			}
-		}
-	}
+	skipped := !model.added
 	if skipped {
 		return &SchedulePeriodRemoveResult{Skipped: skipped}, nil
 	}
@@ -51,12 +43,12 @@ func RemovePeriodFromScheduleCommandHandler(ctx context.Context, command RemoveP
 }
 
 type removePeriodFromScheduleContext struct {
-	exists    bool
-	deleted   bool
-	periodIDs []string
-	position  eventstore.Position
-	events    []eventstore.ResolvedEvent
-	query     eventstore.Query
+	exists   bool
+	deleted  bool
+	added    bool
+	position eventstore.Position
+	events   []eventstore.ResolvedEvent
+	query    eventstore.Query
 }
 
 func loadRemovePeriodFromScheduleContext(ctx context.Context, retriever eventstore.Retriever, id string) (*removePeriodFromScheduleContext, error) {
@@ -74,31 +66,26 @@ func loadRemovePeriodFromScheduleContext(ctx context.Context, retriever eventsto
 	return model, nil
 }
 
-func (m *removePeriodFromScheduleContext) requireActive() error {
-	if !m.exists || m.deleted {
+func (c *removePeriodFromScheduleContext) requireActive() error {
+	if !c.exists || c.deleted {
 		return eventstore.ErrNotFound
 	}
 	return nil
 }
 
-func (m *removePeriodFromScheduleContext) handle(resolved eventstore.ResolvedEvent) {
-	data := resolved.Event.Data
+func (c *removePeriodFromScheduleContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case ScheduleCreated:
-		m.exists = true
-		m.deleted = false
-	case SchedulePeriodAdded:
-		// TODO should there be more to this?
-		m.periodIDs = append(m.periodIDs, data["periodID"].(string))
-	case SchedulePeriodRemoved:
-		periodToRemove := data["periodID"].(string)
-		m.periodIDs = slices.DeleteFunc(m.periodIDs, func(id string) bool {
-        return id == periodToRemove
-    })
+		c.exists = true
+		c.deleted = false
 	case ScheduleDeleted:
-		m.deleted = true
+		c.deleted = true
+	case SchedulePeriodAdded:
+		c.added = true
+	case SchedulePeriodRemoved:
+		c.added = false
 	}
-	if resolved.Position.After(m.position) {
-		m.position = resolved.Position
+	if resolved.Position.After(c.position) {
+		c.position = resolved.Position
 	}
 }

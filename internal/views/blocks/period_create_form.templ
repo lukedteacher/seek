@@ -12,20 +12,23 @@ import (
 )
 
 type PeriodCreateFormView struct {
-	Period dto.PeriodView
+	Period dto.PeriodFormView
 	StudentList []StudentMultiselectView
 	Validation map[string]period.Validation
 }
 
-func NewPeriodCreateFormView(p *models.Period, s []models.Student) PeriodCreateFormView {
+func NewPeriodCreateFormView(p *models.Period, all []models.Student, selected []string) PeriodCreateFormView {
 	if p == nil {
 		return PeriodCreateFormView{}
 	}
-
+	view, err := dto.NewFormViewFromPeriod(p)
+		if err != nil {
+			println("error: ", err.Error())
+		}
 	return PeriodCreateFormView{
-		Period: dto.NewViewFromPeriod(p),
-		StudentList : NewViewFromStudents(s),
-		Validation: period.Validate(p),
+		Period:      view,
+		StudentList: NewStudentMultiselectView(all, selected),
+		Validation:  period.Validate(p),
 	}
 }
 
@@ -50,6 +53,7 @@ templ CreatePeriodForm(view PeriodCreateFormView) {
 					DataOn: "/periods/create/validate",
 					HasError: view.Validation["title"].State == "error",
 					IsValid: view.Validation["title"].State == "valid",
+					Value: view.Period.Title,
 				})
 			}
 			<div style="display: flex; justify-content: space-between; gap: var(--size-1);">
@@ -67,7 +71,7 @@ templ CreatePeriodForm(view PeriodCreateFormView) {
 						DataOn: "/periods/create/validate",
 						HasError: view.Validation["start_time"].State == "error",
 						IsValid: view.Validation["start_time"].State == "valid",
-						Value: "9:00",
+						Value: view.Period.StartTime,
 					})
 				}
 				@label.Label(label.Props{
@@ -84,14 +88,14 @@ templ CreatePeriodForm(view PeriodCreateFormView) {
 						DataOn: "/periods/create/validate",
 						HasError: view.Validation["end_time"].State == "error",
 						IsValid: view.Validation["end_time"].State == "valid",
-						Value: "9:30",
+						Value: view.Period.EndTime,
 					})
 				}
 			</div>
 			<label for="duration">duration</label>
-			<input id="duration" name="duration" data-bind:period.duration type="number" />
+			<input id="duration" name="duration" data-bind:period.duration type="number" value={ view.Period.Duration } />
 			@DurationSlider(30)
-			@day_buttons.DayButtons(models.DaysSignals{})
+			@day_buttons.DayButtons(view.Period.Days)
 			@StudentMultiselect(view.StudentList)
 		</section>
 		<footer>
