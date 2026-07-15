@@ -1,0 +1,46 @@
+package blocks
+
+import (
+	"fmt"
+	"seek/internal/views/dto"
+	"github.com/starfederation/datastar-go/datastar"
+)
+
+templ PeriodCards(scheduleID string, view dto.PeriodView) {
+	for i := range view.Columns {
+		@PeriodCard(scheduleID, view, view.Columns[i])
+	}
+}
+
+templ PeriodCard(scheduleID string, view dto.PeriodView, column int) {
+	<button
+		id={ fmt.Sprintf("period-schedule-%s-card", view.ID) }
+		data-on:click={ datastar.GetSSE(fmt.Sprintf("/schedules/%s/periods/%s", scheduleID, view.ID)) }
+		class="period-card"
+		style={ fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, view.Row, view.Duration) }
+	>
+		<h3>{ view.Title }</h3>
+	</button>
+	@PeriodCardStyles()
+}
+
+templ PeriodCardStyles() {
+	<style>
+		.period-card {
+			width: 98%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background-color: var(--gruvbox-orange-neutral-0);
+			border-style: solid;
+			border-color: transparent;
+			border-radius: var(--border-radius-0);
+			font-size: var(--font-size--2);
+
+			&:hover {
+				background-color: var(--gruvbox-orange-neutral-1);
+			}
+		}
+	</style>
+}

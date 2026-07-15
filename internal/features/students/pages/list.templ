@@ -1,14 +1,14 @@
 package pages
 
 import (
-	"seek/internal/domain/models"
 	"seek/internal/views"
 	"seek/internal/features/students/blocks"
 	"seek/internal/views/components"
 	"seek/internal/views/layouts"
+	"seek/internal/views/dto"
 )
 
-templ List(view int64, students []models.Student) {
+templ List(view int64, students []dto.StudentView) {
 	@layouts.Base("SEEK: students") {
 		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/students/stream") }>
 			<section>
@@ -24,15 +24,11 @@ templ List(view int64, students []models.Student) {
 						@components.Icon("solar:widget-bold-duotone")
 						<span>cards</span>
 					</button>
-					<button data-on:click="@get('/students/create')">
-						@components.Icon("solar:widget-bold-duotone")
-						<span>create</span>
-					</button>
 				</div>
 				if view == 0 {
 					@blocks.StudentList(students)
 				} else {
-					@blocks.StudentCards(students)
+					@blocks.CardGrid(students)
 				}
 			</section>
 		</main>

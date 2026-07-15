@@ -1,16 +1,18 @@
 package pages
 
 import (
-	"seek/internal/domain/models"
 	"seek/internal/features/periods/blocks"
 	"seek/internal/views"
 	"seek/internal/views/components"
 	"seek/internal/views/layouts"
+	"seek/internal/views/dto"
 )
 
-templ List(view int, periods []models.Period) {
-	@layouts.Base("SEEK: students") {
-		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/students/stream") }>
+
+
+templ List(view int, periods []dto.PeriodView) {
+	@layouts.Base("SEEK: periods") {
+		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/periods/stream") }>
 			<section>
 				<h1>PERIODS</h1>
 				<p>review and enter period data here</p>
@@ -26,9 +28,9 @@ templ List(view int, periods []models.Period) {
 					</button>
 				</div>
 				if view == 0 {
-					@blocks.PeriodList(periods)
+					@blocks.List(periods)
 				} else {
-					@blocks.PeriodCards(periods)
+					@blocks.CardGrid(periods)
 				}
 			</section>
 		</main>

@@ -16,30 +16,20 @@ import (
 )
 
 func (s Server) studentRoutes(r chi.Router) {
-	r.Get("/students", s.students)
-	r.Get("/students/stream", s.studentsStream)
-	r.Get("/students/{id}", s.studentInfo)
-	r.Get("/students/create", s.createStudentForm)
+	r.Get("/students", s.getStudentsList)
+	r.Get("/students/stream", s.getStudentsListStream)
+	r.Get("/students/create", s.getStudentCreate)
 	r.Post("/students/create/validate", s.validateCreateStudent)
 	r.Post("/students/create", s.createStudent)
+	r.Get("/students/{id}", s.getStudentView)
 	r.Get("/students/{id}/edit", s.editStudentForm)
 	r.Post("/students/{id}/edit/validate", s.validateEditStudent)
 	r.Post("/students/{id}/edit", s.editStudent)
 	r.Delete("/students/{id}", s.deleteStudent)
 }
 
-func (s Server) studentInfo(w http.ResponseWriter, r *http.Request) {
-	studentID := chi.URLParam(r, "id")
-	student, err := s.Students.Get(r.Context(), studentID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	_ = pages.View(student).Render(r.Context(), w)
-}
-
-func (s Server) students(w http.ResponseWriter, r *http.Request) {
+// GET request to /students
+func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	type Signals struct {
 		View int64 `json:"view"`
 	}
@@ -49,12 +39,19 @@ func (s Server) students(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	datastar.ReadSignals(r, signals)
-
-	_ = pages.List(signals.View, students).Render(r.Context(), w)
+	if err := datastar.ReadSignals(r, signals); err != nil {
+		println("signal read error: ", err.Error())
+		return
+	}
+	studentViews := make([]dto.StudentView, len(students))
+	for i := range students {
+		studentViews[i] = *dto.NewStudentView(&students[i])
+	}
+	_ = pages.List(signals.View, studentViews).Render(r.Context(), w)
 }
 
-func (s Server) studentsStream(w http.ResponseWriter, r *http.Request) {
+// GET request to /students/stream
+func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 	sse := newSSE(w, r)
 	ctx := r.Context()
 
@@ -78,7 +75,11 @@ func (s Server) studentsStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			page := pages.List(0, students)
+			studentViews := make([]dto.StudentView, len(students))
+			for i := range students {
+				studentViews[i] = *dto.NewStudentView(&students[i])
+			}
+			page := pages.List(0, studentViews)
 			if err := sse.PatchElementTempl(page); err != nil {
 				return
 			}
@@ -86,8 +87,19 @@ func (s Server) studentsStream(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
+	studentID := chi.URLParam(r, "id")
+	student, err := s.Students.Get(r.Context(), studentID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_ = pages.View(student).Render(r.Context(), w)
+}
+
 // GET request to /students/create
-func (s Server) createStudentForm(w http.ResponseWriter, r *http.Request) {
+func (s Server) getStudentCreate(w http.ResponseWriter, r *http.Request) {
 	emptyStudent := models.Student{}
 	validation := events.Validate(nil)
 	_ = pages.Create(emptyStudent, validation, "").Render(r.Context(), w)

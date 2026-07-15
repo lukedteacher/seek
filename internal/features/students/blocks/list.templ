@@ -3,11 +3,11 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
 	"seek/internal/views/components"
+	"seek/internal/views/dto"
 )
 
-templ StudentList(students []models.Student) {
+templ StudentList(students []dto.StudentView) {
 	<table>
 		<thead>
 			<th>link</th>
@@ -22,23 +22,17 @@ templ StudentList(students []models.Student) {
 			for _, student := range students {
 				<tr>
 					<td>
-						<a href={ fmt.Sprintf("/students/%s", student.Id) }>
+						<a href={ fmt.Sprintf("/students/%s", student.ID) }>
 							@components.Icon("mdi:link")
 						</a>
 					</td>
 					<td>{ student.FirstName }</td>
+					<td>{ student.ChosenName }</td>
+					<td>{ student.LastName }</td>
+					<td>{ student.Grade }</td>
+					<td>{ student.Homeroom }</td>
 					<td>
-						if student.ChosenName != nil {
-							{*student.ChosenName}
-						}
-					</td>
-					<td>{student.LastName}</td>
-					<td>{student.GradeOrdinal()}</td>
-					<td>{student.Homeroom}</td>
-					<td>
-							if student.CaseManager != nil {
-								{*student.CaseManager}
-							}
+							{ student.CaseManager }
 					</td>
 				</tr>
 			}

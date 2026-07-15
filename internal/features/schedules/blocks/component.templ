@@ -3,7 +3,6 @@ package blocks
 import (
   "fmt"
 	"seek/internal/domain/models"
-	"seek/internal/views/components/period_card"
 	"seek/internal/views/dto"
 )
 
@@ -72,7 +71,7 @@ templ ScheduleComponent(vm ScheduleComponentViewModel) {
 			@TimeGrid(30, 480)
 			@DayGrid()
 			for _, pcvm := range vm.PeriodViewModels {
-				@period_card.PeriodCards(pcvm)
+				@PeriodCards(vm.Schedule.ID, pcvm)
 			}
 		}
 		@ScheduleStyle()
@@ -150,8 +149,8 @@ templ DayGrid() {
   ></div>
   for index := 1; index < 6; index++ {
     <div 
-      style={ fmt.Sprintf("grid-column: %d / span 1;", index) }
       class="day-grid"
+      style={ fmt.Sprintf("grid-column: %d / span 1;", index) }
     ></div>
   }
 	<style>

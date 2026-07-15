@@ -31,7 +31,7 @@ func UpdatePeriodCommandHandler(ctx context.Context, command UpdatePeriodCommand
 	if err := model.requireActive(); err != nil {
 		return UpdatePeriodResult{}, err
 	}
-		if model.title == command.Title && model.startTime == command.StartTime && model.duration == command.Duration && model.days == command.Days {
+	if model.title == command.Title && model.startTime == command.StartTime && model.duration == command.Duration && model.days == command.Days {
 		return UpdatePeriodResult{Skipped: true}, nil
 	}
 

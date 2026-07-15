@@ -140,3 +140,7 @@ func periodScope(id string) PeriodScope {
 func Channel(id string) string {
 	return "period." + id
 }
+
+func ChannelAll() string {
+	return "period.>"
+}

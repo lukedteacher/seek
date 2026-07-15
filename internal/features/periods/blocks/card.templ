@@ -1,0 +1,41 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/views/components/card"
+	"seek/internal/views/dto"
+)
+
+templ Card(period dto.PeriodView) {
+	@card.Card(card.Props{
+		ID: fmt.Sprintf("period-%s-card", period.ID),
+		Class: "period-card",
+	}) {
+		@card.Header() {
+			@card.Title() {
+				{ period.Title }
+			}
+			@card.Description() {
+				{ period.StartTime }
+			}
+		}
+		@card.Content() {
+			<p>teacher: ...</p>
+			<p>location: ...</p>
+			<p>days: { period.Days }</p>
+			<p>students:
+				for i := range period.Students {
+					{ period.Students[i].FirstName + ", "}
+				}
+			</p>
+		}
+		@card.Footer() {
+			<a href={ fmt.Sprintf("/periods/%s/edit", period.ID) }>
+				<button>edit</button>
+			</a>
+			<button data-on:click={ fmt.Sprintf("@delete('/periods/%s')", period.ID) }>delete</button>
+		}
+	}
+	@card.CardStyles()
+}

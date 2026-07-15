@@ -39,7 +39,6 @@ func PeriodScheduleAddCommandHandler(
 		return nil, err
 	}
 	if err := model.isScheduleActive(); err != nil {
-		println("this?")
 		return nil, err
 	}
 
@@ -83,12 +82,10 @@ func loadPeriodScheduleAddContext(
 	error,
 ) {
 	query := streamQuery(periodID, scheduleID)
-	println("l: ", len(query.Criteria))
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err
 	}
-	println("le: ", len(events))
 
 	model := &periodScheduleAddContext{position: eventstore.NoEventPosition, events: events, query: query}
 	for _, event := range events {
@@ -106,8 +103,6 @@ func (c *periodScheduleAddContext) isPeriodActive() error {
 }
 
 func (c *periodScheduleAddContext) isScheduleActive() error {
-	println("c: ", c.scheduleCreated)
-	println("d: ", c.scheduleDeleted)
 	if !c.scheduleCreated || c.scheduleDeleted {
 		return eventstore.ErrScheduleNotFound
 	}
@@ -117,13 +112,11 @@ func (c *periodScheduleAddContext) isScheduleActive() error {
 func (c *periodScheduleAddContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case pe.PeriodCreated:
-		println("period created")
 		c.periodCreated = true
 		c.periodDeleted = false
 	case pe.PeriodDeleted:
 		c.periodDeleted = true
 	case se.ScheduleCreated:
-		println("schedule created")
 		c.scheduleCreated = true
 		c.scheduleDeleted = false
 	case se.ScheduleDeleted:

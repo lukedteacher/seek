@@ -1,0 +1,36 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/views/components/card"
+	"seek/internal/views/dto"
+)
+
+templ Card(student dto.StudentView) {
+	@card.Card(card.Props{
+		ID: fmt.Sprintf("student-%s-card", student.ID),
+		Class: "student-card",
+	}) {
+		@card.Header() {
+			@card.Title() {
+				{ student.FirstName } { student.LastName }
+			}
+			@card.Description() {
+				a student description
+			}
+		}
+		@card.Content() {
+			<p>homeroom: { student.Homeroom }</p>
+			<p>grade: { student.Grade }</p>
+			<p>case manager: { student.CaseManager }</p>
+		}
+		@card.Footer() {
+			<a href={ fmt.Sprintf("/students/%s/edit", student.ID) }>
+				<button>edit</button>
+			</a>
+			<button data-on:click={ fmt.Sprintf("@delete('/students/%s')", student.ID) }>delete</button>
+		}
+	}
+	@card.CardStyles()
+}

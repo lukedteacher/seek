@@ -7,10 +7,10 @@ import (
 
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	pse "seek/internal/features/periods_schedules/events"
 	"seek/internal/features/schedules/blocks"
 	"seek/internal/features/schedules/events"
 	"seek/internal/features/schedules/pages"
-	pse "seek/internal/features/periods_schedules/events"
 	"seek/internal/views/dto"
 	"seek/internal/viewstore"
 
@@ -23,7 +23,8 @@ func (s Server) scheduleRoutes(r chi.Router) {
 	r.Get("/schedules/create", s.getScheduleCreate)
 	r.Post("/schedules/create/validate", s.postScheduleCreateValidate)
 	r.Post("/schedules/create", s.postScheduleCreate)
-	r.Get("/schedules/{id}", s.getScheduleEdit)
+	r.Get("/schedules/{id}", s.getScheduleView)
+	r.Get("/schedules/{id}/periods/{pid}", s.getPeriodScheduleView)
 	r.Get("/schedules/{id}/edit", s.getScheduleEdit)
 	r.Get("/schedules/{id}/edit/stream", s.getScheduleEditStream)
 	r.Post("/schedules/{id}/edit/validate", s.postScheduleEditValidate)
@@ -107,6 +108,39 @@ func (s Server) postScheduleCreate(w http.ResponseWriter, r *http.Request) {
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
 		return clearSignals(&Signals{}, sse)
 	})
+}
+
+func (s Server) getScheduleView(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	scheduleID := chi.URLParam(r, "id")
+	scheduleRes, err := s.Schedules.Get(ctx, scheduleID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	view, _ := s.newScheduleComponentViewModel(ctx, scheduleRes)
+	_ = pages.View(view).Render(ctx, w)
+}
+
+func (s Server) getPeriodScheduleView(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	scheduleID := chi.URLParam(r, "id")
+	scheduleRes, err := s.Schedules.Get(ctx, scheduleID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	periodID := chi.URLParam(r, "pid")
+	periodRes, _ := s.Periods.Get(ctx, periodID)
+	view, _ := s.newScheduleComponentViewModel(ctx, scheduleRes)
+	pview, _ := dto.NewViewFromPeriod(periodRes)
+	studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, pview.ID)
+	for i := range studentIDs {
+		student, _ := s.Students.Get(ctx, studentIDs[i])
+		studentView := dto.NewStudentView(student)
+		pview.Students = append(pview.Students, *studentView)
+	}
+	_ = pages.ViewWithPeriod(view, pview).Render(ctx, w)
 }
 
 // GET request to /schedules/{id}

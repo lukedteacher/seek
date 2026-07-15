@@ -1,18 +1,37 @@
 package pages
 
 import (
-	"seek/internal/domain/models"
+	"fmt"
+	
+	pblocks "seek/internal/features/periods/blocks"
 	"seek/internal/features/schedules/blocks"
 	"seek/internal/views"
+	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
 )
 
-templ View(schedule models.ScheduleSignals) {
+templ View(s blocks.ScheduleComponentViewModel) {
 	@layouts.Base("SEEK: schedule") {
 		<main data-init={ views.LongRunningGetSSE("/schedules/stream") }>
-			@blocks.ScheduleComponent(blocks.ScheduleComponentViewModel{
-				Schedule: schedule,
-			})
+			<hgroup style="display: flex; gap: var(--size-1); justify-content: center; align-items: center;">
+				<h3>
+					{ s.Schedule.Title }
+				</h3>
+				<p>{ s.Schedule.TeacherID }</p>
+				<a href={ fmt.Sprintf("/schedules/%s/edit", s.Schedule.ID) }>
+					<button>edit</button>
+				</a>
+			</hgroup>
+			@blocks.ScheduleComponent(s)
+		</main>
+	}
+}
+
+templ ViewWithPeriod(s blocks.ScheduleComponentViewModel, p dto.PeriodView) {
+	@layouts.Base("SEEK: schedule") {
+		<main data-init={ views.LongRunningGetSSE("/schedules/stream") }>
+			@pblocks.Card(p)
+			@blocks.ScheduleComponent(s)
 		</main>
 	}
 }

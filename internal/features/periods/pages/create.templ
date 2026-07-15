@@ -10,7 +10,7 @@ templ Create(view blocks.PeriodCreateFormView) {
 	@layouts.Base("SEEK: create period") {
 		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
 			<section>
-				@blocks.CreatePeriodForm(view)
+				@blocks.CreateForm(view)
 			</section>
 		</main>
 	}

@@ -3,9 +3,9 @@ package pages
 import (
 	"fmt"
 	
+	"seek/internal/features/periods/blocks"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
-	"seek/internal/views/components/card"
 	"seek/internal/views/dto"
 )
 
@@ -13,34 +13,7 @@ templ View(period dto.PeriodView) {
 	@layouts.Base("SEEK: period") {
 		<main id="main" data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/stream", period.ID)) }>
 			<section>
-				@card.Card(card.Props{
-					ID: fmt.Sprintf("period-%s-card", period.ID),
-				}) {
-					@card.Header() {
-						@card.Title() {
-							{ period.Title }
-						}
-						@card.Description() {
-							{ period.StartTime }
-						}
-					}
-					@card.Content() {
-						<p>teacher: ...</p>
-						<p>location: ...</p>
-						<p>students:
-							for i := range period.StudentIDs {
-								{ period.StudentIDs[i] + ", "}
-							}
-						</p>
-					}
-					@card.Footer() {
-						<a href={ fmt.Sprintf("/periods/%s/edit", period.ID) }>
-							<button>edit</button>
-						</a>
-						<button data-on:click={ fmt.Sprintf("@delete('/periods/%s')", period.ID) }>delete</button>
-					}
-				}
-				@card.CardStyles()
+				@blocks.Card(period)
 			</section>
 		</main>
 	}

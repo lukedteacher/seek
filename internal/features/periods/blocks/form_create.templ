@@ -33,7 +33,7 @@ func NewPeriodCreateFormView(p *models.Period, all []models.Student, selected []
 	}
 }
 
-templ CreatePeriodForm(view PeriodCreateFormView) {
+templ CreateForm(view PeriodCreateFormView) {
 	<form id="create-period-form" data-on:submit={ datastar.PostSSE("/periods/create") }>
 		<hgroup>
 			<h2>CREATE A PERIOD</h2>

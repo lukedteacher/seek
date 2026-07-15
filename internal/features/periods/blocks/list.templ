@@ -3,11 +3,11 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
 	"seek/internal/views/components"
+	"seek/internal/views/dto"
 )
 
-templ PeriodList(periods []models.Period) {
+templ List(periods []dto.PeriodView) {
 	<table>
 		<thead>
 			<th>link</th>

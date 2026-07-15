@@ -8,15 +8,15 @@ import (
 )
 
 type PeriodView struct {
-	ID         string             `json:"id"`
-	Title      string             `json:"title"`
-	StartTime  string             `json:"start_time"`
-	EndTime    string             `json:"end_time"`
-	Duration   int                `json:"duration"`
-	Days       models.DaysSignals `json:"days"`
-	StudentIDs []string           `json:"student_ids"`
-	Row        string             `json:"row"`
-	Columns    []int              `json:"columns"`
+	ID        string        `json:"id"`
+	Title     string        `json:"title"`
+	StartTime string        `json:"start_time"`
+	EndTime   string        `json:"end_time"`
+	Duration  int           `json:"duration"`
+	Days      string        `json:"days"`
+	Students  []StudentView `json:"students"`
+	Row       string        `json:"row"`
+	Columns   []int         `json:"columns"`
 }
 
 type PeriodFormView struct {
@@ -45,7 +45,7 @@ func NewViewFromPeriod(p *models.Period) (PeriodView, error) {
 		StartTime: p.StartTime,
 		EndTime:   add(p.StartTime, int(p.Duration)),
 		Duration:  int(p.Duration),
-		Days:      models.DaysBitmaskToDaysSignals(p.Days),
+		Days:      BitmaskToInitial(p.Days),
 		Columns:   models.DaysBitmaskToColumnNumbers(p.Days),
 		Row:       timeToRow(p.StartTime, 479),
 	}, nil
@@ -60,8 +60,7 @@ func NewPeriodFromView(pv *PeriodView) models.Period {
 		Title:      pv.Title,
 		StartTime:  pv.StartTime,
 		Duration:   int64(pv.Duration),
-		Days:       models.DaysSignalsToDaysBitmask(pv.Days),
-		StudentIDs: pv.StudentIDs,
+		Days:       0,
 	}
 }
 

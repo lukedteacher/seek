@@ -1,26 +1,13 @@
 package blocks
 
 import (
-	"fmt"
-
-	"seek/internal/domain/models"
-	"seek/internal/views/components"
+	"seek/internal/views/dto"
 )
 
-templ PeriodCards(periods []models.Period) {
-	<div class="card-grid">
+templ CardGrid(periods []dto.PeriodView) {
+	<div class="period-card-grid">
 		for _, period := range periods {
-			<div class="card">
-				<a href={ fmt.Sprintf("/periods/%s", period.ID) }>
-					<button>
-						@components.Icon("mdi:link")
-					</button>
-				</a>
-				<p>{ period.Title }</p>
-				<p>{ period.StartTime }</p>
-				<p>{ period.Duration }</p>
-				<p>{ period.Days }</p>
-			</div>
+			@Card(period)
 		}
 	</div>
 }
