@@ -6,11 +6,12 @@ import (
 	"log/slog"
 	"seek/internal/config"
 	"seek/internal/eventstore"
-	period "seek/internal/features/periods/events"
-	"seek/internal/features/schedule"
-	student "seek/internal/features/students/events"
-	"seek/internal/features/teacher"
-	pse "seek/internal/features/periods_students/events"
+	periodEvents "seek/internal/features/periods/events"
+	scheduleEvents "seek/internal/features/schedules/events"
+	studentEvents "seek/internal/features/students/events"
+	teacherEvents "seek/internal/features/teachers/events"
+	periodScheduleEvents "seek/internal/features/periods_schedules/events"
+	periodStudentEvents "seek/internal/features/periods_students/events"
 	"seek/internal/natsbus"
 )
 
@@ -29,31 +30,73 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 		{
 			name: "period read model",
 			create: func() (eventHandler, error) {
-				return period.NewPeriodReadModelEventHandler(store, components.checkpointer, components.periodReadModel, bus, logger)
+				return periodEvents.NewPeriodReadModelEventHandler(
+					store, 
+					components.checkpointer, 
+					components.periodReadModel, 
+					bus, 
+					logger,
+				)
 			},
 		},
 		{
 			name: "schedule read model",
 			create: func() (eventHandler, error) {
-				return schedule.NewScheduleReadModelEventHandler(store, components.checkpointer, components.scheduleReadModel, bus, logger)
+				return scheduleEvents.NewScheduleReadModelEventHandler(
+					store, 
+					components.checkpointer, 
+					components.scheduleReadModel, 
+					bus, 
+					logger,
+				)
 			},
 		},
 		{
 			name: "student read model",
 			create: func() (eventHandler, error) {
-				return student.NewStudentReadModelEventHandler(store, components.checkpointer, components.studentReadModel, bus, logger)
+				return studentEvents.NewStudentReadModelEventHandler(
+					store, 
+					components.checkpointer, 
+					components.studentReadModel, 
+					bus, 
+					logger,
+				)
 			},
 		},
 		{
 			name: "teacher read model",
 			create: func() (eventHandler, error) {
-				return teacher.NewTeacherReadModelEventHandler(store, components.checkpointer, components.teacherReadModel, bus, logger)
+				return teacherEvents.NewTeacherReadModelEventHandler(
+					store, 
+					components.checkpointer, 
+					components.teacherReadModel, 
+					bus, 
+					logger,
+				)
+			},
+		},
+		{
+			name: "period schedule read model",
+			create: func() (eventHandler, error) {
+				return periodScheduleEvents.NewPeriodScheduleReadModelEventHandler(
+					store, 
+					components.checkpointer, 
+					components.periodScheduleReadModel, 
+					bus, 
+					logger,
+				)
 			},
 		},
 		{
 			name: "period student read model",
 			create: func() (eventHandler, error) {
-				return pse.NewPeriodStudentReadModelEventHandler(store, components.checkpointer, components.periodStudentReadModel, bus, logger)
+				return periodStudentEvents.NewPeriodStudentReadModelEventHandler(
+					store, 
+					components.checkpointer, 
+					components.periodStudentReadModel, 
+					bus, 
+					logger,
+				)
 			},
 		},
 	}

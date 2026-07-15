@@ -1,0 +1,24 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/features/schedules/blocks"
+	"seek/internal/features/schedules/events"
+	"seek/internal/views/layouts"
+)
+
+templ Create(
+	schedule models.Schedule, 
+	teachers []models.Teacher, 
+	periods []models.Period, 
+	validation map[string]events.Validation, 
+	selectedTeacher *models.Teacher,
+) {
+	@layouts.Base("SEEK: create period") {
+		<main>
+			<section>
+				@blocks.CreateForm(schedule, teachers, periods, validation, selectedTeacher)
+			</section>
+		</main>
+	}
+}

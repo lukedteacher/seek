@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"seek/internal/eventstore"
+	pe "seek/internal/features/periods/events"
+	se "seek/internal/features/students/events"
 	"seek/internal/uuidv7"
 )
 
@@ -103,15 +105,15 @@ func (c *periodStudentRemoveContext) isStudentActive() error {
 
 func (c *periodStudentRemoveContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case PeriodCreated:
+	case pe.PeriodCreated:
 		c.periodCreated = true
 		c.periodDeleted = false
-	case PeriodDeleted:
+	case pe.PeriodDeleted:
 		c.periodDeleted = true
-	case StudentCreated:
+	case se.StudentCreated:
 		c.studentCreated = true
 		c.studentDeleted = false
-	case StudentDeleted:
+	case se.StudentDeleted:
 		c.studentDeleted = true
 	case PeriodStudentAdded:
 		c.studentAdded = true

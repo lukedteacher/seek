@@ -192,7 +192,7 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			println("error: ", err.Error())
 		}
-		studentIDs, _ := s.PeriodStudents.ListStudentIDsForPeriod(ctx, model.ID)
+		studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 		view.StudentIDs = studentIDs
 		_ = pages.View(view).Render(ctx, w)
 	}
@@ -260,7 +260,7 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				println("error: ", err.Error())
 			}
-			studentIDs, _ := s.PeriodStudents.ListStudentIDsForPeriod(ctx, model.ID)
+			studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 			view.StudentIDs = studentIDs
 			sse.PatchElementTempl(pages.View(view))
 		}
@@ -280,7 +280,7 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		println(err.Error())
 	}
-	selected, _ := s.PeriodStudents.ListStudentIDsForPeriod(ctx, model.ID)
+	selected, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 	view := blocks.NewPeriodEditFormView(model, all, selected)
 	_ = pages.Edit(view).Render(ctx, w)
 }
@@ -341,7 +341,7 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				println(err.Error())
 			}
-			selected, _ := s.PeriodStudents.ListStudentIDsForPeriod(ctx, model.ID)
+			selected, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 			view := blocks.NewPeriodEditFormView(&model, all, selected)
 			sse.PatchElementTempl(pages.Edit(view))
 		}
@@ -392,7 +392,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	if result.Skipped == true {
 		println("period update skipped")
 	}
-	current, _ := s.PeriodStudents.ListStudentIDsForPeriod(ctx, periodID)
+	current, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, periodID)
 	proposed := signals.Period.StudentIDs
 	if len(current) != 0 || len(proposed) != 0 {
 		// build maps for O(1) lookups

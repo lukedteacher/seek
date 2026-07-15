@@ -1,0 +1,93 @@
+package blocks
+
+import (
+	"fmt"
+	
+	"seek/internal/domain/models"
+	"seek/internal/features/teachers/events"
+	"seek/internal/views/components/input"
+	"seek/internal/views/components/label"
+
+	"github.com/starfederation/datastar-go/datastar"
+)
+
+templ EditForm(teacher models.TeacherSignals, validation map[string]events.Validation) {
+	<form data-on:submit={ datastar.PostSSE("/teachers/%s/edit", teacher.ID) }>
+		<hgroup>
+			<h2>EDIT A TEACHER</h2>
+			<p>edit the data of an existing teacher.</p>
+		</hgroup>
+		<section>
+			@label.Label(label.Props{
+				ID: "first-name-label",
+				For: "first-name",
+				Label: "first name",
+				ValidationState: validation["first_name"].State,
+				ValidationMessage: validation["first_name"].Message,
+			}) {
+				@input.Input(input.Props{
+					ID: "first-name",
+					Name: "first-name",
+					DataBind: "teacher.first_name",
+					DataOn: fmt.Sprintf("/teachers/%s/edit/validate", teacher.ID),
+					HasError: validation["first_name"].State == "error",
+					IsValid: validation["first_name"].State == "valid",
+					Value: teacher.FirstName,
+				})
+			}
+			@label.Label(label.Props{
+				ID: "chosen-name-label",
+				For: "chosen-name",
+				Label: "chosen name",
+				ValidationState: validation["chosen_name"].State,
+				ValidationMessage: validation["chosen_name"].Message,
+			}) {
+				@input.Input(input.Props{
+					ID: "chosen-name",
+					Name: "chosen-name",
+					DataBind: "teacher.chosen_name",
+					DataOn: fmt.Sprintf("/teachers/%s/edit/validate", teacher.ID),
+					HasError: validation["chosen_name"].State == "error",
+					IsValid: validation["chosen_name"].State == "valid",
+					Value: teacher.ChosenName,
+				})
+			}
+			@label.Label(label.Props{
+				ID: "last-name-label",
+				For: "last-name",
+				Label: "last name",
+				ValidationState: validation["last_name"].State,
+				ValidationMessage: validation["last_name"].Message,
+			}) {
+				@input.Input(input.Props{
+					ID: "last-name",
+					Name: "last-name",
+					DataBind: "teacher.last_name",
+					DataOn: fmt.Sprintf("/teachers/%s/edit/validate", teacher.ID),
+					HasError: validation["last_name"].State == "error",
+					IsValid: validation["last_name"].State == "valid",
+					Value: teacher.LastName,
+				})
+			}
+		</section>
+		<footer>
+			<button 
+				type="button"
+				data-on:click={ datastar.PostSSE("/teachers/%s/delete", teacher.ID) }
+			>
+				delete
+			</button>
+			<button 
+				type="button"
+			>
+				<span>cancel</span>
+			</button>
+			<button 
+				type="submit"
+			>
+				<span>submit</span>
+			</button>
+		</footer>
+	</form>
+}
+				

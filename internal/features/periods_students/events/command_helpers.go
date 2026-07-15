@@ -2,8 +2,8 @@ package events
 
 import (
 	"seek/internal/eventstore"
-	period "seek/internal/features/periods/events"
-	student "seek/internal/features/students/events"
+	pe "seek/internal/features/periods/events"
+	se "seek/internal/features/students/events"
 )
 
 type CommandMetadata = eventstore.CommandMetadata
@@ -12,40 +12,40 @@ func streamQuery(periodID, studentID string) eventstore.Query {
 	criteria := []eventstore.Criterion{
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: period.PeriodCreated},
-				{Key: period.PeriodCreatedIDField, Value: periodID},
+				{Key: "eventType", Value: pe.PeriodCreated},
+				{Key: pe.PeriodCreatedIDField, Value: periodID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: period.PeriodDeleted},
-				{Key: period.PeriodDeletedIDField, Value: periodID},
+				{Key: "eventType", Value: pe.PeriodDeleted},
+				{Key: pe.PeriodDeletedIDField, Value: periodID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: student.StudentCreated},
-				{Key: student.StudentCreatedIDField, Value: studentID},
+				{Key: "eventType", Value: se.StudentCreated},
+				{Key: se.StudentCreatedIDField, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: student.StudentDeleted},
-				{Key: student.StudentDeletedIDField, Value: studentID},
+				{Key: "eventType", Value: se.StudentDeleted},
+				{Key: se.StudentDeletedIDField, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
 				{Key: "eventType", Value: PeriodStudentAdded},
-				{Key: period.PeriodIDField, Value: periodID},
-				{Key: student.StudentIDField, Value: studentID},
+				{Key: pe.PeriodIDField, Value: periodID},
+				{Key: se.StudentIDField, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
 				{Key: "eventType", Value: PeriodStudentRemoved},
-				{Key: period.PeriodIDField, Value: periodID},
-				{Key: student.StudentIDField, Value: studentID},
+				{Key: pe.PeriodIDField, Value: periodID},
+				{Key: se.StudentIDField, Value: studentID},
 			},
 		},
 	}

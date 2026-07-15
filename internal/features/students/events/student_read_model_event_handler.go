@@ -18,14 +18,14 @@ type StudentReadModelReader interface {
 }
 
 type StudentReadModelWriter interface {
-	InsertCreatedStudent(ctx context.Context, event StudentCreatedProjection) error
+	CreateStudent(ctx context.Context, event StudentCreatedProjection) error
 	UpdateStudent(ctx context.Context, event StudentUpdatedProjection) error
 	DeleteStudent(ctx context.Context, event StudentDeletedProjection) error
 }
 
 type StudentCreatedProjection struct {
 	Position    eventstore.Position
-	Id          string
+	StudentID   string
 	FirstName   string
 	ChosenName  *string
 	LastName    string
@@ -37,7 +37,7 @@ type StudentCreatedProjection struct {
 
 type StudentUpdatedProjection struct {
 	Position    eventstore.Position
-	Id          string
+	StudentID   string
 	FirstName   string
 	ChosenName  *string
 	LastName    string
@@ -49,7 +49,7 @@ type StudentUpdatedProjection struct {
 
 type StudentDeletedProjection struct {
 	Position  eventstore.Position
-	Id        string
+	StudentID string
 	DeletedAt time.Time
 }
 
@@ -59,7 +59,16 @@ type StudentReadModelEventHandler struct {
 	publisher eventstore.Publisher
 }
 
-func NewStudentReadModelEventHandler(subscriber eventstore.Subscriber, checkpointer eventstore.Checkpointer, readModel StudentReadModelWriter, publisher eventstore.Publisher, logger *slog.Logger) (*StudentReadModelEventHandler, error) {
+func NewStudentReadModelEventHandler(
+	subscriber eventstore.Subscriber,
+	checkpointer eventstore.Checkpointer,
+	readModel StudentReadModelWriter,
+	publisher eventstore.Publisher,
+	logger *slog.Logger,
+) (
+	*StudentReadModelEventHandler,
+	error,
+) {
 	handler := &StudentReadModelEventHandler{readModel: readModel, publisher: publisher}
 	global, err := eventstore.NewGlobalEventHandler(eventstore.GlobalEventHandlerConfig{
 		Subscriber:      subscriber,
@@ -105,7 +114,7 @@ func StudentReadModelEventHandlerQuery() eventstore.Query {
 func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	id, _ := scope[StudentIDField].(string)
+	studentID, _ := scope[StudentIDField].(string)
 	switch resolved.Event.EventType {
 	case StudentCreated:
 		firstName, _ := data[StudentFirstNameField].(string)
@@ -114,9 +123,9 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		grade := int64(data[StudentGradeField].(float64))
 		homeroom, _ := data[StudentHomeroomField].(string)
 		caseManager, _ := data[StudentCaseManagerField].(string)
-		if err := h.readModel.InsertCreatedStudent(ctx, StudentCreatedProjection{
+		if err := h.readModel.CreateStudent(ctx, StudentCreatedProjection{
 			Position:    resolved.Position,
-			Id:          id,
+			StudentID:   studentID,
 			FirstName:   firstName,
 			ChosenName:  stringPtr(chosenName),
 			LastName:    lastName,
@@ -136,7 +145,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		caseManager, _ := data[StudentCaseManagerField].(string)
 		if err := h.readModel.UpdateStudent(ctx, StudentUpdatedProjection{
 			Position:    resolved.Position,
-			Id:          id,
+			StudentID:   studentID,
 			FirstName:   firstName,
 			ChosenName:  stringPtr(chosenName),
 			LastName:    lastName,
@@ -150,7 +159,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	case StudentDeleted:
 		if err := h.readModel.DeleteStudent(ctx, StudentDeletedProjection{
 			Position:  resolved.Position,
-			Id:        id,
+			StudentID: studentID,
 			DeletedAt: parseTime(data[StudentDeletedAtField]),
 		}); err != nil {
 			return err
@@ -158,8 +167,13 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	default:
 		return fmt.Errorf("unhandled student read model event type %q", resolved.Event.EventType)
 	}
-	// TODO not sure if this is the fix
-	return nil
+	// so the SSE stream will update
+	// s.Subscriber.Subscribe(ctx, student.Channel(studentID).. etc)
+	return h.publisher.Publish(
+		ctx,
+		Channel(studentID),
+		map[string]string{"periodID": studentID},
+	)
 }
 
 func stringPtr(value string) *string {

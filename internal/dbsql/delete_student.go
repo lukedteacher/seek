@@ -7,13 +7,6 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type DeleteStudentParams struct {
-	DeletedAt                *string `json:"deleted_at"`
-	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
-	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
-	Id                       string  `json:"id"`
-}
-
 type DeleteStudentStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
@@ -23,12 +16,8 @@ type DeleteStudentStmt struct {
 
 func DeleteStudent(tx *sqlite.Conn) *DeleteStudentStmt {
 	const querySQL = `
-UPDATE students
-SET deleted_at = ?1,
-	updated_at = ?1,
-	last_event_commit_position = ?2,
-	last_event_prepare_position = ?3
-WHERE id = ?4
+DELETE FROM students
+WHERE id = ?1
     `
 
 	ps := &DeleteStudentStmt{
@@ -45,7 +34,7 @@ WHERE id = ?4
 }
 
 func (ps *DeleteStudentStmt) Run(
-	params DeleteStudentParams,
+	id string,
 ) (
 	err error,
 ) {
@@ -65,20 +54,7 @@ func (ps *DeleteStudentStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	if params.DeletedAt == nil {
-		stmt.BindNull(bindIndex)
-	} else {
-		stmt.BindText(bindIndex, *params.DeletedAt)
-
-	}
-	bindIndex++
-	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
-
-	bindIndex++
-	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
-
-	bindIndex++
-	stmt.BindText(bindIndex, params.Id)
+	stmt.BindText(bindIndex, id)
 
 	bindIndex++
 
@@ -92,13 +68,13 @@ func (ps *DeleteStudentStmt) Run(
 
 func OnceDeleteStudent(
 	tx *sqlite.Conn,
-	params DeleteStudentParams,
+	id string,
 ) (
 	err error,
 ) {
 	ps := DeleteStudent(tx)
 
 	return ps.Run(
-		params,
+		id,
 	)
 }

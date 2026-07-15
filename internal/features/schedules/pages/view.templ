@@ -1,0 +1,18 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/features/schedules/blocks"
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+)
+
+templ View(schedule models.ScheduleSignals) {
+	@layouts.Base("SEEK: schedule") {
+		<main data-init={ views.LongRunningGetSSE("/schedules/stream") }>
+			@blocks.ScheduleComponent(blocks.ScheduleComponentViewModel{
+				Schedule: schedule,
+			})
+		</main>
+	}
+}

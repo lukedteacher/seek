@@ -72,9 +72,9 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Period, error) {
 	return periods, nil
 }
 
-func (m *ReadModel) InsertCreatedPeriod(ctx context.Context, event PeriodCreatedProjection) error {
+func (m *ReadModel) CreatePeriod(ctx context.Context, event PeriodCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceInsertCreatedPeriod(conn, dbsql.InsertCreatedPeriodParams{
+		return dbsql.OnceCreatePeriod(conn, dbsql.CreatePeriodParams{
 			Id:                       event.Id,
 			Title:                    event.Title,
 			StartTime:                event.StartTime,
@@ -103,14 +103,8 @@ func (m *ReadModel) UpdatePeriod(ctx context.Context, event PeriodUpdatedProject
 }
 
 func (m *ReadModel) DeletePeriod(ctx context.Context, event PeriodDeletedProjection) error {
-	deletedAt := appdb.SQLTime(event.DeletedAt)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceDeletePeriod(conn, dbsql.DeletePeriodParams{
-			DeletedAt:                &deletedAt,
-			LastEventCommitPosition:  event.Position.Commit,
-			LastEventPreparePosition: event.Position.Prepare,
-			Id:                       event.Id,
-		})
+		return dbsql.OnceDeletePeriod(conn, event.PeriodID)
 	})
 }
 

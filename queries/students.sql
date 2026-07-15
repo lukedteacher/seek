@@ -10,7 +10,7 @@ FROM students
 WHERE deleted_at IS NULL
 ORDER BY last_name DESC, id DESC;
 
--- name: InsertCreatedStudent :exec
+-- name: CreateStudent :exec
 INSERT INTO students (id, first_name, chosen_name, last_name, grade, homeroom, case_manager, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
 VALUES (@id, @first_name, @chosen_name, @last_name, @grade, @homeroom, @case_manager, @created_at, @created_at, @last_event_commit_position, @last_event_prepare_position)
 ON CONFLICT (id) DO NOTHING;
@@ -26,9 +26,5 @@ SET first_name = @first_name,
 WHERE id = @id;
 
 -- name: DeleteStudent :exec
-UPDATE students
-SET deleted_at = @deleted_at,
-	updated_at = @deleted_at,
-	last_event_commit_position = @last_event_commit_position,
-	last_event_prepare_position = @last_event_prepare_position
+DELETE FROM students
 WHERE id = @id;

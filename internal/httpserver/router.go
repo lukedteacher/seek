@@ -8,10 +8,11 @@ import (
 
 	"seek/internal/eventstore"
 	period "seek/internal/features/periods/events"
-	pse "seek/internal/features/periods_students/events"
-	"seek/internal/features/schedule"
+	periodSchedule "seek/internal/features/periods_schedules/events"
+	periodStudent "seek/internal/features/periods_students/events"
+	schedule "seek/internal/features/schedules/events"
 	student "seek/internal/features/students/events"
-	"seek/internal/features/teacher"
+	teacher "seek/internal/features/teachers/events"
 	"seek/internal/resources"
 	"seek/internal/viewstore"
 
@@ -26,13 +27,14 @@ type Server struct {
 	// Accounts       AccountCommands
 	// Sessions       SessionManager
 	// AuthUsers      AuthUserReader
-	Periods        period.PeriodReadModelReader
-	Schedules      schedule.ScheduleReadModelReader
-	Students       student.StudentReadModelReader
-	Teachers       teacher.TeacherReadModelReader
-	PeriodStudents pse.PeriodStudentReadModelReader
-	EventSaver     eventstore.Saver
-	EventRetriever eventstore.Retriever
+	Periods          period.PeriodReadModelReader
+	Schedules        schedule.ScheduleReadModelReader
+	Students         student.StudentReadModelReader
+	Teachers         teacher.TeacherReadModelReader
+	PeriodsSchedules periodSchedule.PeriodScheduleReadModelReader
+	PeriodsStudents  periodStudent.PeriodStudentReadModelReader
+	EventSaver       eventstore.Saver
+	EventRetriever   eventstore.Retriever
 	// ProfileStorage profile.ObjectStore
 	Subscriber  MessageSubscriber
 	ViewStore   viewstore.Store

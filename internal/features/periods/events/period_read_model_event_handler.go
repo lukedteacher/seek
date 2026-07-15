@@ -18,7 +18,7 @@ type PeriodReadModelReader interface {
 }
 
 type PeriodReadModelWriter interface {
-	InsertCreatedPeriod(ctx context.Context, event PeriodCreatedProjection) error
+	CreatePeriod(ctx context.Context, event PeriodCreatedProjection) error
 	UpdatePeriod(ctx context.Context, event PeriodUpdatedProjection) error
 	DeletePeriod(ctx context.Context, event PeriodDeletedProjection) error
 }
@@ -45,7 +45,7 @@ type PeriodUpdatedProjection struct {
 
 type PeriodDeletedProjection struct {
 	Position  eventstore.Position
-	Id        string
+	PeriodID  string
 	DeletedAt time.Time
 }
 
@@ -100,8 +100,9 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
 	periodID, _ := scope[PeriodIDField].(string)
+	// this is to prevent errors where the period ID isn't present or read correctly
 	if periodID == "" {
-		return fmt.Errorf("no id provided for read model event")
+		return fmt.Errorf("no id provided for period read model event")
 	}
 
 	switch resolved.Event.EventType {
@@ -114,7 +115,7 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 			Days:      int64(data[PeriodDaysField].(float64)),
 			CreatedAt: parseTime(data[PeriodCreatedAtField]),
 		}
-		if err := h.readModel.InsertCreatedPeriod(ctx, periodCreated); err != nil {
+		if err := h.readModel.CreatePeriod(ctx, periodCreated); err != nil {
 			return err
 		}
 	case PeriodUpdated:
@@ -132,7 +133,7 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 	case PeriodDeleted:
 		periodDeleted := PeriodDeletedProjection{
 			Position:  resolved.Position,
-			Id:        periodID,
+			PeriodID:  periodID,
 			DeletedAt: parseTime(data[PeriodDeletedAtField]),
 		}
 		if err := h.readModel.DeletePeriod(ctx, periodDeleted); err != nil {

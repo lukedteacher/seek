@@ -72,10 +72,10 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 	return students, nil
 }
 
-func (m *ReadModel) InsertCreatedStudent(ctx context.Context, event StudentCreatedProjection) error {
+func (m *ReadModel) CreateStudent(ctx context.Context, event StudentCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceInsertCreatedStudent(conn, dbsql.InsertCreatedStudentParams{
-			Id:                       event.Id,
+		return dbsql.OnceCreateStudent(conn, dbsql.CreateStudentParams{
+			Id:                       event.StudentID,
 			FirstName:                event.FirstName,
 			ChosenName:               event.ChosenName,
 			LastName:                 event.LastName,
@@ -98,20 +98,14 @@ func (m *ReadModel) UpdateStudent(ctx context.Context, event StudentUpdatedProje
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),
-			Id:                       event.Id,
+			Id:                       event.StudentID,
 		})
 	})
 }
 
 func (m *ReadModel) DeleteStudent(ctx context.Context, event StudentDeletedProjection) error {
-	deletedAt := appdb.SQLTime(event.DeletedAt)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceDeleteStudent(conn, dbsql.DeleteStudentParams{
-			DeletedAt:                &deletedAt,
-			LastEventCommitPosition:  event.Position.Commit,
-			LastEventPreparePosition: event.Position.Prepare,
-			Id:                       event.Id,
-		})
+		return dbsql.OnceDeleteStudent(conn, event.StudentID)
 	})
 }
 

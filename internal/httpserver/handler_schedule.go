@@ -7,10 +7,11 @@ import (
 
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
-	"seek/internal/features/schedule"
-	"seek/internal/views/blocks"
+	"seek/internal/features/schedules/blocks"
+	"seek/internal/features/schedules/events"
+	"seek/internal/features/schedules/pages"
+	pse "seek/internal/features/periods_schedules/events"
 	"seek/internal/views/dto"
-	"seek/internal/views/pages"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -38,18 +39,18 @@ func (s Server) getSchedules(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = pages.Schedules(schedules).Render(r.Context(), w)
+	_ = pages.List(schedules).Render(r.Context(), w)
 }
 
 // GET request to /schedules/create
 func (s Server) getScheduleCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	emptySchedule := models.Schedule{}
-	validation := schedule.Validate(emptySchedule)
+	validation := events.Validate(emptySchedule)
 
 	teachers, _ := s.Teachers.List(ctx)
 	periods, _ := s.Periods.List(ctx)
-	_ = pages.CreateSchedule(emptySchedule, teachers, periods, validation, nil).Render(ctx, w)
+	_ = pages.Create(emptySchedule, teachers, periods, validation, nil).Render(ctx, w)
 }
 
 // POST request to /schedules/create/validate
@@ -78,8 +79,8 @@ func (s Server) postScheduleCreateValidate(w http.ResponseWriter, r *http.Reques
 		}
 	}
 	periods, _ := s.Periods.List(ctx)
-	validation := schedule.Validate(model)
-	patchTempl(w, r, blocks.CreateScheduleForm(model, teachers, periods, validation, selectedTeacher))
+	validation := events.Validate(model)
+	patchTempl(w, r, blocks.CreateForm(model, teachers, periods, validation, selectedTeacher))
 }
 
 // POST request to /schedules/create
@@ -93,7 +94,7 @@ func (s Server) postScheduleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := schedule.CreateScheduleCommandHandler(r.Context(), schedule.CreateScheduleCommand{
+	_, err := events.CreateScheduleCommandHandler(r.Context(), events.CreateScheduleCommand{
 		Title:     signals.Schedule.Title,
 		TeacherId: signals.Schedule.TeacherID,
 		Metadata:  eventstore.HTTPCommandMetadata(r),
@@ -120,7 +121,7 @@ func (s Server) getScheduleEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	efvm, _ := s.newEditScheduleViewModel(ctx, scheduleRes)
 	scvm, _ := s.newScheduleComponentViewModel(ctx, scheduleRes)
-	_ = pages.EditSchedule(efvm, scvm).Render(ctx, w)
+	_ = pages.Edit(efvm, scvm).Render(ctx, w)
 }
 
 // GET request to /schedules/{id}/stream
@@ -151,7 +152,7 @@ func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 	}
 	defer watcher.Stop()
 
-	sub, err := s.Subscriber.Subscribe(ctx, schedule.Channel("idk"), func(context.Context, []byte) {
+	sub, err := s.Subscriber.Subscribe(ctx, events.Channel("idk"), func(context.Context, []byte) {
 		notify()
 	})
 	if err != nil {
@@ -181,7 +182,7 @@ func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			efvm, _ := s.newEditScheduleViewModel(ctx, &model)
 			scvm, _ := s.newScheduleComponentViewModel(ctx, &model)
-			sse.PatchElementTempl(pages.EditSchedule(efvm, scvm))
+			sse.PatchElementTempl(pages.Edit(efvm, scvm))
 		}
 	}
 }
@@ -221,7 +222,7 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	scheduleID := chi.URLParam(r, "id")
-	currentPeriodIDs, _ := s.Schedules.ListPeriodIDsForSchedule(ctx, scheduleID)
+	currentPeriodIDs, _ := s.PeriodsSchedules.ListPeriodIDsForSchedule(ctx, scheduleID)
 	proposedPeriodIDs := []string{}
 	for _, periodID := range signals.Schedule.PeriodIDs {
 		proposedPeriodIDs = append(proposedPeriodIDs, periodID)
@@ -241,16 +242,16 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 		// find deletions
 		for _, periodID := range currentPeriodIDs {
 			if !proposedMap[periodID] {
-				result, err := schedule.RemovePeriodFromScheduleCommandHandler(ctx, schedule.RemovePeriodFromScheduleCommand{
+				result, err := pse.PeriodScheduleRemoveCommandHandler(ctx, pse.PeriodScheduleRemoveCommand{
 					ScheduleID: scheduleID,
 					PeriodID:   periodID,
 					Metadata:   eventstore.HTTPCommandMetadata(r),
 				}, s.EventSaver, s.EventRetriever)
-				if result != nil {
-					println("reid: ", result.EventID)
-				}
 				if err != nil {
 					println("re: ", err.Error())
+				}
+				if result != nil {
+					println("reid: ", result.EventID)
 				}
 			}
 		}
@@ -258,21 +259,21 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 		// find additions
 		for _, periodID := range proposedPeriodIDs {
 			if !currentMap[periodID] {
-				result, err := schedule.PeriodAddedToScheduleCommandHandler(ctx, schedule.PeriodAddedToScheduleCommand{
+				result, err := pse.PeriodScheduleAddCommandHandler(ctx, pse.PeriodScheduleAddCommand{
 					ScheduleID: scheduleID,
 					PeriodID:   periodID,
 					Metadata:   eventstore.HTTPCommandMetadata(r),
 				}, s.EventSaver, s.EventRetriever)
-				if result != nil {
-					println("aeid: ", result.EventID)
-				}
 				if err != nil {
 					println("ae: ", err.Error())
+				}
+				if result != nil {
+					println("aeid: ", result.EventID)
 				}
 			}
 		}
 	}
-	_, err := schedule.UpdateScheduleCommandHandler(ctx, schedule.UpdateScheduleCommand{
+	_, err := events.UpdateScheduleCommandHandler(ctx, events.UpdateScheduleCommand{
 		Id:        scheduleID,
 		Title:     signals.Schedule.Title,
 		TeacherId: signals.Schedule.TeacherID,
@@ -287,7 +288,7 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 // POST request to /schedules/{id}/delete
 func (s Server) deleteSchedule(w http.ResponseWriter, r *http.Request) {
 	scheduleID := chi.URLParam(r, "id")
-	_, err := schedule.DeleteScheduleCommandHandler(r.Context(), schedule.DeleteScheduleCommand{
+	_, err := events.DeleteScheduleCommandHandler(r.Context(), events.DeleteScheduleCommand{
 		ScheduleID: scheduleID,
 		Metadata:   eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)
@@ -310,7 +311,7 @@ func (s *Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedu
 	if sm == nil {
 		return blocks.EditScheduleViewModel{}, nil
 	}
-	periodIDs, err := s.Schedules.ListPeriodIDsForSchedule(ctx, sm.Id)
+	periodIDs, err := s.PeriodsSchedules.ListPeriodIDsForSchedule(ctx, sm.Id)
 	if err != nil {
 		return blocks.EditScheduleViewModel{}, fmt.Errorf("list schedule periods %s: %w", sm.Id, err)
 	}
@@ -331,7 +332,7 @@ func (s *Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedu
 		PeriodIDs: periodIDs,
 	}
 
-	validation := schedule.Validate(*sm)
+	validation := events.Validate(*sm)
 
 	teachers, err := s.Teachers.List(ctx)
 	if err != nil {
@@ -375,7 +376,7 @@ func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.S
 	if sm == nil {
 		return blocks.ScheduleComponentViewModel{}, nil
 	}
-	periodIDs, err := s.Schedules.ListPeriodIDsForSchedule(ctx, sm.Id)
+	periodIDs, err := s.PeriodsSchedules.ListPeriodIDsForSchedule(ctx, sm.Id)
 	if err != nil {
 		return blocks.ScheduleComponentViewModel{}, fmt.Errorf("list period IDs: %w", err)
 	}

@@ -16,10 +16,11 @@ import (
 	"seek/internal/eventcatalog"
 	"seek/internal/eventstore"
 	period "seek/internal/features/periods/events"
-	pse "seek/internal/features/periods_students/events"
-	"seek/internal/features/schedule"
+	periodSchedule "seek/internal/features/periods_schedules/events"
+	periodStudent "seek/internal/features/periods_students/events"
+	schedule "seek/internal/features/schedules/events"
 	student "seek/internal/features/students/events"
-	"seek/internal/features/teacher"
+	teacher "seek/internal/features/teachers/events"
 	"seek/internal/httpserver"
 	"seek/internal/natsbus"
 	"seek/internal/viewstore"
@@ -31,12 +32,13 @@ type runOptions struct {
 }
 
 type appComponents struct {
-	periodReadModel        *period.ReadModel
-	scheduleReadModel      *schedule.ReadModel
-	studentReadModel       *student.ReadModel
-	teacherReadModel       *teacher.ReadModel
-	periodStudentReadModel *pse.ReadModel
-	checkpointer           eventstore.Checkpointer
+	periodReadModel         *period.ReadModel
+	scheduleReadModel       *schedule.ReadModel
+	studentReadModel        *student.ReadModel
+	teacherReadModel        *teacher.ReadModel
+	periodScheduleReadModel *periodSchedule.ReadModel
+	periodStudentReadModel  *periodStudent.ReadModel
+	checkpointer            eventstore.Checkpointer
 }
 
 func main() {
@@ -98,13 +100,14 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		// Accounts:       components.accountCommands,
 		// Sessions:       components.sessionManager,
 		// AuthUsers:   components.authUsers,
-		Periods:        components.periodReadModel,
-		Schedules:      components.scheduleReadModel,
-		Students:       components.studentReadModel,
-		Teachers:       components.teacherReadModel,
-		PeriodStudents: components.periodStudentReadModel,
-		EventSaver:     orisunStore,
-		EventRetriever: orisunStore,
+		Periods:          components.periodReadModel,
+		Schedules:        components.scheduleReadModel,
+		Students:         components.studentReadModel,
+		Teachers:         components.teacherReadModel,
+		PeriodsSchedules: components.periodScheduleReadModel,
+		PeriodsStudents:  components.periodStudentReadModel,
+		EventSaver:       orisunStore,
+		EventRetriever:   orisunStore,
 		// ProfileStorage: components.profileStorage,
 		Subscriber:  bus,
 		ViewStore:   viewStore,
@@ -150,15 +153,17 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 	scheduleReadModel := schedule.NewReadModel(db)
 	studentReadModel := student.NewReadModel(db)
 	teacherReadModel := teacher.NewReadModel(db)
-	periodStudentReadModel := pse.NewReadModel(db)
+	periodScheduleReadModel := periodSchedule.NewReadModel(db)
+	periodStudentReadModel := periodStudent.NewReadModel(db)
 
 	return appComponents{
-		periodReadModel:        periodReadModel,
-		scheduleReadModel:      scheduleReadModel,
-		studentReadModel:       studentReadModel,
-		teacherReadModel:       teacherReadModel,
-		periodStudentReadModel: periodStudentReadModel,
-		checkpointer:           eventstore.NewSQLiteCheckpointer(db),
+		periodReadModel:         periodReadModel,
+		scheduleReadModel:       scheduleReadModel,
+		studentReadModel:        studentReadModel,
+		teacherReadModel:        teacherReadModel,
+		periodScheduleReadModel: periodScheduleReadModel,
+		periodStudentReadModel:  periodStudentReadModel,
+		checkpointer:            eventstore.NewSQLiteCheckpointer(db),
 	}
 }
 

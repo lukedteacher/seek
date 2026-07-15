@@ -24,7 +24,7 @@ func ListPeriodIdsForStudent(tx *sqlite.Conn) *ListPeriodIdsForStudentStmt {
 SELECT period_id, student_id
 FROM periods_students
 WHERE student_id = ?1
-ORDER BY student_id DESC
+ORDER BY period_id DESC
     `
 
 	ps := &ListPeriodIdsForStudentStmt{

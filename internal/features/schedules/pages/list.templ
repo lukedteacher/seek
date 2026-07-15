@@ -1,0 +1,20 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/features/schedules/blocks"
+	"seek/internal/views/layouts"
+)
+
+templ List(schedules []models.Schedule) {
+	@layouts.Base("SEEK: schedules") {
+		<main>
+			<section>
+				<h1>SCHEDULE</h1>
+				<p>review and enter schedule data here</p>
+				<p>many features to come</p>
+				@blocks.List(schedules)
+			</section>
+		</main>
+	}
+}

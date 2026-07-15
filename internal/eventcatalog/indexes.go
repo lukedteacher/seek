@@ -3,8 +3,9 @@ package eventcatalog
 import (
 	"seek/internal/eventstore"
 	period "seek/internal/features/periods/events"
+	schedule "seek/internal/features/schedules/events"
 	student "seek/internal/features/students/events"
-	"seek/internal/features/teacher"
+	teacher "seek/internal/features/teachers/events"
 )
 
 func BoundaryIndexes() []eventstore.BoundaryIndexDefinition {
@@ -13,6 +14,11 @@ func BoundaryIndexes() []eventstore.BoundaryIndexDefinition {
 			Name:       "period_scope",
 			Fields:     []string{period.PeriodScopeIDField},
 			EventTypes: []string{period.PeriodCreated, period.PeriodUpdated, period.PeriodDeleted},
+		},
+		{
+			Name:       "schedule_scope",
+			Fields:     []string{schedule.ScheduleScopeIDField},
+			EventTypes: []string{schedule.ScheduleCreated, schedule.ScheduleUpdated, schedule.ScheduleDeleted},
 		},
 		{
 			Name:       "student_scope",

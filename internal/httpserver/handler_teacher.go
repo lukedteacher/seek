@@ -5,9 +5,9 @@ import (
 
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
-	"seek/internal/features/teacher"
-	"seek/internal/views/blocks"
-	"seek/internal/views/pages"
+	"seek/internal/features/teachers/blocks"
+	"seek/internal/features/teachers/events"
+	"seek/internal/features/teachers/pages"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/starfederation/datastar-go/datastar"
@@ -37,7 +37,7 @@ func (s Server) getTeachersList(w http.ResponseWriter, r *http.Request) {
 	}
 	datastar.ReadSignals(r, signals)
 
-	_ = pages.Teachers(signals.View, teachers).Render(r.Context(), w)
+	_ = pages.List(signals.View, teachers).Render(r.Context(), w)
 }
 
 // GET request to /teachers/{id}
@@ -49,12 +49,12 @@ func (s Server) getTeacher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = pages.Teacher(teacher).Render(r.Context(), w)
+	_ = pages.View(teacher).Render(r.Context(), w)
 }
 
 // GET request to /teachers/create
 func (s Server) getCreateTeacherForm(w http.ResponseWriter, r *http.Request) {
-	_ = pages.CreateTeacher().Render(r.Context(), w)
+	_ = pages.Create().Render(r.Context(), w)
 }
 
 // POST request to /teachers/create
@@ -72,7 +72,7 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	_, err := teacher.CreateTeacherCommandHandler(r.Context(), teacher.CreateTeacherCommand{
+	_, err := events.CreateTeacherCommandHandler(r.Context(), events.CreateTeacherCommand{
 		FirstName:  signals.FirstName,
 		ChosenName: signals.ChosenName,
 		LastName:   signals.LastName,
@@ -103,14 +103,14 @@ func (s Server) getEditTeacher(w http.ResponseWriter, r *http.Request) {
 	}
 
 	teacherSignals := models.TeacherSignals{
-		ID: teacherRes.ID,
-		FirstName: teacherRes.FirstName,
+		ID:         teacherRes.ID,
+		FirstName:  teacherRes.FirstName,
 		ChosenName: *teacherRes.ChosenName,
-		LastName: teacherRes.LastName,
+		LastName:   teacherRes.LastName,
 	}
 
-	validation := teacher.Validate(teacherRes)
-	_ = pages.EditTeacher(teacherSignals, validation).Render(context, w)
+	validation := events.Validate(teacherRes)
+	_ = pages.Edit(teacherSignals, validation).Render(context, w)
 }
 
 // POST request to /teachers/{id}/edit/validate
@@ -133,8 +133,8 @@ func (s Server) postValidateEditTeacher(w http.ResponseWriter, r *http.Request) 
 		LastName:   signals.Teacher.LastName,
 	}
 
-	validation := teacher.Validate(&model)
-	patchTempl(w, r, blocks.EditTeacherForm(signals.Teacher, validation))
+	validation := events.Validate(&model)
+	patchTempl(w, r, blocks.EditForm(signals.Teacher, validation))
 }
 
 // POST request to /teachers/{id}/edit
@@ -157,19 +157,19 @@ func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO add actual validation
-	validation := teacher.Validate(&model)
+	validation := events.Validate(&model)
 	if validation == nil {
 		println("some validation error")
 	}
 
-	command := teacher.UpdateTeacherCommand{
+	command := events.UpdateTeacherCommand{
 		TeacherID:  signals.Teacher.ID,
 		FirstName:  signals.Teacher.FirstName,
 		ChosenName: signals.Teacher.ChosenName,
 		LastName:   signals.Teacher.LastName,
 		Metadata:   eventstore.HTTPCommandMetadata(r),
 	}
-	result, err := teacher.UpdateTeacherCommandHandler(context, command, s.EventSaver, s.EventRetriever)
+	result, err := events.UpdateTeacherCommandHandler(context, command, s.EventSaver, s.EventRetriever)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -183,7 +183,7 @@ func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
 // POST request to /teachers/{id}/delete
 func (s Server) deleteTeacher(w http.ResponseWriter, r *http.Request) {
 	teacherID := chi.URLParam(r, "id")
-	_, err := teacher.DeleteTeacherCommandHandler(r.Context(), teacher.DeleteTeacherCommand{
+	_, err := events.DeleteTeacherCommandHandler(r.Context(), events.DeleteTeacherCommand{
 		TeacherID: teacherID,
 		Metadata:  eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)

@@ -21,7 +21,14 @@ type CreatePeriodResult struct {
 	PeriodID string
 }
 
-func CreatePeriodCommandHandler(ctx context.Context, command CreatePeriodCommand, saver eventstore.Saver) (CreatePeriodResult, error) {
+func CreatePeriodCommandHandler(
+	ctx context.Context,
+	command CreatePeriodCommand,
+	saver eventstore.Saver,
+) (
+	CreatePeriodResult,
+	error,
+) {
 	context, err := newCreatePeriodContext(command)
 	if err != nil {
 		return CreatePeriodResult{}, err
@@ -33,7 +40,8 @@ func CreatePeriodCommandHandler(ctx context.Context, command CreatePeriodCommand
 		context.duration,
 		context.days,
 		time.Now(),
-		metadataWithQuery(command.Metadata, context.query))
+		metadataWithQuery(command.Metadata, context.query),
+	)
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, context.query); err != nil {
 		return CreatePeriodResult{}, err
 	}

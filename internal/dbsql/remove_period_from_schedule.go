@@ -8,8 +8,8 @@ import (
 )
 
 type RemovePeriodFromScheduleParams struct {
-	ScheduleId string `json:"schedule_id"`
 	PeriodId   string `json:"period_id"`
+	ScheduleId string `json:"schedule_id"`
 }
 
 type RemovePeriodFromScheduleStmt struct {
@@ -21,8 +21,8 @@ type RemovePeriodFromScheduleStmt struct {
 
 func RemovePeriodFromSchedule(tx *sqlite.Conn) *RemovePeriodFromScheduleStmt {
 	const querySQL = `
-DELETE FROM schedule_periods
-WHERE schedule_id = ?1 AND period_id = ?2
+DELETE FROM periods_schedules
+WHERE period_id = ?1 AND schedule_id = ?2
     `
 
 	ps := &RemovePeriodFromScheduleStmt{
@@ -59,10 +59,10 @@ func (ps *RemovePeriodFromScheduleStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, params.ScheduleId)
+	stmt.BindText(bindIndex, params.PeriodId)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.PeriodId)
+	stmt.BindText(bindIndex, params.ScheduleId)
 
 	bindIndex++
 

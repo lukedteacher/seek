@@ -10,7 +10,7 @@ FROM schedules
 WHERE deleted_at IS NULL
 ORDER BY title DESC, id DESC;
 
--- name: InsertCreatedSchedule :exec
+-- name: CreateSchedule :exec
 INSERT INTO schedules (id, title, teacher_id, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
 VALUES (@id, @title, @teacher_id, @created_at, @created_at, @last_event_commit_position, @last_event_prepare_position)
 ON CONFLICT (id) DO NOTHING;
@@ -25,9 +25,5 @@ SET title = @title,
 WHERE id = @id;
 
 -- name: DeleteSchedule :exec
-UPDATE schedules
-SET deleted_at = @deleted_at,
-	updated_at = @deleted_at,
-	last_event_commit_position = @last_event_commit_position,
-	last_event_prepare_position = @last_event_prepare_position
+DELETE FROM schedules
 WHERE id = @id;
