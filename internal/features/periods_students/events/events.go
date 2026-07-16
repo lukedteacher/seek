@@ -22,16 +22,12 @@ const (
 
 type PeriodStudentAddedEvent struct {
 	EventID   string             `json:"period_student_added_event_id"`
-	PeriodID  string             `json:"period_id"`
-	StudentID string             `json:"student_id"`
 	AddedAt   string             `json:"added_at"`
 	Scope     PeriodStudentScope `json:"scope"`
 }
 
 type PeriodStudentRemovedEvent struct {
 	EventID   string             `json:"period_student_removed_event_id"`
-	PeriodID  string             `json:"period_id"`
-	StudentID string             `json:"student_id"`
 	RemovedAt string             `json:"removed_at"`
 	Scope     PeriodStudentScope `json:"scope"`
 }
@@ -50,8 +46,6 @@ func NewPeriodStudentAddedEvent(
 ) eventstore.DomainEvent {
 	event := PeriodStudentAddedEvent{
 		EventID:   eventID,
-		PeriodID:  periodID,
-		StudentID: studentID,
 		AddedAt:   addedAt.Format(time.RFC3339),
 		Scope:     periodStudentScope(periodID, studentID),
 	}
@@ -72,8 +66,6 @@ func NewPeriodStudentRemovedEvent(
 ) eventstore.DomainEvent {
 	event := PeriodStudentRemovedEvent{
 		EventID:   eventID,
-		PeriodID:  periodID,
-		StudentID: studentID,
 		RemovedAt: removedAt.Format(time.RFC3339),
 		Scope:     periodStudentScope(periodID, studentID),
 	}
@@ -90,8 +82,4 @@ func periodStudentScope(periodID, studentID string) PeriodStudentScope {
 		PeriodID:  periodID,
 		StudentID: studentID,
 	}
-}
-
-func Channel(id string) string {
-	return "periods_students." + id
 }

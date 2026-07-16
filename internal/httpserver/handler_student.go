@@ -24,6 +24,7 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Post("/students/create/validate", s.postStudentCreateValidate)
 	r.Post("/students/create", s.postStudentCreate)
 	r.Get("/students/{id}", s.getStudentView)
+	r.Get("/students/{id}/stream", s.getStudentViewStream)
 	r.Get("/students/{id}/edit", s.getStudentEdit)
 	r.Get("/students/{id}/edit/stream", s.getStudentEditStream)
 	r.Post("/students/{id}/edit/validate", s.postStudentEditValidate)
@@ -33,6 +34,7 @@ func (s Server) studentRoutes(r chi.Router) {
 
 // GET request to /students
 func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	signals := &struct {
 		View int `json:"view"`
 	}{}
@@ -40,7 +42,7 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 		println("signal read error: ", err.Error())
 		return
 	}
-	students, err := s.Students.List(r.Context())
+	students, err := s.Students.List(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -49,7 +51,7 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	for i := range students {
 		studentViews[i] = *dto.NewStudentViewFromModel(&students[i])
 	}
-	_ = pages.List(signals.View, studentViews).Render(r.Context(), w)
+	_ = pages.List(signals.View, studentViews).Render(ctx, w)
 }
 
 // GET request to /students/stream
@@ -210,6 +212,78 @@ func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
 	}
 	view.Schedule.Periods = periodViews
 	_ = pages.View(*view).Render(r.Context(), w)
+}
+
+// GET request to /students/{id}/stream
+func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	studentID := chi.URLParam(r, "id")
+	sse := newSSE(w, r)
+
+	notifier := NewDedupeNotifier()
+	// subscribes to the channel which publishes changes to the underlying model
+	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(studentID), func(context.Context, []byte) {
+		notifier.Notify()
+	})
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	defer sub.Close()
+
+	if err := s.refreshStudentViewState(ctx, studentID); err != nil {
+		println("svs first refresh: ", err.Error())
+		return
+	}
+
+	// watches the key value stream for ephemeral changes
+	// lasts 5m
+	watcher, err := s.ViewStore.Watch(
+		ctx,
+		studentID+".view",
+		viewstore.WatchOptions{
+			IgnoreDeletes: true,
+		},
+	)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	defer watcher.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-notifier.Signal(): // triggers when the read model publishes
+			if err := s.refreshStudentViewState(ctx, studentID); err != nil {
+				println("svs second refresh: ", err.Error())
+				if err.Error() == "student not found" {
+					sse.PatchElementTempl(pages.NotFound())
+				}
+				return
+			}
+		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
+			if !ok {
+				return
+			}
+			var model models.Student
+			if err := entry.JSON(&model); err != nil {
+				println(err.Error())
+				return
+			}
+			view := dto.NewStudentViewFromModel(&model)
+			periodIDs, _ := s.PeriodsStudents.ListPeriodIDsForStudent(ctx, studentID)
+			periodViews := make([]dto.PeriodView, len(periodIDs))
+			for i := range periodIDs {
+				period, _ := s.Periods.Get(ctx, periodIDs[i])
+				view, _ := dto.NewViewFromPeriod(period)
+				periodViews[i] = view
+			}
+			view.Schedule.Periods = periodViews
+			sse.PatchElementTempl(pages.View(*view))
+		}
+	}
 }
 
 // GET request to /students/{id}/edit

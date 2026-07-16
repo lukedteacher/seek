@@ -26,30 +26,32 @@ func (s Server) teacherRoutes(r chi.Router) {
 
 // GET request to /teachers
 func (s Server) getTeachersList(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	type Signals struct {
 		View int64 `json:"view"`
 	}
 	signals := &Signals{}
-	teachers, err := s.Teachers.List(r.Context())
+	teachers, err := s.Teachers.List(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	datastar.ReadSignals(r, signals)
 
-	_ = pages.List(signals.View, teachers).Render(r.Context(), w)
+	_ = pages.List(signals.View, teachers).Render(ctx, w)
 }
 
 // GET request to /teachers/{id}
 func (s Server) getTeacher(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	teacherID := chi.URLParam(r, "id")
-	teacher, err := s.Teachers.Get(r.Context(), teacherID)
+	teacher, err := s.Teachers.Get(ctx, teacherID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	_ = pages.View(teacher).Render(r.Context(), w)
+	_ = pages.View(teacher).Render(ctx, w)
 }
 
 // GET request to /teachers/create

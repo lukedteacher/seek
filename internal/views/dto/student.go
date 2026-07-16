@@ -21,7 +21,6 @@ type StudentView struct {
 type StudentFormView struct {
 	Student    StudentView                  `json:"student"`
 	Validation map[string]events.Validation `json:"validation"`
-	Schedule   ScheduleView                 `json:"schedule"`
 }
 
 func NewStudentViewFromModel(s *models.Student) *StudentView {

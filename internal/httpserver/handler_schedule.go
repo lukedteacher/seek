@@ -110,6 +110,7 @@ func (s Server) postScheduleCreate(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// GET request to /schedules/{id}
 func (s Server) getScheduleView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	scheduleID := chi.URLParam(r, "id")
@@ -122,6 +123,7 @@ func (s Server) getScheduleView(w http.ResponseWriter, r *http.Request) {
 	_ = pages.View(view).Render(ctx, w)
 }
 
+// GET request to /schedules/{id}/periods/{pid} ??
 func (s Server) getPeriodScheduleView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	scheduleID := chi.URLParam(r, "id")
@@ -143,6 +145,70 @@ func (s Server) getPeriodScheduleView(w http.ResponseWriter, r *http.Request) {
 	_ = pages.ViewWithPeriod(view, pview).Render(ctx, w)
 }
 
+// GET request to /schedules/{id}/stream
+func (s Server) getScheduleViewStream(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	scheduleID := chi.URLParam(r, "id")
+	sse := newSSE(w, r)
+
+	notifier := NewDedupeNotifier()
+	// subscribes to the channel which publishes changes to the underlying model
+	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(scheduleID), func(context.Context, []byte) {
+		notifier.Notify()
+	})
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	defer sub.Close()
+
+	if err := s.refreshScheduleViewState(ctx, scheduleID); err != nil {
+		println("svs first refresh: ", err.Error())
+		return
+	}
+
+	// watches the key value stream for ephemeral changes
+	// lasts 5m
+	watcher, err := s.ViewStore.Watch(
+		ctx,
+		scheduleID+".view",
+		viewstore.WatchOptions{
+			IgnoreDeletes: true,
+		},
+	)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	defer watcher.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-notifier.Signal(): // triggers when the read model publishes
+			if err := s.refreshScheduleViewState(ctx, scheduleID); err != nil {
+				println("svs second refresh: ", err.Error())
+				if err.Error() == "schedule not found" {
+					sse.PatchElementTempl(pages.NotFound())
+				}
+				return
+			}
+		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
+			if !ok {
+				return
+			}
+			var model models.Schedule
+			if err := entry.JSON(&model); err != nil {
+				println(err.Error())
+				return
+			}
+			view, _ := s.newScheduleComponentViewModel(ctx, &model)
+			sse.PatchElementTempl(pages.View(view))
+		}
+	}
+}
+
 // GET request to /schedules/{id}
 func (s Server) getScheduleEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -160,49 +226,45 @@ func (s Server) getScheduleEdit(w http.ResponseWriter, r *http.Request) {
 
 // GET request to /schedules/{id}/stream
 func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
-	sse := newSSE(w, r)
 	ctx := r.Context()
 	scheduleID := chi.URLParam(r, "id")
+	sse := newSSE(w, r)
 
-	updates := make(chan struct{}, 1)
-	notify := func() {
-		select {
-		case updates <- struct{}{}:
-		default:
-		}
+	notifier := NewDedupeNotifier()
+	// subscribes to the channel which publishes changes to the underlying model
+	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(scheduleID), func(context.Context, []byte) {
+		notifier.Notify()
+	})
+	if err != nil {
+		println(err.Error())
+		return
 	}
+	defer sub.Close()
 
-	// watches that initial store
+	// watches the period edit view state kv
 	watcher, err := s.ViewStore.Watch(
 		ctx,
-		scheduleID,
+		scheduleID+".edit",
 		viewstore.WatchOptions{
 			IgnoreDeletes: true,
 		},
 	)
 	if err != nil {
-		println("watcher error in schedule edit stream: ", err.Error())
+		println(err.Error())
 		return
 	}
 	defer watcher.Stop()
-
-	sub, err := s.Subscriber.Subscribe(ctx, events.Channel("idk"), func(context.Context, []byte) {
-		notify()
-	})
-	if err != nil {
-		println("subscriber error in schedule edit stream: ", err.Error())
-		return
-	}
-
-	defer sub.Close()
 
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-updates:
-			if err := s.refreshScheduleViewState(ctx, scheduleID); err != nil {
-				println("refresh view state error in schedule edit stream: ", err.Error())
+		case <-notifier.Signal():
+			if err := s.refreshScheduleEditState(ctx, scheduleID); err != nil {
+				println(err.Error())
+				if err.Error() == "schedule not found" {
+					sse.PatchElementTempl(pages.NotFound())
+				}
 				return
 			}
 		case entry, ok := <-watcher.Updates():
@@ -211,7 +273,7 @@ func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			var model models.Schedule
 			if err := entry.JSON(&model); err != nil {
-				println("json error in schedule edit stream: ", err.Error())
+				println(err.Error())
 				return
 			}
 			efvm, _ := s.newEditScheduleViewModel(ctx, &model)
@@ -236,7 +298,7 @@ func (s Server) postScheduleEditValidate(w http.ResponseWriter, r *http.Request)
 	}
 	scheduleID := chi.URLParam(r, "id")
 	model := models.Schedule{
-		Id:        scheduleID,
+		ID:        scheduleID,
 		Title:     signals.Schedule.Title,
 		TeacherId: signals.Schedule.TeacherID,
 	}
@@ -329,6 +391,7 @@ func (s Server) deleteSchedule(w http.ResponseWriter, r *http.Request) {
 	emptySSE(w, r, err)
 }
 
+// VIEW STATE HELPER FUNCTIONS
 func (s Server) refreshScheduleViewState(ctx context.Context, scheduleID string) error {
 	schedule, err := s.Schedules.Get(ctx, scheduleID)
 	if err != nil {
@@ -338,6 +401,14 @@ func (s Server) refreshScheduleViewState(ctx context.Context, scheduleID string)
 	return viewstore.PutState(ctx, s.ViewStore, scheduleID, schedule)
 }
 
+func (s Server) refreshScheduleEditState(ctx context.Context, scheduleID string) error {
+	schedule, err := s.Schedules.Get(ctx, scheduleID)
+	if err != nil {
+		return err
+	}
+	return viewstore.PutState(ctx, s.ViewStore, schedule.ID+".edit", schedule)
+}
+
 // builds a view model for the edit schedule view
 // TODO genericize it to be used for other contexts?
 // TODO save it in the state?
@@ -345,9 +416,9 @@ func (s *Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedu
 	if sm == nil {
 		return blocks.EditScheduleViewModel{}, nil
 	}
-	periodIDs, err := s.PeriodsSchedules.ListPeriodIDsForSchedule(ctx, sm.Id)
+	periodIDs, err := s.PeriodsSchedules.ListPeriodIDsForSchedule(ctx, sm.ID)
 	if err != nil {
-		return blocks.EditScheduleViewModel{}, fmt.Errorf("list schedule periods %s: %w", sm.Id, err)
+		return blocks.EditScheduleViewModel{}, fmt.Errorf("list schedule periods %s: %w", sm.ID, err)
 	}
 
 	schedulePeriodsSignals := make([]models.PeriodSignals, 0, len(periodIDs))
@@ -360,7 +431,7 @@ func (s *Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedu
 		schedulePeriodsSignals = append(schedulePeriodsSignals, periodSignals)
 	}
 	scheduleSignals := models.ScheduleSignals{
-		ID:        sm.Id,
+		ID:        sm.ID,
 		Title:     sm.Title,
 		TeacherID: sm.TeacherId,
 		PeriodIDs: periodIDs,
@@ -410,7 +481,7 @@ func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.S
 	if sm == nil {
 		return dto.ScheduleView{}, nil
 	}
-	periodIDs, err := s.PeriodsSchedules.ListPeriodIDsForSchedule(ctx, sm.Id)
+	periodIDs, err := s.PeriodsSchedules.ListPeriodIDsForSchedule(ctx, sm.ID)
 	if err != nil {
 		return dto.ScheduleView{}, fmt.Errorf("list period IDs: %w", err)
 	}
@@ -427,7 +498,7 @@ func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.S
 		pcvs = append(pcvs, view)
 	}
 	return dto.ScheduleView{
-		ID:      sm.Id,
+		ID:      sm.ID,
 		Title:   sm.Title,
 		Periods: pcvs,
 	}, nil

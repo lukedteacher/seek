@@ -11,10 +11,10 @@ import (
 )
 
 type PeriodScheduleRemoveCommand struct {
-	EventID   string
-	PeriodID  string
+	EventID    string
+	PeriodID   string
 	ScheduleID string
-	Metadata  CommandMetadata
+	Metadata   CommandMetadata
 }
 
 type PeriodScheduleRemoveResult struct {
@@ -42,8 +42,9 @@ func PeriodScheduleRemoveCommandHandler(
 		return nil, err
 	}
 
-	skip := !model.scheduleAdded
+	skip := !model.added
 	if skip {
+		println("skipped: ", !model.added)
 		return &PeriodScheduleRemoveResult{Skipped: skip}, nil
 	}
 	eventID := uuidv7.NewString()
@@ -56,14 +57,14 @@ func PeriodScheduleRemoveCommandHandler(
 }
 
 type periodScheduleRemoveContext struct {
-	periodCreated  bool
-	periodDeleted  bool
+	periodCreated   bool
+	periodDeleted   bool
 	scheduleCreated bool
 	scheduleDeleted bool
-	scheduleAdded   bool
-	position       eventstore.Position
-	events         []eventstore.ResolvedEvent
-	query          eventstore.Query
+	added           bool
+	position        eventstore.Position
+	events          []eventstore.ResolvedEvent
+	query           eventstore.Query
 }
 
 func loadPeriodScheduleRemoveContext(
@@ -76,10 +77,12 @@ func loadPeriodScheduleRemoveContext(
 	error,
 ) {
 	query := streamQuery(periodID, scheduleID)
+	println("cl: ", len(query.Criteria))
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err
 	}
+	println("el: ", len(events))
 
 	model := &periodScheduleRemoveContext{position: eventstore.NoEventPosition, events: events, query: query}
 	for _, event := range events {
@@ -116,9 +119,11 @@ func (c *periodScheduleRemoveContext) handle(resolved eventstore.ResolvedEvent) 
 	case se.ScheduleDeleted:
 		c.scheduleDeleted = true
 	case PeriodScheduleAdded:
-		c.scheduleAdded = true
+		println("added")
+		c.added = true
 	case PeriodScheduleRemoved:
-		c.scheduleAdded = false
+		println("removed")
+		c.added = false
 	}
 	if resolved.Position.After(c.position) {
 		c.position = resolved.Position

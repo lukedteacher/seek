@@ -76,19 +76,17 @@ func ScheduleReadModelEventHandlerQuery() eventstore.Query {
 func (h *PeriodStudentReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	period_id, _ := scope[period.PeriodIDField].(string)
-	if period_id == "" {
+	periodID, _ := scope[period.PeriodIDField].(string)
+	if periodID == "" {
 		return fmt.Errorf("no period id provided for read model event")
 	}
-	student_id, _ := scope[student.StudentIDField].(string)
-	if student_id == "" {
+	studentID, _ := scope[student.StudentIDField].(string)
+	if studentID == "" {
 		return fmt.Errorf("no student id provided for read model event")
 	}
 
 	switch resolved.Event.EventType {
 	case PeriodStudentAdded:
-		periodID, _ := data[period.PeriodIDField].(string)
-		studentID, _ := data[student.StudentIDField].(string)
 		if err := h.readModel.AddStudentToPeriod(ctx, PeriodStudentAddedProjection{
 			Position:  resolved.Position,
 			PeriodID:  periodID,
@@ -98,8 +96,6 @@ func (h *PeriodStudentReadModelEventHandler) handle(ctx context.Context, resolve
 			return err
 		}
 	case PeriodStudentRemoved:
-		periodID, _ := data[period.PeriodIDField].(string)
-		studentID, _ := data[student.StudentIDField].(string)
 		if err := h.readModel.RemoveStudentFromPeriod(ctx, PeriodStudentRemovedProjection{
 			Position:  resolved.Position,
 			PeriodID:  periodID,
@@ -111,6 +107,8 @@ func (h *PeriodStudentReadModelEventHandler) handle(ctx context.Context, resolve
 	default:
 		return fmt.Errorf("unhandled period student read model event type %q", resolved.Event.EventType)
 	}
-	// so the SSE stream will update?
-	return h.publisher.Publish(ctx, Channel(period_id), "period student read model")
+	// so the SSE stream will update
+	_ = h.publisher.Publish(ctx, period.Channel(periodID), "period student read model update")
+	_ = h.publisher.Publish(ctx, student.Channel(studentID), "period student read model update")
+	return nil
 }

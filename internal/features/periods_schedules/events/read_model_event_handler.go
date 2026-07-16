@@ -85,19 +85,17 @@ func ScheduleReadModelEventHandlerQuery() eventstore.Query {
 func (h *PeriodScheduleReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	period_id, _ := scope[period.PeriodIDField].(string)
-	if period_id == "" {
+	periodID, _ := scope[period.PeriodIDField].(string)
+	if periodID == "" {
 		return fmt.Errorf("no period id provided for read model event")
 	}
-	schedule_id, _ := scope[schedule.ScheduleIDField].(string)
-	if schedule_id == "" {
+	scheduleID, _ := scope[schedule.ScheduleIDField].(string)
+	if scheduleID == "" {
 		return fmt.Errorf("no schedule id provided for read model event")
 	}
 
 	switch resolved.Event.EventType {
 	case PeriodScheduleAdded:
-		periodID, _ := data[period.PeriodIDField].(string)
-		scheduleID, _ := data[schedule.ScheduleIDField].(string)
 		if err := h.readModel.AddPeriodToSchedule(ctx, PeriodScheduleAddedProjection{
 			Position:   resolved.Position,
 			PeriodID:   periodID,
@@ -107,8 +105,6 @@ func (h *PeriodScheduleReadModelEventHandler) handle(ctx context.Context, resolv
 			return err
 		}
 	case PeriodScheduleRemoved:
-		periodID, _ := data[period.PeriodIDField].(string)
-		scheduleID, _ := data[schedule.ScheduleIDField].(string)
 		if err := h.readModel.RemovePeriodFromSchedule(ctx, PeriodScheduleRemovedProjection{
 			Position:   resolved.Position,
 			PeriodID:   periodID,
@@ -120,6 +116,7 @@ func (h *PeriodScheduleReadModelEventHandler) handle(ctx context.Context, resolv
 	default:
 		return fmt.Errorf("unhandled period schedule read model event type %q", resolved.Event.EventType)
 	}
-	// so the SSE stream will update?
-	return h.publisher.Publish(ctx, Channel(period_id), "period schedule read model")
+	_ = h.publisher.Publish(ctx, period.Channel(periodID), "period schedule read model update")
+	_ = h.publisher.Publish(ctx, schedule.Channel(scheduleID), "period schedule read model update")
+	return nil
 }

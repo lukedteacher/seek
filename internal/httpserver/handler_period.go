@@ -9,7 +9,7 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/events"
-	pages "seek/internal/features/periods/pages"
+	"seek/internal/features/periods/pages"
 	psevents "seek/internal/features/periods_students/events"
 	"seek/internal/views/dto"
 	"seek/internal/viewstore"
@@ -36,7 +36,7 @@ func (s Server) periodRoutes(r chi.Router) {
 
 // GET request to /periods
 func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
-	// defines the view (card or list or... something else?)
+	ctx := r.Context()
 	type Signals struct {
 		View int `json:"view"`
 	}
@@ -46,7 +46,7 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 		println("signal read error: ", err.Error())
 		return
 	}
-	periods, err := s.Periods.List(r.Context())
+	periods, err := s.Periods.List(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -61,7 +61,7 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 		periodViews[i] = period
 	}
 
-	_ = pages.List(signals.View, periodViews).Render(r.Context(), w)
+	_ = pages.List(signals.View, periodViews).Render(ctx, w)
 }
 
 // GET request to /periods/stream

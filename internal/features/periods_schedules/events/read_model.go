@@ -39,7 +39,7 @@ func (m *ReadModel) Get(ctx context.Context, period_id, student_id string) (*mod
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
 		row, err = dbsql.OnceGetPeriodSchedule(conn, dbsql.GetPeriodScheduleParams{
-			PeriodId:  period_id,
+			PeriodId:   period_id,
 			ScheduleId: student_id,
 		})
 		return err
@@ -52,7 +52,7 @@ func (m *ReadModel) Get(ctx context.Context, period_id, student_id string) (*mod
 	}
 
 	return &models.PeriodSchedule{
-		PeriodID:  row.PeriodId,
+		PeriodID:   row.PeriodId,
 		ScheduleID: row.ScheduleId,
 	}, nil
 }
@@ -69,7 +69,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.PeriodSchedule, error) {
 	periodSchedules := make([]models.PeriodSchedule, len(rows))
 	for i := range rows {
 		periodSchedules[i] = models.PeriodSchedule{
-			PeriodID:  rows[i].PeriodId,
+			PeriodID:   rows[i].PeriodId,
 			ScheduleID: rows[i].ScheduleId,
 		}
 	}
@@ -114,7 +114,7 @@ func (m *ReadModel) AddPeriodToSchedule(ctx context.Context, event PeriodSchedul
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceAddPeriodToSchedule(conn, dbsql.AddPeriodToScheduleParams{
 			PeriodId:                 event.PeriodID,
-			ScheduleId:                event.ScheduleID,
+			ScheduleId:               event.ScheduleID,
 			CreatedAt:                appdb.SQLTime(event.AddedAt),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
@@ -125,8 +125,8 @@ func (m *ReadModel) AddPeriodToSchedule(ctx context.Context, event PeriodSchedul
 func (m *ReadModel) RemovePeriodFromSchedule(ctx context.Context, event PeriodScheduleRemovedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceRemovePeriodFromSchedule(conn, dbsql.RemovePeriodFromScheduleParams{
-			PeriodId:                 event.PeriodID,
-			ScheduleId:                event.ScheduleID,
+			PeriodId:   event.PeriodID,
+			ScheduleId: event.ScheduleID,
 		})
 	})
 }

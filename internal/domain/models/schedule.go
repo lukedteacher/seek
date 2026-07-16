@@ -1,7 +1,7 @@
 package models
 
 type Schedule struct {
-	Id        string
+	ID        string
 	Title     string
 	TeacherId string
 	CreatedAt string

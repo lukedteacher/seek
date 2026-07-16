@@ -37,7 +37,7 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.Schedule, error
 	}
 
 	schedule := &models.Schedule{
-		Id:        row.Id,
+		ID:        row.Id,
 		Title:     row.Title,
 		TeacherId: row.TeacherId,
 	}
@@ -57,7 +57,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Schedule, error) {
 	schedules := make([]models.Schedule, 0, len(rows))
 	for _, row := range rows {
 		schedules = append(schedules, models.Schedule{
-			Id:        row.Id,
+			ID:        row.Id,
 			Title:     row.Title,
 			TeacherId: row.TeacherId,
 		})

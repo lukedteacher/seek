@@ -1,0 +1,16 @@
+package pages
+
+import (
+	"seek/internal/views/layouts"
+)
+
+templ NotFound() {
+	@layouts.Base("SEEK: schedule not found") {
+		<main id="main">
+			<section>
+				<h3>not found</h3>
+				<p>that schedule doesn't seem to exist. are you sure you're in the right place?</p>
+			</section>
+		</main>
+	}
+}
