@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"seek/internal/auth"
 	"seek/internal/config"
 	"seek/internal/eventstore"
 	periodEvents "seek/internal/features/periods/events"
@@ -27,6 +28,32 @@ type eventHandlerFactory struct {
 
 func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, cfg config.Config, components appComponents, logger *slog.Logger) []eventHandlerFactory {
 	return []eventHandlerFactory{
+		{
+			name: "registration OTP",
+			create: func() (eventHandler, error) {
+				return auth.NewRegistrationOTPToBeGeneratedEventHandler(
+					store, 
+					components.checkpointer, 
+					store, 
+					store, 
+					logger,
+				)
+			},
+		},
+		{
+			name: "email validation OTP",
+			create: func() (eventHandler, error) {
+				return auth.NewEmailValidationOTPToBeSentEventHandler(
+					store, 
+					components.checkpointer, 
+					store, 
+					store, 
+					components.emailSender,
+					components.piiKeys,
+					logger,
+				)
+			},
+		},
 		{
 			name: "period read model",
 			create: func() (eventHandler, error) {

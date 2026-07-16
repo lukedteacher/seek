@@ -87,6 +87,8 @@ func (s Server) postScheduleCreateValidate(w http.ResponseWriter, r *http.Reques
 
 // POST request to /schedules/create
 func (s Server) postScheduleCreate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := currentUser(r)
 	type Signals struct {
 		Schedule models.ScheduleSignals `json:"schedule"`
 	}
@@ -96,10 +98,10 @@ func (s Server) postScheduleCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := events.CreateScheduleCommandHandler(r.Context(), events.CreateScheduleCommand{
+	_, err := events.CreateScheduleCommandHandler(ctx, events.CreateScheduleCommand{
 		Title:     signals.Schedule.Title,
 		TeacherId: signals.Schedule.TeacherID,
-		Metadata:  eventstore.HTTPCommandMetadata(r),
+		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -310,6 +312,7 @@ func (s Server) postScheduleEditValidate(w http.ResponseWriter, r *http.Request)
 // POST request to /schedules/{id}/edit
 func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	type Signals struct {
 		Schedule models.ScheduleSignals `json:"schedule"`
 	}
@@ -342,7 +345,7 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 				result, err := pse.PeriodScheduleRemoveCommandHandler(ctx, pse.PeriodScheduleRemoveCommand{
 					ScheduleID: scheduleID,
 					PeriodID:   periodID,
-					Metadata:   eventstore.HTTPCommandMetadata(r),
+					Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 				}, s.EventSaver, s.EventRetriever)
 				if err != nil {
 					println("re: ", err.Error())
@@ -359,7 +362,7 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 				result, err := pse.PeriodScheduleAddCommandHandler(ctx, pse.PeriodScheduleAddCommand{
 					ScheduleID: scheduleID,
 					PeriodID:   periodID,
-					Metadata:   eventstore.HTTPCommandMetadata(r),
+					Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 				}, s.EventSaver, s.EventRetriever)
 				if err != nil {
 					println("ae: ", err.Error())
@@ -374,7 +377,7 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 		Id:        scheduleID,
 		Title:     signals.Schedule.Title,
 		TeacherId: signals.Schedule.TeacherID,
-		Metadata:  eventstore.HTTPCommandMetadata(r),
+		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -384,10 +387,12 @@ func (s Server) postScheduleEdit(w http.ResponseWriter, r *http.Request) {
 
 // POST request to /schedules/{id}/delete
 func (s Server) deleteSchedule(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := currentUser(r)
 	scheduleID := chi.URLParam(r, "id")
-	_, err := events.DeleteScheduleCommandHandler(r.Context(), events.DeleteScheduleCommand{
+	_, err := events.DeleteScheduleCommandHandler(ctx, events.DeleteScheduleCommand{
 		ScheduleID: scheduleID,
-		Metadata:   eventstore.HTTPCommandMetadata(r),
+		Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	emptySSE(w, r, err)
 }

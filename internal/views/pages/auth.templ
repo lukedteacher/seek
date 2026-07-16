@@ -1,0 +1,89 @@
+package pages
+
+import (
+	"seek/internal/views/layouts"
+	"seek/internal/views/components"
+	"seek/internal/views"
+)
+
+templ Login(errors map[string]string) {
+	@layouts.Base("SEEK: login") {
+		@LoginForm(errors)
+	}
+}
+
+templ LoginForm(errors map[string]string) {
+	@components.AuthForm("/login", "login", []components.Field{
+		{Name: "email", Type: "email", Label: "email"},
+		{Name: "password", Type: "password", Label: "password"},
+	}, errors) {
+		<a href="/register">create account</a>
+		<a href="/forgot-password">forgot password?</a>
+	}
+}
+
+templ Register(errors map[string]string) {
+	@layouts.Base("SEEK: register") {
+		@RegisterForm(errors)
+	}
+}
+
+templ RegisterForm(errors map[string]string) {
+	@components.AuthForm("/register", "create account", []components.Field{
+		{Name: "username", Type: "text", Label: "username"},
+		{Name: "email", Type: "email", Label: "email"},
+		{Name: "password", Type: "password", Label: "password"},
+		{Name: "firstName", Type: "text", Label: "first name"},
+		{Name: "lastName", Type: "text", Label: "last name"},
+		{Name: "yearOfBirth", Type: "number", Label: "year of birth"},
+	}, errors) {
+		<a href="/login">sign in</a>
+	}
+}
+
+templ ForgotPassword(errors map[string]string) {
+	@layouts.Base("SEEK: forgot password") {
+		@ForgotPasswordForm(errors)
+	}
+}
+
+templ ForgotPasswordForm(errors map[string]string) {
+	@components.AuthForm("/forgot-password", "forgot password", []components.Field{
+		{Name: "email", Type: "email", Label: "email"},
+	}, errors) {
+		<a href="/login">back to login</a>
+	}
+}
+
+templ ResetPassword(token string, errors map[string]string) {
+	@layouts.Base("SEEK: reset password") {
+		@ResetPasswordForm(token, errors)
+	}
+}
+
+templ ResetPasswordForm(token string, errors map[string]string) {
+	@components.AuthForm("/reset-password/" + token, "reset password", []components.Field{
+		{Name: "password", Type: "password", Label: "new password"},
+	}, errors) {
+	}
+}
+
+templ ValidateEmail(userID string, errors map[string]string) {
+	@layouts.Base("SEEK: validate email") {
+		@ValidateEmailForm(userID, errors)
+	}
+}
+
+templ ValidateEmailForm(userID string, errors map[string]string) {
+	@components.AuthForm("/register/" + userID + "/validate-email", "validate email", []components.Field{
+		{Name: "otp", Type: "text", Label: "verification code"},
+	}, errors) {
+		<form class="w-full" data-on:submit={ sendValidationOTPSSE(userID) }>
+			<button class="btn btn-outline w-full" type="submit">send new code</button>
+		</form>
+	}
+}
+
+func sendValidationOTPSSE(userID string) string {
+	return views.PostFormSSE("/register/" + userID + "/send-email-validation-otp")
+}

@@ -8,6 +8,7 @@ require (
 	github.com/go-chi/chi/v5 v5.3.0
 	github.com/oexza/Orisun v0.4.1
 	github.com/starfederation/datastar-go v1.2.2
+	golang.org/x/crypto v0.52.0
 	zombiezen.com/go/sqlite v1.4.2
 )
 
@@ -32,7 +33,6 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/grpc v1.81.1 // indirect

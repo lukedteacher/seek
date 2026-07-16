@@ -12,17 +12,22 @@ import (
 	"time"
 
 	"seek/internal/appdb"
+	"seek/internal/auth"
 	"seek/internal/config"
+	"seek/internal/email"
 	"seek/internal/eventcatalog"
 	"seek/internal/eventstore"
 	period "seek/internal/features/periods/events"
 	periodSchedule "seek/internal/features/periods_schedules/events"
 	periodStudent "seek/internal/features/periods_students/events"
+	profile "seek/internal/features/profiles/events"
 	schedule "seek/internal/features/schedules/events"
 	student "seek/internal/features/students/events"
 	teacher "seek/internal/features/teachers/events"
 	"seek/internal/httpserver"
 	"seek/internal/natsbus"
+	"seek/internal/protectedpii"
+	"seek/internal/storage"
 	"seek/internal/viewstore"
 )
 
@@ -32,6 +37,9 @@ type runOptions struct {
 }
 
 type appComponents struct {
+	sessionManager          *auth.SessionManager
+	authUsers               *auth.AuthUserStore
+	verifications           *auth.VerificationStore
 	periodReadModel         *period.ReadModel
 	scheduleReadModel       *schedule.ReadModel
 	studentReadModel        *student.ReadModel
@@ -39,6 +47,10 @@ type appComponents struct {
 	periodScheduleReadModel *periodSchedule.ReadModel
 	periodStudentReadModel  *periodStudent.ReadModel
 	checkpointer            eventstore.Checkpointer
+	emailSender             email.Sender
+	profileStorage          profile.ObjectStore
+	piiKeys                 *auth.SubjectPiiKeyStore
+	accountDeletion         *auth.AccountDataDeletionStore
 }
 
 func main() {
@@ -97,21 +109,24 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 	defer stopEventHandlers(handlers)
 
 	app := httpserver.Server{
-		// Accounts:       components.accountCommands,
-		// Sessions:       components.sessionManager,
-		// AuthUsers:   components.authUsers,
-		Periods:          components.periodReadModel,
-		Schedules:        components.scheduleReadModel,
-		Students:         components.studentReadModel,
-		Teachers:         components.teacherReadModel,
-		PeriodsSchedules: components.periodScheduleReadModel,
-		PeriodsStudents:  components.periodStudentReadModel,
-		EventSaver:       orisunStore,
-		EventRetriever:   orisunStore,
-		// ProfileStorage: components.profileStorage,
-		Subscriber:  bus,
-		ViewStore:   viewStore,
-		Development: cfg.DevelopmentCookie,
+		Sessions:            components.sessionManager,
+		AuthUsers:           components.authUsers,
+		PIIKeys:             components.piiKeys,
+		PasswordCredentials: components.authUsers,
+		Verifications:       components.verifications,
+		Periods:             components.periodReadModel,
+		Schedules:           components.scheduleReadModel,
+		Students:            components.studentReadModel,
+		Teachers:            components.teacherReadModel,
+		PeriodsSchedules:    components.periodScheduleReadModel,
+		PeriodsStudents:     components.periodStudentReadModel,
+		EventSaver:          orisunStore,
+		EventRetriever:      orisunStore,
+		ProfileStorage:      components.profileStorage,
+		Subscriber:          bus,
+		ViewStore:           viewStore,
+		Development:         cfg.DevelopmentCookie,
+		Logger:              logger,
 	}
 	return serveHTTP(ctx, stop, cfg.Port, app.Routes(), logger)
 }
@@ -149,14 +164,23 @@ func newViewStore(bus *natsbus.Bus, logger *slog.Logger) viewstore.Store {
 }
 
 func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config.Config, logger *slog.Logger) appComponents {
+	authUsers := auth.NewAuthUserStore(db)
+	sessionManager := auth.NewSessionManager(db, authUsers, !cfg.DevelopmentCookie)
+	verifications := auth.NewVerificationStore(db)
 	periodReadModel := period.NewReadModel(db)
 	scheduleReadModel := schedule.NewReadModel(db)
 	studentReadModel := student.NewReadModel(db)
 	teacherReadModel := teacher.NewReadModel(db)
 	periodScheduleReadModel := periodSchedule.NewReadModel(db)
 	periodStudentReadModel := periodStudent.NewReadModel(db)
+	profileStorage := storage.NewLocalProvider(cfg.UploadDir, cfg.UploadBaseURL)
+	piiKeys := auth.NewSubjectPiiKeyStore(db, protectedpii.FromEnv())
+	accountDeletion := auth.NewAccountDataDeletionStore(db, profileStorage)
 
 	return appComponents{
+		sessionManager:          sessionManager,
+		authUsers:               authUsers,
+		verifications:           verifications,
 		periodReadModel:         periodReadModel,
 		scheduleReadModel:       scheduleReadModel,
 		studentReadModel:        studentReadModel,
@@ -164,6 +188,10 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 		periodScheduleReadModel: periodScheduleReadModel,
 		periodStudentReadModel:  periodStudentReadModel,
 		checkpointer:            eventstore.NewSQLiteCheckpointer(db),
+		emailSender:             email.LogSender{Logger: logger},
+		profileStorage:          profileStorage,
+		piiKeys:                 piiKeys,
+		accountDeletion:         accountDeletion,
 	}
 }
 

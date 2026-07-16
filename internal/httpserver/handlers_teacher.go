@@ -61,6 +61,8 @@ func (s Server) getCreateTeacherForm(w http.ResponseWriter, r *http.Request) {
 
 // POST request to /teachers/create
 func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := currentUser(r)
 	type Signals struct {
 		FirstName  string `json:"first_name"`
 		ChosenName string `json:"chosen_name"`
@@ -74,11 +76,11 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	_, err := events.CreateTeacherCommandHandler(r.Context(), events.CreateTeacherCommand{
+	_, err := events.CreateTeacherCommandHandler(ctx, events.CreateTeacherCommand{
 		FirstName:  signals.FirstName,
 		ChosenName: signals.ChosenName,
 		LastName:   signals.LastName,
-		Metadata:   eventstore.HTTPCommandMetadata(r),
+		Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver)
 	if err != nil {
 		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
@@ -94,10 +96,10 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 
 // GET request to /students/{id}/edit
 func (s Server) getEditTeacher(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
+	ctx := r.Context()
 
 	teacherID := chi.URLParam(r, "id")
-	teacherRes, err := s.Teachers.Get(context, teacherID)
+	teacherRes, err := s.Teachers.Get(ctx, teacherID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		println(err.Error())
@@ -112,7 +114,7 @@ func (s Server) getEditTeacher(w http.ResponseWriter, r *http.Request) {
 	}
 
 	validation := events.Validate(teacherRes)
-	_ = pages.Edit(teacherSignals, validation).Render(context, w)
+	_ = pages.Edit(teacherSignals, validation).Render(ctx, w)
 }
 
 // POST request to /teachers/{id}/edit/validate
@@ -141,7 +143,8 @@ func (s Server) postValidateEditTeacher(w http.ResponseWriter, r *http.Request) 
 
 // POST request to /teachers/{id}/edit
 func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
+	ctx := r.Context()
+	user := currentUser(r)
 	type Signals struct {
 		Teacher models.TeacherSignals `json:"teacher"`
 	}
@@ -169,9 +172,9 @@ func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
 		FirstName:  signals.Teacher.FirstName,
 		ChosenName: signals.Teacher.ChosenName,
 		LastName:   signals.Teacher.LastName,
-		Metadata:   eventstore.HTTPCommandMetadata(r),
+		Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
-	result, err := events.UpdateTeacherCommandHandler(context, command, s.EventSaver, s.EventRetriever)
+	result, err := events.UpdateTeacherCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -184,10 +187,11 @@ func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
 
 // POST request to /teachers/{id}/delete
 func (s Server) deleteTeacher(w http.ResponseWriter, r *http.Request) {
+	user := currentUser(r)
 	teacherID := chi.URLParam(r, "id")
 	_, err := events.DeleteTeacherCommandHandler(r.Context(), events.DeleteTeacherCommand{
 		TeacherID: teacherID,
-		Metadata:  eventstore.HTTPCommandMetadata(r),
+		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	emptySSE(w, r, err)
 }

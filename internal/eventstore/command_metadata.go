@@ -1,6 +1,7 @@
 package eventstore
 
 import (
+	"context"
 	"net"
 	"net/http"
 	"strings"
@@ -9,7 +10,7 @@ import (
 
 type CommandMetadata map[string]any
 
-func HTTPCommandMetadata(r *http.Request) CommandMetadata {
+func HTTPCommandMetadata(r *http.Request, userRegisteredID string) CommandMetadata {
 	audit := map[string]any{
 		"source":     "http",
 		"capturedAt": time.Now().UTC().Format(time.RFC3339),
@@ -25,22 +26,56 @@ func HTTPCommandMetadata(r *http.Request) CommandMetadata {
 			"acceptLanguage": r.Header.Get("Accept-Language"),
 		}),
 	}
+	if userRegisteredID != "" {
+		audit["actor"] = map[string]any{"userRegisteredId": userRegisteredID}
+	}
+	if requestLog := RequestLogMetadata(r.Context()); len(requestLog) > 0 {
+		audit["requestLog"] = requestLog
+	}
 	return CommandMetadata{"audit": audit}
 }
 
 func EventHandlerCommandMetadata(handlerName string, resolved ResolvedEvent) CommandMetadata {
-	return CommandMetadata{"audit": map[string]any{
-		"source":     "event-handler",
+	metadata := SystemCommandMetadata(handlerName, "event-handler")
+	audit, _ := metadata["audit"].(map[string]any)
+	audit["source"] = "event-handler"
+	audit["eventHandler"] = map[string]any{
+		"name": handlerName,
+	}
+	audit["reactedTo"] = map[string]any{
+		"eventId":   resolved.Event.EventID,
+		"eventType": resolved.Event.EventType,
+		"position":  resolved.Position,
+	}
+	return metadata
+}
+
+func SystemCommandMetadata(systemActor, action string) CommandMetadata {
+	audit := map[string]any{
+		"source":     "system",
 		"capturedAt": time.Now().UTC().Format(time.RFC3339),
-		"eventHandler": map[string]any{
-			"name": handlerName,
+		"actor": map[string]any{
+			"type": "system",
+			"id":   systemActor,
 		},
-		"reactedTo": map[string]any{
-			"eventId":   resolved.Event.EventID,
-			"eventType": resolved.Event.EventType,
-			"position":  resolved.Position,
-		},
-	}}
+	}
+	if action != "" {
+		audit["action"] = action
+	}
+	return CommandMetadata{"audit": audit}
+}
+
+func CommandMetadataWithQuery(commandMetadata CommandMetadata, query Query) CommandMetadata {
+	return MergeMetadata(map[string]any{"query": MustJSON(query)}, commandMetadata)
+}
+
+func SaveCommandEvents(ctx context.Context, saver Saver, commandMetadata CommandMetadata, events []DomainEvent, expected Position, scopeEvents []ResolvedEvent, subset Query) (WriteResult, error) {
+	merged := make([]DomainEvent, 0, len(events))
+	for _, event := range events {
+		event.Metadata = MergeMetadata(event.Metadata, CommandMetadataWithQuery(commandMetadata, subset))
+		merged = append(merged, event)
+	}
+	return saver.SaveEvents(ctx, merged, expected, scopeEvents, subset)
 }
 
 func MergeMetadata(eventMetadata map[string]any, commandMetadata CommandMetadata) map[string]any {

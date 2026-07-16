@@ -161,6 +161,7 @@ func (s Server) postStudentCreateValidate(w http.ResponseWriter, r *http.Request
 // POST request to /student/create
 func (s Server) postStudentCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	signals := &struct {
 		Student dto.StudentView `json:"student"`
 	}{}
@@ -183,7 +184,7 @@ func (s Server) postStudentCreate(w http.ResponseWriter, r *http.Request) {
 		Grade:       grade,
 		Homeroom:    signals.Student.Homeroom,
 		CaseManager: signals.Student.CaseManager,
-		Metadata:    eventstore.HTTPCommandMetadata(r),
+		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver)
 	if err != nil {
 		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
@@ -381,6 +382,7 @@ func (s Server) postStudentEditValidate(w http.ResponseWriter, r *http.Request) 
 // POST request to /students/{id}/edit
 func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	signals := &struct {
 		Student dto.StudentView `json:"student"`
 	}{}
@@ -404,7 +406,7 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 		Grade:       gradeInt64,
 		Homeroom:    signals.Student.Homeroom,
 		CaseManager: signals.Student.CaseManager,
-		Metadata:    eventstore.HTTPCommandMetadata(r),
+		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {
 		println("command error: ", err.Error())
@@ -419,10 +421,11 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 
 // POST request to /students/{id}/delete
 func (s Server) deleteStudent(w http.ResponseWriter, r *http.Request) {
+	user := currentUser(r)
 	studentID := chi.URLParam(r, "id")
 	_, err := events.DeleteStudentCommandHandler(r.Context(), events.DeleteStudentCommand{
 		StudentID: studentID,
-		Metadata:  eventstore.HTTPCommandMetadata(r),
+		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	emptySSE(w, r, err)
 }

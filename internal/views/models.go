@@ -22,6 +22,10 @@ const (
 	DataViewList
 )
 
+func PostFormSSE(path string) string {
+	return fmt.Sprintf("@post('%s', {contentType: 'form'})", path)
+}
+
 func LongRunningGetSSE(path string) string {
 	return fmt.Sprintf("@get('%s', {requestCancellation: 'disabled', retryMaxCount: 1000, retryInterval: 1000, retryMaxWaitMs: 5000})", path)
 }

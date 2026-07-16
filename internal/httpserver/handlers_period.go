@@ -185,6 +185,7 @@ func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request)
 // POST request to /periods/create
 func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	signals := &struct {
 		Period dto.PeriodFormView `json:"period"`
 	}{}
@@ -204,7 +205,7 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 		StartTime: model.StartTime,
 		Duration:  model.Duration,
 		Days:      model.Days,
-		Metadata:  eventstore.HTTPCommandMetadata(r),
+		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
 	result, err := events.CreatePeriodCommandHandler(ctx, createPeriodCommand, s.EventSaver)
 	if err != nil {
@@ -216,7 +217,7 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 		periodStudentAddCommand := psevents.PeriodStudentAddCommand{
 			PeriodID:  result.PeriodID,
 			StudentID: studentID,
-			Metadata:  eventstore.HTTPCommandMetadata(r),
+			Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		_, err := psevents.PeriodStudentAddCommandHandler(
 			ctx,
@@ -435,6 +436,7 @@ func (s Server) postPeriodEditValidate(w http.ResponseWriter, r *http.Request) {
 // POST request to /periods/{id}/edit
 func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	signals := &struct {
 		Period dto.PeriodFormView `json:"period"`
 	}{}
@@ -449,7 +451,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		StartTime: signals.Period.StartTime,
 		Duration:  int64(signals.Period.Duration),
 		Days:      models.DaysSignalsToDaysBitmask(signals.Period.Days),
-		Metadata:  eventstore.HTTPCommandMetadata(r),
+		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
 	result, err := events.UpdatePeriodCommandHandler(ctx, updatePeriodCommand, s.EventSaver, s.EventRetriever)
 	if err != nil {
@@ -479,7 +481,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 				result, err := psevents.PeriodStudentRemoveCommandHandler(ctx, psevents.PeriodStudentRemoveCommand{
 					PeriodID:  periodID,
 					StudentID: studentID,
-					Metadata:  eventstore.HTTPCommandMetadata(r),
+					Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 				}, s.EventSaver, s.EventRetriever)
 				if result != nil {
 					println("reid: ", result.EventID)
@@ -496,7 +498,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 				result, err := psevents.PeriodStudentAddCommandHandler(ctx, psevents.PeriodStudentAddCommand{
 					PeriodID:  periodID,
 					StudentID: studentID,
-					Metadata:  eventstore.HTTPCommandMetadata(r),
+					Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 				}, s.EventSaver, s.EventRetriever)
 				if result != nil {
 					println("aeid: ", result.EventID)
@@ -512,10 +514,11 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 // DELETE request to /periods/{id}
 func (s Server) deletePeriod(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	periodID := chi.URLParam(r, "id")
 	_, err := events.DeletePeriodCommandHandler(ctx, events.DeletePeriodCommand{
 		PeriodID: periodID,
-		Metadata: eventstore.HTTPCommandMetadata(r),
+		Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {
 		println(err.Error())

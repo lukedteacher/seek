@@ -1,0 +1,52 @@
+package components
+
+import "seek/internal/views"
+
+type Field struct {
+	Name  string
+	Type  string
+	Label string
+}
+
+templ AuthForm(action string, title string, fields []Field, errors map[string]string) {
+	<main id="auth-page" class="auth-layout">
+		<section class="auth-intro">
+			<a class="brand-link brand-link-large" href="/login">
+				<span class="brand-mark">SK</span>
+				<span class="brand-copy">
+					<span class="brand-title">SEEK</span>
+					<span class="brand-subtitle">shared education environment knowledge</span>
+				</span>
+			</a>
+			<div class="auth-copy">
+				<h1>Fast, syncronized data for school staff and teachers.</h1>
+				<p>Create a schedule, add services, track goal data.</p>
+			</div>
+		</section>
+		<section class="auth-card card" aria-label={ title }>
+			<div class="card-body">
+				if errors != nil && errors["error"] != "" {
+					<div class="alert alert-error alert-soft">{ errors["error"] }</div>
+				}
+				<form class="auth-form" method="post" action={ action } data-on:submit={ views.PostFormSSE(action) }>
+					<hgroup>
+						<h2>{ title }</h2>
+					</hgroup>
+					for _, field := range fields {
+						<label class="form-field">
+							<span class="font-semibold">{ field.Label }</span>
+							<input class={ "input w-full", templ.KV("input-error", errors != nil && errors[field.Name] != "") } name={ field.Name } type={ field.Type } required/>
+						</label>
+						if errors != nil && errors[field.Name] != "" {
+							<small class="text-error">{ errors[field.Name] }</small>
+						}
+					}
+					<button class="btn btn-primary w-full" type="submit">{ title }</button>
+				</form>
+				<div class="auth-links">
+					{ children... }
+				</div>
+			</div>
+		</section>
+	</main>
+}
