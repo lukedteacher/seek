@@ -10,14 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"seek/internal/domain/models"
 	"seek/internal/views/dto"
 )
-
-type ScheduleComponentViewModel struct {
-	Schedule         models.ScheduleSignals
-	PeriodViewModels []dto.PeriodView
-}
 
 func ScheduleStyle() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -48,7 +42,7 @@ func ScheduleStyle() templ.Component {
 	})
 }
 
-func ScheduleComponent(vm ScheduleComponentViewModel) templ.Component {
+func ScheduleComponent(v dto.ScheduleView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -105,8 +99,8 @@ func ScheduleComponent(vm ScheduleComponentViewModel) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, pcvm := range vm.PeriodViewModels {
-				templ_7745c5c3_Err = PeriodCards(vm.Schedule.ID, pcvm).Render(ctx, templ_7745c5c3_Buffer)
+			for i := range v.Periods {
+				templ_7745c5c3_Err = PeriodCards(v.ID, v.Periods[i]).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -165,7 +159,7 @@ func DayHeaders() templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-column: %d / span 1;", index+2))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 92, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 86, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -178,7 +172,7 @@ func DayHeaders() templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(day)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 94, Col: 8}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 88, Col: 8}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -236,7 +230,7 @@ func TimeColumn() templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(time)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 113, Col: 14}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 107, Col: 14}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -322,7 +316,7 @@ func TimeGrid(interval int, totalRows int) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-row: %d / span 1;", index))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 130, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 124, Col: 60}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -375,7 +369,7 @@ func DayGrid() templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-column: %d / span 1;", index))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 153, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 147, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {

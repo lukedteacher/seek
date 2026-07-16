@@ -8,7 +8,7 @@ import (
 	"seek/internal/views/dto"
 )
 
-templ List(view int64, students []dto.StudentView) {
+templ List(view int, students []dto.StudentView) {
 	@layouts.Base("SEEK: students") {
 		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/students/stream") }>
 			<section>

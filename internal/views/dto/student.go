@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"seek/internal/domain/models"
+	"seek/internal/features/students/events"
 )
 
 type StudentView struct {
@@ -17,7 +18,13 @@ type StudentView struct {
 	Schedule    ScheduleView `json:"schedule"`
 }
 
-func NewStudentView(s *models.Student) *StudentView {
+type StudentFormView struct {
+	Student    StudentView                  `json:"student"`
+	Validation map[string]events.Validation `json:"validation"`
+	Schedule   ScheduleView                 `json:"schedule"`
+}
+
+func NewStudentViewFromModel(s *models.Student) *StudentView {
 	chosenName := ""
 	if s.ChosenName != nil {
 		chosenName = *s.ChosenName
@@ -27,7 +34,7 @@ func NewStudentView(s *models.Student) *StudentView {
 		caseManager = *s.CaseManager
 	}
 	return &StudentView{
-		ID:          s.Id,
+		ID:          s.ID,
 		FirstName:   s.FirstName,
 		ChosenName:  chosenName,
 		LastName:    s.LastName,
@@ -35,4 +42,33 @@ func NewStudentView(s *models.Student) *StudentView {
 		Homeroom:    s.Homeroom,
 		CaseManager: caseManager,
 	}
+}
+
+func NewStudentFormViewFromModel(s *models.Student) *StudentFormView {
+	student := NewStudentViewFromModel(s)
+	validation := events.Validate(s)
+	return &StudentFormView{
+		Student:    *student,
+		Validation: validation,
+	}
+}
+
+func NewStudentModelFromView(v *StudentView) *models.Student {
+	m := models.NewStudent()
+	m.ID = v.ID
+	m.FirstName = v.FirstName
+	if v.ChosenName != "" {
+		m.ChosenName = &v.ChosenName
+	}
+	m.LastName = v.LastName
+	grade := -1
+	if v.Grade != "select a grade" {
+		grade, _ = strconv.Atoi(v.Grade)
+	}
+	m.Grade = int64(grade)
+	m.Homeroom = v.Homeroom
+	if v.CaseManager != "" {
+		m.CaseManager = &v.CaseManager
+	}
+	return m
 }

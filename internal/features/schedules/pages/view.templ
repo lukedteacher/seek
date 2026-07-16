@@ -10,15 +10,15 @@ import (
 	"seek/internal/views/layouts"
 )
 
-templ View(s blocks.ScheduleComponentViewModel) {
+templ View(s dto.ScheduleView) {
 	@layouts.Base("SEEK: schedule") {
 		<main data-init={ views.LongRunningGetSSE("/schedules/stream") }>
 			<hgroup style="display: flex; gap: var(--size-1); justify-content: center; align-items: center;">
 				<h3>
-					{ s.Schedule.Title }
+					{ s.Title }
 				</h3>
-				<p>{ s.Schedule.TeacherID }</p>
-				<a href={ fmt.Sprintf("/schedules/%s/edit", s.Schedule.ID) }>
+				<p>{ s.Teacher.FirstName }</p>
+				<a href={ fmt.Sprintf("/schedules/%s/edit", s.ID) }>
 					<button>edit</button>
 				</a>
 			</hgroup>
@@ -27,7 +27,7 @@ templ View(s blocks.ScheduleComponentViewModel) {
 	}
 }
 
-templ ViewWithPeriod(s blocks.ScheduleComponentViewModel, p dto.PeriodView) {
+templ ViewWithPeriod(s dto.ScheduleView, p dto.PeriodView) {
 	@layouts.Base("SEEK: schedule") {
 		<main data-init={ views.LongRunningGetSSE("/schedules/stream") }>
 			@pblocks.Card(p)

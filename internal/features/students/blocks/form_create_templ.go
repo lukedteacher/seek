@@ -12,15 +12,15 @@ import (
 	"fmt"
 
 	"seek/internal/domain/models"
-	sevents "seek/internal/features/students/events"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
 	"seek/internal/views/components/selectbox"
+	"seek/internal/views/dto"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-func CreateStudentForm(student models.Student, validation map[string]sevents.Validation, selectedGrade string) templ.Component {
+func CreateForm(v dto.StudentFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -75,9 +75,9 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 				Name:     "first-name",
 				DataBind: "student.first_name",
 				DataOn:   fmt.Sprintf("/students/create/validate"),
-				HasError: validation["first_name"].State == "error",
-				IsValid:  validation["first_name"].State == "valid",
-				Value:    student.FirstName,
+				HasError: v.Validation["first_name"].State == "error",
+				IsValid:  v.Validation["first_name"].State == "valid",
+				Value:    v.Student.FirstName,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -88,15 +88,11 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 			ID:                "first-name-label",
 			For:               "first-name",
 			Label:             "first name",
-			ValidationState:   validation["first_name"].State,
-			ValidationMessage: validation["first_name"].Message,
+			ValidationState:   v.Validation["first_name"].State,
+			ValidationMessage: v.Validation["first_name"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
-		}
-		chosenName := ""
-		if student.ChosenName != nil {
-			chosenName = *student.ChosenName
 		}
 		templ_7745c5c3_Var4 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -115,9 +111,9 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 				Name:     "chosen-name",
 				DataBind: "student.chosen_name",
 				DataOn:   fmt.Sprintf("/students/create/validate"),
-				HasError: validation["chosen_name"].State == "error",
-				IsValid:  validation["chosen_name"].State == "valid",
-				Value:    chosenName,
+				HasError: v.Validation["chosen_name"].State == "error",
+				IsValid:  v.Validation["chosen_name"].State == "valid",
+				Value:    v.Student.ChosenName,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -128,8 +124,8 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 			ID:                "chosen-name-label",
 			For:               "chosen-name",
 			Label:             "chosen name",
-			ValidationState:   validation["chosen_name"].State,
-			ValidationMessage: validation["chosen_name"].Message,
+			ValidationState:   v.Validation["chosen_name"].State,
+			ValidationMessage: v.Validation["chosen_name"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -151,9 +147,9 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 				Name:     "last-name",
 				DataBind: "student.last_name",
 				DataOn:   fmt.Sprintf("/students/create/validate"),
-				HasError: validation["last_name"].State == "error",
-				IsValid:  validation["last_name"].State == "valid",
-				Value:    student.LastName,
+				HasError: v.Validation["last_name"].State == "error",
+				IsValid:  v.Validation["last_name"].State == "valid",
+				Value:    v.Student.LastName,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -164,8 +160,8 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 			ID:                "last-name-label",
 			For:               "last-name",
 			Label:             "last name",
-			ValidationState:   validation["last_name"].State,
-			ValidationMessage: validation["last_name"].Message,
+			ValidationState:   v.Validation["last_name"].State,
+			ValidationMessage: v.Validation["last_name"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -206,7 +202,7 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("option-%d", index))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_create.templ`, Line: 96, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_create.templ`, Line: 90, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 					if templ_7745c5c3_Err != nil {
@@ -216,7 +212,7 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if grade.Str() == selectedGrade {
+					if grade.Str() == v.Student.Grade {
 						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " selected")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
@@ -229,7 +225,7 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(index)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_create.templ`, Line: 100, Col: 19}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_create.templ`, Line: 94, Col: 19}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 					if templ_7745c5c3_Err != nil {
@@ -242,7 +238,7 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(grade.Ordinal())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_create.templ`, Line: 102, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_create.templ`, Line: 96, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -270,8 +266,8 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 			ID:                "grade-label",
 			For:               "grade-select",
 			Label:             "grade",
-			ValidationState:   validation["grade"].State,
-			ValidationMessage: validation["grade"].Message,
+			ValidationState:   v.Validation["grade"].State,
+			ValidationMessage: v.Validation["grade"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -297,9 +293,9 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 				Name:     "homeroom",
 				DataBind: "student.homeroom",
 				DataOn:   fmt.Sprintf("/students/create/validate"),
-				HasError: validation["homeroom"].State == "error",
-				IsValid:  validation["homeroom"].State == "valid",
-				Value:    student.Homeroom,
+				HasError: v.Validation["homeroom"].State == "error",
+				IsValid:  v.Validation["homeroom"].State == "valid",
+				Value:    v.Student.Homeroom,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -310,15 +306,11 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 			ID:                "homeroom-label",
 			For:               "homeroom",
 			Label:             "homeroom",
-			ValidationState:   validation["homeroom"].State,
-			ValidationMessage: validation["homeroom"].Message,
+			ValidationState:   v.Validation["homeroom"].State,
+			ValidationMessage: v.Validation["homeroom"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
-		}
-		caseManager := ""
-		if student.CaseManager != nil {
-			caseManager = *student.CaseManager
 		}
 		templ_7745c5c3_Var12 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -337,9 +329,9 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 				Name:     "case-manager",
 				DataBind: "student.case_manager",
 				DataOn:   fmt.Sprintf("/students/create/validate"),
-				HasError: validation["case_manager"].State == "error",
-				IsValid:  validation["case_manager"].State == "valid",
-				Value:    caseManager,
+				HasError: v.Validation["case_manager"].State == "error",
+				IsValid:  v.Validation["case_manager"].State == "valid",
+				Value:    v.Student.CaseManager,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -350,8 +342,8 @@ func CreateStudentForm(student models.Student, validation map[string]sevents.Val
 			ID:                "case-manager-label",
 			For:               "case-manager",
 			Label:             "case manager",
-			ValidationState:   validation["case_manager"].State,
-			ValidationMessage: validation["case_manager"].Message,
+			ValidationState:   v.Validation["case_manager"].State,
+			ValidationMessage: v.Validation["case_manager"].Message,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var12), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

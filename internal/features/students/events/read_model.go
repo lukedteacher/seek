@@ -35,7 +35,7 @@ func (m *ReadModel) Get(ctx context.Context, studentID string) (*models.Student,
 	}
 
 	student := &models.Student{
-		Id:          row.Id,
+		ID:          row.Id,
 		FirstName:   row.FirstName,
 		ChosenName:  row.ChosenName,
 		LastName:    row.LastName,
@@ -60,7 +60,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 	students := make([]models.Student, len(rows))
 	for i := range rows {
 		students[i] = models.Student{
-			Id:          rows[i].Id,
+			ID:          rows[i].Id,
 			FirstName:   rows[i].FirstName,
 			ChosenName:  rows[i].ChosenName,
 			LastName:    rows[i].LastName,
@@ -95,6 +95,9 @@ func (m *ReadModel) UpdateStudent(ctx context.Context, event StudentUpdatedProje
 			FirstName:                event.FirstName,
 			ChosenName:               event.ChosenName,
 			LastName:                 event.LastName,
+			Grade:                    event.Grade,
+			Homeroom:                 event.Homeroom,
+			CaseManager:              event.CaseManager,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),

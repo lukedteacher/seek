@@ -15,11 +15,12 @@ func Validate(student *models.Student) map[string]Validation {
 	if student == nil {
 		return errors
 	}
-	if student.ChosenName == nil {
-		println("student chosen name nil in validate student")
+	chosenName := ""
+	if student.ChosenName != nil {
+		chosenName = *student.ChosenName
 	}
 	errors["first_name"] = ValidateFirstName(student.FirstName)
-	errors["chosen_name"] = ValidateChosenName(*student.ChosenName)
+	errors["chosen_name"] = ValidateChosenName(chosenName)
 	errors["last_name"] = ValidateLastName(student.LastName)
 	errors["grade"] = ValidateGrade(student.Grade)
 
@@ -39,7 +40,7 @@ func ValidateFirstName(firstName string) Validation {
 func ValidateChosenName(chosenName string) Validation {
 	if chosenName == "" {
 		return Validation{Message: "optional", State: "empty"}
-	} else	if utils.ValidateAlphanumeric(chosenName) {
+	} else if utils.ValidateAlphanumeric(chosenName) {
 		return Validation{Message: "optional", State: "valid"}
 	} else {
 		return Validation{Message: "optional", State: "error"}

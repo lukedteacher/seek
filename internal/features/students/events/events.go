@@ -152,3 +152,7 @@ func studentScope(id string) StudentScope {
 func Channel(id string) string {
 	return "student." + id
 }
+
+func ChannelAll() string {
+	return "student.>"
+}

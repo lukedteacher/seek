@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 
@@ -19,45 +20,100 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students", s.getStudentsList)
 	r.Get("/students/stream", s.getStudentsListStream)
 	r.Get("/students/create", s.getStudentCreate)
-	r.Post("/students/create/validate", s.validateCreateStudent)
-	r.Post("/students/create", s.createStudent)
+	r.Get("/students/create/stream", s.getStudentCreateStream)
+	r.Post("/students/create/validate", s.postStudentCreateValidate)
+	r.Post("/students/create", s.postStudentCreate)
 	r.Get("/students/{id}", s.getStudentView)
-	r.Get("/students/{id}/edit", s.editStudentForm)
-	r.Post("/students/{id}/edit/validate", s.validateEditStudent)
-	r.Post("/students/{id}/edit", s.editStudent)
+	r.Get("/students/{id}/edit", s.getStudentEdit)
+	r.Get("/students/{id}/edit/stream", s.getStudentEditStream)
+	r.Post("/students/{id}/edit/validate", s.postStudentEditValidate)
+	r.Post("/students/{id}/edit", s.postStudentEdit)
 	r.Delete("/students/{id}", s.deleteStudent)
 }
 
 // GET request to /students
 func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
-	type Signals struct {
-		View int64 `json:"view"`
+	signals := &struct {
+		View int `json:"view"`
+	}{}
+	if err := datastar.ReadSignals(r, signals); err != nil {
+		println("signal read error: ", err.Error())
+		return
 	}
-	signals := &Signals{}
 	students, err := s.Students.List(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("signal read error: ", err.Error())
-		return
-	}
 	studentViews := make([]dto.StudentView, len(students))
 	for i := range students {
-		studentViews[i] = *dto.NewStudentView(&students[i])
+		studentViews[i] = *dto.NewStudentViewFromModel(&students[i])
 	}
 	_ = pages.List(signals.View, studentViews).Render(r.Context(), w)
 }
 
 // GET request to /students/stream
 func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
-	sse := newSSE(w, r)
 	ctx := r.Context()
-
-	watcher, err := s.ViewStore.Watch(ctx, "students", viewstore.WatchOptions{IgnoreDeletes: true})
+	sse := newSSE(w, r)
+	notifier := NewDedupeNotifier()
+	// subscribes to the channel which publishes changes to any students
+	sub, err := s.Subscriber.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {
+		notifier.Notify()
+	})
 	if err != nil {
-		_ = alert(sse, err.Error())
+		println("students list stream error: ", err.Error())
+		return
+	}
+	defer sub.Close()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-notifier.Signal(): // triggers when the read model publishes
+			// for now just reloads the page
+			// consider adding a view store for the list
+			students, err := s.Students.List(ctx)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			studentViews := make([]dto.StudentView, len(students))
+			for i := range students {
+				studentView := dto.NewStudentViewFromModel(&students[i])
+				studentViews[i] = *studentView
+			}
+
+			sse.PatchElementTempl(pages.List(0, studentViews))
+		}
+	}
+}
+
+// GET request to /students/create
+func (s Server) getStudentCreate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	empty := models.NewStudent()
+	view := dto.NewStudentFormViewFromModel(empty)
+	_ = pages.Create(*view).Render(ctx, w)
+}
+
+// GET request to /students/create/stream
+func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	sse := newSSE(w, r)
+
+	// watches the key value stream for ephemeral changes
+	// lasts 5m
+	watcher, err := s.ViewStore.Watch(
+		ctx,
+		"newstudent",
+		viewstore.WatchOptions{
+			IgnoreDeletes: true,
+		},
+	)
+	if err != nil {
+		println("watcher error in student create stream: ", err.Error())
 		return
 	}
 	defer watcher.Stop()
@@ -66,80 +122,42 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case _, ok := <-watcher.Updates():
+		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
+			println("watcher update")
 			if !ok {
 				return
 			}
-			students, err := s.Students.List(r.Context())
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+			var model models.Student
+			if err := entry.JSON(&model); err != nil {
+				println(err.Error())
 				return
 			}
-			studentViews := make([]dto.StudentView, len(students))
-			for i := range students {
-				studentViews[i] = *dto.NewStudentView(&students[i])
-			}
-			page := pages.List(0, studentViews)
-			if err := sse.PatchElementTempl(page); err != nil {
-				return
-			}
+			view := dto.NewStudentFormViewFromModel(&model)
+			sse.PatchElementTempl(pages.Create(*view))
 		}
 	}
 }
 
-func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
-	studentID := chi.URLParam(r, "id")
-	student, err := s.Students.Get(r.Context(), studentID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	_ = pages.View(student).Render(r.Context(), w)
-}
-
-// GET request to /students/create
-func (s Server) getStudentCreate(w http.ResponseWriter, r *http.Request) {
-	emptyStudent := models.Student{}
-	validation := events.Validate(nil)
-	_ = pages.Create(emptyStudent, validation, "").Render(r.Context(), w)
-}
-
 // POST request to /students/create/validate
-func (s Server) validateCreateStudent(w http.ResponseWriter, r *http.Request) {
+func (s Server) postStudentCreateValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	signals := &struct {
 		Student dto.StudentView `json:"student"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println(err.Error())
+		println("pcv signal read: ", err.Error())
 		return
 	}
-
-	selectedGrade := signals.Student.Grade
-
-	var grade int64
-	if signals.Student.Grade == "select a grade" {
-		grade = -1
-	} else {
-		grade, _ = strconv.ParseInt(signals.Student.Grade, 10, 64)
+	model := dto.NewStudentModelFromView(&signals.Student)
+	// saves the state to a view store so that the SSE can update
+	// TODO look into a better name for the channel
+	if err := viewstore.PutState(ctx, s.ViewStore, "newstudent", model); err != nil {
+		println("view store error ", err.Error())
 	}
-
-	studentToValidate := models.Student{
-		FirstName:   signals.Student.FirstName,
-		ChosenName:  &signals.Student.ChosenName,
-		LastName:    signals.Student.LastName,
-		Grade:       grade,
-		Homeroom:    signals.Student.Homeroom,
-		CaseManager: &signals.Student.CaseManager,
-	}
-
-	validation := events.Validate(&studentToValidate)
-	_ = pages.Create(studentToValidate, validation, selectedGrade).Render(ctx, w)
 }
 
 // POST request to /student/create
-func (s Server) createStudent(w http.ResponseWriter, r *http.Request) {
+func (s Server) postStudentCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	signals := &struct {
 		Student dto.StudentView `json:"student"`
@@ -173,113 +191,127 @@ func (s Server) createStudent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GET request to /students/{id}/edit
-func (s Server) editStudentForm(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
-	signals := &struct {
-		Student dto.StudentView `json:"student"`
-	}{}
-	if err := datastar.ReadSignals(r, signals); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		println(err.Error())
-		return
-	}
-
+// GET request to /students/{id}
+func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	studentID := chi.URLParam(r, "id")
-	studentRes, err := s.Students.Get(context, studentID)
+	student, err := s.Students.Get(r.Context(), studentID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		println(err.Error())
+		return
+	}
+	view := dto.NewStudentViewFromModel(student)
+	periodIDs, _ := s.PeriodsStudents.ListPeriodIDsForStudent(ctx, studentID)
+	periodViews := make([]dto.PeriodView, len(periodIDs))
+	for i := range periodIDs {
+		period, _ := s.Periods.Get(ctx, periodIDs[i])
+		view, _ := dto.NewViewFromPeriod(period)
+		periodViews[i] = view
+	}
+	view.Schedule.Periods = periodViews
+	_ = pages.View(*view).Render(r.Context(), w)
+}
+
+// GET request to /students/{id}/edit
+func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	studentID := chi.URLParam(r, "id")
+	model, err := s.Students.Get(ctx, studentID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if model == nil {
+		_ = pages.NotFound().Render(ctx, w)
 		return
 	}
 
-	var selectedGrade string = "-1"
-	// if the user has selected a grade, use that as the default selection
-	// otherwise use the students existing grade data
-	if signals.Student.Grade != "" && studentRes.GradeString() != signals.Student.Grade {
-		selectedGrade = signals.Student.Grade
-	} else {
-		selectedGrade = studentRes.GradeString()
-	}
+	view := dto.NewStudentFormViewFromModel(model)
+	_ = pages.Edit(*view).Render(ctx, w)
+}
 
-	var grade int64
-	if signals.Student.Grade == "" {
-		grade = -1
-	} else {
-		grade, _ = strconv.ParseInt(signals.Student.Grade, 10, 64)
-	}
+// GET request to /student/{id}/stream
+func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	studentID := chi.URLParam(r, "id")
+	sse := newSSE(w, r)
 
-	model := models.Student{
-		Id:          studentID,
-		FirstName:   signals.Student.FirstName,
-		ChosenName:  &signals.Student.ChosenName,
-		LastName:    signals.Student.LastName,
-		Grade:       grade,
-		Homeroom:    signals.Student.Homeroom,
-		CaseManager: &signals.Student.CaseManager,
+	notifier := NewDedupeNotifier()
+	// subscribes to the channel which publishes changes to the underlying model
+	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(studentID), func(context.Context, []byte) {
+		notifier.Notify()
+	})
+	if err != nil {
+		println(err.Error())
+		return
 	}
+	defer sub.Close()
 
-	validation := events.Validate(&model)
-	_ = pages.Edit(*studentRes, validation, selectedGrade).Render(context, w)
+	// watches the student edit view state kv
+	watcher, err := s.ViewStore.Watch(
+		ctx,
+		studentID+".edit",
+		viewstore.WatchOptions{
+			IgnoreDeletes: true,
+		},
+	)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	defer watcher.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-notifier.Signal():
+			if err := s.refreshStudentEditState(ctx, studentID); err != nil {
+				println(err.Error())
+				if err.Error() == "student not found" {
+					sse.PatchElementTempl(pages.NotFound())
+				}
+				return
+			}
+		case entry, ok := <-watcher.Updates():
+			if !ok {
+				return
+			}
+			var model models.Student
+			if err := entry.JSON(&model); err != nil {
+				println(err.Error())
+				return
+			}
+			view := dto.NewStudentFormViewFromModel(&model)
+			sse.PatchElementTempl(pages.Edit(*view))
+		}
+	}
 }
 
 // POST request to /students/{id}/edit/validate
-func (s Server) validateEditStudent(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
+func (s Server) postStudentEditValidate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	signals := &struct {
 		Student dto.StudentView `json:"student"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		println(err.Error())
 		return
 	}
-
-	studentID := chi.URLParam(r, "id")
-	studentRes, err := s.Students.Get(context, studentID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		println(err.Error())
-		return
-	}
-
-	var selectedGrade string = "-1"
-	// if the user has selected a grade, use that as the default selection
-	// otherwise use the students existing grade data
-	if signals.Student.Grade != "" && studentRes.GradeString() != signals.Student.Grade {
-		selectedGrade = signals.Student.Grade
-	} else {
-		selectedGrade = studentRes.GradeString()
-	}
-
-	var grade int64
-	if signals.Student.Grade == "select a grade" {
-		grade = -1
-	} else {
-		grade, _ = strconv.ParseInt(signals.Student.Grade, 10, 64)
-	}
-
-	model := models.Student{
-		Id:          studentID,
-		FirstName:   signals.Student.FirstName,
-		ChosenName:  &signals.Student.ChosenName,
-		LastName:    signals.Student.LastName,
-		Grade:       grade,
-		Homeroom:    signals.Student.Homeroom,
-		CaseManager: &signals.Student.CaseManager,
-	}
-
-	validation := events.Validate(&model)
-	_ = pages.Edit(*studentRes, validation, selectedGrade).Render(context, w)
+	model := dto.NewStudentModelFromView(&signals.Student)
+	model.ID = chi.URLParam(r, "id")
+	view := dto.NewStudentFormViewFromModel(model)
+	_ = pages.Edit(*view).Render(ctx, w)
 }
 
 // POST request to /students/{id}/edit
-func (s Server) editStudent(w http.ResponseWriter, r *http.Request) {
-	context := r.Context()
+func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	signals := &struct {
 		Student dto.StudentView `json:"student"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
+		println("error reading signals: ", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -290,7 +322,7 @@ func (s Server) editStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	studentID := chi.URLParam(r, "id")
-	result, err := events.UpdateStudentCommandHandler(context, events.UpdateStudentCommand{
+	result, err := events.UpdateStudentCommandHandler(ctx, events.UpdateStudentCommand{
 		Id:          studentID,
 		FirstName:   signals.Student.FirstName,
 		ChosenName:  signals.Student.ChosenName,
@@ -301,6 +333,7 @@ func (s Server) editStudent(w http.ResponseWriter, r *http.Request) {
 		Metadata:    eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {
+		println("command error: ", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -318,4 +351,21 @@ func (s Server) deleteStudent(w http.ResponseWriter, r *http.Request) {
 		Metadata:  eventstore.HTTPCommandMetadata(r),
 	}, s.EventSaver, s.EventRetriever)
 	emptySSE(w, r, err)
+}
+
+// HELPER FUNCTIONS
+func (s Server) refreshStudentViewState(ctx context.Context, studentID string) error {
+	student, err := s.Students.Get(ctx, studentID)
+	if err != nil {
+		return err
+	}
+	return viewstore.PutState(ctx, s.ViewStore, student.ID+".view", student)
+}
+
+func (s Server) refreshStudentEditState(ctx context.Context, studentID string) error {
+	student, err := s.Students.Get(ctx, studentID)
+	if err != nil {
+		return err
+	}
+	return viewstore.PutState(ctx, s.ViewStore, student.ID+".edit", student)
 }

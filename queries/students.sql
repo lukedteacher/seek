@@ -20,6 +20,9 @@ UPDATE students
 SET first_name = @first_name,
 	chosen_name = @chosen_name,
 	last_name = @last_name,
+	grade = @grade,
+	homeroom = @homeroom,
+	case_manager = @case_manager,
 	updated_at = @updated_at,
 	last_event_commit_position = @last_event_commit_position,
 	last_event_prepare_position = @last_event_prepare_position

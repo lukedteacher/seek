@@ -2,14 +2,8 @@ package blocks
 
 import (
   "fmt"
-	"seek/internal/domain/models"
 	"seek/internal/views/dto"
 )
-
-type ScheduleComponentViewModel struct {
-	Schedule         models.ScheduleSignals
-	PeriodViewModels []dto.PeriodView
-}
 
 templ ScheduleStyle() {
 	<style>
@@ -63,15 +57,15 @@ templ ScheduleStyle() {
 	</style>
 }
 
-templ ScheduleComponent(vm ScheduleComponentViewModel) {
+templ ScheduleComponent(v dto.ScheduleView) {
 	<div id="schedule-component">
 		@DayHeaders()
 		@TimeColumn()
 		@GridContainer() {
 			@TimeGrid(30, 480)
 			@DayGrid()
-			for _, pcvm := range vm.PeriodViewModels {
-				@PeriodCards(vm.Schedule.ID, pcvm)
+			for i := range v.Periods {
+				@PeriodCards(v.ID, v.Periods[i])
 			}
 		}
 		@ScheduleStyle()

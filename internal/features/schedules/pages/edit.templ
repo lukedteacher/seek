@@ -6,16 +6,17 @@ import (
 	"seek/internal/features/schedules/blocks"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
+	"seek/internal/views/dto"
 )
 
 
 
-templ Edit(esvm blocks.EditScheduleViewModel, scvm blocks.ScheduleComponentViewModel) {
+templ Edit(esvm blocks.EditScheduleViewModel, scv dto.ScheduleView) {
 	@layouts.Base("SEEK: edit schedule") {
 		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/schedules/%s/edit/stream", esvm.Schedule.ID)) }>
 			<section style="display: flex;">
 				@blocks.EditForm(esvm)
-				@blocks.ScheduleComponent(scvm)
+				@blocks.ScheduleComponent(scv)
 			</section>
 		</main>
 	}

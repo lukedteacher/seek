@@ -21,9 +21,9 @@ func NewStudentMultiselectView(all []models.Student, selected []string) []Studen
 	}
 	for i := range all {
 		view[i] = StudentMultiselectView{
-			StudentID:   all[i].Id,
+			StudentID:   all[i].ID,
 			DisplayName: all[i].FirstLast(),
-			Selected:    selectedMap[all[i].Id],
+			Selected:    selectedMap[all[i].ID],
 		}
 	}
 	return view

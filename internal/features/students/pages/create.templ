@@ -1,18 +1,17 @@
 package pages
 
 import (
-	"seek/internal/domain/models"
-	"seek/internal/features/students/events"
-	"seek/internal/views"
 	"seek/internal/features/students/blocks"
+	"seek/internal/views"
 	"seek/internal/views/layouts"
+	"seek/internal/views/dto"
 )
 
-templ Create(student models.Student, validation map[string]events.Validation, selectedGrade string) {
+templ Create(v dto.StudentFormView) {
 	@layouts.Base("SEEK: create student") {
 		<main data-init={ views.LongRunningGetSSE("/students/create/stream") }>
 			<section>
-				@blocks.CreateStudentForm(student, validation, selectedGrade)
+				@blocks.CreateForm(v)
 			</section>
 		</main>
 	}

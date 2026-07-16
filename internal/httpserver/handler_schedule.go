@@ -137,7 +137,7 @@ func (s Server) getPeriodScheduleView(w http.ResponseWriter, r *http.Request) {
 	studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, pview.ID)
 	for i := range studentIDs {
 		student, _ := s.Students.Get(ctx, studentIDs[i])
-		studentView := dto.NewStudentView(student)
+		studentView := dto.NewStudentViewFromModel(student)
 		pview.Students = append(pview.Students, *studentView)
 	}
 	_ = pages.ViewWithPeriod(view, pview).Render(ctx, w)
@@ -181,7 +181,7 @@ func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		println(err.Error())
+		println("watcher error in schedule edit stream: ", err.Error())
 		return
 	}
 	defer watcher.Stop()
@@ -190,7 +190,7 @@ func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 		notify()
 	})
 	if err != nil {
-		println(err.Error())
+		println("subscriber error in schedule edit stream: ", err.Error())
 		return
 	}
 
@@ -202,7 +202,7 @@ func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 			return
 		case <-updates:
 			if err := s.refreshScheduleViewState(ctx, scheduleID); err != nil {
-				println(err.Error())
+				println("refresh view state error in schedule edit stream: ", err.Error())
 				return
 			}
 		case entry, ok := <-watcher.Updates():
@@ -211,7 +211,7 @@ func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			var model models.Schedule
 			if err := entry.JSON(&model); err != nil {
-				println("up: ", err.Error())
+				println("json error in schedule edit stream: ", err.Error())
 				return
 			}
 			efvm, _ := s.newEditScheduleViewModel(ctx, &model)
@@ -406,21 +406,15 @@ func (s *Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedu
 	}, nil
 }
 
-func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.Schedule) (blocks.ScheduleComponentViewModel, error) {
+func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.Schedule) (dto.ScheduleView, error) {
 	if sm == nil {
-		return blocks.ScheduleComponentViewModel{}, nil
+		return dto.ScheduleView{}, nil
 	}
 	periodIDs, err := s.PeriodsSchedules.ListPeriodIDsForSchedule(ctx, sm.Id)
 	if err != nil {
-		return blocks.ScheduleComponentViewModel{}, fmt.Errorf("list period IDs: %w", err)
+		return dto.ScheduleView{}, fmt.Errorf("list period IDs: %w", err)
 	}
-	signals := models.ScheduleSignals{
-		ID:        sm.Id,
-		Title:     sm.Title,
-		TeacherID: sm.TeacherId,
-		PeriodIDs: periodIDs,
-	}
-	pcvms := make([]dto.PeriodView, 0, len(periodIDs))
+	pcvs := make([]dto.PeriodView, 0, len(periodIDs))
 	for _, periodID := range periodIDs {
 		period, err := s.Periods.Get(ctx, periodID)
 		if err != nil {
@@ -428,13 +422,14 @@ func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.S
 		}
 		view, err := dto.NewViewFromPeriod(period)
 		if err != nil {
-			println("error: ", err.Error())
+			println("new view error in new schedule component view model function: ", err.Error())
 		}
-		pcvms = append(pcvms, view)
+		pcvs = append(pcvs, view)
 	}
-	return blocks.ScheduleComponentViewModel{
-		Schedule:         signals,
-		PeriodViewModels: pcvms,
+	return dto.ScheduleView{
+		ID:      sm.Id,
+		Title:   sm.Title,
+		Periods: pcvs,
 	}, nil
 }
 
