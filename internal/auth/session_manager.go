@@ -35,7 +35,7 @@ func NewSessionManager(db *appdb.DB, users *AuthUserStore, secureCookie bool) *S
 }
 
 func (s *SessionManager) Login(ctx context.Context, email, password string) (models.User, string, error) {
-	println("test line")
+	println("sm 0")
 	// checks the email and password against length constrains
 	if err := commandlimits.Assert(struct {
 		Email    string
@@ -43,23 +43,23 @@ func (s *SessionManager) Login(ctx context.Context, email, password string) (mod
 	}{Email: email, Password: password}); err != nil {
 		return models.User{}, "", err
 	}
-	println("test")
+	println("sm 1")
 	// checks if the user exists, returns the password hash
 	user, hash, err := s.users.UserByEmailWithPassword(ctx, strings.ToLower(strings.TrimSpace(email)))
 	if err != nil {
 		return models.User{}, "", errors.New("invalid email or password")
 	}
-	println("test")
+	println("sm 2")
 	// hashes the provied password and compares
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
 		return models.User{}, "", errors.New("invalid email or password")
 	}
-	println("test")
+	println("sm 3")
 	token, err := randomToken(32)
 	if err != nil {
 		return models.User{}, "", err
 	}
-	println("test")
+	println("sm 4")
 	err = s.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceCreateAuthSession(conn, dbsql.CreateAuthSessionParams{
 			Id:        uuidv7.NewString(),
@@ -68,6 +68,7 @@ func (s *SessionManager) Login(ctx context.Context, email, password string) (mod
 			ExpiresAt: appdb.SQLTime(time.Now().Add(90 * 24 * time.Hour)),
 		})
 	})
+	println("sm 5")
 	return user, token, err
 }
 

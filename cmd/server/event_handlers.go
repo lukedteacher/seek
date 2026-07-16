@@ -55,6 +55,35 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			},
 		},
 		{
+			name: "password reset email",
+			create: func() (eventHandler, error) {
+				return auth.NewPasswordResetEmailToBeSentEventHandler(
+					store, 
+					components.checkpointer, 
+					store, 
+					store, 
+					components.emailSender,
+					cfg.AppURL,
+					components.piiKeys,
+					logger,
+				)
+			},
+		},
+		{
+			name: "auth user projection",
+			create: func() (eventHandler, error) {
+				return auth.NewAuthUserProjectionEventHandler(
+					store, 
+					components.checkpointer, 
+					store, 
+					components.authUsers, 
+					components.verifications,
+					components.piiKeys,
+					logger,
+				)
+			},
+		},
+		{
 			name: "period read model",
 			create: func() (eventHandler, error) {
 				return periodEvents.NewPeriodReadModelEventHandler(

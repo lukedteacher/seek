@@ -7,7 +7,7 @@ import (
 	"seek/internal/eventstore"
 )
 
-const EmailValidationOTPToBeSentEventHandlerName = "todo_email_validation_otp_to_be_sent_event_handler"
+const EmailValidationOTPToBeSentEventHandlerName = "seek_email_validation_otp_to_be_sent_event_handler"
 
 type EmailValidationOTPToBeSentEventHandler struct {
 	global    *eventstore.GlobalEventHandler
@@ -44,11 +44,13 @@ func (h *EmailValidationOTPToBeSentEventHandler) StopSubscribing() {
 }
 
 func (h *EmailValidationOTPToBeSentEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
+	println("testing for issues here")
 	if resolved.Event.EventType != EmailVerificationOTPGenerated {
 		return nil
 	}
-	otpID, _ := resolved.Event.Data["emailVerificationOTPGeneratedId"].(string)
-	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)["userRegisteredId"].(string)
+	otpID, _ := resolved.Event.Data[EmailVerificationOTPGeneratedIDField].(string)
+	println("o: ", otpID)
+	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[UserRegisteredIDField].(string)
 	return SendEmailValidationOTPCommandHandler(ctx, SendEmailValidationOTPCommand{
 		UserRegisteredID:                userRegisteredID,
 		EmailVerificationOTPGeneratedID: otpID,

@@ -37,6 +37,7 @@ func SendEmailValidationOTPCommandHandler(ctx context.Context, command SendEmail
 		return err
 	}
 	generatedQuery := emailVerificationOTPGeneratedQuery(command.EmailVerificationOTPGeneratedID)
+	println("gl: ", len(generatedQuery.Criteria))
 	userQuery := userRegisteredQuery(command.UserRegisteredID)
 	sentQuery := emailVerificationOTPSentQuery(command.EmailVerificationOTPGeneratedID)
 	query := combineQueries(generatedQuery, userQuery, sentQuery)
@@ -55,9 +56,11 @@ func SendEmailValidationOTPCommandHandler(ctx context.Context, command SendEmail
 	if err != nil {
 		return err
 	}
+	println("here?")
 	if !ok {
 		return eventstore.ErrNotFound
 	}
+	println("or here?")
 	model.subjectKey = subjectKey
 	for _, resolved := range model.events {
 		model.handle(resolved)
@@ -90,9 +93,9 @@ func SendEmailValidationOTPCommandHandler(ctx context.Context, command SendEmail
 func (m *emailValidationOTPContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case EmailVerificationOTPGenerated:
-		m.otpID, _ = resolved.Event.Data["emailVerificationOTPGeneratedId"].(string)
-		m.code, _ = resolved.Event.Data["otpCode"].(string)
-		m.expiresAt, _ = resolved.Event.Data["expiresAt"].(string)
+		m.otpID, _ = resolved.Event.Data[EmailVerificationOTPGeneratedIDField].(string)
+		m.code, _ = resolved.Event.Data[EmailVerificationOTPCodeField].(string)
+		m.expiresAt, _ = resolved.Event.Data[EmailVerificationOTPExpiresAtField].(string)
 	case UserRegistered:
 		m.email = protectedpii.MustDecryptEventStringWithDataKey(protectedpii.FromEnv(), m.subjectKey, resolved.Event.Data, UserRegisteredEmailField)
 	case EmailVerificationOTPSent:

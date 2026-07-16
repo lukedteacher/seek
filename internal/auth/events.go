@@ -78,7 +78,7 @@ type UserRegisteredEvent struct {
 	UsernameHash     string             `json:"username_hash"`
 	Email            protectedpii.Value `json:"email"`
 	EmailHash        string             `json:"email_hash"`
-	FirstName        protectedpii.Value `json:"first_ame"`
+	FirstName        protectedpii.Value `json:"first_name"`
 	LastName         protectedpii.Value `json:"last_name"`
 	YearOfBirth      int                `json:"year_of_birth"`
 	PasswordHash     string             `json:"password_hash"`

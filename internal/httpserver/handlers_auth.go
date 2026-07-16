@@ -33,13 +33,14 @@ func (s Server) authRoutes(r chi.Router) {
 }
 
 func (s Server) register(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	setRequestAction(r, "auth.register", nil)
 	if err := r.ParseForm(); err != nil {
 		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return flashError(sse, err.Error()) })
 		return
 	}
 	year, _ := strconv.Atoi(r.FormValue("yearOfBirth"))
-	registered, err := auth.RegisterUserCommandHandler(r.Context(), auth.RegisterUserCommand{
+	registered, err := auth.RegisterUserCommandHandler(ctx, auth.RegisterUserCommand{
 		Username: r.FormValue("username"), Email: r.FormValue("email"), Password: r.FormValue("password"),
 		FirstName: r.FormValue("firstName"), LastName: r.FormValue("lastName"), YearOfBirth: year,
 		Metadata: eventstore.HTTPCommandMetadata(r, ""),
@@ -61,7 +62,6 @@ func (s Server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user, token, err := s.Sessions.Login(ctx, r.FormValue("email"), r.FormValue("password"))
-	println(err.Error())
 	userRegisteredID := ""
 	if err == nil {
 		userRegisteredID = user.UserRegisteredID
@@ -78,7 +78,7 @@ func (s Server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.Sessions.SetSessionCookie(w, token)
-	path := "/todos"
+	path := "/"
 	if !user.EmailVerified {
 		path = "/register/" + user.ID + "/validate-email"
 	}
@@ -131,6 +131,7 @@ func (s Server) validateEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s Server) sendOTP(w http.ResponseWriter, r *http.Request) {
+	println("new OTP requested")
 	setRequestAction(r, "auth.send_email_validation_otp", map[string]any{"userId": chi.URLParam(r, "userID")})
 	userID := chi.URLParam(r, "userID")
 	user, err := s.AuthUsers.UserByIDOrRegisteredID(r.Context(), userID)
