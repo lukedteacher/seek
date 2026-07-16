@@ -24,6 +24,7 @@ func (s Server) scheduleRoutes(r chi.Router) {
 	r.Post("/schedules/create/validate", s.postScheduleCreateValidate)
 	r.Post("/schedules/create", s.postScheduleCreate)
 	r.Get("/schedules/{id}", s.getScheduleView)
+	r.Get("/schedules/{id}/stream", s.getScheduleViewStream)
 	r.Get("/schedules/{id}/periods/{pid}", s.getPeriodScheduleView)
 	r.Get("/schedules/{id}/edit", s.getScheduleEdit)
 	r.Get("/schedules/{id}/edit/stream", s.getScheduleEditStream)
@@ -224,7 +225,7 @@ func (s Server) getScheduleEdit(w http.ResponseWriter, r *http.Request) {
 	_ = pages.Edit(efvm, scvm).Render(ctx, w)
 }
 
-// GET request to /schedules/{id}/stream
+// GET request to /schedules/{id}/edit/stream
 func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	scheduleID := chi.URLParam(r, "id")
@@ -398,7 +399,7 @@ func (s Server) refreshScheduleViewState(ctx context.Context, scheduleID string)
 		return err
 	}
 
-	return viewstore.PutState(ctx, s.ViewStore, scheduleID, schedule)
+	return viewstore.PutState(ctx, s.ViewStore, schedule.ID+".view", schedule)
 }
 
 func (s Server) refreshScheduleEditState(ctx context.Context, scheduleID string) error {
