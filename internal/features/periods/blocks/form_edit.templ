@@ -102,7 +102,7 @@ templ EditPeriodForm(view PeriodEditFormView) {
 		<footer>
 			<button 
 				type="button"
-				data-on:click={ datastar.PostSSE("/periods/%s/delete", view.Period.ID) }
+				data-on:click={ datastar.DeleteSSE("/periods/%s/delete", view.Period.ID) }
 			>
 				delete
 			</button>

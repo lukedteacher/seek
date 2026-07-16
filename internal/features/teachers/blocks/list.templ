@@ -4,27 +4,34 @@ import (
 	"fmt"
 
 	"seek/internal/domain/models"
+	"seek/internal/views/components"
 )
 
 templ List(teachers []models.Teacher) {
 	<table>
 		<thead>
+			<th>link</th>
 			<th>first</th>
 			<th>chosen</th>
 			<th>last</th>
 		</thead>
 		<tbody>
-			for _, teacher := range teachers {
+			for i := range teachers {
 				<tr>
 					<td>
-						<a href={ fmt.Sprintf("/teachers/%s", teacher.ID) }>{ teacher.FirstName }</a>
+						<a href={ fmt.Sprintf("/teachers/%s", teachers[i].ID) }>
+							<button>
+								@components.Icon("mdi:link")
+							</button>
+						</a>
 					</td>
+					<td>{ teachers[i].FirstName }</td>
 					<td>
-						if teacher.ChosenName != nil {
-							{*teacher.ChosenName}
+						if teachers[i].ChosenName != nil {
+							{*teachers[i].ChosenName}
 						}
 					</td>
-					<td>{teacher.LastName}</td>
+					<td>{teachers[i].LastName}</td>
 				</tr>
 			}
 		</tbody>

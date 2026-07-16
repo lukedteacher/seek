@@ -34,7 +34,7 @@ templ Card(period dto.PeriodView) {
 			<a href={ fmt.Sprintf("/periods/%s/edit", period.ID) }>
 				<button>edit</button>
 			</a>
-			<button data-on:click={ fmt.Sprintf("@delete('/periods/%s')", period.ID) }>delete</button>
+			<button data-on:click={ fmt.Sprintf("@delete('/periods/%s/delete')", period.ID) }>delete</button>
 		}
 	}
 	@card.CardStyles()

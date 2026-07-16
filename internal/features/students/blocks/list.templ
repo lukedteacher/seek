@@ -19,21 +19,21 @@ templ StudentList(students []dto.StudentView) {
 			<th>case manager</th>
 		</thead>
 		<tbody>
-			for _, student := range students {
+			for i := range students {
 				<tr>
 					<td>
-						<a href={ fmt.Sprintf("/students/%s", student.ID) }>
-							@components.Icon("mdi:link")
+						<a href={ fmt.Sprintf("/students/%s", students[i].ID) }>
+							<button>
+								@components.Icon("mdi:link")
+							</button>
 						</a>
 					</td>
-					<td>{ student.FirstName }</td>
-					<td>{ student.ChosenName }</td>
-					<td>{ student.LastName }</td>
-					<td>{ student.Grade }</td>
-					<td>{ student.Homeroom }</td>
-					<td>
-							{ student.CaseManager }
-					</td>
+					<td>{ students[i].FirstName }</td>
+					<td>{ students[i].ChosenName }</td>
+					<td>{ students[i].LastName }</td>
+					<td>{ students[i].Grade }</td>
+					<td>{ students[i].Homeroom }</td>
+					<td>{ students[i].CaseManager }</td>
 				</tr>
 			}
 		</tbody>

@@ -45,8 +45,8 @@ a {
 
 button {
 	cursor: pointer;
-	background-color: var(--secondary-5);
-	color: var(--secondary-5-on);
+	background-color: var(--primary-5);
+	color: var(--primary-5-on);
 	padding: var(--size--2) var(--size-1);
 	align-items: center;
 	justify-content: center;
@@ -59,13 +59,13 @@ button {
 	font-size: var(--font-size--1);
 
 	&:hover {
-		background-color: var(--secondary-6);
-		color: var(--secondary-6-on);
+		background-color: var(--primary-6);
+		color: var(--primary-6-on);
 	}
 
 	&:active {
-		background-color: var(--secondary-7);
-		color: var(--secondary-7-on);
+		background-color: var(--primary-7);
+		color: var(--primary-7-on);
 	}
 
 	&.error {
@@ -84,9 +84,9 @@ form {
 	flex-direction: column;
 	gap: var(--size-3);
 	width: 30rem;
-	background-color: var(--primary-4);
-	color: var(--primary-4-on);
-	border-color: var(--primary-4-dim);
+	background-color: var(--neutral-3);
+	color: var(--neutral-3-on);
+	border-color: var(--neutral-3-dim);
 	border-style: solid;
 	border-width: var(--border-width-0);
 	border-radius: var(--border-radius-2);
@@ -124,8 +124,8 @@ h1 {
 }
 
 table {
-	background-color: var(--primary-4);
-	color: var(--primary-4-on);
+	background-color: var(--neutral-4);
+	color: var(--neutral-4-on);
 	border-radius: var(--border-radius-2);
 	border-spacing: 0;
 	padding: var(--size-1) var(--size-3);
@@ -137,15 +137,8 @@ table {
 	}
 
 	tbody tr:nth-child(odd) {
-		background-color: var(--primary-5);
-		color: var(--primary-5-on);
-	}
-
-	tbody tr {
-		&:hover {
-			background-color: var(--primary-6);
-			color: var(--primary-6-on);
-		}
+		background-color: var(--neutral-5);
+		color: var(--neutral-5-on);
 	}
 }
 

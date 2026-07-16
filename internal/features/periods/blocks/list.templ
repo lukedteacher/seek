@@ -17,17 +17,19 @@ templ List(periods []dto.PeriodView) {
 			<th>days</th>
 		</thead>
 		<tbody>
-			for _, period := range periods {
+			for i := range periods {
 				<tr>
 					<td>
-						<a href={ fmt.Sprintf("/periods/%s", period.ID) }>
-							@components.Icon("mdi:link")
+						<a href={ fmt.Sprintf("/periods/%s", periods[i].ID) }>
+							<button>
+								@components.Icon("mdi:link")
+							</button>
 						</a>
 					</td>
-					<td>{ period.Title }</td>
-					<td>{ period.StartTime }</td>
-					<td>{ period.Duration }</td>
-					<td>{ period.Days }</td>
+					<td>{ periods[i].Title }</td>
+					<td>{ periods[i].StartTime }</td>
+					<td>{ periods[i].Duration }</td>
+					<td>{ periods[i].Days }</td>
 				</tr>
 			}
 		</tbody>

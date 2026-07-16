@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS periods_schedules (
 	last_event_commit_position INTEGER NOT NULL,
 	last_event_prepare_position INTEGER NOT NULL,
 	PRIMARY KEY (period_id, schedule_id),
-	FOREIGN KEY (period_id) REFERENCES periods(id),
-	FOREIGN KEY (schedule_id) REFERENCES schedules(id)
+	FOREIGN KEY (period_id) REFERENCES periods(id) ON DELETE CASCADE,
+	FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE
 );

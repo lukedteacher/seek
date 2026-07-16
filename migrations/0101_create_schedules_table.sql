@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS schedules (
 	deleted_at TEXT,
 	last_event_commit_position INTEGER NOT NULL,
 	last_event_prepare_position INTEGER NOT NULL,
-	FOREIGN KEY(teacher_id) REFERENCES teachers(id)
+	FOREIGN KEY(teacher_id) REFERENCES teachers(id) ON DELETE CASCADE
 );
