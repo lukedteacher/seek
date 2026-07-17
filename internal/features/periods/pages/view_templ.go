@@ -11,13 +11,14 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
+	"seek/internal/domain/models"
 	"seek/internal/features/periods/blocks"
 	"seek/internal/views"
 	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
 )
 
-func View(period dto.PeriodView) templ.Component {
+func View(user models.User, period dto.PeriodView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -57,7 +58,7 @@ func View(period dto.PeriodView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/stream", period.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/view.templ`, Line: 14, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/view.templ`, Line: 15, Col: 99}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -77,7 +78,7 @@ func View(period dto.PeriodView) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("SEEK: period").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("SEEK: period", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

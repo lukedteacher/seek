@@ -8,8 +8,8 @@ import (
 	"seek/internal/views/layouts"
 )
 
-templ Edit(teacher models.TeacherSignals, validation map[string]events.Validation) {
-	@layouts.Base("SEEK: edit student") {
+templ Edit(user models.User, teacher models.TeacherSignals, validation map[string]events.Validation) {
+	@layouts.Base("SEEK: edit student", user) {
 		<main data-init={ views.LongRunningGetSSE("/teachers/edit/stream") }>
 			<section>
 				@blocks.EditForm(teacher, validation)

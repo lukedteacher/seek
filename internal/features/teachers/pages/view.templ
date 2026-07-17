@@ -8,8 +8,8 @@ import (
 	"seek/internal/views/layouts"
 )
 
-templ View(teacher *models.Teacher) {
-	@layouts.Base("SEEK: teachers") {
+templ View(user models.User, teacher *models.Teacher) {
+	@layouts.Base("SEEK: teachers", user) {
 		<main data-init={ views.LongRunningGetSSE("/teachers/stream") }>
 			<section>
 				<h2>{ teacher.FirstLast() }</h2>

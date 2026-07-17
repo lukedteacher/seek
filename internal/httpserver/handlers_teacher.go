@@ -27,6 +27,7 @@ func (s Server) teacherRoutes(r chi.Router) {
 // GET request to /teachers
 func (s Server) getTeachersList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	type Signals struct {
 		View int64 `json:"view"`
 	}
@@ -38,12 +39,13 @@ func (s Server) getTeachersList(w http.ResponseWriter, r *http.Request) {
 	}
 	datastar.ReadSignals(r, signals)
 
-	_ = pages.List(signals.View, teachers).Render(ctx, w)
+	_ = pages.List(user, signals.View, teachers).Render(ctx, w)
 }
 
 // GET request to /teachers/{id}
 func (s Server) getTeacher(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	teacherID := chi.URLParam(r, "id")
 	teacher, err := s.Teachers.Get(ctx, teacherID)
 	if err != nil {
@@ -51,12 +53,13 @@ func (s Server) getTeacher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = pages.View(teacher).Render(ctx, w)
+	_ = pages.View(user, teacher).Render(ctx, w)
 }
 
 // GET request to /teachers/create
 func (s Server) getCreateTeacherForm(w http.ResponseWriter, r *http.Request) {
-	_ = pages.Create().Render(r.Context(), w)
+	user := currentUser(r)
+	_ = pages.Create(user).Render(r.Context(), w)
 }
 
 // POST request to /teachers/create
@@ -97,7 +100,7 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 // GET request to /students/{id}/edit
 func (s Server) getEditTeacher(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
+	user := currentUser(r)
 	teacherID := chi.URLParam(r, "id")
 	teacherRes, err := s.Teachers.Get(ctx, teacherID)
 	if err != nil {
@@ -114,7 +117,7 @@ func (s Server) getEditTeacher(w http.ResponseWriter, r *http.Request) {
 	}
 
 	validation := events.Validate(teacherRes)
-	_ = pages.Edit(teacherSignals, validation).Render(ctx, w)
+	_ = pages.Edit(user, teacherSignals, validation).Render(ctx, w)
 }
 
 // POST request to /teachers/{id}/edit/validate

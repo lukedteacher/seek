@@ -6,8 +6,8 @@ import (
 	"seek/internal/views/layouts"
 )
 
-templ List(schedules []models.Schedule) {
-	@layouts.Base("SEEK: schedules") {
+templ List(user models.User, schedules []models.Schedule) {
+	@layouts.Base("SEEK: schedules", user) {
 		<main>
 			<section>
 				<h1>SCHEDULE</h1>

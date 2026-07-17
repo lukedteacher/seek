@@ -35,6 +35,7 @@ func (s Server) studentRoutes(r chi.Router) {
 // GET request to /students
 func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	signals := &struct {
 		View int `json:"view"`
 	}{}
@@ -51,12 +52,13 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	for i := range students {
 		studentViews[i] = *dto.NewStudentViewFromModel(&students[i])
 	}
-	_ = pages.List(signals.View, studentViews).Render(ctx, w)
+	_ = pages.List(user, signals.View, studentViews).Render(ctx, w)
 }
 
 // GET request to /students/stream
 func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	sse := newSSE(w, r)
 	notifier := NewDedupeNotifier()
 	// subscribes to the channel which publishes changes to any students
@@ -87,7 +89,7 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 				studentViews[i] = *studentView
 			}
 
-			sse.PatchElementTempl(pages.List(0, studentViews))
+			sse.PatchElementTempl(pages.List(user, 0, studentViews))
 		}
 	}
 }
@@ -95,14 +97,16 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 // GET request to /students/create
 func (s Server) getStudentCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	empty := models.NewStudent()
 	view := dto.NewStudentFormViewFromModel(empty)
-	_ = pages.Create(*view).Render(ctx, w)
+	_ = pages.Create(user, *view).Render(ctx, w)
 }
 
 // GET request to /students/create/stream
 func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	sse := newSSE(w, r)
 
 	// watches the key value stream for ephemeral changes
@@ -135,7 +139,7 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			view := dto.NewStudentFormViewFromModel(&model)
-			sse.PatchElementTempl(pages.Create(*view))
+			sse.PatchElementTempl(pages.Create(user, *view))
 		}
 	}
 }
@@ -197,6 +201,7 @@ func (s Server) postStudentCreate(w http.ResponseWriter, r *http.Request) {
 // GET request to /students/{id}
 func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	studentID := chi.URLParam(r, "id")
 	student, err := s.Students.Get(r.Context(), studentID)
 	if err != nil {
@@ -212,12 +217,13 @@ func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
 		periodViews[i] = view
 	}
 	view.Schedule.Periods = periodViews
-	_ = pages.View(*view).Render(r.Context(), w)
+	_ = pages.View(user, *view).Render(r.Context(), w)
 }
 
 // GET request to /students/{id}/stream
 func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	studentID := chi.URLParam(r, "id")
 	sse := newSSE(w, r)
 
@@ -260,7 +266,7 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 			if err := s.refreshStudentViewState(ctx, studentID); err != nil {
 				println("svs second refresh: ", err.Error())
 				if err.Error() == "student not found" {
-					sse.PatchElementTempl(pages.NotFound())
+					sse.PatchElementTempl(pages.NotFound(user))
 				}
 				return
 			}
@@ -282,7 +288,7 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 				periodViews[i] = view
 			}
 			view.Schedule.Periods = periodViews
-			sse.PatchElementTempl(pages.View(*view))
+			sse.PatchElementTempl(pages.View(user, *view))
 		}
 	}
 }
@@ -290,6 +296,7 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 // GET request to /students/{id}/edit
 func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	studentID := chi.URLParam(r, "id")
 	model, err := s.Students.Get(ctx, studentID)
 	if err != nil {
@@ -297,17 +304,18 @@ func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if model == nil {
-		_ = pages.NotFound().Render(ctx, w)
+		_ = pages.NotFound(user).Render(ctx, w)
 		return
 	}
 
 	view := dto.NewStudentFormViewFromModel(model)
-	_ = pages.Edit(*view).Render(ctx, w)
+	_ = pages.Edit(user, *view).Render(ctx, w)
 }
 
 // GET request to /student/{id}/stream
 func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	studentID := chi.URLParam(r, "id")
 	sse := newSSE(w, r)
 
@@ -344,7 +352,7 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 			if err := s.refreshStudentEditState(ctx, studentID); err != nil {
 				println(err.Error())
 				if err.Error() == "student not found" {
-					sse.PatchElementTempl(pages.NotFound())
+					sse.PatchElementTempl(pages.NotFound(user))
 				}
 				return
 			}
@@ -358,7 +366,7 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			view := dto.NewStudentFormViewFromModel(&model)
-			sse.PatchElementTempl(pages.Edit(*view))
+			sse.PatchElementTempl(pages.Edit(user, *view))
 		}
 	}
 }
@@ -366,6 +374,7 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 // POST request to /students/{id}/edit/validate
 func (s Server) postStudentEditValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	signals := &struct {
 		Student dto.StudentView `json:"student"`
 	}{}
@@ -376,7 +385,7 @@ func (s Server) postStudentEditValidate(w http.ResponseWriter, r *http.Request) 
 	model := dto.NewStudentModelFromView(&signals.Student)
 	model.ID = chi.URLParam(r, "id")
 	view := dto.NewStudentFormViewFromModel(model)
-	_ = pages.Edit(*view).Render(ctx, w)
+	_ = pages.Edit(user, *view).Render(ctx, w)
 }
 
 // POST request to /students/{id}/edit

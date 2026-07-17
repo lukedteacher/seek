@@ -3,10 +3,11 @@ package pages
 import (
 	"seek/internal/views"
 	"seek/internal/views/layouts"
+	"seek/internal/domain/models"
 )
 
-templ Create() {
-	@layouts.Base("SEEK: create teacher") {
+templ Create(user models.User) {
+	@layouts.Base("SEEK: create teacher", user) {
 		<main data-init={ views.LongRunningGetSSE("/teachers/create/stream") }>
 			<section>
 				<h1>CREATE A TEACHER</h1>

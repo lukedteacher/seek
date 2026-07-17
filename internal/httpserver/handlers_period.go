@@ -37,6 +37,7 @@ func (s Server) periodRoutes(r chi.Router) {
 // GET request to /periods
 func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	type Signals struct {
 		View int `json:"view"`
 	}
@@ -61,12 +62,13 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 		periodViews[i] = period
 	}
 
-	_ = pages.List(signals.View, periodViews).Render(ctx, w)
+	_ = pages.List(user, signals.View, periodViews).Render(ctx, w)
 }
 
 // GET request to /periods/stream
 func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	sse := newSSE(w, r)
 	notifier := NewDedupeNotifier()
 	// subscribes to the channel which publishes changes to any periods
@@ -101,7 +103,7 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 				periodViews[i] = periodView
 			}
 
-			sse.PatchElementTempl(pages.List(0, periodViews))
+			sse.PatchElementTempl(pages.List(user, 0, periodViews))
 		}
 	}
 }
@@ -110,6 +112,7 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 // TODO figure out if there's a way to have this use the same form as edit?
 func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	empty := models.NewPeriod()
 	students, err := s.Students.List(ctx)
 	if err != nil {
@@ -117,12 +120,13 @@ func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	selected := []string{}
 	view := blocks.NewPeriodCreateFormView(empty, students, selected)
-	_ = pages.Create(view).Render(ctx, w)
+	_ = pages.Create(user, view).Render(ctx, w)
 }
 
 // GET request to /periods/create/stream
 func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	sse := newSSE(w, r)
 
 	// watches the key value stream for ephemeral changes
@@ -159,7 +163,7 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 				println(err.Error())
 			}
 			view := blocks.NewPeriodCreateFormView(&model, students, model.StudentIDs)
-			sse.PatchElementTempl(pages.Create(view))
+			sse.PatchElementTempl(pages.Create(user, view))
 		}
 	}
 }
@@ -237,6 +241,7 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 // GET request to /periods/{id}
 func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	periodID := chi.URLParam(r, "id")
 	model, err := s.Periods.Get(ctx, periodID)
 	if err != nil {
@@ -244,7 +249,7 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if model == nil {
-		_ = pages.NotFound().Render(ctx, w)
+		_ = pages.NotFound(user).Render(ctx, w)
 		return
 	}
 
@@ -259,12 +264,13 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 		studentView := dto.NewStudentViewFromModel(student)
 		view.Students = append(view.Students, *studentView)
 	}
-	_ = pages.View(view).Render(ctx, w)
+	_ = pages.View(user, view).Render(ctx, w)
 }
 
 // GET request to /periods/{id}/stream
 func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	periodID := chi.URLParam(r, "id")
 	sse := newSSE(w, r)
 
@@ -307,7 +313,7 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 			if err := s.refreshPeriodViewState(ctx, periodID); err != nil {
 				println("pvs second refresh: ", err.Error())
 				if err.Error() == "period not found" {
-					sse.PatchElementTempl(pages.NotFound())
+					sse.PatchElementTempl(pages.NotFound(user))
 				}
 				return
 			}
@@ -330,7 +336,7 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 				studentView := dto.NewStudentViewFromModel(student)
 				view.Students = append(view.Students, *studentView)
 			}
-			sse.PatchElementTempl(pages.View(view))
+			sse.PatchElementTempl(pages.View(user, view))
 		}
 	}
 }
@@ -338,6 +344,7 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 // GET request to /periods/{id}/edit
 func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	periodID := chi.URLParam(r, "id")
 	model, err := s.Periods.Get(ctx, periodID)
 	if err != nil {
@@ -351,12 +358,13 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	selected, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 	view := blocks.NewPeriodEditFormView(model, all, selected)
-	_ = pages.Edit(view).Render(ctx, w)
+	_ = pages.Edit(user, view).Render(ctx, w)
 }
 
 // GET request to /period/{id}/stream
 func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	periodID := chi.URLParam(r, "id")
 	sse := newSSE(w, r)
 
@@ -393,7 +401,7 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			if err := s.refreshPeriodEditState(ctx, periodID); err != nil {
 				println(err.Error())
 				if err.Error() == "period not found" {
-					sse.PatchElementTempl(pages.NotFound())
+					sse.PatchElementTempl(pages.NotFound(user))
 				}
 				return
 			}
@@ -412,7 +420,7 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			selected, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 			view := blocks.NewPeriodEditFormView(&model, all, selected)
-			sse.PatchElementTempl(pages.Edit(view))
+			sse.PatchElementTempl(pages.Edit(user, view))
 		}
 	}
 }

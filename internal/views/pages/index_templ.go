@@ -10,7 +10,6 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/domain/models"
-	"seek/internal/views/components"
 	"seek/internal/views/components/card"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
@@ -49,11 +48,7 @@ func Index(user models.User) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = components.MainHeader(user).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <main><section style=\"margin-bottom: var(--size-2)\"><p>welcome to SEEK (aka shared educational environment knowledge)</p><p>there many features to come</p><p>below are some of the current ones</p></section><section style=\"display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><section style=\"margin-bottom: var(--size-2)\"><p>welcome to SEEK (aka shared educational environment knowledge)</p><p>there many features to come</p><p>below are some of the current ones</p></section><section style=\"display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1185,13 +1180,9 @@ func Index(user models.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.MainFooter().Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("SEEK").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("SEEK", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

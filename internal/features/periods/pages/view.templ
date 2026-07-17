@@ -7,10 +7,11 @@ import (
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 	"seek/internal/views/dto"
+	"seek/internal/domain/models"
 )
 
-templ View(period dto.PeriodView) {
-	@layouts.Base("SEEK: period") {
+templ View(user models.User, period dto.PeriodView) {
+	@layouts.Base("SEEK: period", user) {
 		<main id="main" data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/stream", period.ID)) }>
 			<section>
 				@blocks.Card(period)

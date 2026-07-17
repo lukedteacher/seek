@@ -8,10 +8,11 @@ import (
 	"seek/internal/views"
 	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
+	"seek/internal/domain/models"
 )
 
-templ View(v dto.ScheduleView) {
-	@layouts.Base("SEEK: schedule") {
+templ View(user models.User, v dto.ScheduleView) {
+	@layouts.Base("SEEK: schedule", user) {
 		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/schedules/%s/stream", v.ID)) }>
 			<hgroup style="display: flex; gap: var(--size-1); justify-content: center; align-items: center;">
 				<h3>
@@ -27,8 +28,8 @@ templ View(v dto.ScheduleView) {
 	}
 }
 
-templ ViewWithPeriod(v dto.ScheduleView, p dto.PeriodView) {
-	@layouts.Base("SEEK: schedule") {
+templ ViewWithPeriod(user models.User, v dto.ScheduleView, p dto.PeriodView) {
+	@layouts.Base("SEEK: schedule", user) {
 		<main data-init={ views.LongRunningGetSSE("/schedules/stream") }>
 			@pblocks.Card(p)
 			@blocks.ScheduleComponent(v)

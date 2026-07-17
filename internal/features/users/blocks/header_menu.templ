@@ -36,13 +36,14 @@ templ UserHeaderMenu(user models.User) {
 templ UserHeaderMenuStyles() {
 	<style>
 		button#user-header-menu {
-			background-color: blueviolet;
+			color: var(--secondary-5-on);
+			background-color: var(--secondary-5);
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			gap: var(--size--1);
+			gap: var(--size--2);
 			border-radius: var(--bd-pill);
-			padding: var(--size--2) var(--size-0);
+			padding: .4rem var(--size--1);
 
 			div {
 				display: flex;

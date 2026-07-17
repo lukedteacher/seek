@@ -7,12 +7,13 @@ import (
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 	"seek/internal/views/dto"
+	"seek/internal/domain/models"
 )
 
 
 
-templ Edit(esvm blocks.EditScheduleViewModel, scv dto.ScheduleView) {
-	@layouts.Base("SEEK: edit schedule") {
+templ Edit(user models.User, esvm blocks.EditScheduleViewModel, scv dto.ScheduleView) {
+	@layouts.Base("SEEK: edit schedule", user) {
 		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/schedules/%s/edit/stream", esvm.Schedule.ID)) }>
 			<section style="display: flex;">
 				@blocks.EditForm(esvm)

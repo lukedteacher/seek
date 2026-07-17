@@ -4,10 +4,11 @@ import (
 	"seek/internal/views"
 	"seek/internal/features/periods/blocks"
 	"seek/internal/views/layouts"
+	"seek/internal/domain/models"
 )
 
-templ Create(view blocks.PeriodCreateFormView) {
-	@layouts.Base("SEEK: create period") {
+templ Create(user models.User, view blocks.PeriodCreateFormView) {
+	@layouts.Base("SEEK: create period", user) {
 		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
 			<section>
 				@blocks.CreateForm(view)

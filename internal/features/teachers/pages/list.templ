@@ -8,8 +8,8 @@ import (
 	"seek/internal/views/layouts"
 )
 
-templ List(view int64, teachers []models.Teacher) {
-	@layouts.Base("SEEK: teachers") {
+templ List(user models.User, view int64, teachers []models.Teacher) {
+	@layouts.Base("SEEK: teachers", user) {
 		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/teachers/stream") }>
 			<section>
 				<h1>TEACHERS</h1>

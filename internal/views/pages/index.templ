@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"seek/internal/views/components"
 	"seek/internal/views/components/card"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
@@ -9,8 +8,7 @@ import (
 )
 
 templ Index(user models.User) {
-	@layouts.Base("SEEK") {
-		@components.MainHeader(user)
+	@layouts.Base("SEEK", user) {
 		<main>
 			<section style="margin-bottom: var(--size-2)">
 				<p>welcome to SEEK (aka shared educational environment knowledge)</p>
@@ -210,6 +208,5 @@ templ Index(user models.User) {
 				}
 			</section>
 		</main>
-		@components.MainFooter()
 	}
 }

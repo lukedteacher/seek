@@ -4,10 +4,11 @@ import (
 	"seek/internal/views/layouts"
 	"seek/internal/views/components"
 	"seek/internal/views"
+	"seek/internal/domain/models"
 )
 
-templ Login(errors map[string]string) {
-	@layouts.Base("SEEK: login") {
+templ Login(user models.User, errors map[string]string) {
+	@layouts.Base("SEEK: login", user) {
 		@LoginForm(errors)
 	}
 }
@@ -22,8 +23,8 @@ templ LoginForm(errors map[string]string) {
 	}
 }
 
-templ Register(errors map[string]string) {
-	@layouts.Base("SEEK: register") {
+templ Register(user models.User, errors map[string]string) {
+	@layouts.Base("SEEK: register", user) {
 		@RegisterForm(errors)
 	}
 }
@@ -41,8 +42,8 @@ templ RegisterForm(errors map[string]string) {
 	}
 }
 
-templ ForgotPassword(errors map[string]string) {
-	@layouts.Base("SEEK: forgot password") {
+templ ForgotPassword(user models.User, errors map[string]string) {
+	@layouts.Base("SEEK: forgot password", user) {
 		@ForgotPasswordForm(errors)
 	}
 }
@@ -55,8 +56,8 @@ templ ForgotPasswordForm(errors map[string]string) {
 	}
 }
 
-templ ResetPassword(token string, errors map[string]string) {
-	@layouts.Base("SEEK: reset password") {
+templ ResetPassword(user models.User, token string, errors map[string]string) {
+	@layouts.Base("SEEK: reset password", user) {
 		@ResetPasswordForm(token, errors)
 	}
 }
@@ -68,9 +69,9 @@ templ ResetPasswordForm(token string, errors map[string]string) {
 	}
 }
 
-templ ValidateEmail(userID string, errors map[string]string) {
-	@layouts.Base("SEEK: validate email") {
-		@ValidateEmailForm(userID, errors)
+templ ValidateEmail(user models.User, errors map[string]string) {
+	@layouts.Base("SEEK: validate email", user) {
+		@ValidateEmailForm(user.ID, errors)
 	}
 }
 

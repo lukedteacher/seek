@@ -2,10 +2,11 @@ package pages
 
 import (
 	"seek/internal/views/layouts"
+	"seek/internal/domain/models"
 )
 
-templ NotFound() {
-	@layouts.Base("SEEK: period not found") {
+templ NotFound(user models.User) {
+	@layouts.Base("SEEK: period not found", user) {
 		<main id="main">
 			<section>
 				<h3>not found</h3>

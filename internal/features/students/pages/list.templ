@@ -6,10 +6,11 @@ import (
 	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
 	"seek/internal/views/dto"
+	"seek/internal/domain/models"
 )
 
-templ List(view int, students []dto.StudentView) {
-	@layouts.Base("SEEK: students") {
+templ List(user models.User, view int, students []dto.StudentView) {
+	@layouts.Base("SEEK: students", user) {
 		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/students/stream") }>
 			<section>
 				<h1>STUDENTS</h1>

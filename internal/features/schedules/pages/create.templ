@@ -8,13 +8,14 @@ import (
 )
 
 templ Create(
+	user models.User,
 	schedule models.Schedule, 
 	teachers []models.Teacher, 
 	periods []models.Period, 
 	validation map[string]events.Validation, 
 	selectedTeacher *models.Teacher,
 ) {
-	@layouts.Base("SEEK: create period") {
+	@layouts.Base("SEEK: create period", user) {
 		<main>
 			<section>
 				@blocks.CreateForm(schedule, teachers, periods, validation, selectedTeacher)

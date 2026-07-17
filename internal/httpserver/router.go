@@ -98,6 +98,7 @@ func (s Server) Routes() http.Handler {
 	}
 	r.Handle("/static/*", resources.Handler())
 	r.Group(func(r chi.Router) {
+		r.Use(s.addUserInfoToContext)
 		s.authRoutes(r)
 		s.coreRoutes(r)
 	})
@@ -121,6 +122,18 @@ func render(component interface {
 	}
 }
 
+func (s Server) addUserInfoToContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		user, _, err := s.Sessions.CurrentUser(ctx, r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, userKey, user)))
+	})
+}
+
 func (s Server) requireVerifiedEmail(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -129,6 +142,7 @@ func (s Server) requireVerifiedEmail(next http.Handler) http.Handler {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		// if there is no user logged in
 		if !ok {
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return

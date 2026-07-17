@@ -3,10 +3,11 @@ package pages
 import (
 	"seek/internal/views/layouts"
 	"seek/internal/views/components/badge"
+	"seek/internal/domain/models"
 )
 
-templ Components() {
-	@layouts.Base("SEEK: components") {
+templ Components(user models.User) {
+	@layouts.Base("SEEK: components", user) {
 		<main>
 			<section style="display: grid; gap: var(--size-2);">
 				<h3>badges</h3>

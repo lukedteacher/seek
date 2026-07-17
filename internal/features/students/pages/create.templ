@@ -5,10 +5,11 @@ import (
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 	"seek/internal/views/dto"
+	"seek/internal/domain/models"
 )
 
-templ Create(v dto.StudentFormView) {
-	@layouts.Base("SEEK: create student") {
+templ Create(user models.User, v dto.StudentFormView) {
+	@layouts.Base("SEEK: create student", user) {
 		<main data-init={ views.LongRunningGetSSE("/students/create/stream") }>
 			<section>
 				@blocks.CreateForm(v)

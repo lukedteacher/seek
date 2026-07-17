@@ -35,24 +35,26 @@ func (s Server) scheduleRoutes(r chi.Router) {
 
 // GET request to /schedules
 func (s Server) getSchedules(w http.ResponseWriter, r *http.Request) {
+	user := currentUser(r)
 	schedules, err := s.Schedules.List(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	_ = pages.List(schedules).Render(r.Context(), w)
+	_ = pages.List(user, schedules).Render(r.Context(), w)
 }
 
 // GET request to /schedules/create
 func (s Server) getScheduleCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	emptySchedule := models.Schedule{}
 	validation := events.Validate(emptySchedule)
 
 	teachers, _ := s.Teachers.List(ctx)
 	periods, _ := s.Periods.List(ctx)
-	_ = pages.Create(emptySchedule, teachers, periods, validation, nil).Render(ctx, w)
+	_ = pages.Create(user, emptySchedule, teachers, periods, validation, nil).Render(ctx, w)
 }
 
 // POST request to /schedules/create/validate
@@ -116,6 +118,7 @@ func (s Server) postScheduleCreate(w http.ResponseWriter, r *http.Request) {
 // GET request to /schedules/{id}
 func (s Server) getScheduleView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	scheduleID := chi.URLParam(r, "id")
 	scheduleRes, err := s.Schedules.Get(ctx, scheduleID)
 	if err != nil {
@@ -123,12 +126,13 @@ func (s Server) getScheduleView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view, _ := s.newScheduleComponentViewModel(ctx, scheduleRes)
-	_ = pages.View(view).Render(ctx, w)
+	_ = pages.View(user, view).Render(ctx, w)
 }
 
 // GET request to /schedules/{id}/periods/{pid} ??
 func (s Server) getPeriodScheduleView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	scheduleID := chi.URLParam(r, "id")
 	scheduleRes, err := s.Schedules.Get(ctx, scheduleID)
 	if err != nil {
@@ -145,12 +149,13 @@ func (s Server) getPeriodScheduleView(w http.ResponseWriter, r *http.Request) {
 		studentView := dto.NewStudentViewFromModel(student)
 		pview.Students = append(pview.Students, *studentView)
 	}
-	_ = pages.ViewWithPeriod(view, pview).Render(ctx, w)
+	_ = pages.ViewWithPeriod(user, view, pview).Render(ctx, w)
 }
 
 // GET request to /schedules/{id}/stream
 func (s Server) getScheduleViewStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	scheduleID := chi.URLParam(r, "id")
 	sse := newSSE(w, r)
 
@@ -193,7 +198,7 @@ func (s Server) getScheduleViewStream(w http.ResponseWriter, r *http.Request) {
 			if err := s.refreshScheduleViewState(ctx, scheduleID); err != nil {
 				println("svs second refresh: ", err.Error())
 				if err.Error() == "schedule not found" {
-					sse.PatchElementTempl(pages.NotFound())
+					sse.PatchElementTempl(pages.NotFound(user))
 				}
 				return
 			}
@@ -207,7 +212,7 @@ func (s Server) getScheduleViewStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			view, _ := s.newScheduleComponentViewModel(ctx, &model)
-			sse.PatchElementTempl(pages.View(view))
+			sse.PatchElementTempl(pages.View(user, view))
 		}
 	}
 }
@@ -215,7 +220,7 @@ func (s Server) getScheduleViewStream(w http.ResponseWriter, r *http.Request) {
 // GET request to /schedules/{id}
 func (s Server) getScheduleEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
+	user := currentUser(r)
 	scheduleID := chi.URLParam(r, "id")
 	scheduleRes, err := s.Schedules.Get(ctx, scheduleID)
 	if err != nil {
@@ -224,12 +229,13 @@ func (s Server) getScheduleEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	efvm, _ := s.newEditScheduleViewModel(ctx, scheduleRes)
 	scvm, _ := s.newScheduleComponentViewModel(ctx, scheduleRes)
-	_ = pages.Edit(efvm, scvm).Render(ctx, w)
+	_ = pages.Edit(user, efvm, scvm).Render(ctx, w)
 }
 
 // GET request to /schedules/{id}/edit/stream
 func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	user := currentUser(r)
 	scheduleID := chi.URLParam(r, "id")
 	sse := newSSE(w, r)
 
@@ -266,7 +272,7 @@ func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 			if err := s.refreshScheduleEditState(ctx, scheduleID); err != nil {
 				println(err.Error())
 				if err.Error() == "schedule not found" {
-					sse.PatchElementTempl(pages.NotFound())
+					sse.PatchElementTempl(pages.NotFound(user))
 				}
 				return
 			}
@@ -281,7 +287,7 @@ func (s Server) getScheduleEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			efvm, _ := s.newEditScheduleViewModel(ctx, &model)
 			scvm, _ := s.newScheduleComponentViewModel(ctx, &model)
-			sse.PatchElementTempl(pages.Edit(efvm, scvm))
+			sse.PatchElementTempl(pages.Edit(user, efvm, scvm))
 		}
 	}
 }
