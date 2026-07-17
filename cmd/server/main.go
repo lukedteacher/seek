@@ -17,6 +17,7 @@ import (
 	"seek/internal/email"
 	"seek/internal/eventcatalog"
 	"seek/internal/eventstore"
+	iepService "seek/internal/features/iep_services/events"
 	period "seek/internal/features/periods/events"
 	periodSchedule "seek/internal/features/periods_schedules/events"
 	periodStudent "seek/internal/features/periods_students/events"
@@ -40,6 +41,7 @@ type appComponents struct {
 	sessionManager          *auth.SessionManager
 	authUsers               *auth.AuthUserStore
 	verifications           *auth.VerificationStore
+	iepServiceReadModel     *iepService.ReadModel
 	periodReadModel         *period.ReadModel
 	scheduleReadModel       *schedule.ReadModel
 	studentReadModel        *student.ReadModel
@@ -114,6 +116,7 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		PIIKeys:             components.piiKeys,
 		PasswordCredentials: components.authUsers,
 		Verifications:       components.verifications,
+		IEPServices:         components.iepServiceReadModel,
 		Periods:             components.periodReadModel,
 		Schedules:           components.scheduleReadModel,
 		Students:            components.studentReadModel,
@@ -167,6 +170,7 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 	authUsers := auth.NewAuthUserStore(db)
 	sessionManager := auth.NewSessionManager(db, authUsers, !cfg.DevelopmentCookie)
 	verifications := auth.NewVerificationStore(db)
+	iepServiceReadModel := iepService.NewReadModel(db)
 	periodReadModel := period.NewReadModel(db)
 	scheduleReadModel := schedule.NewReadModel(db)
 	studentReadModel := student.NewReadModel(db)
@@ -181,6 +185,7 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 		sessionManager:          sessionManager,
 		authUsers:               authUsers,
 		verifications:           verifications,
+		iepServiceReadModel:     iepServiceReadModel,
 		periodReadModel:         periodReadModel,
 		scheduleReadModel:       scheduleReadModel,
 		studentReadModel:        studentReadModel,

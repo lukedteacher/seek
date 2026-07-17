@@ -3,15 +3,16 @@ package pages
 import (
 	"fmt"
 	
-	"seek/internal/features/periods/blocks"
+	"seek/internal/domain/models"
+	"seek/internal/features/iep_services/blocks"
+	"seek/internal/features/iep_services/dto"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
-	"seek/internal/domain/models"
 )
 
-templ Edit(user models.User, view blocks.PeriodEditFormView) {
+templ Edit(user models.User, view dto.IEPServiceFormView) {
 	@layouts.Base("SEEK: edit period", user) {
-		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/edit/stream", view.Period.ID)) }>
+		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/edit/stream", view.IEPService.IEPServiceID)) }>
 			<section>
 				@blocks.EditPeriodForm(view)
 			</section>

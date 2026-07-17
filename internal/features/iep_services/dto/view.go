@@ -18,7 +18,7 @@ type IEPServiceView struct {
 	Provider        string
 }
 
-func NewIEPServicesView(sm *models.IEPService) IEPServiceView {
+func NewIEPServiceView(sm *models.IEPService) IEPServiceView {
 	if sm == nil {
 		return IEPServiceView{}
 	}
@@ -26,5 +26,16 @@ func NewIEPServicesView(sm *models.IEPService) IEPServiceView {
 		IEPServiceID: sm.IEPServiceID,
 		StudentID:    sm.StudentID,
 		ServiceType:  sm.ServiceType,
+	}
+}
+
+func NewModelFromView(v *IEPServiceView) models.IEPService {
+	if v == nil {
+		return models.IEPService{}
+	}
+	return models.IEPService{
+		IEPServiceID: v.IEPServiceID,
+		StudentID:    v.StudentID,
+		ServiceType:  v.ServiceType,
 	}
 }

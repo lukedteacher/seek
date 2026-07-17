@@ -10,15 +10,11 @@ type IEPServiceFormView struct {
 	Validation map[string]events.Validation
 }
 
-func NewStudentMinutesFormView(sm *models.IEPService) IEPServiceFormView {
+func NewIEPServiceFormView(sm *models.IEPService) IEPServiceFormView {
 	if sm == nil {
 		return IEPServiceFormView{}
 	}
-	view := IEPServiceView{
-		IEPServiceID: sm.IEPServiceID,
-		StudentID:    sm.StudentID,
-		ServiceType:  sm.ServiceType,
-	}
+	view := NewIEPServiceView(sm)
 	return IEPServiceFormView{
 		IEPService: view,
 		Validation: events.Validate(sm),

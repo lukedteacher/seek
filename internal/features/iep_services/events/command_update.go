@@ -10,7 +10,7 @@ import (
 )
 
 type UpdateIEPServiceCommand struct {
-	ServiceID       string
+	IEPServiceID    string
 	StudentID       string
 	ServiceType     string
 	IndirectMinutes int
@@ -26,7 +26,7 @@ type UpdateIEPServiceCommand struct {
 
 type UpdateIEPServiceResult struct {
 	EventID string
-	Skipped                  bool
+	Skipped bool
 }
 
 func UpdateIEPServiceCommandHandler(
@@ -38,7 +38,7 @@ func UpdateIEPServiceCommandHandler(
 	UpdateIEPServiceResult,
 	error,
 ) {
-	model, err := loadUpdateIEPServiceContext(ctx, retriever, command.ServiceID, command.StudentID)
+	model, err := loadUpdateIEPServiceContext(ctx, retriever, command.IEPServiceID, command.StudentID)
 	if err != nil {
 		return UpdateIEPServiceResult{}, err
 	}
@@ -55,7 +55,7 @@ func UpdateIEPServiceCommandHandler(
 	eventID := uuidv7.NewString()
 	event := NewIEPServiceUpdatedEvent(
 		eventID,
-		command.ServiceID,
+		command.IEPServiceID,
 		command.StudentID,
 		command.ServiceType,
 		command.IndirectMinutes,

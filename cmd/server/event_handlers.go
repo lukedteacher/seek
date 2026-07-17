@@ -7,12 +7,13 @@ import (
 	"seek/internal/auth"
 	"seek/internal/config"
 	"seek/internal/eventstore"
+	iepServiceEvents "seek/internal/features/iep_services/events"
 	periodEvents "seek/internal/features/periods/events"
+	periodScheduleEvents "seek/internal/features/periods_schedules/events"
+	periodStudentEvents "seek/internal/features/periods_students/events"
 	scheduleEvents "seek/internal/features/schedules/events"
 	studentEvents "seek/internal/features/students/events"
 	teacherEvents "seek/internal/features/teachers/events"
-	periodScheduleEvents "seek/internal/features/periods_schedules/events"
-	periodStudentEvents "seek/internal/features/periods_students/events"
 	"seek/internal/natsbus"
 )
 
@@ -26,16 +27,22 @@ type eventHandlerFactory struct {
 	create func() (eventHandler, error)
 }
 
-func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, cfg config.Config, components appComponents, logger *slog.Logger) []eventHandlerFactory {
+func eventHandlerFactories(
+	store *eventstore.EmbeddedOrisun,
+	bus *natsbus.Bus,
+	cfg config.Config,
+	components appComponents,
+	logger *slog.Logger,
+) []eventHandlerFactory {
 	return []eventHandlerFactory{
 		{
 			name: "registration OTP",
 			create: func() (eventHandler, error) {
 				return auth.NewRegistrationOTPToBeGeneratedEventHandler(
-					store, 
-					components.checkpointer, 
-					store, 
-					store, 
+					store,
+					components.checkpointer,
+					store,
+					store,
 					logger,
 				)
 			},
@@ -44,10 +51,10 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "email validation OTP",
 			create: func() (eventHandler, error) {
 				return auth.NewEmailValidationOTPToBeSentEventHandler(
-					store, 
-					components.checkpointer, 
-					store, 
-					store, 
+					store,
+					components.checkpointer,
+					store,
+					store,
 					components.emailSender,
 					components.piiKeys,
 					logger,
@@ -58,10 +65,10 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "password reset email",
 			create: func() (eventHandler, error) {
 				return auth.NewPasswordResetEmailToBeSentEventHandler(
-					store, 
-					components.checkpointer, 
-					store, 
-					store, 
+					store,
+					components.checkpointer,
+					store,
+					store,
 					components.emailSender,
 					cfg.AppURL,
 					components.piiKeys,
@@ -73,10 +80,10 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "auth user projection",
 			create: func() (eventHandler, error) {
 				return auth.NewAuthUserProjectionEventHandler(
-					store, 
-					components.checkpointer, 
-					store, 
-					components.authUsers, 
+					store,
+					components.checkpointer,
+					store,
+					components.authUsers,
 					components.verifications,
 					components.piiKeys,
 					logger,
@@ -87,10 +94,10 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "period read model",
 			create: func() (eventHandler, error) {
 				return periodEvents.NewPeriodReadModelEventHandler(
-					store, 
-					components.checkpointer, 
-					components.periodReadModel, 
-					bus, 
+					store,
+					components.checkpointer,
+					components.periodReadModel,
+					bus,
 					logger,
 				)
 			},
@@ -99,10 +106,10 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "schedule read model",
 			create: func() (eventHandler, error) {
 				return scheduleEvents.NewScheduleReadModelEventHandler(
-					store, 
-					components.checkpointer, 
-					components.scheduleReadModel, 
-					bus, 
+					store,
+					components.checkpointer,
+					components.scheduleReadModel,
+					bus,
 					logger,
 				)
 			},
@@ -111,10 +118,10 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "student read model",
 			create: func() (eventHandler, error) {
 				return studentEvents.NewStudentReadModelEventHandler(
-					store, 
-					components.checkpointer, 
-					components.studentReadModel, 
-					bus, 
+					store,
+					components.checkpointer,
+					components.studentReadModel,
+					bus,
 					logger,
 				)
 			},
@@ -123,10 +130,22 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "teacher read model",
 			create: func() (eventHandler, error) {
 				return teacherEvents.NewTeacherReadModelEventHandler(
-					store, 
-					components.checkpointer, 
-					components.teacherReadModel, 
-					bus, 
+					store,
+					components.checkpointer,
+					components.teacherReadModel,
+					bus,
+					logger,
+				)
+			},
+		},
+		{
+			name: "iep service read model",
+			create: func() (eventHandler, error) {
+				return iepServiceEvents.NewIEPServiceReadModelEventHandler(
+					store,
+					components.checkpointer,
+					components.iepServiceReadModel,
+					bus,
 					logger,
 				)
 			},
@@ -135,10 +154,10 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "period schedule read model",
 			create: func() (eventHandler, error) {
 				return periodScheduleEvents.NewPeriodScheduleReadModelEventHandler(
-					store, 
-					components.checkpointer, 
-					components.periodScheduleReadModel, 
-					bus, 
+					store,
+					components.checkpointer,
+					components.periodScheduleReadModel,
+					bus,
 					logger,
 				)
 			},
@@ -147,10 +166,10 @@ func eventHandlerFactories(store *eventstore.EmbeddedOrisun, bus *natsbus.Bus, c
 			name: "period student read model",
 			create: func() (eventHandler, error) {
 				return periodStudentEvents.NewPeriodStudentReadModelEventHandler(
-					store, 
-					components.checkpointer, 
-					components.periodStudentReadModel, 
-					bus, 
+					store,
+					components.checkpointer,
+					components.periodStudentReadModel,
+					bus,
 					logger,
 				)
 			},

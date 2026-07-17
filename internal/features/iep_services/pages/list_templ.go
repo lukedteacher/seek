@@ -10,14 +10,14 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/domain/models"
-	"seek/internal/features/periods/blocks"
+	"seek/internal/features/iep_services/blocks"
+	"seek/internal/features/iep_services/dto"
 	"seek/internal/views"
 	"seek/internal/views/components/icon"
-	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
 )
 
-func List(user models.User, view int, periods []dto.PeriodView) templ.Component {
+func List(user models.User, view int, periods []dto.IEPServiceView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -68,15 +68,15 @@ func List(user models.User, view int, periods []dto.PeriodView) templ.Component 
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/periods/list/stream"))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/iepservices/list/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/pages/list.templ`, Line: 16, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/pages/list.templ`, Line: 16, Col: 98}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><section><h1>PERIODS</h1><p>review and enter period data here</p><p>many features to come</p><div><button data-on:click=\"$view=0; @get('/periods/list')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><section><h1>PERIODS</h1><p>review and enter period data here</p><p>many features to come</p><div><button data-on:click=\"$view=0; @get('/iepservices/list')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -84,7 +84,7 @@ func List(user models.User, view int, periods []dto.PeriodView) templ.Component 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>list</span></button> <button data-on:click=\"$view=1; @get('/periods/list')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>list</span></button> <button data-on:click=\"$view=1; @get('/iepservices/list')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

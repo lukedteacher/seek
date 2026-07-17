@@ -11,13 +11,14 @@ import (
 	"seek/internal/auth"
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	iepService "seek/internal/features/iep_services/events"
 	period "seek/internal/features/periods/events"
 	periodSchedule "seek/internal/features/periods_schedules/events"
 	periodStudent "seek/internal/features/periods_students/events"
+	profile "seek/internal/features/profiles/events"
 	schedule "seek/internal/features/schedules/events"
 	student "seek/internal/features/students/events"
 	teacher "seek/internal/features/teachers/events"
-	profile "seek/internal/features/profiles/events"
 	"seek/internal/resources"
 	"seek/internal/viewstore"
 
@@ -59,6 +60,7 @@ type Server struct {
 	PIIKeys             auth.SubjectPiiKeyPort
 	PasswordCredentials auth.PasswordCredentialReader
 	Verifications       VerificationStore
+	IEPServices         iepService.IEPServiceReadModelReader
 	Periods             period.PeriodReadModelReader
 	Schedules           schedule.ScheduleReadModelReader
 	Students            student.StudentReadModelReader
@@ -104,6 +106,7 @@ func (s Server) Routes() http.Handler {
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(s.requireVerifiedEmail)
+		s.iepServiceRoutes(r)
 		s.periodRoutes(r)
 		s.scheduleRoutes(r)
 		s.studentRoutes(r)

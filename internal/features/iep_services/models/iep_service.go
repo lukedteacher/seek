@@ -14,6 +14,7 @@ type IEPService struct {
 	Provider        string
 	CreatedAt       string
 	UpdatedAt       string
+	ArchivedAt      string
 }
 
 type IEPServiceSignals struct {
@@ -30,6 +31,6 @@ type IEPServiceSignals struct {
 	Provider        string `json:"provider"`
 }
 
-func NewIEPServices() *IEPService {
+func NewIEPService() *IEPService {
 	return &IEPService{}
 }

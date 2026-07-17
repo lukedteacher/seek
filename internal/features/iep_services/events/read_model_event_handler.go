@@ -16,7 +16,6 @@ const IEPServiceReadModelEventHandlerName = "student_service_read_model_event_ha
 type IEPServiceReadModelReader interface {
 	Get(ctx context.Context, iepServiceID string) (*models.IEPService, error)
 	List(ctx context.Context) ([]models.IEPService, error)
-	ListIEPServicesForStudent(ctx context.Context, studentID string) ([]models.IEPService, error)
 }
 
 type IEPServiceReadModelWriter interface {
