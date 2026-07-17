@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"seek/internal/domain/models"
-	"seek/internal/views/components"
+	"seek/internal/views/components/icon"
 )
 
 templ List(teachers []models.Teacher) {
@@ -21,7 +21,7 @@ templ List(teachers []models.Teacher) {
 					<td>
 						<a href={ fmt.Sprintf("/teachers/%s", teachers[i].ID) }>
 							<button>
-								@components.Icon("mdi:link")
+								@icon.Icon("mdi:link")
 							</button>
 						</a>
 					</td>

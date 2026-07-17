@@ -1,12 +1,14 @@
 package components
 
+import "seek/internal/views/components/icon"
+
 templ Nav() {
 	<nav>
 		<ul>
 			<li><a href="/">home</a></li>
 			<li>
 				<a href="/schedules">
-					@Icon("mdi:calendar")
+					@icon.Icon("mdi:calendar")
 					<span>schedules</span>
 				</a>
 			</li>

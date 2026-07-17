@@ -3,7 +3,7 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/views/components"
+	"seek/internal/views/components/icon"
 	"seek/internal/views/dto"
 )
 
@@ -24,7 +24,7 @@ templ StudentList(students []dto.StudentView) {
 					<td>
 						<a href={ fmt.Sprintf("/students/%s", students[i].ID) }>
 							<button>
-								@components.Icon("mdi:link")
+								@icon.Icon("mdi:link")
 							</button>
 						</a>
 					</td>

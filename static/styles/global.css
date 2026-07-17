@@ -1,5 +1,9 @@
 :root {
 	--bg-transparent: transparent;
+	--bd-rounded: var(--border-radius-0);
+	--bd-circle: 100%;
+	--bd-pill: 9999px;
+	--ar-square: var(--aspect-ratio-square);
 }
 
 html {

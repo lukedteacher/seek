@@ -1,0 +1,85 @@
+package blocks
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/views/components/popover"
+	"seek/internal/views/components/icon"
+)
+
+templ UserHeaderMenu(user models.User) {
+	@popover.Trigger(popover.TriggerProps{
+		ID: "user-header-menu",
+		For: "user-header-menu-content",
+	}) {
+		<div><img src="/static/images/om-fox.svg" /></div>
+		<span>{ user.Username }</span>
+	}
+	@popover.Content(popover.ContentProps{
+		Anchor: "user-header-menu",
+		ID: "user-header-menu-content",
+	}) {
+		<ul>
+			<li>profile</li>
+			<li>schedule</li>
+			<li>settings</li>
+			<li>
+				<button data-on:click="@post('/logout')">
+					@icon.Icon("mdi:logout")
+					<span>logout</span>
+				</button>
+			</li>
+		</ul>
+	}
+	@UserHeaderMenuStyles()
+}
+
+templ UserHeaderMenuStyles() {
+	<style>
+		button#user-header-menu {
+			background-color: blueviolet;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: var(--size--1);
+			border-radius: var(--bd-pill);
+			padding: var(--size--2) var(--size-0);
+
+			div {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-color: white;
+				border-radius: var(--bd-circle);
+				width: 100%;
+				padding: 2px;
+				
+				img {
+					width: 24px;
+					aspect-ratio: var(--ar-square);
+				}
+			}
+			span {
+				font-size: var(--font-size--2);
+			}
+		}
+
+		div#user-header-menu-content {
+			color: var(--neutral-4-on);
+			background-color: var(--neutral-4);
+			border-color: var(--neutral-4-dim);
+
+			ul {
+				display: flex;
+				flex-direction: column;
+				gap: var(--size--2);
+				font-size: var(--font-size--2);
+
+				li {
+					display: flex;
+					gap: var(--size--2);
+					align-items: center;
+				}
+			}
+		}
+	</style>
+}

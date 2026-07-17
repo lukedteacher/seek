@@ -12,7 +12,7 @@ import (
 	"seek/internal/domain/models"
 	"seek/internal/features/teachers/blocks"
 	"seek/internal/views"
-	"seek/internal/views/components"
+	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
 )
 
@@ -79,7 +79,7 @@ func List(view int64, teachers []models.Teacher) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.Icon("solar:list-bold-duotone").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Icon("solar:list-bold-duotone").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -87,7 +87,7 @@ func List(view int64, teachers []models.Teacher) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.Icon("solar:widget-bold-duotone").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Icon("solar:widget-bold-duotone").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

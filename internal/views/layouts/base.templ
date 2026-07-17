@@ -3,7 +3,6 @@ package layouts
 import (
 	"seek/internal/resources"
 	"seek/internal/views"
-	"seek/internal/views/components"
 )
 
 templ Base(title string) {
@@ -24,9 +23,7 @@ templ Base(title string) {
 					data-init={ views.HotReloadSSE() }
 				}
 			>
-				@components.MainHeader()
 				{ children... }
-				@components.MainFooter()
 			</body>
 	</html>
 }

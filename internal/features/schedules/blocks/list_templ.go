@@ -12,7 +12,7 @@ import (
 	"fmt"
 
 	"seek/internal/domain/models"
-	"seek/internal/views/components"
+	"seek/internal/views/components/icon"
 )
 
 func List(schedules []models.Schedule) templ.Component {
@@ -58,7 +58,7 @@ func List(schedules []models.Schedule) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.Icon("mdi:link").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Icon("mdi:link").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

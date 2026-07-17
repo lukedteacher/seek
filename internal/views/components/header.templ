@@ -1,38 +1,55 @@
 package components
 
 import (
+	"seek/internal/domain/models"
+	"seek/internal/features/users/blocks"
 )
 
-templ MainHeader() {
+templ MainHeader(user models.User) {
 	<!doctype html>
 	<header>
 		<hgroup>
-		<h1>SEEK</h1>
-		<h3>shared educational environment knowledge</h3>
+			<h1>SEEK</h1>
+			<h3>shared educational environment knowledge</h3>
 		</hgroup>
 		@Nav()
 		{ children... }
+		if user.UserRegisteredID != "" {
+			@blocks.UserHeaderMenu(user)
+		} else {
+			<a href="/login">
+				<button>login</button>
+			</a>
+		}
 	</header>
 	@MainHeaderStyles()
 }
 
 templ MainHeaderStyles() {
 	<style>
-		body > header {
-			color: var(--primary-6-on);
-			background-color: var(--primary-6);
-			width: 100%;
-			height: 6rem;
-			align-items: center;
-			display: flex;
-			flex-direction: row;
-			padding-left: var(--size-4);
+		body {
+			&> header {
+				color: var(--primary-6-on);
+				background-color: var(--primary-6);
+				width: 100%;
+				height: 6rem;
+				align-items: center;
+				display: flex;
+				flex-direction: row;
+				padding: 0 var(--size-4);
 
-			h3 {
-				font-weight: var(--font-weight-thin);
-				font-size: var(--font-size--2);
-				color: var(--primary-5-on);
-				letter-spacing: var(--font-letter-spacing--2);
+				hgroup {
+					h3 {
+						font-weight: var(--font-weight-thin);
+						font-size: var(--font-size--2);
+						color: var(--primary-5-on);
+						letter-spacing: var(--font-letter-spacing--2);
+					}
+				}
+
+				nav {
+					margin-right: auto;
+				}
 			}
 		}
 	</style>

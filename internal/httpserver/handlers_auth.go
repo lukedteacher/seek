@@ -80,7 +80,7 @@ func (s Server) login(w http.ResponseWriter, r *http.Request) {
 	s.Sessions.SetSessionCookie(w, token)
 	path := "/"
 	if !user.EmailVerified {
-		path = "/register/" + user.ID + "/validate-email"
+		path = fmt.Sprintf("/register/%s/validate-email", user.ID)
 	}
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return sse.Redirect(path) })
 }
@@ -91,7 +91,7 @@ func (s Server) logout(w http.ResponseWriter, r *http.Request) {
 		_ = s.Sessions.Logout(r.Context(), cookie.Value)
 	}
 	s.Sessions.ClearSessionCookie(w)
-	http.Redirect(w, r, "/login", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func (s Server) forgotPassword(w http.ResponseWriter, r *http.Request) {
@@ -123,7 +123,15 @@ func (s Server) validateEmail(w http.ResponseWriter, r *http.Request) {
 	setRequestAction(r, "auth.validate_email", map[string]any{"userId": chi.URLParam(r, "userID")})
 	_ = r.ParseForm()
 	userID := chi.URLParam(r, "userID")
-	if err := auth.ValidateEmailVerificationOTPForUserCommandHandler(r.Context(), userID, r.FormValue("otp"), eventstore.HTTPCommandMetadata(r, ""), s.AuthUsers, s.EventSaver, s.EventRetriever); err != nil {
+	if err := auth.ValidateEmailVerificationOTPForUserCommandHandler(
+		r.Context(),
+		userID,
+		r.FormValue("otp"),
+		eventstore.HTTPCommandMetadata(r, ""),
+		s.AuthUsers,
+		s.EventSaver,
+		s.EventRetriever,
+	); err != nil {
 		patchTempl(w, r, pages.ValidateEmailForm(userID, map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
 		return
 	}
@@ -152,6 +160,6 @@ func (s Server) sendOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-		return sse.Redirect("/register/" + userID + "/validate-email")
+		return sse.Redirect(fmt.Sprintf("/register/%s/validate-email", user.ID))
 	})
 }

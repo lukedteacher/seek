@@ -9,12 +9,14 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"seek/internal/domain/models"
 	"seek/internal/views/components"
 	"seek/internal/views/components/card"
+	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
 )
 
-func Index() templ.Component {
+func Index(user models.User) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -47,7 +49,11 @@ func Index() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><section style=\"margin-bottom: var(--size-2)\"><p>welcome to SEEK (aka shared educational environment knowledge)</p><p>there many features to come</p><p>below are some of the current ones</p></section><section style=\"display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\">")
+			templ_7745c5c3_Err = components.MainHeader(user).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <main><section style=\"margin-bottom: var(--size-2)\"><p>welcome to SEEK (aka shared educational environment knowledge)</p><p>there many features to come</p><p>below are some of the current ones</p></section><section style=\"display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -91,7 +97,7 @@ func Index() templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = components.Icon("mdi:calendar-multiselect").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Icon("mdi:calendar-multiselect").Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -231,7 +237,7 @@ func Index() templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = components.Icon("mdi:clock").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Icon("mdi:clock").Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -371,7 +377,7 @@ func Index() templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = components.Icon("mdi:account-student").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Icon("mdi:account-student").Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -511,7 +517,7 @@ func Index() templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = components.Icon("mdi:teach").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Icon("mdi:teach").Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -651,7 +657,7 @@ func Index() templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = components.Icon("mdi:target-arrow").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Icon("mdi:target-arrow").Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -791,7 +797,7 @@ func Index() templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = components.Icon("mdi:chart-line").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Icon("mdi:chart-line").Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -931,7 +937,7 @@ func Index() templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = components.Icon("mdi:hand-heart").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Icon("mdi:hand-heart").Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1071,7 +1077,7 @@ func Index() templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = components.Icon("mdi:home-heart").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Icon("mdi:home-heart").Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1176,6 +1182,10 @@ func Index() templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</section></main>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.MainFooter().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

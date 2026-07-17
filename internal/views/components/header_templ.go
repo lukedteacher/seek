@@ -8,9 +8,12 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import ()
+import (
+	"seek/internal/domain/models"
+	"seek/internal/features/users/blocks"
+)
 
-func MainHeader() templ.Component {
+func MainHeader(user models.User) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -43,7 +46,18 @@ func MainHeader() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</header>")
+		if user.UserRegisteredID != "" {
+			templ_7745c5c3_Err = blocks.UserHeaderMenu(user).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<a href=\"/login\"><button>login</button></a>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -76,7 +90,7 @@ func MainHeaderStyles() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<style>\r\n\t\tbody > header {\r\n\t\t\tcolor: var(--primary-6-on);\r\n\t\t\tbackground-color: var(--primary-6);\r\n\t\t\twidth: 100%;\r\n\t\t\theight: 6rem;\r\n\t\t\talign-items: center;\r\n\t\t\tdisplay: flex;\r\n\t\t\tflex-direction: row;\r\n\t\t\tpadding-left: var(--size-4);\r\n\r\n\t\t\th3 {\r\n\t\t\t\tfont-weight: var(--font-weight-thin);\r\n\t\t\t\tfont-size: var(--font-size--2);\r\n\t\t\t\tcolor: var(--primary-5-on);\r\n\t\t\t\tletter-spacing: var(--font-letter-spacing--2);\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<style>\r\n\t\tbody {\r\n\t\t\t&> header {\r\n\t\t\t\tcolor: var(--primary-6-on);\r\n\t\t\t\tbackground-color: var(--primary-6);\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\theight: 6rem;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: row;\r\n\t\t\t\tpadding: 0 var(--size-4);\r\n\r\n\t\t\t\thgroup {\r\n\t\t\t\t\th3 {\r\n\t\t\t\t\t\tfont-weight: var(--font-weight-thin);\r\n\t\t\t\t\t\tfont-size: var(--font-size--2);\r\n\t\t\t\t\t\tcolor: var(--primary-5-on);\r\n\t\t\t\t\t\tletter-spacing: var(--font-letter-spacing--2);\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\r\n\t\t\t\tnav {\r\n\t\t\t\t\tmargin-right: auto;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -14,7 +14,13 @@ func (s Server) coreRoutes(r chi.Router) {
 }
 
 func (s Server) index(w http.ResponseWriter, r *http.Request) {
-	_ = pages.Index().Render(r.Context(), w)
+	ctx := r.Context()
+	user, _, err := s.Sessions.CurrentUser(ctx, r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	_ = pages.Index(user).Render(r.Context(), w)
 }
 
 func (s Server) components(w http.ResponseWriter, r *http.Request) {

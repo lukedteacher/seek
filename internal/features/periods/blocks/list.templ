@@ -3,7 +3,7 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/views/components"
+	"seek/internal/views/components/icon"
 	"seek/internal/views/dto"
 )
 
@@ -22,7 +22,7 @@ templ List(periods []dto.PeriodView) {
 					<td>
 						<a href={ fmt.Sprintf("/periods/%s", periods[i].ID) }>
 							<button>
-								@components.Icon("mdi:link")
+								@icon.Icon("mdi:link")
 							</button>
 						</a>
 					</td>

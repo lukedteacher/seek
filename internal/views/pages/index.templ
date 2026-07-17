@@ -3,11 +3,14 @@ package pages
 import (
 	"seek/internal/views/components"
 	"seek/internal/views/components/card"
+	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
+	"seek/internal/domain/models"
 )
 
-templ Index() {
+templ Index(user models.User) {
 	@layouts.Base("SEEK") {
+		@components.MainHeader(user)
 		<main>
 			<section style="margin-bottom: var(--size-2)">
 				<p>welcome to SEEK (aka shared educational environment knowledge)</p>
@@ -19,7 +22,7 @@ templ Index() {
 				@card.Card() {
 					@card.Header() {
 						@card.Title() {
-							@components.Icon("mdi:calendar-multiselect")
+							@icon.Icon("mdi:calendar-multiselect")
 							schedules
 						}
 						@card.Description() {
@@ -43,7 +46,7 @@ templ Index() {
 				@card.Card() {
 					@card.Header() {
 						@card.Title() {
-							@components.Icon("mdi:clock")
+							@icon.Icon("mdi:clock")
 							periods
 						}
 						@card.Description() {
@@ -67,7 +70,7 @@ templ Index() {
 				@card.Card() {
 					@card.Header() {
 						@card.Title() {
-							@components.Icon("mdi:account-student")
+							@icon.Icon("mdi:account-student")
 							students
 						}
 						@card.Description() {
@@ -90,7 +93,7 @@ templ Index() {
 				@card.Card() {
 					@card.Header() {
 						@card.Title() {
-							@components.Icon("mdi:teach")
+							@icon.Icon("mdi:teach")
 							teachers
 						}
 						@card.Description() {
@@ -114,7 +117,7 @@ templ Index() {
 				@card.Card() {
 					@card.Header() {
 						@card.Title() {
-							@components.Icon("mdi:target-arrow")
+							@icon.Icon("mdi:target-arrow")
 							goals
 						}
 						@card.Description() {
@@ -138,7 +141,7 @@ templ Index() {
 				@card.Card() {
 					@card.Header() {
 						@card.Title() {
-							@components.Icon("mdi:chart-line")
+							@icon.Icon("mdi:chart-line")
 							interventions
 						}
 						@card.Description() {
@@ -162,7 +165,7 @@ templ Index() {
 				@card.Card() {
 					@card.Header() {
 						@card.Title() {
-							@components.Icon("mdi:hand-heart")
+							@icon.Icon("mdi:hand-heart")
 							caregivers
 						}
 						@card.Description() {
@@ -185,7 +188,7 @@ templ Index() {
 				@card.Card() {
 					@card.Header() {
 						@card.Title() {
-							@components.Icon("mdi:home-heart")
+							@icon.Icon("mdi:home-heart")
 							homerooms
 						}
 						@card.Description() {
@@ -207,5 +210,6 @@ templ Index() {
 				}
 			</section>
 		</main>
+		@components.MainFooter()
 	}
 }
