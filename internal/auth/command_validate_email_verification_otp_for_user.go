@@ -27,8 +27,10 @@ func ValidateEmailVerificationOTPForUserCommandHandler(
 	}{UserID: userID, Code: code}); err != nil {
 		return err
 	}
+	println(userID)
 	user, err := users.UserByIDOrRegisteredID(ctx, userID)
 	if err != nil {
+		println("is this the error?")
 		return err
 	}
 	return ValidateEmailVerificationOTPCommandHandler(ctx, ValidateEmailVerificationOTPCommand{

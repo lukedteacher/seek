@@ -27,7 +27,7 @@ func (s Server) authRoutes(r chi.Router) {
 	})
 	r.With(noCache, resetPasswordRateLimit).Post("/reset-password/{token}", s.resetPassword)
 	r.With(noCache).Get("/register/{userID}/validate-email", func(w http.ResponseWriter, r *http.Request) {
-		_ = pages.ValidateEmail(models.User{}, nil).Render(r.Context(), w)
+		_ = pages.ValidateEmail(models.User{}, chi.URLParam(r, "userID"), nil).Render(r.Context(), w)
 	})
 	r.With(noCache, otpValidateRateLimit).Post("/register/{userID}/validate-email", s.validateEmail)
 	r.With(noCache, otpResendRateLimit).Post("/register/{userID}/send-email-validation-otp", s.sendOTP)

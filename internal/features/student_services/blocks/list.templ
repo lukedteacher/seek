@@ -1,0 +1,37 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/views/components/icon"
+	"seek/internal/views/dto"
+)
+
+templ List(periods []dto.PeriodView) {
+	<table>
+		<thead>
+			<th>link</th>
+			<th>title</th>
+			<th>start time</th>
+			<th>duration</th>
+			<th>days</th>
+		</thead>
+		<tbody>
+			for i := range periods {
+				<tr>
+					<td>
+						<a href={ fmt.Sprintf("/periods/%s", periods[i].ID) }>
+							<button>
+								@icon.Icon("mdi:link")
+							</button>
+						</a>
+					</td>
+					<td>{ periods[i].Title }</td>
+					<td>{ periods[i].StartTime }</td>
+					<td>{ periods[i].Duration }</td>
+					<td>{ periods[i].Days }</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

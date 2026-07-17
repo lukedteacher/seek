@@ -1,9 +1,16 @@
+@font-face {
+	font-family: "tt2020";
+	src: url("/static/fonts/tt2020-style-e-regular.ttf");
+}
+
 :root {
 	--bg-transparent: transparent;
 	--bd-rounded: var(--border-radius-0);
 	--bd-circle: 100%;
 	--bd-pill: 9999px;
 	--ar-square: var(--aspect-ratio-square);
+	--ft-lexend: 'lexend', 'sans-serif';
+	--ft-type: 'tt2020', 'serif';
 }
 
 html {
@@ -20,7 +27,7 @@ body {
 	overflow-x: hidden;
 	background: var(--neutral-1);
 	color: var(--neutral-1-on);
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	font-family: var(--ft-lexend);
 	display: grid;
 	grid-template-rows: auto 1fr auto;
 	
@@ -123,6 +130,7 @@ h1, h2, h3, h4, ul, p {
 }
 
 h1 {
+	font-family: var(--ft-type);
 	font-size: var(--font-size-4);
 	color: var(--primary-4-on);
 }
