@@ -1,0 +1,188 @@
+package events
+
+import (
+	"context"
+	"time"
+
+	"seek/internal/eventstore"
+	se "seek/internal/features/students/events"
+	"seek/internal/uuidv7"
+)
+
+type UpdateIEPServiceCommand struct {
+	ServiceID       string
+	StudentID       string
+	ServiceType     string
+	IndirectMinutes int
+	DirectMinutes   int
+	FrequencyCount  int
+	FrequencyType   string
+	Location        string
+	StartDate       string
+	EndDate         string
+	Provider        string
+	Metadata        CommandMetadata
+}
+
+type UpdateIEPServiceResult struct {
+	EventID string
+	Skipped                  bool
+}
+
+func UpdateIEPServiceCommandHandler(
+	ctx context.Context,
+	command UpdateIEPServiceCommand,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+) (
+	UpdateIEPServiceResult,
+	error,
+) {
+	model, err := loadUpdateIEPServiceContext(ctx, retriever, command.ServiceID, command.StudentID)
+	if err != nil {
+		return UpdateIEPServiceResult{}, err
+	}
+	if err := model.isServiceActive(); err != nil {
+		return UpdateIEPServiceResult{}, err
+	}
+	if err := model.isStudentActive(); err != nil {
+		return UpdateIEPServiceResult{}, err
+	}
+	if model.isSame(command) {
+		return UpdateIEPServiceResult{Skipped: true}, nil
+	}
+
+	eventID := uuidv7.NewString()
+	event := NewIEPServiceUpdatedEvent(
+		eventID,
+		command.ServiceID,
+		command.StudentID,
+		command.ServiceType,
+		command.IndirectMinutes,
+		command.DirectMinutes,
+		command.FrequencyCount,
+		command.FrequencyType,
+		command.Location,
+		command.StartDate,
+		command.EndDate,
+		command.Provider,
+		time.Now(),
+		metadataWithQuery(command.Metadata, model.query),
+	)
+
+	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
+		return UpdateIEPServiceResult{}, err
+	}
+	return UpdateIEPServiceResult{EventID: eventID}, nil
+}
+
+type updateIEPServiceContext struct {
+	serviceExists   bool
+	serviceDeleted  bool
+	studentExists   bool
+	studentDeleted  bool
+	iepServiceID    string
+	studentID       string
+	serviceType     string
+	indirectMinutes int
+	directMinutes   int
+	frequencyCount  int
+	frequencyType   string
+	location        string
+	startDate       string
+	endDate         string
+	provider        string
+	position        eventstore.Position
+	events          []eventstore.ResolvedEvent
+	query           eventstore.Query
+}
+
+func loadUpdateIEPServiceContext(
+	ctx context.Context,
+	retriever eventstore.Retriever,
+	iepServiceID,
+	studentID string,
+) (
+	*updateIEPServiceContext,
+	error,
+) {
+	query := streamQuery(iepServiceID, studentID)
+	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
+	if err != nil {
+		return nil, err
+	}
+
+	model := &updateIEPServiceContext{position: eventstore.NoEventPosition, events: events, query: query}
+	for _, event := range events {
+		model.handle(event)
+	}
+
+	return model, nil
+}
+
+func (m *updateIEPServiceContext) isServiceActive() error {
+	if !m.serviceExists || m.serviceDeleted {
+		return eventstore.ErrNotFound
+	}
+	return nil
+}
+
+func (m *updateIEPServiceContext) isStudentActive() error {
+	if !m.studentExists || m.studentDeleted {
+		return eventstore.ErrNotFound
+	}
+	return nil
+}
+
+func (m *updateIEPServiceContext) isSame(cmd UpdateIEPServiceCommand) bool {
+	return m.studentID == cmd.StudentID &&
+		m.serviceType == cmd.ServiceType &&
+		m.indirectMinutes == cmd.IndirectMinutes &&
+		m.directMinutes == cmd.DirectMinutes &&
+		m.frequencyCount == cmd.FrequencyCount &&
+		m.frequencyType == cmd.FrequencyType &&
+		m.location == cmd.Location &&
+		m.startDate == cmd.StartDate &&
+		m.endDate == cmd.EndDate &&
+		m.provider == cmd.Provider
+}
+
+func (m *updateIEPServiceContext) handle(resolved eventstore.ResolvedEvent) {
+	data := resolved.Event.Data
+	switch resolved.Event.EventType {
+	case se.StudentCreated:
+		m.studentExists = true
+		m.studentDeleted = false
+	case se.StudentDeleted:
+		m.studentDeleted = true
+	case IEPServiceCreated:
+		m.serviceExists = true
+		m.serviceDeleted = false
+		m.studentID, _ = data[IEPServiceStudentIDField].(string)
+		m.serviceType, _ = data[IEPServiceServiceTypeField].(string)
+		m.indirectMinutes = int(data[IEPServiceIndirectMinutesField].(float64))
+		m.directMinutes = int(data[IEPServiceDirectMinutesField].(float64))
+		m.frequencyCount = int(data[IEPServiceFrequencyCountField].(float64))
+		m.frequencyType, _ = data[IEPServiceFrequencyTypeField].(string)
+		m.location, _ = data[IEPServiceLocationField].(string)
+		m.startDate, _ = data[IEPServiceStartDateField].(string)
+		m.endDate, _ = data[IEPServiceEndDateField].(string)
+		m.provider, _ = data[IEPServiceProviderField].(string)
+	case IEPServiceUpdated:
+		m.studentID, _ = data[IEPServiceStudentIDField].(string)
+		m.serviceType, _ = data[IEPServiceServiceTypeField].(string)
+		m.indirectMinutes = int(data[IEPServiceIndirectMinutesField].(float64))
+		m.directMinutes = int(data[IEPServiceDirectMinutesField].(float64))
+		m.frequencyCount = int(data[IEPServiceFrequencyCountField].(float64))
+		m.frequencyType, _ = data[IEPServiceFrequencyTypeField].(string)
+		m.location, _ = data[IEPServiceLocationField].(string)
+		m.startDate, _ = data[IEPServiceStartDateField].(string)
+		m.endDate, _ = data[IEPServiceEndDateField].(string)
+		m.provider, _ = data[IEPServiceProviderField].(string)
+	case IEPServiceDeleted:
+		m.serviceDeleted = true
+	}
+	if resolved.Position.After(m.position) {
+		m.position = resolved.Position
+	}
+}

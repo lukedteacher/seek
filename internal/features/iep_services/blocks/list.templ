@@ -1,0 +1,33 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/views/components/icon"
+	"seek/internal/features/iep_services/dto"
+)
+
+templ List(views []dto.IEPServiceView) {
+	<table>
+		<thead>
+			<th>link</th>
+			<th>type</th>
+			<th>student id</th>
+		</thead>
+		<tbody>
+			for i := range views {
+				<tr>
+					<td>
+						<a href={ fmt.Sprintf("/students/iepservices/%s", views[i].IEPServiceID) }>
+							<button>
+								@icon.Icon("mdi:link")
+							</button>
+						</a>
+					</td>
+					<td>{ views[i].ServiceType }</td>
+					<td>{ views[i].StudentID }</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

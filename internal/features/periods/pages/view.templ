@@ -12,7 +12,7 @@ import (
 
 templ View(user models.User, period dto.PeriodView) {
 	@layouts.Base("SEEK: period", user) {
-		<main id="main" data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/stream", period.ID)) }>
+		<main id="main" data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/view/stream", period.ID)) }>
 			<section>
 				@blocks.Card(period)
 			</section>

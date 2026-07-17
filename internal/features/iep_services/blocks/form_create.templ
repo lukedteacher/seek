@@ -1,0 +1,51 @@
+package blocks
+
+import (
+	"seek/internal/features/iep_services/dto"
+	"seek/internal/features/iep_services/events"
+	"seek/internal/views/components/input"
+	"seek/internal/views/components/label"
+
+	"github.com/starfederation/datastar-go/datastar"
+)
+
+templ CreateForm(view dto.IEPServiceFormView) {
+	<form id="create-iep-service-form" data-on:submit={ datastar.PostSSE("/students/iepservices/create") }>
+		<hgroup>
+			<h2>CREATE IEP SERVICE</h2>
+			<p>create a new iep service for a student.</p>
+		</hgroup>
+		<section>
+			@label.Label(label.Props{
+				ID: "iep-service-type-label",
+				For: "iep-service-type",
+				Label: "service minutes type",
+				ValidationState: view.Validation[events.IEPServiceServiceTypeField].State,
+				ValidationMessage: view.Validation[events.IEPServiceServiceTypeField].Message,
+			}) {
+				@input.Input(input.Props{
+					ID: "iep-service-type-input",
+					Name: "iep-service-type",
+					DataBind: "serviceminutes.service_type",
+					DataOn: "/students/iepservices/create/validate",
+					HasError: view.Validation[events.IEPServiceServiceTypeField].State == "error",
+					IsValid: view.Validation[events.IEPServiceServiceTypeField].State == "valid",
+					Value: view.IEPService.ServiceType,
+				})
+			}
+		</section>
+		<footer>
+			<button 
+				type="button"
+			>
+				<span>cancel</span>
+			</button>
+			<button 
+				type="submit"
+			>
+				<span>submit</span>
+			</button>
+		</footer>
+	</form>
+}
+				

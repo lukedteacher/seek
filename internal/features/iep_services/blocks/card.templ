@@ -1,0 +1,36 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/iep_services/dto"
+	"seek/internal/views/components/card"
+)
+
+templ Card(view dto.IEPServiceView) {
+	@card.Card(card.Props{
+		ID: fmt.Sprintf("period-%s-card", view.IEPServiceID),
+		Class: "iep-service-card",
+	}) {
+		@card.Header() {
+			@card.Title() {
+				{ view.ServiceType }
+			}
+			@card.Description() {
+				{ view.IndirectMinutes }
+			}
+		}
+		@card.Content() {
+			<p>content</p>
+		}
+		@card.Footer() {
+			<a href={ fmt.Sprintf("/serviceminutes/%s/edit", view.IEPServiceID) }>
+				<button>edit</button>
+			</a>
+			<button 
+				data-on:click={ fmt.Sprintf("@delete('/serviceminutes/%s/delete')", view.IEPServiceID) }
+			>delete</button>
+		}
+	}
+	@card.CardStyles()
+}

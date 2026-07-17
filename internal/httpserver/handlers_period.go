@@ -19,14 +19,14 @@ import (
 )
 
 func (s Server) periodRoutes(r chi.Router) {
-	r.Get("/periods", s.getPeriodsList)
-	r.Get("/periods/stream", s.getPeriodsListStream)
+	r.Get("/periods/list", s.getPeriodsList)
+	r.Get("/periods/list/stream", s.getPeriodsListStream)
 	r.Get("/periods/create", s.getPeriodCreate)
 	r.Get("/periods/create/stream", s.getPeriodCreateStream)
 	r.Post("/periods/create/validate", s.postPeriodCreateValidate)
 	r.Post("/periods/create", s.postPeriodCreate)
-	r.Get("/periods/{id}", s.getPeriodView)
-	r.Get("/periods/{id}/stream", s.getPeriodViewStream)
+	r.Get("/periods/{id}/view", s.getPeriodView)
+	r.Get("/periods/{id}/view/stream", s.getPeriodViewStream)
 	r.Get("/periods/{id}/edit", s.getPeriodEdit)
 	r.Get("/periods/{id}/edit/stream", s.getPeriodEditStream)
 	r.Post("/periods/{id}/edit", s.postPeriodEdit)
@@ -533,7 +533,7 @@ func (s Server) deletePeriod(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sse := newSSE(w, r)
-	sse.Redirect("/periods")
+	sse.Redirect("/periods/list")
 }
 
 func (s Server) refreshPeriodViewState(ctx context.Context, periodID string) error {
