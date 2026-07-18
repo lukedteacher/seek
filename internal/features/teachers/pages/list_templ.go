@@ -75,7 +75,7 @@ func List(user models.User, view int64, teachers []models.Teacher) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><section><h1>TEACHERS</h1><p>review and enter teacher data here</p><p>many features to come</p><div><button data-on:click=\"$view=0; @get('/teachers')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><section><h2>TEACHERS</h2><p>review and enter teacher data here</p><p>many features to come</p><div><button data-on:click=\"$view=0; @get('/teachers')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -76,7 +76,7 @@ func List(user models.User, view int, periods []dto.IEPServiceView) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><section><h1>PERIODS</h1><p>review and enter period data here</p><p>many features to come</p><div><button data-on:click=\"$view=0; @get('/iepservices/list')\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><section><h2>PERIODS</h2><p>review and enter period data here</p><p>many features to come</p><div><button data-on:click=\"$view=0; @get('/iepservices/list')\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

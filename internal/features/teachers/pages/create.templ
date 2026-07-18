@@ -10,7 +10,7 @@ templ Create(user models.User) {
 	@layouts.Base("SEEK: create teacher", user) {
 		<main data-init={ views.LongRunningGetSSE("/teachers/create/stream") }>
 			<section>
-				<h1>CREATE A TEACHER</h1>
+				<h2>CREATE A TEACHER</h2>
 				<p>create a new teacher</p>
 				<form data-on:submit="@post('/teachers/create')">
 					<label for="first_name">first</label>

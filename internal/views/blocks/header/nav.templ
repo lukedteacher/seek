@@ -1,4 +1,4 @@
-package components
+package header
 
 import "seek/internal/views/components/icon"
 
@@ -9,7 +9,6 @@ templ Nav() {
 			<li>
 				<a href="/schedules">
 					@icon.Icon("mdi:calendar")
-					<span>schedules</span>
 				</a>
 			</li>
 			<li><a href="/periods/list">periods</a></li>
@@ -31,9 +30,10 @@ templ NavStyles() {
 				li a {
 					display: flex;
 					gap: var(--size--2);
+					font-size: var(--fnt-sm);
 					align-items: center;
-					padding: var(--size--1) var(--size-2);
-					border-radius: var(--border-radius-2);
+					padding: var(--size--1) var(--size-1);
+					border-radius: var(--bd-rd1);
 					&:hover {
 						background-color: var(--secondary-5);
 					}

@@ -22,6 +22,7 @@ type Props struct {
 	Form             string
 	Placeholder      string
 	Value            string
+	ValueNumber      int
 	Disabled         bool
 	Readonly         bool
 	HasError         bool
@@ -50,6 +51,9 @@ templ Input(props ...Props) {
 		}
 		if p.Value != "" {
 			value={ p.Value }
+		}
+		if p.Type == "number" {
+			value={ p.ValueNumber }
 		}
 		if p.Form != "" {
 			form={ p.Form }
@@ -94,21 +98,20 @@ templ InputStyle() {
 			font-size: var(--font-size--1);
 			/* borders */
 			border-style: solid;
-			border-color: var(--primary-12-dim);
-			border-radius: var(--border-radius-0);
-			border-width: var(--border-width-1);
+			border-radius: var(--bd-rd0);
+			border-width: var(--border-width-0);
 			outline-style: solid;
 			outline-width: var(--border-width-1);
 			outline-color: transparent;
 			outline-offset: var(--border-width-1);
 			/* color */
-			color: var(--primary-12-on);
-			background-color: var(--primary-12);
+			border-color: var(--neutral-4-dim);
+			color: var(--neutral-4-on);
+			background-color: var(--neutral-4);
 			padding: 0 var(--size--2);
 
 			&:focus, &:active {
 				outline-color: var(--primary-12-dim);
-				border-color: transparent;
 			}
 
 			&:disabled {

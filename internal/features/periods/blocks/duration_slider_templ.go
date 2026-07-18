@@ -47,7 +47,7 @@ func DurationSlider(value int) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<input type=\"range\" min=\"5\" max=\"45\" step=\"5\" id=\"duration-range-input\" style=\"width: 100%; padding: 0; margin: 0;\" data-bind:period.duration><div class=\"duration-slider-marks\" style=\"display: flex; justify-content: space-between; font-size: var(--font-size--2);\"><span>•</span> <span>‧</span> <span>•</span> <span>‧</span> <span>•</span> <span>‧</span> <span>•</span> <span>‧</span> <span>•</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<input type=\"range\" min=\"5\" max=\"45\" step=\"5\" id=\"duration-range-input\" style=\"width: 100%; padding: 0; margin: 0; cursor: pointer;\" data-bind:period.duration><div class=\"duration-slider-marks\" style=\"display: flex; justify-content: space-between; font-size: var(--font-size--2);\"><span>•</span> <span>‧</span> <span>•</span> <span>‧</span> <span>•</span> <span>‧</span> <span>•</span> <span>‧</span> <span>•</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -92,7 +92,7 @@ func DurationSliderStyles() templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<style>\r\n\t\tdiv.duration-slider-marks {\r\n\t\t\tdisplay: flex;\r\n\t\t\tjustify-content: space-between;\r\n\t\t\tfont-size: var(--font-size--2);\r\n\r\n\t\t\tspan {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tjustify-content: center;\r\n\t\t\t\tflex: 1;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<style>\r\n\t\tdiv.duration-slider-marks {\r\n\t\t\tdisplay: flex;\r\n\t\t\tjustify-content: space-between;\r\n\t\t\tfont-size: var(--font-size--2);\r\n\t\t\tpadding: 0 0.1rem;\r\n\r\n\t\t\tspan {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tjustify-content: center;\r\n\t\t\t\tflex: 1;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

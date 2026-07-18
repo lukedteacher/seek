@@ -20,7 +20,6 @@ func NewAuthUserStore(db *appdb.DB) *AuthUserStore {
 }
 
 func (s *AuthUserStore) CreateRegisteredUserAccount(ctx context.Context, registered RegisterUserResult) error {
-	println("create registered user account")
 	userID := registered.UserRegisteredID
 	name := strings.TrimSpace(registered.FirstName + " " + registered.LastName)
 	if name == "" {

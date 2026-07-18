@@ -4,6 +4,7 @@ import (
 	"seek/internal/resources"
 	"seek/internal/views"
 	"seek/internal/views/components"
+	"seek/internal/views/blocks/header"
 	"seek/internal/domain/models"
 )
 
@@ -25,7 +26,7 @@ templ Base(title string, user models.User) {
 					data-init={ views.HotReloadSSE() }
 				}
 			>
-				@components.MainHeader(user)
+				@header.MainHeader(user)
 				{ children... }
 				@components.MainFooter()
 			</body>

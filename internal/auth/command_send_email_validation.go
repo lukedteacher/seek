@@ -37,7 +37,6 @@ func SendEmailValidationOTPCommandHandler(ctx context.Context, command SendEmail
 		return err
 	}
 	generatedQuery := emailVerificationOTPGeneratedQuery(command.EmailVerificationOTPGeneratedID)
-	println("gl: ", len(generatedQuery.Criteria))
 	userQuery := userRegisteredQuery(command.UserRegisteredID)
 	sentQuery := emailVerificationOTPSentQuery(command.EmailVerificationOTPGeneratedID)
 	query := combineQueries(generatedQuery, userQuery, sentQuery)
@@ -56,11 +55,9 @@ func SendEmailValidationOTPCommandHandler(ctx context.Context, command SendEmail
 	if err != nil {
 		return err
 	}
-	println("here?")
 	if !ok {
 		return eventstore.ErrNotFound
 	}
-	println("or here?")
 	model.subjectKey = subjectKey
 	for _, resolved := range model.events {
 		model.handle(resolved)
@@ -71,7 +68,6 @@ func SendEmailValidationOTPCommandHandler(ctx context.Context, command SendEmail
 	if model.otpID == "" {
 		return errors.New("email verification OTP generation event not found")
 	}
-	println("hi")
 	if model.email == "" {
 		return errors.New("registered user event not found")
 	}

@@ -1,0 +1,107 @@
+package sidebar
+
+import (
+	"seek/internal/views/components/sidebar"
+	"seek/internal/views/components/icon"
+)
+
+type SidebarView struct {
+	Open bool `json:"open"`
+}
+
+templ SidebarDesktop() {
+	@sidebar.Sidebar() {
+		<header>
+			SEEK
+		</header>
+		<div>
+			<details>
+				<summary>
+					@icon.Icon("lucide:calendar-range")
+					<span>schedules</span>
+				</summary>
+				<ul>
+					<li><a href="/schedules/list">list</a></li>
+					<li><a href="/schedules/create">create</a></li>
+				</ul>
+			</details>
+			<details>
+				<summary>
+					@icon.Icon("lucide:clock")
+					<span>periods</span>
+				</summary>
+				<ul>
+					<li><a href="/periods/list">list</a></li>
+					<li><a href="/periods/create">create</a></li>
+				</ul>
+			</details>
+			<hr style="color: var(--neutral-4-dim);">
+			<details>
+				<summary>
+					@icon.Icon("lucide:graduation-cap")
+					<span>students</span>
+				</summary>
+				<ul>
+					<li><a href="/students/list">list</a></li>
+					<li><a href="/students/create">create</a></li>
+				</ul>
+			</details>
+			<details>
+				<summary>
+					@icon.Icon("lucide:book-copy")
+					<span>services</span>
+				</summary>
+				<ul>
+					<li><a href="/iepservices/list">list</a></li>
+					<li><a href="/iepservices/create">create</a></li>
+				</ul>
+			</details>
+			<hr style="color: var(--neutral-4-dim);">
+			<details>
+				<summary>
+					@icon.Icon("lucide:apple")
+					<span>periods</span>
+				</summary>
+				<ul>
+					<li><a href="/teachers/list">list</a></li>
+					<li><a href="/teachers/create">create</a></li>
+				</ul>
+			</details>
+		</div>
+		<footer>
+			ACCOUNT
+		</footer>
+	}
+}
+
+templ SidebarCollapsed() {
+	@sidebar.SidebarCollapsed() {
+		<header>
+			SEEK
+		</header>
+		<div>
+			<ul>
+				<li>
+					@icon.Icon("lucide:calendar-range")
+				</li>
+				<li>
+					@icon.Icon("lucide:clock")
+				</li>
+				<li>
+					@icon.Icon("lucide:graduation-cap")
+				</li>
+				<li>
+					@icon.Icon("lucide:book-copy")
+				</li>
+				<li>
+					@icon.Icon("lucide:apple")
+				</li>
+			</ul>
+			<hr style="color: var(--neutral-4-dim);">
+		</div>
+		<footer>
+			ACCOUNT
+		</footer>
+	}
+}
+

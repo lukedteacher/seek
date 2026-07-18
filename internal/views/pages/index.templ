@@ -1,33 +1,42 @@
 package pages
 
 import (
+	"seek/internal/domain/models"
+	"seek/internal/views"
+	"seek/internal/views/blocks/sidebar"
 	"seek/internal/views/components/card"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
-	"seek/internal/domain/models"
 )
 
-templ Index(user models.User) {
+templ Index(user models.User, view sidebar.SidebarView) {
 	@layouts.Base("SEEK", user) {
-		<main>
-			<section style="margin-bottom: var(--size-2)">
-				<p>welcome to SEEK (aka shared educational environment knowledge)</p>
-				<p>there many features to come</p>
-				<p>below are some of the current ones</p>
-			</section>
-			<section style="display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-				@card.CardStyles()
-				@card.Card() {
-					@card.Header() {
-						@card.Title() {
-							@icon.Icon("mdi:calendar-multiselect")
-							schedules
+		<div style="display: flex; width: 100%; overflow-y:auto;" data-init={ views.LongRunningGetSSE("/stream") }>
+			if view.Open == true {
+				@sidebar.SidebarDesktop()
+			} else {
+				@sidebar.SidebarCollapsed()
+			}
+			<main>
+				<button data-signals:open={ view.Open } data-on:click="$open=!$open; @post('/sidebar')">close</button>
+				<section style="margin-bottom: var(--size-2)">
+					<p>welcome to SEEK (aka shared educational environment knowledge)</p>
+					<p>there many features to come</p>
+					<p>below are some of the current ones</p>
+				</section>
+				<section style="display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); width: 100%;">
+					@card.CardStyles()
+					@card.Card() {
+						@card.Header() {
+							@card.Title() {
+								@icon.Icon("lucide:calendar-range")
+								schedules
+							}
+							@card.Description() {
+								view, create, and manage schedules
+							}
 						}
-						@card.Description() {
-							view, create, and manage schedules
-						}
-					}
-					@card.Content() {
+						@card.Content() {
 							<h4>features (coming soon)</h4>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>notifications on change</li>
@@ -35,23 +44,23 @@ templ Index(user models.User) {
 								<li>printable version for student visual schedule</li>
 								<li>collaborative schedule creation</li>
 							</ul>
-					}
-					@card.Footer() {
-						<a href="/schedules"><button>list</button></a>	
-						<a href="/schedules/create"><button>create</button></a>
-					}
-				}
-				@card.Card() {
-					@card.Header() {
-						@card.Title() {
-							@icon.Icon("mdi:clock")
-							periods
 						}
-						@card.Description() {
-							periods make up schedules.
+						@card.Footer() {
+							<a href="/schedules"><button>list</button></a>	
+							<a href="/schedules/create"><button>create</button></a>
 						}
 					}
-					@card.Content() {
+					@card.Card() {
+						@card.Header() {
+							@card.Title() {
+								@icon.Icon("lucide:clock")
+								periods
+							}
+							@card.Description() {
+								periods make up schedules.
+							}
+						}
+						@card.Content() {
 							<h4>features (coming soon)</h4>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>notifications on change</li>
@@ -59,46 +68,69 @@ templ Index(user models.User) {
 								<li>take attendance</li>
 								<li>lesson plans</li>
 							</ul>
-					}
-					@card.Footer() {
-						<a href="/periods/list"><button>list</button></a>	
-						<a href="/periods/create"><button>create</button></a>
-					}
-				}
-				@card.Card() {
-					@card.Header() {
-						@card.Title() {
-							@icon.Icon("mdi:account-student")
-							students
 						}
-						@card.Description() {
-							can't live with them, can't live without their funding.
+						@card.Footer() {
+							<a href="/periods/list"><button>list</button></a>	
+							<a href="/periods/create"><button>create</button></a>
 						}
 					}
-					@card.Content() {
+					@card.Card() {
+						@card.Header() {
+							@card.Title() {
+								@icon.Icon("lucide:graduation-cap")
+								students
+							}
+							@card.Description() {
+								can't live with them, can't live without their funding.
+							}
+						}
+						@card.Content() {
 							<h4>features (coming soon)</h4>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>pictures?</li>
 								<li>SPED data</li>
 								<li>schedule view</li>
 							</ul>
-					}
-					@card.Footer() {
-						<a href="/students"><button>list</button></a>	
-						<a href="/students/create"><button>create</button></a>
-					}
-				}
-				@card.Card() {
-					@card.Header() {
-						@card.Title() {
-							@icon.Icon("mdi:teach")
-							teachers
 						}
-						@card.Description() {
-							they do the work of learning the students.
+						@card.Footer() {
+							<a href="/students"><button>list</button></a>	
+							<a href="/students/create"><button>create</button></a>
 						}
 					}
-					@card.Content() {
+					@card.Card() {
+						@card.Header() {
+							@card.Title() {
+								@icon.Icon("lucide:book-copy")
+								services
+							}
+							@card.Description() {
+								service minutes indicated by a student's IEP.
+							}
+						}
+						@card.Content() {
+							<h4>features (coming soon)</h4>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>charts</li>
+								<li>schedule integration</li>
+								<li>audits</li>
+							</ul>
+						}
+						@card.Footer() {
+							<a href="/iepservices/list"><button>list</button></a>	
+							<a href="/iepservices/create"><button>create</button></a>
+						}
+					}
+					@card.Card() {
+						@card.Header() {
+							@card.Title() {
+								@icon.Icon("lucide:apple")
+								teachers
+							}
+							@card.Description() {
+								they do the work of learning the students.
+							}
+						}
+						@card.Content() {
 							<h4>features (coming soon)</h4>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>profiles?</li>
@@ -106,23 +138,23 @@ templ Index(user models.User) {
 								<li>caseloads</li>
 								<li>idk</li>
 							</ul>
-					}
-					@card.Footer() {
-						<a href="/teachers"><button>list</button></a>	
-						<a href="/teachers/create"><button>create</button></a>
-					}
-				}
-				@card.Card() {
-					@card.Header() {
-						@card.Title() {
-							@icon.Icon("mdi:target-arrow")
-							goals
 						}
-						@card.Description() {
-							students have goals.
+						@card.Footer() {
+							<a href="/teachers"><button>list</button></a>	
+							<a href="/teachers/create"><button>create</button></a>
 						}
 					}
-					@card.Content() {
+					@card.Card() {
+						@card.Header() {
+							@card.Title() {
+								@icon.Icon("lucide:goal")
+								goals
+							}
+							@card.Description() {
+								students have goals.
+							}
+						}
+						@card.Content() {
 							<h4>features (coming soon)</h4>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>goal bank</li>
@@ -130,23 +162,23 @@ templ Index(user models.User) {
 								<li>progress tracking</li>
 								<li>charts?</li>
 							</ul>
-					}
-					@card.Footer() {
-						<a href="/goals"><button>list</button></a>	
-						<a href="/goals/create"><button>create</button></a>
-					}
-				}
-				@card.Card() {
-					@card.Header() {
-						@card.Title() {
-							@icon.Icon("mdi:chart-line")
-							interventions
 						}
-						@card.Description() {
-							plan interventions, track data, and view progress.
+						@card.Footer() {
+							<a href="/goals"><button>list</button></a>	
+							<a href="/goals/create"><button>create</button></a>
 						}
 					}
-					@card.Content() {
+					@card.Card() {
+						@card.Header() {
+							@card.Title() {
+								@icon.Icon("lucide:chart-spline")
+								interventions
+							}
+							@card.Description() {
+								plan interventions, track data, and view progress.
+							}
+						}
+						@card.Content() {
 							<h4>features (coming soon)</h4>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>easy progress monitoring</li>
@@ -154,59 +186,60 @@ templ Index(user models.User) {
 								<li>links to resources</li>
 								<li>charts!</li>
 							</ul>
-					}
-					@card.Footer() {
-						<a href="/interventions"><button>list</button></a>	
-						<a href="/interventions/create"><button>create</button></a>
-					}
-				}
-				@card.Card() {
-					@card.Header() {
-						@card.Title() {
-							@icon.Icon("mdi:hand-heart")
-							caregivers
 						}
-						@card.Description() {
-							caregiver info up to date and easy to access.
+						@card.Footer() {
+							<a href="/interventions"><button>list</button></a>	
+							<a href="/interventions/create"><button>create</button></a>
 						}
 					}
-					@card.Content() {
+					@card.Card() {
+						@card.Header() {
+							@card.Title() {
+								@icon.Icon("lucide:hand-heart")
+								caregivers
+							}
+							@card.Description() {
+								caregiver info up to date and easy to access.
+							}
+						}
+						@card.Content() {
 							<h4>features (coming soon)</h4>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>email templates & sending?</li>
 								<li>portals for their own access to data</li>
 								<li>resources for learning about disabilities?</li>
 							</ul>
-					}
-					@card.Footer() {
-						<a href="/caregivers"><button>list</button></a>	
-						<a href="/caregivers/create"><button>create</button></a>
-					}
-				}
-				@card.Card() {
-					@card.Header() {
-						@card.Title() {
-							@icon.Icon("mdi:home-heart")
-							homerooms
 						}
-						@card.Description() {
-							general education teachers will also have their own access.
+						@card.Footer() {
+							<a href="/caregivers"><button>list</button></a>	
+							<a href="/caregivers/create"><button>create</button></a>
 						}
 					}
-					@card.Content() {
+					@card.Card() {
+						@card.Header() {
+							@card.Title() {
+								@icon.Icon("lucide:house-heart")
+								homerooms
+							}
+							@card.Description() {
+								general education teachers will also have their own access.
+							}
+						}
+						@card.Content() {
 							<h4>features (coming maybe?)</h4>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>gen ed student data?</li>
 								<li>interventions, goals, schedules, etc.</li>
 								<li>idk</li>
 							</ul>
+						}
+						@card.Footer() {
+							<a href="/homerooms"><button>list</button></a>	
+							<a href="/homerooms/create"><button>create</button></a>
+						}
 					}
-					@card.Footer() {
-						<a href="/homerooms"><button>list</button></a>	
-						<a href="/homerooms/create"><button>create</button></a>
-					}
-				}
-			</section>
-		</main>
+				</section>
+			</main>
+		</div>
 	}
 }

@@ -1,18 +1,19 @@
 package label
 
 type Props struct {
-	ID               string
-	Class            string
-	Attributes       templ.Attributes
-	Name             string
-	For              string
-	Form             string
-	Placeholder      string
-	Label            string
+	ID                string
+	Class             string
+	Attributes        templ.Attributes
+	Name              string
+	For               string
+	Form              string
+	Type              string
+	Placeholder       string
+	Label             string
 	ValidationMessage string
 	ValidationState   string
-	Disabled         bool
-	HasError         bool
+	Disabled          bool
+	HasError          bool
 }
 
 templ Label(props ...Props) {
@@ -24,6 +25,9 @@ templ Label(props ...Props) {
 		id={ p.ID }
 		if p.For != "" {
 			for={ p.For }
+		}
+		if p.Type != "" {
+			type={ p.Type }
 		}
 		class={p.ValidationState}
 	>
@@ -50,6 +54,7 @@ templ LabelStyle() {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
+				font-size: var(--fnt-sm);
 
 				.validation-span {
 					color: color-mix(in oklch, currentColor 80%, black 10%)

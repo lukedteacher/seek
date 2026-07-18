@@ -57,7 +57,7 @@ func StartEmbeddedOrisun(ctx context.Context, cfg EmbeddedConfig) (*EmbeddedOris
 	}
 	appConfig.Admin.Boundary = "orisun_admin"
 	appConfig.Nats.StoreDir = cfg.NATSStoreDir
-	appConfig.Nats.Port = -1
+	appConfig.Nats.Port = 4222
 	appConfig.Nats.Cluster.Enabled = false
 	appConfig.Logging.Level = cfg.LogLevel
 

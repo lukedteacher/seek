@@ -2,11 +2,11 @@ package dto
 
 import (
 	"seek/internal/features/iep_services/models"
+	"seek/internal/views/dto"
 )
 
 type IEPServiceView struct {
 	IEPServiceID    string
-	StudentID       string
 	ServiceType     string
 	IndirectMinutes int
 	DirectMinutes   int
@@ -16,6 +16,7 @@ type IEPServiceView struct {
 	StartDate       string
 	EndDate         string
 	Provider        string
+	StudentView     dto.StudentView
 }
 
 func NewIEPServiceView(sm *models.IEPService) IEPServiceView {
@@ -23,9 +24,16 @@ func NewIEPServiceView(sm *models.IEPService) IEPServiceView {
 		return IEPServiceView{}
 	}
 	return IEPServiceView{
-		IEPServiceID: sm.IEPServiceID,
-		StudentID:    sm.StudentID,
-		ServiceType:  sm.ServiceType,
+		IEPServiceID:    sm.IEPServiceID,
+		ServiceType:     sm.ServiceType,
+		IndirectMinutes: sm.IndirectMinutes,
+		DirectMinutes:   sm.DirectMinutes,
+		FrequencyCount:  sm.FrequencyCount,
+		FrequencyType:   sm.FrequencyType,
+		Location:        sm.Location,
+		StartDate:       sm.StartDate,
+		EndDate:         sm.EndDate,
+		Provider:        sm.Provider,
 	}
 }
 
@@ -34,8 +42,15 @@ func NewModelFromView(v *IEPServiceView) models.IEPService {
 		return models.IEPService{}
 	}
 	return models.IEPService{
-		IEPServiceID: v.IEPServiceID,
-		StudentID:    v.StudentID,
-		ServiceType:  v.ServiceType,
+		IEPServiceID:    v.IEPServiceID,
+		ServiceType:     v.ServiceType,
+		IndirectMinutes: v.IndirectMinutes,
+		DirectMinutes:   v.DirectMinutes,
+		FrequencyCount:  v.FrequencyCount,
+		FrequencyType:   v.FrequencyType,
+		Location:        v.Location,
+		StartDate:       v.StartDate,
+		EndDate:         v.EndDate,
+		Provider:        v.Provider,
 	}
 }

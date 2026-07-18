@@ -30,6 +30,7 @@ type Props struct {
 	Form             string
 	Placeholder      string
 	Value            string
+	ValueNumber      int
 	Disabled         bool
 	Readonly         bool
 	HasError         bool
@@ -79,7 +80,7 @@ func Input(props ...Props) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 43, Col: 11}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 44, Col: 11}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -92,7 +93,7 @@ func Input(props ...Props) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(p.Type))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 44, Col: 23}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 45, Col: 23}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -110,7 +111,7 @@ func Input(props ...Props) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 46, Col: 16}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 47, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -129,7 +130,7 @@ func Input(props ...Props) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Placeholder)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 49, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 50, Col: 30}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -148,7 +149,7 @@ func Input(props ...Props) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 52, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 53, Col: 18}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -159,15 +160,15 @@ func Input(props ...Props) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		if p.Form != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " form=\"")
+		if p.Type == "number" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Form)
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ValueNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 55, Col: 16}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 56, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -178,62 +179,62 @@ func Input(props ...Props) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		if p.Disabled {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " disabled")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		if p.Readonly {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " readonly")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		if p.HasError {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " aria-invalid=\"true\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " else")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if p.IsValid {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " aria-invalid=\"false\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		if p.DataBind != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " data-bind=\"")
+		if p.Form != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " form=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.DataBind)
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Form)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 65, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 59, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		if p.DataOn != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " data-on:input__debounce.200ms=\"")
+		if p.Disabled {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " disabled")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		if p.Readonly {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " readonly")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		if p.HasError {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " aria-invalid=\"true\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " else")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if p.IsValid {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " aria-invalid=\"false\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		if p.DataBind != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " data-bind=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE(p.DataOn))
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.DataBind)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 68, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 69, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
@@ -244,20 +245,39 @@ func Input(props ...Props) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " class=\"")
+		if p.DataOn != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " data-on:input__debounce.200ms=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE(p.DataOn))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 72, Col: 63}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var11 string
-		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var2).String())
+		var templ_7745c5c3_Var12 string
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var2).String())
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/input/input.templ`, Line: 1, Col: 0}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -265,7 +285,7 @@ func Input(props ...Props) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, ">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, ">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -297,12 +317,12 @@ func InputStyle() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var12 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var12 == nil {
-			templ_7745c5c3_Var12 = templ.NopComponent
+		templ_7745c5c3_Var13 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var13 == nil {
+			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<style>\r\n\t\tinput {\r\n\t\t\t/* variables */\r\n\t\t\t--_color-outline: blue;\r\n\t\t\t/* interaction */\r\n\t\t\ttransition-property: all;\r\n\t\t\ttransition-timing-function: var(--anim-ease-standard);\r\n\t\t\ttransition-duration: var(--anim-duration-base);\r\n\t\t\tcursor: text;\r\n\t\t\tdisplay: inline-flex;\r\n\t\t\t/* size */\r\n\t\t\theight: var(--size-4);\r\n\t\t\twidth: 100%;\r\n\t\t\tmin-width: 0; /* needed to stop text overflow or something? */\r\n\t\t\t/* text */\r\n\t\t\tfont-size: var(--font-size--1);\r\n\t\t\t/* borders */\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-color: var(--primary-12-dim);\r\n\t\t\tborder-radius: var(--border-radius-0);\r\n\t\t\tborder-width: var(--border-width-1);\r\n\t\t\toutline-style: solid;\r\n\t\t\toutline-width: var(--border-width-1);\r\n\t\t\toutline-color: transparent;\r\n\t\t\toutline-offset: var(--border-width-1);\r\n\t\t\t/* color */\r\n\t\t\tcolor: var(--primary-12-on);\r\n\t\t\tbackground-color: var(--primary-12);\r\n\t\t\tpadding: 0 var(--size--2);\r\n\r\n\t\t\t&:focus, &:active {\r\n\t\t\t\toutline-color: var(--primary-12-dim);\r\n\t\t\t\tborder-color: transparent;\r\n\t\t\t}\r\n\r\n\t\t\t&:disabled {\r\n\t\t\t\tpointer-events: none;\r\n\t\t\t\tcursor: not-allowed;\r\n\t\t\t\topacity: 0.5;\r\n\t\t\t}\r\n\r\n\t\t\t&[aria-invalid=\"false\"]:not(:focus), &[aria-invalid=\"false\"]:not(:active) {\r\n\t\t\t\tborder-color: green;\r\n\t\t\t}\r\n\r\n\t\t\t&[aria-invalid=\"false\"]:focus, &[aria-invalid=\"false\"]:active {\r\n\t\t\t\toutline-color: green;\r\n\t\t\t\tborder-color: transparent;\r\n\t\t\t}\r\n\r\n\t\t\t&[aria-invalid=\"true\"]:not(:focus), &[aria-invalid=\"true\"]:not(:active) {\r\n\t\t\t\tborder-color: var(--error-5);\r\n\t\t\t}\r\n\r\n\t\t\t&[aria-invalid=\"true\"]:focus, &[aria-invalid=\"true\"]:active {\r\n\t\t\t\toutline-color: var(--error-5);\r\n\t\t\t\tborder-color: transparent;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<style>\r\n\t\tinput {\r\n\t\t\t/* variables */\r\n\t\t\t--_color-outline: blue;\r\n\t\t\t/* interaction */\r\n\t\t\ttransition-property: all;\r\n\t\t\ttransition-timing-function: var(--anim-ease-standard);\r\n\t\t\ttransition-duration: var(--anim-duration-base);\r\n\t\t\tcursor: text;\r\n\t\t\tdisplay: inline-flex;\r\n\t\t\t/* size */\r\n\t\t\theight: var(--size-4);\r\n\t\t\twidth: 100%;\r\n\t\t\tmin-width: 0; /* needed to stop text overflow or something? */\r\n\t\t\t/* text */\r\n\t\t\tfont-size: var(--font-size--1);\r\n\t\t\t/* borders */\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-radius: var(--bd-rd0);\r\n\t\t\tborder-width: var(--border-width-0);\r\n\t\t\toutline-style: solid;\r\n\t\t\toutline-width: var(--border-width-1);\r\n\t\t\toutline-color: transparent;\r\n\t\t\toutline-offset: var(--border-width-1);\r\n\t\t\t/* color */\r\n\t\t\tborder-color: var(--neutral-4-dim);\r\n\t\t\tcolor: var(--neutral-4-on);\r\n\t\t\tbackground-color: var(--neutral-4);\r\n\t\t\tpadding: 0 var(--size--2);\r\n\r\n\t\t\t&:focus, &:active {\r\n\t\t\t\toutline-color: var(--primary-12-dim);\r\n\t\t\t}\r\n\r\n\t\t\t&:disabled {\r\n\t\t\t\tpointer-events: none;\r\n\t\t\t\tcursor: not-allowed;\r\n\t\t\t\topacity: 0.5;\r\n\t\t\t}\r\n\r\n\t\t\t&[aria-invalid=\"false\"]:not(:focus), &[aria-invalid=\"false\"]:not(:active) {\r\n\t\t\t\tborder-color: green;\r\n\t\t\t}\r\n\r\n\t\t\t&[aria-invalid=\"false\"]:focus, &[aria-invalid=\"false\"]:active {\r\n\t\t\t\toutline-color: green;\r\n\t\t\t\tborder-color: transparent;\r\n\t\t\t}\r\n\r\n\t\t\t&[aria-invalid=\"true\"]:not(:focus), &[aria-invalid=\"true\"]:not(:active) {\r\n\t\t\t\tborder-color: var(--error-5);\r\n\t\t\t}\r\n\r\n\t\t\t&[aria-invalid=\"true\"]:focus, &[aria-invalid=\"true\"]:active {\r\n\t\t\t\toutline-color: var(--error-5);\r\n\t\t\t\tborder-color: transparent;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

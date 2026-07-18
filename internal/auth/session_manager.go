@@ -25,7 +25,6 @@ type SessionManager struct {
 }
 
 func NewSessionManager(db *appdb.DB, users *AuthUserStore, secureCookie bool) *SessionManager {
-	println("session manager init")
 	return &SessionManager{
 		db:            db,
 		users:         users,

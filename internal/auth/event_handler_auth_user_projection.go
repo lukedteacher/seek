@@ -66,7 +66,6 @@ func (h *AuthUserProjectionEventHandler) StopSubscribing() {
 }
 
 func (h *AuthUserProjectionEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	println("auth user projection handler")
 	switch resolved.Event.EventType {
 	case UserRegistered:
 		return h.handleUserRegistered(ctx, resolved)
@@ -86,7 +85,6 @@ func (h *AuthUserProjectionEventHandler) handle(ctx context.Context, resolved ev
 }
 
 func (h *AuthUserProjectionEventHandler) handleUserRegistered(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	println("mamamamama")
 	protector := protectedpii.FromEnv()
 	userRegisteredID := stringValue(resolved.Event.Data[UserRegisteredIDField])
 	subjectKey, ok, err := h.keys.GetSubjectDataKey(ctx, userRegisteredID)

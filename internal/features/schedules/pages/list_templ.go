@@ -47,7 +47,7 @@ func List(user models.User, schedules []models.Schedule) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><section><h1>SCHEDULE</h1><p>review and enter schedule data here</p><p>many features to come</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main><section><h2>SCHEDULE</h2><p>review and enter schedule data here</p><p>many features to come</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

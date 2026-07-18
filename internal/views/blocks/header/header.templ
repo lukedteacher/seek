@@ -1,4 +1,4 @@
-package components
+package header
 
 import (
 	"seek/internal/domain/models"
@@ -10,7 +10,7 @@ templ MainHeader(user models.User) {
 	<header>
 		<hgroup>
 			<h1>SEEK</h1>
-			<h3>shared educational environment knowledge</h3>
+			<p>shared educational environment knowledge</p>
 		</hgroup>
 		@Nav()
 		{ children... }
@@ -29,19 +29,22 @@ templ MainHeaderStyles() {
 	<style>
 		body {
 			&> header {
-				color: var(--primary-6-on);
-				background-color: var(--primary-6);
+				color: var(--clr-p5o);
+				background-color: var(--clr-p5);
 				width: 100%;
-				height: 6rem;
+				height: 4rem;
 				align-items: center;
 				display: flex;
 				flex-direction: row;
 				padding: 0 var(--size-4);
 
 				hgroup {
-					h3 {
+					h1 {
+						color: var(--clr-p4o);
+					}
+					p {
 						font-weight: var(--font-weight-thin);
-						font-size: var(--font-size--2);
+						font-size: var(--fnt-xsm);
 						color: var(--primary-5-on);
 						letter-spacing: var(--font-letter-spacing--2);
 					}

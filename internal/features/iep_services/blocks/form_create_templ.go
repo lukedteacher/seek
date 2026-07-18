@@ -10,11 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/features/iep_services/dto"
-	"seek/internal/features/iep_services/events"
-	"seek/internal/views/components/input"
-	"seek/internal/views/components/label"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/blocks/forms"
 )
 
 func CreateForm(view dto.IEPServiceFormView) templ.Component {
@@ -38,14 +36,14 @@ func CreateForm(view dto.IEPServiceFormView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"create-iep-service-form\" data-on:submit=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"form-create-iep-service\" data-on:submit=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/students/iepservices/create"))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/iepservices/create"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/blocks/form_create.templ`, Line: 13, Col: 101}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/blocks/form_create.templ`, Line: 11, Col: 92}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -55,43 +53,75 @@ func CreateForm(view dto.IEPServiceFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var3 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = input.Input(input.Props{
-				ID:       "iep-service-type-input",
-				Name:     "iep-service-type",
-				DataBind: "serviceminutes.service_type",
-				DataOn:   "/students/iepservices/create/validate",
-				HasError: view.Validation[events.IEPServiceServiceTypeField].State == "error",
-				IsValid:  view.Validation[events.IEPServiceServiceTypeField].State == "valid",
-				Value:    view.IEPService.ServiceType,
-			}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = label.Label(label.Props{
-			ID:                "iep-service-type-label",
-			For:               "iep-service-type",
-			Label:             "service minutes type",
-			ValidationState:   view.Validation[events.IEPServiceServiceTypeField].State,
-			ValidationMessage: view.Validation[events.IEPServiceServiceTypeField].Message,
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = forms.TextInputWithLabel(
+			"iep-service-type",
+			"type",
+			"/iepservices/validate",
+			"iepservice.service_type",
+			view.IEPService.ServiceType,
+		).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</section><footer><button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div><p>minutes</p><div style=\"display:flex; gap:var(--size-1);\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = forms.NumberInputWithLabel(
+			"iep-service-indirect-minutes",
+			"indirect",
+			"/iepservices/validate",
+			"iepservice.indirect_minutes",
+			view.IEPService.IndirectMinutes,
+		).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = forms.NumberInputWithLabel(
+			"iep-service-direct-minutes",
+			"direct",
+			"/iepservices/validate",
+			"iepservice.direct_minutes",
+			view.IEPService.DirectMinutes,
+		).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = forms.NumberInputWithLabel(
+			"iep-service-frequency-count",
+			"count",
+			"/iepservices/validate",
+			"iepservice.frequency_count",
+			view.IEPService.FrequencyCount,
+		).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = forms.TextInputWithLabel(
+			"iep-service-location",
+			"location",
+			"/iepservices/validate",
+			"iepservice.location",
+			view.IEPService.Location,
+		).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = forms.TextInputWithLabel(
+			"iep-service-provider",
+			"provider",
+			"/iepservices/validate",
+			"iepservice.provider",
+			view.IEPService.Provider,
+		).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><footer><button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -37,7 +37,7 @@ func AuthForm(action string, title string, fields []Field, errors map[string]str
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main id=\"auth-page\" class=\"auth-layout\"><section class=\"auth-intro\"><a class=\"brand-link brand-link-large\" href=\"/login\"><span class=\"brand-mark\">SK</span> <span class=\"brand-copy\"><span class=\"brand-title\">SEEK</span> <span class=\"brand-subtitle\">shared education environment knowledge</span></span></a><div class=\"auth-copy\"><h1>Fast, syncronized data for school staff and teachers.</h1><p>Create a schedule, add services, track goal data.</p></div></section><section class=\"auth-card card\" aria-label=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main id=\"auth-page\" class=\"auth-layout\"><section class=\"auth-intro\"><a class=\"brand-link brand-link-large\" href=\"/login\"><span class=\"brand-mark\">SK</span> <span class=\"brand-copy\"><span class=\"brand-title\">SEEK</span> <span class=\"brand-subtitle\">shared education environment knowledge</span></span></a><div class=\"auth-copy\"><h2>Fast, syncronized data for school staff and teachers.</h2><p>Create a schedule, add services, track goal data.</p></div></section><section class=\"auth-card card\" aria-label=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

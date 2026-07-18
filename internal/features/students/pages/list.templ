@@ -13,7 +13,7 @@ templ List(user models.User, view int, students []dto.StudentView) {
 	@layouts.Base("SEEK: students", user) {
 		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/students/stream") }>
 			<section>
-				<h1>STUDENTS</h1>
+				<h2>STUDENTS</h2>
 				<p>review and enter student data here</p>
 				<p>many features to come</p>
 				<div>

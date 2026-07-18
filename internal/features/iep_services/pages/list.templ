@@ -15,7 +15,7 @@ templ List(user models.User, view int, periods []dto.IEPServiceView) {
 	@layouts.Base("SEEK: periods", user) {
 		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/iepservices/list/stream") }>
 			<section>
-				<h1>PERIODS</h1>
+				<h2>PERIODS</h2>
 				<p>review and enter period data here</p>
 				<p>many features to come</p>
 				<div>

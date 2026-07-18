@@ -53,10 +53,6 @@ func (s Server) getIEPServicesList(w http.ResponseWriter, r *http.Request) {
 	iepServiceViews := make([]dto.IEPServiceView, len(iepServices))
 	for i := range iepServices {
 		iepService := dto.NewIEPServiceView(&iepServices[i])
-		if err != nil {
-			println("error: ", err.Error())
-			return
-		}
 		iepServiceViews[i] = iepService
 	}
 
@@ -94,10 +90,6 @@ func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request)
 			iepServiceViews := make([]dto.IEPServiceView, len(iepServices))
 			for i := range iepServices {
 				iepServiceView := dto.NewIEPServiceView(&iepServices[i])
-				if err != nil {
-					println("error: ", err.Error())
-					return
-				}
 				iepServiceViews[i] = iepServiceView
 			}
 
@@ -224,10 +216,6 @@ func (s Server) getIEPServiceView(w http.ResponseWriter, r *http.Request) {
 	}
 
 	view := dto.NewIEPServiceView(model)
-	if err != nil {
-		println("error: ", err.Error())
-		return
-	}
 	_ = pages.View(user, view).Render(ctx, w)
 }
 
@@ -291,9 +279,6 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 				return
 			}
 			view := dto.NewIEPServiceView(&model)
-			if err != nil {
-				println("error: ", err.Error())
-			}
 			sse.PatchElementTempl(pages.View(user, view))
 		}
 	}
@@ -392,7 +377,7 @@ func (s Server) postIEPServiceEditValidate(w http.ResponseWriter, r *http.Reques
 func (s Server) postIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	signals := &struct {
+	signals := &struct{
 		View dto.IEPServiceFormView `json:"view"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
@@ -402,7 +387,6 @@ func (s Server) postIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	iepServiceID := chi.URLParam(r, "id")
 	command := events.UpdateIEPServiceCommand{
 		IEPServiceID: iepServiceID,
-		StudentID:    signals.View.IEPService.StudentID,
 		ServiceType:  signals.View.IEPService.ServiceType,
 		Metadata:     eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
