@@ -13,10 +13,10 @@ templ ScheduleStyle() {
 			display: grid;
 			grid-template-rows: 4rem 1fr;
 			grid-template-columns: 6rem repeat(5, 1fr);
-			background-color: var(--primary-4);
-			color: var(--primary-4-on);
+			background-color: transparent;
+			color: var(--clr-n4o);
 			border-style: solid;
-			border-color: var(--primary-6);
+			border-color: var(--clr-n4d);
 			border-width: var(--border-width-0);
 			border-radius: var(--bd-rd1);
 			padding-right: var(--size-2);
@@ -129,7 +129,7 @@ templ TimeGrid(interval int, totalRows int) {
 	<style>
 		.time-grid {
 			grid-column: 1 / -1;
-			background-color: var(--primary-5);
+			background-color: var(--clr-n4);
 			height: 1px;
 		}
 	</style>
@@ -150,7 +150,7 @@ templ DayGrid() {
 	<style>
 		.day-grid {
 			grid-row: 1 / -1;
-			background-color: var(--primary-5);
+			background-color: var(--clr-n4);
 			width: 1px;
 
 			&~ .day-grid {

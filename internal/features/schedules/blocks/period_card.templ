@@ -19,7 +19,7 @@ templ PeriodCard(scheduleID string, view dto.PeriodView, column int) {
 		class="period-card"
 		style={ fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, view.Row, view.Duration) }
 	>
-		<h3>{ view.Title }</h3>
+		<h4>{ view.Title }</h4>
 	</button>
 	@PeriodCardStyles()
 }
@@ -27,7 +27,7 @@ templ PeriodCard(scheduleID string, view dto.PeriodView, column int) {
 templ PeriodCardStyles() {
 	<style>
 		.period-card {
-			width: 98%;
+			width: 100%;
 			display: flex;
 			flex-direction: column;
 			align-items: center;

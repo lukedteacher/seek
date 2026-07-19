@@ -34,7 +34,7 @@ func ScheduleStyle() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\r\n\t\t#schedule-component {\r\n\t\t\twidth: 100%;\r\n\t\t\theight: 100%;\r\n\t\t\tdisplay: grid;\r\n\t\t\tgrid-template-rows: 4rem 1fr;\r\n\t\t\tgrid-template-columns: 6rem repeat(5, 1fr);\r\n\t\t\tbackground-color: var(--primary-4);\r\n\t\t\tcolor: var(--primary-4-on);\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-color: var(--primary-6);\r\n\t\t\tborder-width: var(--border-width-0);\r\n\t\t\tborder-radius: var(--bd-rd1);\r\n\t\t\tpadding-right: var(--size-2);\r\n\t\t\tpadding-bottom: var(--size-2);\r\n\r\n\t\t\tdiv.day-header {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\theight: 100%;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tjustify-content: center;\r\n\t\t\t\talign-items: center;\r\n\t\t\t}\r\n\r\n\t\t\t#schedule-times {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\theight: 100%;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: column;\r\n\t\t\t\tfont-size: var(--font-size--1);\r\n\r\n\t\t\t\tdiv {\r\n\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\tjustify-content: center;\r\n\t\t\t\t\talign-items: center;\r\n\t\t\t\t\tflex-grow: 1;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t#schedule-grid {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\theight: 100%;\r\n\t\t\t\tdisplay: grid;\r\n\t\t\t\tgrid-template-rows: repeat(480, 1fr);\r\n\t\t\t\tgrid-template-columns: repeat(5, 1fr);\r\n\t\t\t\tgrid-column: 2 / -1;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\r\n\t\t#schedule-component {\r\n\t\t\twidth: 100%;\r\n\t\t\theight: 100%;\r\n\t\t\tdisplay: grid;\r\n\t\t\tgrid-template-rows: 4rem 1fr;\r\n\t\t\tgrid-template-columns: 6rem repeat(5, 1fr);\r\n\t\t\tbackground-color: transparent;\r\n\t\t\tcolor: var(--clr-n4o);\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-color: var(--clr-n4d);\r\n\t\t\tborder-width: var(--border-width-0);\r\n\t\t\tborder-radius: var(--bd-rd1);\r\n\t\t\tpadding-right: var(--size-2);\r\n\t\t\tpadding-bottom: var(--size-2);\r\n\r\n\t\t\tdiv.day-header {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\theight: 100%;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tjustify-content: center;\r\n\t\t\t\talign-items: center;\r\n\t\t\t}\r\n\r\n\t\t\t#schedule-times {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\theight: 100%;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: column;\r\n\t\t\t\tfont-size: var(--font-size--1);\r\n\r\n\t\t\t\tdiv {\r\n\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\tjustify-content: center;\r\n\t\t\t\t\talign-items: center;\r\n\t\t\t\t\tflex-grow: 1;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t#schedule-grid {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\theight: 100%;\r\n\t\t\t\tdisplay: grid;\r\n\t\t\t\tgrid-template-rows: repeat(480, 1fr);\r\n\t\t\t\tgrid-template-columns: repeat(5, 1fr);\r\n\t\t\t\tgrid-column: 2 / -1;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -328,7 +328,7 @@ func TimeGrid(interval int, totalRows int) templ.Component {
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"time-grid\" style=\"grid-row: -1 / span 1;\"></div><style>\r\n\t\t.time-grid {\r\n\t\t\tgrid-column: 1 / -1;\r\n\t\t\tbackground-color: var(--primary-5);\r\n\t\t\theight: 1px;\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"time-grid\" style=\"grid-row: -1 / span 1;\"></div><style>\r\n\t\t.time-grid {\r\n\t\t\tgrid-column: 1 / -1;\r\n\t\t\tbackground-color: var(--clr-n4);\r\n\t\t\theight: 1px;\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -380,7 +380,7 @@ func DayGrid() templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<style>\r\n\t\t.day-grid {\r\n\t\t\tgrid-row: 1 / -1;\r\n\t\t\tbackground-color: var(--primary-5);\r\n\t\t\twidth: 1px;\r\n\r\n\t\t\t&~ .day-grid {\r\n\t\t\t\tjustify-self: end;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<style>\r\n\t\t.day-grid {\r\n\t\t\tgrid-row: 1 / -1;\r\n\t\t\tbackground-color: var(--clr-n4);\r\n\t\t\twidth: 1px;\r\n\r\n\t\t\t&~ .day-grid {\r\n\t\t\t\tjustify-self: end;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

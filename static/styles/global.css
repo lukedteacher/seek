@@ -332,6 +332,14 @@ h3 {
   font-size: var(--fnt-xl);
 }
 
+h4 {
+  font-size: var(--fnt-lg);
+}
+
+h5 {
+  font-size: var(--fnt-md);
+}
+
 hr {
   height: 0;
   width: 100%;
