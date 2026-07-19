@@ -10,12 +10,13 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/domain/models"
+	"seek/internal/features/students/dto"
 	"seek/internal/views/blocks/data_table"
 	"seek/internal/views/components/badge"
 	"seek/internal/views/layouts"
 )
 
-func Components(user models.User) templ.Component {
+func Components(user models.User, tableView dto.TableView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -134,7 +135,7 @@ func Components(user models.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = datatable.DataTable().Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = datatable.DataTable(tableView).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

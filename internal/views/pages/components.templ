@@ -5,9 +5,10 @@ import (
 	"seek/internal/views/components/badge"
 	"seek/internal/domain/models"
 	"seek/internal/views/blocks/data_table"
+	"seek/internal/features/students/dto"
 )
 
-templ Components(user models.User) {
+templ Components(user models.User, tableView dto.TableView) {
 	@layouts.Base("SEEK: components", user) {
 		<main style="display: flex; flex-direction: column; gap: 1rem;">
 			<section style="display: grid; gap: var(--size-2);">
@@ -33,7 +34,7 @@ templ Components(user models.User) {
 			</section>
 			<section style="display: grid; gap: var(--size-2);">
 				<h3>table</h3>
-				@datatable.DataTable()
+				@datatable.DataTable(tableView)
 			</section>
 		</main>
 	}

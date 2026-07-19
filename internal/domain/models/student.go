@@ -3,13 +3,13 @@ package models
 import "strings"
 
 type Student struct {
-	ID          string  `db:"id"`
-	FirstName   string  `db:"first_name"`
-	ChosenName  *string `db:"chosen_name"`
-	LastName    string  `db:"last_name"`
-	Grade       int64   `db:"grade"`
-	Homeroom    string  `db:"homeroom"`
-	CaseManager *string `db:"case_manager"`
+	ID          string  `json:"id" display:"ID"`
+	FirstName   string  `json:"first_name" display:"given"`
+	ChosenName  *string `json:"chosen_name" display:"chosen"`
+	LastName    string  `json:"last_name" display:"family"`
+	Grade       int64   `json:"grade" display:"grade" format:"GradeOrdinal" renderer:"badge"`
+	Homeroom    string  `json:"homeroom" display:"homeroom"`
+	CaseManager *string `json:"case_manager" display:"case manager"`
 }
 
 func NewStudent() *Student {
@@ -28,11 +28,11 @@ func (s Student) FirstL() string {
 	return s.DisplayName() + " " + string(s.LastName[0])
 }
 
-func (s *Student) FirstLast() string {
+func (s Student) FirstLast() string {
 	return s.DisplayName() + " " + s.LastName
 }
 
-func (s *Student) Initials() string {
+func (s Student) Initials() string {
 	name := s.FirstLast()
 
 	// split by spaces and hyphens
@@ -51,7 +51,7 @@ func (s *Student) Initials() string {
 	return string(initials)
 }
 
-func (s *Student) GradeOrdinal() string {
+func (s Student) GradeOrdinal() string {
 	ordinalMap := map[int64]string{
 		0:  "K",
 		1:  "1st",
@@ -71,7 +71,7 @@ func (s *Student) GradeOrdinal() string {
 	return ordinalMap[s.Grade]
 }
 
-func (s *Student) GradeWord() string {
+func (s Student) GradeWord() string {
 	wordMap := map[int64]string{
 		0:  "kindergarten",
 		1:  "first",
@@ -91,7 +91,7 @@ func (s *Student) GradeWord() string {
 	return wordMap[s.Grade]
 }
 
-func (s *Student) GradeString() string {
+func (s Student) GradeString() string {
 	stringMap := map[int64]string{
 		0:  "0",
 		1:  "1",

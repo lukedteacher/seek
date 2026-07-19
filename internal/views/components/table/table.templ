@@ -54,15 +54,146 @@ templ Table(props ...Props) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
-	<table
-		if p.ID != "" {
-			id={ p.ID }
+	<div data-slot="table-container">
+		<table
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			if p.Class != "" {
+				class={ p.Class }
+			}
+			{ p.Attributes... }
+		>
+			{ children... }
+		</table>
+	</div>
+	<style>
+		div[data-slot="table-container"] {
+			position: relative;
+			width: 100%;
+			overflow-x: auto;
+			border-radius: var(--bd-rd0);
+			border-width: var(--border-width-0);
+			border-style: solid;
+			border-color: var(--clr-n4d);
+
+			table {
+				width: 100%;
+				font-size: var(--font-size--1);
+				line-height: var(--line-height--1);
+				caption-side: bottom;
+
+				thead tr {
+					border-bottom-style: var(--border-style);
+					border-bottom-width: 1px;
+
+					th {
+						height: 2.5rem;
+						padding-left: 0.5rem;
+						padding-right: 0.5rem;
+						text-align: left;
+						vertical-align: middle;
+						font-weight: var(--font-weight-medium);
+						color: color-mix(in oklch, var(--clr-n4o) 50%, transparent);
+
+						&:has([role="checkbox"]) {
+							padding-right: 0;
+						}
+
+						& > [role="checkbox"] {
+							transform: translateY(2px);
+						}
+						
+						&:not(:last-of-type) {
+							border-right-style: dashed;
+							border-right-width: 1px;
+							border-right-color: color-mix(in oklch, var(--clr-n4d) 50%, transparent);
+						}
+
+						div {
+							display: flex;
+							align-items: center;
+							gap: 0.4rem;
+						}
+					}
+				}
+
+				tbody tr:last-child {
+					border-style: var(--border-style);
+					border-width: 0;
+				}
+
+				tfoot {
+					border-top-style: var(--border-style);
+					border-top-width: 1px;
+					background-color: color-mix(in oklab, var(--muted) 50%, transparent);;
+					font-weight: var(--font-weight-medium);
+
+					& > tr:last-child {
+						border-bottom-style: var(--border-style);
+						border-bottom-width: 0;
+					}
+				}
+
+				tr {
+					border-bottom-style: var(--border-style);
+					border-bottom-width: 1px;
+					transition-property: 
+						color, 
+						background-color, 
+						border-color, 
+						outline-color, 
+						text-decoration-color, 
+						fill, 
+						stroke, 
+						--tw-gradient-from, 
+						--tw-gradient-via, 
+						--tw-gradient-to;
+					transition-duration: var(--tw-ease, var(--default-transition-timing-function));
+					transition-timing-function: var(--tw-duration, var(--default-transition-duration));
+
+					&:hover {
+						background-color: color-mix(in oklch, var(--clr-n4) 50%, transparent);
+					}
+
+					&[data-state=selected] {
+						background-color: var(--muted);
+					}
+
+					&:has(aria-expanded) {
+						background-color: var(--muted);
+					}
+
+					td {
+						padding: 0.5rem;
+						vertical-align: middle;
+
+						&:has([role="checkbox"]) {
+							padding-right: 0;
+						}
+
+						& > [role="checkbox"] {
+							transform: translateY(2px);
+						}
+
+						&:has(.badge) {
+							text-align: center;
+						}
+						
+						&:not(:last-of-type) {
+							border-right-style: dashed;
+							border-right-width: 1px;
+							border-right-color: color-mix(in oklch, var(--clr-n4d) 50%, transparent);
+						}
+
+						&:last-of-type {
+							text-align: center;
+						}
+					}
+				}
+			}
 		}
-		class={ "w-full caption-bottom text-sm", p.Class }
-		{ p.Attributes... }
-	>
-		{ children... }
-	</table>
+	</style>
 }
 
 templ Header(props ...HeaderProps) {
@@ -74,7 +205,9 @@ templ Header(props ...HeaderProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={ "[&_tr]:border-b", p.Class }
+		if p.Class != "" {
+			class={ p.Class }
+		}
 		{ p.Attributes... }
 	>
 		{ children... }
@@ -90,7 +223,9 @@ templ Body(props ...BodyProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={ "[&_tr:last-child]:border-0", p.Class }
+		if p.Class != "" {
+			class={ p.Class }
+		}
 		{ p.Attributes... }
 	>
 		{ children... }
@@ -106,7 +241,9 @@ templ Footer(props ...FooterProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={ "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", p.Class }
+		if p.Class != "" {
+			class={ p.Class }
+		}
 		{ p.Attributes... }
 	>
 		{ children... }
@@ -122,9 +259,11 @@ templ Row(props ...RowProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={	"border-b transition-colors hover:bg-muted/50",	p.Class }
+		if p.Class != "" {
+			class={ p.Class }
+		}
 		if p.Selected {
-			data-selected
+			data-tui-table-state-selected
 		}
 		{ p.Attributes... }
 	>
@@ -141,11 +280,9 @@ templ Head(props ...HeadProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={
-				"h-10 px-2 text-left align-middle font-medium text-muted-foreground",
-				"[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
-				p.Class,
-			}
+		if p.Class != "" {
+			class={ p.Class }
+		}
 		{ p.Attributes... }
 	>
 		{ children... }
@@ -161,10 +298,8 @@ templ Cell(props ...CellProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={
-			"p-2 align-middle",
-			"[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
-			p.Class,
+		if p.Class != "" {
+			class={ p.Class }
 		}
 		{ p.Attributes... }
 	>
@@ -181,9 +316,19 @@ templ Caption(props ...CaptionProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={ "mt-4 text-sm text-muted-foreground", p.Class }
+		if p.Class != "" {
+			class={ p.Class }
+		}
 		{ p.Attributes... }
 	>
 		{ children... }
 	</caption>
+	<style>
+		caption {
+			margin-top: 1rem;
+			font-size: var(--font-size--1);
+			line-height: var(--line-height--1);
+			color: var(--muted-foreground);
+		}
+	</style>
 }

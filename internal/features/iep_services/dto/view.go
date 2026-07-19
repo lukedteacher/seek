@@ -7,15 +7,15 @@ import (
 
 type IEPServiceView struct {
 	IEPServiceID    string
-	ServiceType     string
-	IndirectMinutes int
-	DirectMinutes   int
-	FrequencyCount  int
-	FrequencyType   string
-	Location        string
-	StartDate       string
-	EndDate         string
-	Provider        string
+	ServiceType     string `display:"type"`
+	IndirectMinutes int    `display:"indirect"`
+	DirectMinutes   int    `display:"direct"`
+	FrequencyCount  int    `display:"count"`
+	FrequencyType   string `display:"frequency type"`
+	Location        string `display:"location"`
+	StartDate       string `display:"start"`
+	EndDate         string `display:"end"`
+	Provider        string `display:"provider"`
 	StudentView     dto.StudentView
 }
 

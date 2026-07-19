@@ -230,7 +230,7 @@ func SidebarStyles() templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<style>\n\t\taside {\n\t\t\twidth: 200px;\n\t\t\theight: auto;\n\t\t\tbackground-color: blueviolet;\n\t\t\tborder-radius: var(--bd-rd1);\n\t\t\tmargin: var(--size--1);\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<style>\r\n\t\taside {\r\n\t\t\twidth: 200px;\r\n\t\t\theight: auto;\r\n\t\t\tbackground-color: blueviolet;\r\n\t\t\tborder-radius: var(--bd-rd1);\r\n\t\t\tmargin: var(--size--1);\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

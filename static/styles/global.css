@@ -10,6 +10,7 @@
   --bg-transparent: transparent;
   --ar-square: var(--aspect-ratio-square);
   /* borders */
+  --border-style: solid;
   --bd-rd0: var(--border-radius-0);
   --bd-rd1: var(--border-radius-1);
   --bd-rd2: var(--border-radius-2);
@@ -338,32 +339,9 @@ hr {
 }
 
 table {
-  background-color: var(--clr-n3);
+  background-color: transparent;
   color: var(--clr-n3o);
-  border-style: solid;
-  border-color: var(--clr-n3d);
-  border-width: var(--border-width-0);
-  border-radius: var(--bd-rd0);
-  font-size: var(--fnt-sm);
-  border-spacing: 0;
-
-  thead {
-    th {
-      color: var(--clr-n5o);
-      background-color: var(--clr-n5);
-      border-bottom: 1px solid white;
-    }
-  }
-
-  tbody tr td,
-  thead th {
-    padding: var(--size--2);
-  }
-
-  tbody tr:nth-child(odd) {
-    background-color: var(--clr-n5);
-    color: var(--clr-n5o);
-  }
+  border-collapse: collapse;
 }
 
 ul {

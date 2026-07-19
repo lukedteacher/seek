@@ -3,6 +3,7 @@ package httpserver
 import (
 	"net/http"
 
+	"seek/internal/features/students/dto"
 	"seek/internal/views/blocks/sidebar"
 	"seek/internal/views/pages"
 	"seek/internal/viewstore"
@@ -16,6 +17,7 @@ func (s Server) coreRoutes(r chi.Router) {
 	r.Get("/stream", s.getIndexSSE)
 	r.Post("/sidebar", s.postSidebarToggle)
 	r.Get("/components", s.components)
+	r.Post("/sort", s.sort)
 }
 
 func (s Server) index(w http.ResponseWriter, r *http.Request) {
@@ -81,6 +83,33 @@ func (s Server) postSidebarToggle(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s Server) components(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	user := currentUser(r)
-	_ = pages.Components(user).Render(r.Context(), w)
+	students, _ := s.Students.List(ctx)
+	view := dto.BuildTableView(students, nil, []string{
+		"FirstName",
+		"ChosenName",
+		"LastName",
+		"Grade",
+		"Homeroom",
+		"CaseManager",
+	})
+	_ = pages.Components(user, view).Render(ctx, w)
+}
+
+func (s Server) sort(w http.ResponseWriter, r *http.Request) {
+	signals := &struct {
+		Table Table `json:"table"`
+	}{}
+	datastar.ReadSignals(r, signals)
+	println(signals.Table.FirstName)
+}
+
+type Table struct {
+	FirstName   bool `json:"first_name"`
+	ChosenName  bool `json:"chosen_name"`
+	LastName    bool `json:"last_name"`
+	Grade       bool `json:"grade"`
+	Homeroom    bool `json:"homeroom"`
+	CaseManager bool `json:"case_manager"`
 }
