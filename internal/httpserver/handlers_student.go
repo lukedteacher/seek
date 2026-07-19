@@ -7,6 +7,7 @@ import (
 
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	newdto "seek/internal/features/students/dto"
 	"seek/internal/features/students/events"
 	"seek/internal/features/students/pages"
 	"seek/internal/views/dto"
@@ -48,11 +49,11 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	studentViews := make([]dto.StudentView, len(students))
+	studentViews := make([]newdto.StudentListView, len(students))
 	for i := range students {
-		studentViews[i] = *dto.NewStudentViewFromModel(&students[i])
+		studentViews[i] = *newdto.NewStudentListView(&students[i])
 	}
-	_ = pages.List(user, signals.View, studentViews).Render(ctx, w)
+	_ = pages.List(user, studentViews).Render(ctx, w)
 }
 
 // GET request to /students/stream
@@ -83,13 +84,12 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			studentViews := make([]dto.StudentView, len(students))
+			studentViews := make([]newdto.StudentListView, len(students))
 			for i := range students {
-				studentView := dto.NewStudentViewFromModel(&students[i])
-				studentViews[i] = *studentView
+				studentViews[i] = *newdto.NewStudentListView(&students[i])
 			}
 
-			sse.PatchElementTempl(pages.List(user, 0, studentViews))
+			sse.PatchElementTempl(pages.List(user, studentViews))
 		}
 	}
 }

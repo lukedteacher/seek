@@ -4,11 +4,12 @@ import (
 	"seek/internal/views/layouts"
 	"seek/internal/views/components/badge"
 	"seek/internal/domain/models"
+	"seek/internal/views/blocks/data_table"
 )
 
 templ Components(user models.User) {
 	@layouts.Base("SEEK: components", user) {
-		<main>
+		<main style="display: flex; flex-direction: column; gap: 1rem;">
 			<section style="display: grid; gap: var(--size-2);">
 				<h3>badges</h3>
 				@badge.BadgeStyles()
@@ -29,6 +30,10 @@ templ Components(user models.User) {
 				}) {
 					destructive
 				}
+			</section>
+			<section style="display: grid; gap: var(--size-2);">
+				<h3>table</h3>
+				@datatable.DataTable()
 			</section>
 		</main>
 	}

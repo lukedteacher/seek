@@ -3,11 +3,12 @@ package blocks
 import (
 	"fmt"
 
+	"seek/internal/features/students/dto"
 	"seek/internal/views/components/icon"
-	"seek/internal/views/dto"
+	"seek/internal/views/components/badge"
 )
 
-templ StudentList(students []dto.StudentView) {
+templ StudentList(students []dto.StudentListView) {
 	<table>
 		<thead>
 			<th>link</th>
@@ -31,7 +32,11 @@ templ StudentList(students []dto.StudentView) {
 					<td>{ students[i].FirstName }</td>
 					<td>{ students[i].ChosenName }</td>
 					<td>{ students[i].LastName }</td>
-					<td>{ students[i].Grade }</td>
+					<td>
+						@badge.Badge() {
+							{ students[i].Grade }
+						}
+						</td>
 					<td>{ students[i].Homeroom }</td>
 					<td>{ students[i].CaseManager }</td>
 				</tr>

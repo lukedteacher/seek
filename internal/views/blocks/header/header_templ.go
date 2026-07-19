@@ -90,7 +90,7 @@ func MainHeaderStyles() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<style>\r\n\t\tbody {\r\n\t\t\t&> header {\r\n\t\t\t\tcolor: var(--clr-p5o);\r\n\t\t\t\tbackground-color: var(--clr-p5);\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\theight: 4rem;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: row;\r\n\t\t\t\tpadding: 0 var(--size-4);\r\n\r\n\t\t\t\thgroup {\r\n\t\t\t\t\th1 {\r\n\t\t\t\t\t\tcolor: var(--clr-p4o);\r\n\t\t\t\t\t}\r\n\t\t\t\t\tp {\r\n\t\t\t\t\t\tfont-weight: var(--font-weight-thin);\r\n\t\t\t\t\t\tfont-size: var(--fnt-xsm);\r\n\t\t\t\t\t\tcolor: var(--primary-5-on);\r\n\t\t\t\t\t\tletter-spacing: var(--font-letter-spacing--2);\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\r\n\t\t\t\tnav {\r\n\t\t\t\t\tmargin-right: auto;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<style>\n\t\tbody {\n\t\t\t&> header {\n\t\t\t\tcolor: var(--clr-p5o);\n\t\t\t\tbackground-color: var(--clr-p5);\n\t\t\t\twidth: 100%;\n\t\t\t\theight: 4rem;\n\t\t\t\talign-items: center;\n\t\t\t\tdisplay: flex;\n\t\t\t\tflex-direction: row;\n\t\t\t\tpadding: 0 var(--size-4);\n\n\t\t\t\thgroup {\n\t\t\t\t\th1 {\n\t\t\t\t\t\tcolor: var(--clr-p4o);\n\t\t\t\t\t}\n\t\t\t\t\tp {\n\t\t\t\t\t\tfont-weight: var(--font-weight-thin);\n\t\t\t\t\t\tfont-size: var(--fnt-xsm);\n\t\t\t\t\t\tcolor: var(--primary-5-on);\n\t\t\t\t\t\tletter-spacing: var(--font-letter-spacing--2);\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\tnav {\n\t\t\t\t\tmargin-right: auto;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -338,22 +338,31 @@ hr {
 }
 
 table {
-  background-color: var(--neutral-4);
-  color: var(--neutral-4-on);
-  border-radius: var(--border-radius-2);
+  background-color: var(--clr-n3);
+  color: var(--clr-n3o);
+  border-style: solid;
+  border-color: var(--clr-n3d);
+  border-width: var(--border-width-0);
+  border-radius: var(--bd-rd0);
+  font-size: var(--fnt-sm);
   border-spacing: 0;
-  padding: var(--size-1) var(--size-3);
-  font-size: var(--font-size--1);
-  margin-top: var(--size-1);
+
+  thead {
+    th {
+      color: var(--clr-n5o);
+      background-color: var(--clr-n5);
+      border-bottom: 1px solid white;
+    }
+  }
 
   tbody tr td,
   thead th {
-    padding: var(--size--1);
+    padding: var(--size--2);
   }
 
   tbody tr:nth-child(odd) {
-    background-color: var(--neutral-5);
-    color: var(--neutral-5-on);
+    background-color: var(--clr-n5);
+    color: var(--clr-n5o);
   }
 }
 
