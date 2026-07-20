@@ -381,10 +381,6 @@ func ButtonStyles() templ.Component {
 			templ_7745c5c3_Var16 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<style>\r\n\t\tbutton {\r\n\t\t\tdisplay: inline-flex;\r\n\t\t\tflex-shrink: 0;\r\n\t\t\talign-items: center;\r\n\t\t\tjustify-content: center;\r\n\t\t\tborder-radius: var(--bd-rd0);\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-width: 1px;\r\n\t\t\tborder-color: transparent;\r\n\t\t\tbackground-clip: padding-box;\r\n\t\t\tfont-size: var(--fnt-sm);\r\n\t\t\tfont-weight: var(--font-weight-medium);\r\n\t\t\twhite-space: nowrap;\r\n\t\t\toutline: none;\r\n\t\t\tuser-select: none;\r\n\t\t}\r\n\t</style>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		return nil
 	})
 }
@@ -397,12 +393,8 @@ func (b Props) variantClasses() string {
 		return "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50"
 	case VariantSecondary:
 		return "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground"
-	case VariantGhost:
-		return "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50"
-	case VariantLink:
-		return "text-primary underline-offset-4 hover:underline"
 	default:
-		return "bg-primary text-primary-foreground hover:bg-primary/80"
+		return ""
 	}
 }
 
@@ -423,7 +415,7 @@ func (b Props) sizeClasses() string {
 	case SizeIconLg:
 		return "size-9"
 	default: // SizeDefault
-		return "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
+		return ""
 	}
 }
 

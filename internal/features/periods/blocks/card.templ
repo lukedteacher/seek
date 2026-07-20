@@ -3,38 +3,46 @@ package blocks
 import (
 	"fmt"
 
+	"seek/internal/views/components/button"
 	"seek/internal/views/components/card"
+	"seek/internal/views/components/icon"
 	"seek/internal/views/dto"
 )
 
-templ Card(period dto.PeriodView) {
+templ Card(view dto.PeriodView) {
 	@card.Card(card.Props{
-		ID: fmt.Sprintf("period-%s-card", period.ID),
+		ID: fmt.Sprintf("period-%s-card", view.ID),
 		Class: "period-card",
 	}) {
 		@card.Header() {
 			@card.Title() {
-				{ period.Title }
+				{ view.Title }
 			}
 			@card.Description() {
-				{ period.StartTime }
+				{ view.StartTime }
 			}
 		}
 		@card.Content() {
 			<p>teacher: ...</p>
 			<p>location: ...</p>
-			<p>days: { period.Days }</p>
+			<p>days: { view.Days }</p>
 			<p>students:
-				for i := range period.Students {
-					{ period.Students[i].FirstName + ", "}
+				for i := range view.Students {
+					{ view.Students[i].FirstName + ", "}
 				}
 			</p>
 		}
 		@card.Footer() {
-			<a href={ fmt.Sprintf("/periods/%s/edit", period.ID) }>
-				<button>edit</button>
-			</a>
-			<button data-on:click={ fmt.Sprintf("@delete('/periods/%s/delete')", period.ID) }>delete</button>
+			@button.Button(button.Props{
+				Href: fmt.Sprintf("/periods/%s/edit", view.ID),
+			}) {
+				@icon.Icon("lucide:pencil", "height", "16px")
+				<span>edit</span>
+			}
+			@button.Button() {
+				@icon.Icon("lucide:trash")
+				<span>delete</span>
+			}
 		}
 	}
 	@card.CardStyles()

@@ -104,24 +104,6 @@ templ Button(props ...Props) {
 }
 
 templ ButtonStyles() {
-	<style>
-		button {
-			display: inline-flex;
-			flex-shrink: 0;
-			align-items: center;
-			justify-content: center;
-			border-radius: var(--bd-rd0);
-			border-style: solid;
-			border-width: 1px;
-			border-color: transparent;
-			background-clip: padding-box;
-			font-size: var(--fnt-sm);
-			font-weight: var(--font-weight-medium);
-			white-space: nowrap;
-			outline: none;
-			user-select: none;
-		}
-	</style>
 }
 
 func (b Props) variantClasses() string {
@@ -132,12 +114,8 @@ func (b Props) variantClasses() string {
 		return "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50"
 	case VariantSecondary:
 		return "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground"
-	case VariantGhost:
-		return "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50"
-	case VariantLink:
-		return "text-primary underline-offset-4 hover:underline"
 	default:
-		return "bg-primary text-primary-foreground hover:bg-primary/80"
+		return ""
 	}
 }
 
@@ -158,6 +136,6 @@ func (b Props) sizeClasses() string {
 	case SizeIconLg:
 		return "size-9"
 	default: // SizeDefault
-		return "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2"
+		return ""
 	}
 }

@@ -5,6 +5,7 @@ import (
 
 	"seek/internal/features/iep_services/dto"
 	"seek/internal/views/components/card"
+	"seek/internal/views/components/button"
 )
 
 templ Card(view dto.IEPServiceView) {
@@ -24,9 +25,11 @@ templ Card(view dto.IEPServiceView) {
 			<p>content</p>
 		}
 		@card.Footer() {
-			<a href={ fmt.Sprintf("/serviceminutes/%s/edit", view.IEPServiceID) }>
-				<button>edit</button>
-			</a>
+			@button.Button(button.Props{
+				Href: fmt.Sprintf("/serviceminutes/%s/edit", view.IEPServiceID),
+			}) {
+				edit
+			}
 			<button 
 				data-on:click={ fmt.Sprintf("@delete('/serviceminutes/%s/delete')", view.IEPServiceID) }
 			>delete</button>
