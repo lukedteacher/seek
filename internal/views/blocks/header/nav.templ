@@ -8,7 +8,9 @@ templ Nav() {
 			<li><a href="/">home</a></li>
 			<li>
 				<a href="/components">
-					@icon.Icon("lucide:component")
+					@icon.Component(icon.Props{
+						Size: "20",
+					})
 					<span>components</span>
 				</a>
 			</li>

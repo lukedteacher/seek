@@ -17,7 +17,9 @@ templ SidebarDesktop() {
 		<div>
 			<details>
 				<summary>
-					@icon.Icon("lucide:calendar-range")
+					@icon.CalendarRange(icon.Props{
+						Size: "20",
+					})
 					<span>schedules</span>
 				</summary>
 				<ul>
@@ -27,7 +29,9 @@ templ SidebarDesktop() {
 			</details>
 			<details>
 				<summary>
-					@icon.Icon("lucide:clock")
+					@icon.Clock(icon.Props{
+						Size: "20",
+					})
 					<span>periods</span>
 				</summary>
 				<ul>
@@ -38,7 +42,9 @@ templ SidebarDesktop() {
 			<hr style="color: var(--neutral-4-dim);">
 			<details>
 				<summary>
-					@icon.Icon("lucide:graduation-cap")
+					@icon.GraduationCap(icon.Props{
+						Size: "20",
+					})
 					<span>students</span>
 				</summary>
 				<ul>
@@ -48,7 +54,9 @@ templ SidebarDesktop() {
 			</details>
 			<details>
 				<summary>
-					@icon.Icon("lucide:book-copy")
+					@icon.BookCopy(icon.Props{
+						Size: "20",
+					})
 					<span>services</span>
 				</summary>
 				<ul>
@@ -59,7 +67,9 @@ templ SidebarDesktop() {
 			<hr style="color: var(--neutral-4-dim);">
 			<details>
 				<summary>
-					@icon.Icon("lucide:apple")
+					@icon.Apple(icon.Props{
+						Size: "20",
+					})
 					<span>teachers</span>
 				</summary>
 				<ul>
@@ -82,19 +92,29 @@ templ SidebarCollapsed() {
 		<div>
 			<ul>
 				<li>
-					@icon.Icon("lucide:calendar-range")
+					@icon.CalendarRange(icon.Props{
+						Size: "20",
+					})
 				</li>
 				<li>
-					@icon.Icon("lucide:clock")
+					@icon.Clock(icon.Props{
+						Size: "20",
+					})
 				</li>
 				<li>
-					@icon.Icon("lucide:graduation-cap")
+					@icon.GraduationCap(icon.Props{
+						Size: "20",
+					})
 				</li>
 				<li>
-					@icon.Icon("lucide:book-copy")
+					@icon.BookCopy(icon.Props{
+						Size: "20",
+					})
 				</li>
 				<li>
-					@icon.Icon("lucide:apple")
+					@icon.Apple(icon.Props{
+						Size: "20",
+					})
 				</li>
 			</ul>
 			<hr style="color: var(--neutral-4-dim);">

@@ -29,7 +29,9 @@ templ UserHeaderMenu(user models.User) {
 						"data-on:click": "post('/logout')",
 					},
 				}) {
-					@icon.Icon("lucide:log-out")
+					@icon.LogOut(icon.Props{
+						Size: "16",
+					})
 					<span>logout</span>
 				}
 			</li>

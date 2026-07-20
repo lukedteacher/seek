@@ -59,7 +59,9 @@ func StudentList(students []dto.StudentListView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("mdi:link").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Link(icon.Props{
+				Size: "16",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -70,7 +72,7 @@ func StudentList(students []dto.StudentListView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(students[i].FirstName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 32, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 34, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -83,7 +85,7 @@ func StudentList(students []dto.StudentListView) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(students[i].ChosenName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 33, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 35, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -96,7 +98,7 @@ func StudentList(students []dto.StudentListView) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(students[i].LastName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 34, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 36, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -121,7 +123,7 @@ func StudentList(students []dto.StudentListView) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(students[i].Grade)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 37, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 39, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -140,7 +142,7 @@ func StudentList(students []dto.StudentListView) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(students[i].Homeroom)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 40, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 42, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -153,7 +155,7 @@ func StudentList(students []dto.StudentListView) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(students[i].CaseManager)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 41, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/list.templ`, Line: 43, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {

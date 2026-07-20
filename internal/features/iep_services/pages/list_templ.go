@@ -93,7 +93,9 @@ func List(user models.User, view int, views []dto.IEPServiceView) templ.Componen
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = icon.Icon("lucide:table").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = icon.Table(icon.Props{
+					Size: "16",
+				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -123,7 +125,9 @@ func List(user models.User, view int, views []dto.IEPServiceView) templ.Componen
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = icon.Icon("lucide:layout-grid").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = icon.LayoutGrid(icon.Props{
+					Size: "16",
+				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

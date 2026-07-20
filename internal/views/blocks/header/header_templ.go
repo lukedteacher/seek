@@ -66,7 +66,9 @@ func MainHeader(user models.User) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = icon.Icon("lucide:log-in").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = icon.LogIn(icon.Props{
+					Size: "16",
+				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

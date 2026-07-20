@@ -36,11 +36,15 @@ templ Card(view dto.PeriodView) {
 			@button.Button(button.Props{
 				Href: fmt.Sprintf("/periods/%s/edit", view.ID),
 			}) {
-				@icon.Icon("lucide:pencil", "height", "16px")
+				@icon.Pencil(icon.Props{
+					Size: "16",
+				})
 				<span>edit</span>
 			}
 			@button.Button() {
-				@icon.Icon("lucide:trash")
+				@icon.Trash(icon.Props{
+					Size: "16",
+				})
 				<span>delete</span>
 			}
 		}

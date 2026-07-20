@@ -29,7 +29,9 @@ templ Card(view dto.IEPServiceView) {
 			@button.Button(button.Props{
 				Href: fmt.Sprintf("/iepservices/%s/edit", view.IEPServiceID),
 			}) {
-				@icon.Icon("lucide:pencil")
+				@icon.Pencil(icon.Props{
+					Size: "16",
+				})
 				<span>edit</span>
 			}
 			@button.Button(button.Props{
@@ -37,7 +39,9 @@ templ Card(view dto.IEPServiceView) {
 					"data-on:click": fmt.Sprintf("@delete('/iepservices/%s/delete')", view.IEPServiceID),
 				},
 			}) {
-				@icon.Icon("lucide:delete")
+				@icon.Trash(icon.Props{
+					Size: "16",
+				})
 				<span>delete</span>
 			}
 		}

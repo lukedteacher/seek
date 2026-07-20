@@ -20,7 +20,9 @@ templ List(views []dto.IEPServiceView) {
 					<td>
 						<a href={ fmt.Sprintf("/students/iepservices/%s", views[i].IEPServiceID) }>
 							<button>
-								@icon.Icon("mdi:link")
+								@icon.Link(icon.Props{
+									Size: "16",
+								})
 							</button>
 						</a>
 					</td>

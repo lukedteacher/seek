@@ -22,7 +22,9 @@ templ List(user models.User, view int64, views []models.Teacher) {
 							"data-on:click": "$view=0; @get('/teachers/list')",
 						},
 					}) {
-						@icon.Icon("lucide:table")
+						@icon.Table(icon.Props{
+							Size: "16",
+						})
 						<span>list</span>
 					}
 					@button.Button(button.Props{
@@ -30,7 +32,9 @@ templ List(user models.User, view int64, views []models.Teacher) {
 							"data-on:click": "$view=1; @get('/teachers/list')",
 						},
 					}) {
-						@icon.Icon("lucide:layout-grid")
+						@icon.LayoutGrid(icon.Props{
+							Size: "16",
+						})
 						<span>grid</span>
 					}
 				</div>

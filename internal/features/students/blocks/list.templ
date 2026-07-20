@@ -25,7 +25,9 @@ templ StudentList(students []dto.StudentListView) {
 					<td>
 						<a href={ fmt.Sprintf("/students/%s", students[i].ID) }>
 							<button>
-								@icon.Icon("mdi:link")
+								@icon.Link(icon.Props{
+									Size: "16",
+								})
 							</button>
 						</a>
 					</td>

@@ -2,10 +2,10 @@ package pages
 
 import (
 	"seek/internal/views/layouts"
-	"seek/internal/views/components/badge"
 	"seek/internal/domain/models"
-	"seek/internal/views/blocks/data_table"
 	"seek/internal/features/students/dto"
+	"seek/internal/views/blocks/data_table"
+	"seek/internal/views/components/badge"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
 )
@@ -13,52 +13,69 @@ import (
 templ Components(user models.User, tableView dto.TableView) {
 	@layouts.Base("SEEK: components", user) {
 		<main style="display: flex; flex-direction: column; gap: 1rem;">
-			<section style="display: grid; gap: var(--size-2);">
+			<section>
 				<h3>buttons</h3>
-				@button.Button() {
-					default
-				}
-				@button.Button(button.Props{
-					Variant: button.VariantOutline,
-				}) {
-					outline
-				}
-				@button.Button(button.Props{
-					Variant: button.VariantGhost,
-				}) {
-					ghost
-				}
-				@button.Button(button.Props{
-					Variant: button.VariantLink,
-				}) {
-					link
-				}
-				@button.Button(button.Props{
-					Size: button.SizeIcon,
-				}) {
-					@icon.Icon("lucide:bomb", "height", "16px")
-				}
+				<div style="margin-top: 1rem; display: grid; grid-template: repeat(4, 1fr) / repeat(4, 1fr); gap: var(--size-0);">
+					@button.Button() {
+						default
+					}
+					@button.Button(button.Props{
+						Variant: button.VariantOutline,
+					}) {
+						outline
+					}
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+					}) {
+						ghost
+					}
+					@button.Button(button.Props{
+						Variant: button.VariantLink,
+					}) {
+						link
+					}
+					@button.Button(button.Props{
+						Size: button.SizeIcon,
+					}) {
+						@icon.Bomb(icon.Props{
+							Size: "16",
+						})
+					}
+				</div>
 			</section>
-			<section style="display: grid; gap: var(--size-2);">
-				<h3>badges</h3>
-				@badge.BadgeStyles()
-				@badge.Badge() {
-					default
-				}
-				@badge.Badge(badge.Props{
-					Attributes: templ.Attributes{
-						"data-theme": "secondary",
-					},
-				}) {
-					secondary
-				}
-				@badge.Badge(badge.Props{
-					Attributes: templ.Attributes{
-						"data-theme": "destructive",
-					},
-				}) {
-					destructive
-				}
+			<section>
+				<h3>icons</h3>
+				<div style="margin-top: 1rem; display: grid; grid-template: repeat(8, 1fr) / repeat(8, 1fr); gap: var(--size-0);">
+					@icon.Bomb(icon.Props{
+						Size: "16",
+					})
+					@icon.Clock()
+					@icon.LogIn()
+					@icon.Sailboat()
+				</div>
+			</section>
+			<section>
+				<div style="margin-top: 1rem; display: grid; grid-template: repeat(4, 1fr) / repeat(4, 1fr); gap: var(--size-0);">
+					<h3>badges</h3>
+					@badge.BadgeStyles()
+					@badge.Badge() {
+						default
+					}
+					@badge.Badge(badge.Props{
+						Attributes: templ.Attributes{
+							"data-theme": "secondary",
+						},
+					}) {
+						secondary
+					}
+					@badge.Badge(badge.Props{
+						Attributes: templ.Attributes{
+							"data-theme": "destructive",
+						},
+					}) {
+						destructive
+					}
+				</div>
 			</section>
 			<section style="display: grid; gap: var(--size-2); width: 100%;">
 				<h3>table</h3>

@@ -58,7 +58,9 @@ func List(views []dto.IEPServiceView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("mdi:link").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Link(icon.Props{
+				Size: "16",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -69,7 +71,7 @@ func List(views []dto.IEPServiceView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(views[i].ServiceType)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/blocks/list.templ`, Line: 27, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/blocks/list.templ`, Line: 29, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {

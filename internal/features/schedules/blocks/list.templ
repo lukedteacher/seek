@@ -20,7 +20,9 @@ templ List(schedules []models.Schedule) {
 					<td>
 						<a href={ fmt.Sprintf("/schedules/%s", schedule.ID) }>
 							<button>
-								@icon.Icon("mdi:link")
+								@icon.Link(icon.Props{
+									Size: "16",
+								})
 							</button>
 						</a>
 					</td>

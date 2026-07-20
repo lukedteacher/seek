@@ -54,7 +54,9 @@ func SidebarDesktop() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("lucide:calendar-range").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.CalendarRange(icon.Props{
+				Size: "20",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -62,7 +64,9 @@ func SidebarDesktop() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("lucide:clock").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Clock(icon.Props{
+				Size: "20",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -70,7 +74,9 @@ func SidebarDesktop() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("lucide:graduation-cap").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.GraduationCap(icon.Props{
+				Size: "20",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -78,7 +84,9 @@ func SidebarDesktop() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("lucide:book-copy").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.BookCopy(icon.Props{
+				Size: "20",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -86,7 +94,9 @@ func SidebarDesktop() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("lucide:apple").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Apple(icon.Props{
+				Size: "20",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -141,7 +151,9 @@ func SidebarCollapsed() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("lucide:calendar-range").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.CalendarRange(icon.Props{
+				Size: "20",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -149,7 +161,9 @@ func SidebarCollapsed() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("lucide:clock").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Clock(icon.Props{
+				Size: "20",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -157,7 +171,9 @@ func SidebarCollapsed() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("lucide:graduation-cap").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.GraduationCap(icon.Props{
+				Size: "20",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -165,7 +181,9 @@ func SidebarCollapsed() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("lucide:book-copy").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.BookCopy(icon.Props{
+				Size: "20",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -173,7 +191,9 @@ func SidebarCollapsed() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = icon.Icon("lucide:apple").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Apple(icon.Props{
+				Size: "20",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

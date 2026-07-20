@@ -21,7 +21,9 @@ templ List(teachers []models.Teacher) {
 					<td>
 						<a href={ fmt.Sprintf("/teachers/%s", teachers[i].ID) }>
 							<button>
-								@icon.Icon("mdi:link")
+								@icon.Link(icon.Props{
+									Size: "16",
+								})
 							</button>
 						</a>
 					</td>

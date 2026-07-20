@@ -31,7 +31,9 @@ templ Card(view dto.StudentView) {
 			@button.Button(button.Props{
 				Href: fmt.Sprintf("/students/%s/edit", view.ID),
 			}) {
-				@icon.Icon("lucide:pencil")
+				@icon.Pencil(icon.Props{
+					Size: "16",
+				})
 				<span>edit</span>
 			}
 			@button.Button(button.Props{
@@ -39,7 +41,9 @@ templ Card(view dto.StudentView) {
 					"data-on:click": fmt.Sprintf("@delete('/students/%s/delete')", view.ID),
 				},
 			}) {
-				@icon.Icon("lucide:delete")
+				@icon.Trash(icon.Props{
+					Size: "16",
+				})
 				<span>delete</span>
 			}
 		}

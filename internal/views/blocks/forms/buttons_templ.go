@@ -47,7 +47,9 @@ func CancelButton() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = icon.Icon("lucide:x").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.X(icon.Props{
+				Size: "16",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -104,7 +106,9 @@ func SaveButton() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = icon.Icon("lucide:save").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Save(icon.Props{
+				Size: "16",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -161,7 +165,9 @@ func ArchiveButton(object, id string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = icon.Icon("lucide:archive").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Archive(icon.Props{
+				Size: "16",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -219,7 +225,9 @@ func DeleteButton(object, id string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = icon.Icon("lucide:trash").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.Trash(icon.Props{
+				Size: "16",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

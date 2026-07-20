@@ -95,7 +95,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = icon.Icon("lucide:panel-left").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = icon.PanelLeft(icon.Props{
+					Size: "16",
+				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -155,7 +157,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:calendar-range").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.CalendarRange(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -255,7 +259,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:list").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.List(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -287,7 +293,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:plus").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Plus(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -351,7 +359,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:clock").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Clock(icon.Props{
+							Size: "20",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -451,7 +461,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:list").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.List(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -483,7 +495,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:plus").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Plus(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -547,7 +561,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:graduation-cap").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.GraduationCap(icon.Props{
+							Size: "20",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -647,7 +663,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:list").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.List(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -679,7 +697,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:plus").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Plus(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -743,7 +763,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:book-copy").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.BookCopy(icon.Props{
+							Size: "20",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -843,7 +865,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:list").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.List(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -875,7 +899,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:plus").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Plus(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -939,7 +965,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:apple").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Apple(icon.Props{
+							Size: "20",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1039,7 +1067,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:list").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.List(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1071,7 +1101,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:plus").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Plus(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1135,7 +1167,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:goal").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Goal(icon.Props{
+							Size: "20",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1235,7 +1269,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:list").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.List(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1267,7 +1303,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:plus").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Plus(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1331,7 +1369,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:chart-spline").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.ChartSpline(icon.Props{
+							Size: "20",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1431,7 +1471,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:list").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.List(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1463,7 +1505,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:plus").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Plus(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1527,7 +1571,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:hand-heart").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.HandHeart(icon.Props{
+							Size: "20",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1627,7 +1673,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:list").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.List(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1659,7 +1707,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:plus").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Plus(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1723,7 +1773,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:house-heart").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.HouseHeart(icon.Props{
+							Size: "20",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1823,7 +1875,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:list").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.List(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1855,7 +1909,9 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon("lucide:plus").Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Plus(icon.Props{
+							Size: "16",
+						}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

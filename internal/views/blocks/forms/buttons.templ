@@ -15,7 +15,9 @@ templ CancelButton() {
 			"style": "flex: 1;",
 		},
 	}) {
-		@icon.Icon("lucide:x")
+		@icon.X(icon.Props{
+			Size: "16",
+		})
 		<span>cancel</span>
 	}
 }
@@ -28,7 +30,9 @@ templ SaveButton() {
 			"style": "flex: 1;",
 		},
 	}) {
-		@icon.Icon("lucide:save")
+		@icon.Save(icon.Props{
+			Size: "16",
+		})
 		<span>save</span>
 	}
 }
@@ -42,7 +46,9 @@ templ ArchiveButton(object, id string) {
 			"style": "flex: 1;",
 		},
 	}) {
-		@icon.Icon("lucide:archive")
+		@icon.Archive(icon.Props{
+			Size: "16",
+		})
 		<span>archive</span>
 	}
 }
@@ -56,7 +62,9 @@ templ DeleteButton(object, id string) {
 			"style": "flex: 1;",
 		},
 	}) {
-		@icon.Icon("lucide:trash")
+		@icon.Trash(icon.Props{
+			Size: "16",
+		})
 		<span>delete</span>
 	}
 }

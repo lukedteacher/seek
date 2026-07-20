@@ -22,7 +22,9 @@ templ List(periods []dto.PeriodView) {
 					<td>
 						<a href={ fmt.Sprintf("/periods/%s/view", periods[i].ID) }>
 							<button>
-								@icon.Icon("mdi:link")
+								@icon.Link(icon.Props{
+									Size: "16",
+								})
 							</button>
 						</a>
 					</td>

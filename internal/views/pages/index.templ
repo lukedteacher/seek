@@ -26,7 +26,9 @@ templ Index(user models.User, view sidebar.SidebarView) {
 						"data-on:click": "$open=!$open; @post('/sidebar')",
 					},
 				}) {
-					@icon.Icon("lucide:panel-left")
+					@icon.PanelLeft(icon.Props{
+						Size: "16",
+					})
 				}
 				<section style="margin-bottom: var(--size-2)">
 					<p>welcome to SEEK (aka shared educational environment knowledge)</p>
@@ -38,7 +40,9 @@ templ Index(user models.User, view sidebar.SidebarView) {
 					@card.Card() {
 						@card.Header() {
 							@card.Title() {
-								@icon.Icon("lucide:calendar-range")
+								@icon.CalendarRange(icon.Props{
+									Size: "16",
+								})
 								schedules
 							}
 							@card.Description() {
@@ -58,13 +62,17 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							@button.Button(button.Props{
 								Href: "/schedules/list",
 							}) {
-								@icon.Icon("lucide:list")
+								@icon.List(icon.Props{
+									Size: "16",
+								})
 								<span>list</span>
 							}
 							@button.Button(button.Props{
 								Href: "/schedules/create",
 							}) {
-								@icon.Icon("lucide:plus")
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
 								<span>create</span>
 							}
 						}
@@ -72,7 +80,9 @@ templ Index(user models.User, view sidebar.SidebarView) {
 					@card.Card() {
 						@card.Header() {
 							@card.Title() {
-								@icon.Icon("lucide:clock")
+								@icon.Clock(icon.Props{
+									Size: "20",
+								})
 								periods
 							}
 							@card.Description() {
@@ -92,13 +102,17 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							@button.Button(button.Props{
 								Href: "/periods/list",
 							}) {
-								@icon.Icon("lucide:list")
+								@icon.List(icon.Props{
+									Size: "16",
+								})
 								<span>list</span>
 							}
 							@button.Button(button.Props{
 								Href: "/periods/create",
 							}) {
-								@icon.Icon("lucide:plus")
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
 								<span>create</span>
 							}
 						}
@@ -106,7 +120,9 @@ templ Index(user models.User, view sidebar.SidebarView) {
 					@card.Card() {
 						@card.Header() {
 							@card.Title() {
-								@icon.Icon("lucide:graduation-cap")
+								@icon.GraduationCap(icon.Props{
+									Size: "20",
+								})
 								students
 							}
 							@card.Description() {
@@ -125,13 +141,17 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							@button.Button(button.Props{
 								Href: "/students/list",
 							}) {
-								@icon.Icon("lucide:list")
+								@icon.List(icon.Props{
+									Size: "16",
+								})
 								<span>list</span>
 							}
 							@button.Button(button.Props{
 								Href: "/students/create",
 							}) {
-								@icon.Icon("lucide:plus")
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
 								<span>create</span>
 							}
 						}
@@ -139,7 +159,9 @@ templ Index(user models.User, view sidebar.SidebarView) {
 					@card.Card() {
 						@card.Header() {
 							@card.Title() {
-								@icon.Icon("lucide:book-copy")
+								@icon.BookCopy(icon.Props{
+									Size: "20",
+								})
 								services
 							}
 							@card.Description() {
@@ -158,13 +180,17 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							@button.Button(button.Props{
 								Href: "/iepservices/list",
 							}) {
-								@icon.Icon("lucide:list")
+								@icon.List(icon.Props{
+									Size: "16",
+								})
 								<span>list</span>
 							}
 							@button.Button(button.Props{
 								Href: "/iepservices/create",
 							}) {
-								@icon.Icon("lucide:plus")
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
 								<span>create</span>
 							}
 						}
@@ -172,7 +198,9 @@ templ Index(user models.User, view sidebar.SidebarView) {
 					@card.Card() {
 						@card.Header() {
 							@card.Title() {
-								@icon.Icon("lucide:apple")
+								@icon.Apple(icon.Props{
+									Size: "20",
+								})
 								teachers
 							}
 							@card.Description() {
@@ -192,13 +220,17 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							@button.Button(button.Props{
 								Href: "/teachers/list",
 							}) {
-								@icon.Icon("lucide:list")
+								@icon.List(icon.Props{
+									Size: "16",
+								})
 								<span>list</span>
 							}
 							@button.Button(button.Props{
 								Href: "/teachers/create",
 							}) {
-								@icon.Icon("lucide:plus")
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
 								<span>create</span>
 							}
 						}
@@ -206,7 +238,9 @@ templ Index(user models.User, view sidebar.SidebarView) {
 					@card.Card() {
 						@card.Header() {
 							@card.Title() {
-								@icon.Icon("lucide:goal")
+								@icon.Goal(icon.Props{
+									Size: "20",
+								})
 								goals
 							}
 							@card.Description() {
@@ -226,13 +260,17 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							@button.Button(button.Props{
 								Href: "/goals/list",
 							}) {
-								@icon.Icon("lucide:list")
+								@icon.List(icon.Props{
+									Size: "16",
+								})
 								<span>list</span>
 							}
 							@button.Button(button.Props{
 								Href: "/goals/create",
 							}) {
-								@icon.Icon("lucide:plus")
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
 								<span>create</span>
 							}
 						}
@@ -240,7 +278,9 @@ templ Index(user models.User, view sidebar.SidebarView) {
 					@card.Card() {
 						@card.Header() {
 							@card.Title() {
-								@icon.Icon("lucide:chart-spline")
+								@icon.ChartSpline(icon.Props{
+									Size: "20",
+								})
 								interventions
 							}
 							@card.Description() {
@@ -260,13 +300,17 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							@button.Button(button.Props{
 								Href: "/interventions/list",
 							}) {
-								@icon.Icon("lucide:list")
+								@icon.List(icon.Props{
+									Size: "16",
+								})
 								<span>list</span>
 							}
 							@button.Button(button.Props{
 								Href: "/interventions/create",
 							}) {
-								@icon.Icon("lucide:plus")
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
 								<span>create</span>
 							}
 						}
@@ -274,7 +318,9 @@ templ Index(user models.User, view sidebar.SidebarView) {
 					@card.Card() {
 						@card.Header() {
 							@card.Title() {
-								@icon.Icon("lucide:hand-heart")
+								@icon.HandHeart(icon.Props{
+									Size: "20",
+								})
 								caregivers
 							}
 							@card.Description() {
@@ -293,13 +339,17 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							@button.Button(button.Props{
 								Href: "/caregivers/list",
 							}) {
-								@icon.Icon("lucide:list")
+								@icon.List(icon.Props{
+									Size: "16",
+								})
 								<span>list</span>
 							}
 							@button.Button(button.Props{
 								Href: "/caregivers/create",
 							}) {
-								@icon.Icon("lucide:plus")
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
 								<span>create</span>
 							}
 						}
@@ -307,7 +357,9 @@ templ Index(user models.User, view sidebar.SidebarView) {
 					@card.Card() {
 						@card.Header() {
 							@card.Title() {
-								@icon.Icon("lucide:house-heart")
+								@icon.HouseHeart(icon.Props{
+									Size: "20",
+								})
 								homerooms
 							}
 							@card.Description() {
@@ -326,13 +378,17 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							@button.Button(button.Props{
 								Href: "/homerooms/list",
 							}) {
-								@icon.Icon("lucide:list")
+								@icon.List(icon.Props{
+									Size: "16",
+								})
 								<span>list</span>
 							}
 							@button.Button(button.Props{
 								Href: "/homerooms/create",
 							}) {
-								@icon.Icon("lucide:plus")
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
 								<span>create</span>
 							}
 						}

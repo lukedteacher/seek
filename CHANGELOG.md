@@ -2,6 +2,11 @@
 
 updates for SEEK
 
+## v0.1.3 (26.07.20) icon component
+
+- replaced all icons with the templui icon component
+- modified the component to recieve a "size" directive for variable size without tailwind classes
+
 ## v0.1.2 (26.07.20) buttons everywhere
 
 - replaced most HTML buttons with components

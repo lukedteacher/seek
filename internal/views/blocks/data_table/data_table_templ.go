@@ -404,7 +404,9 @@ func Row(columns []dto.ColumnMeta, row dto.RowView) templ.Component {
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = icon.Icon("lucide:eye").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = icon.Eye(icon.Props{
+						Size: "16",
+					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -434,7 +436,9 @@ func Row(columns []dto.ColumnMeta, row dto.RowView) templ.Component {
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = icon.Icon("lucide:ellipsis-vertical").Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = icon.EllipsisVertical(icon.Props{
+						Size: "16",
+					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -497,7 +501,9 @@ func SortButton(column string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = icon.Icon("lucide:arrow-up-down").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.ArrowUpDown(icon.Props{
+				Size: "16",
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

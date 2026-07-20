@@ -22,7 +22,9 @@ templ MainHeader(user models.User) {
 			@button.Button(button.Props{
 				Href: "/login",
 			}) {
-				@icon.Icon("lucide:log-in")
+				@icon.LogIn(icon.Props{
+					Size: "16",
+				})
 				<span>login</span>
 			}
 		}
