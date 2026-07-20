@@ -14,7 +14,7 @@ type User struct {
 	HeaderImageURL   string
 }
 
-func displayName(user User) string {
+func DisplayName(user User) string {
 	if user.Name != "" {
 		return user.Name
 	}
@@ -24,8 +24,8 @@ func displayName(user User) string {
 	return user.Email
 }
 
-func userInitials(user User) string {
-	name := strings.TrimSpace(displayName(user))
+func UserInitials(user User) string {
+	name := strings.TrimSpace(DisplayName(user))
 	if name == "" {
 		return "?"
 	}

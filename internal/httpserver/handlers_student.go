@@ -129,7 +129,7 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 		case <-ctx.Done():
 			return
 		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
-			println("watcher update")
+			println("student watcher update")
 			if !ok {
 				return
 			}

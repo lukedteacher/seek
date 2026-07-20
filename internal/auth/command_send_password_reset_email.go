@@ -50,7 +50,7 @@ func SendPasswordResetEmailCommandHandler(ctx context.Context, command SendPassw
 	}
 	for _, resolved := range model.events {
 		if resolved.Event.EventType == PasswordResetRequested {
-			userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)["userRegisteredId"].(string)
+			userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[UserRegisteredIDField].(string)
 			subjectKey, ok, err := keys.GetSubjectDataKey(ctx, userRegisteredID)
 			if err != nil {
 				return err

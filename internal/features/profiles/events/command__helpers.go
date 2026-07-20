@@ -19,17 +19,25 @@ func extension(contentType string) string {
 }
 
 func registeredUserQuery(userRegisteredID string) eventstore.Query {
-	return eventstore.Query{Criteria: []eventstore.Criterion{{Tags: []eventstore.Tag{
-		{Key: "eventType", Value: auth.UserRegistered},
-		{Key: auth.UserRegisteredIDField, Value: userRegisteredID},
-	}}}}
+	return eventstore.Query{
+		Criteria: []eventstore.Criterion{
+			{Tags: []eventstore.Tag{
+				{Key: "eventType", Value: auth.UserRegistered},
+				{Key: auth.UserRegisteredIDField, Value: userRegisteredID},
+			}},
+		},
+	}
 }
 
 func profileUserEventQuery(eventType, userRegisteredID string) eventstore.Query {
-	return eventstore.Query{Criteria: []eventstore.Criterion{{Tags: []eventstore.Tag{
-		{Key: "eventType", Value: eventType},
-		{Key: ProfileScopeUserRegisteredIDField, Value: userRegisteredID},
-	}}}}
+	return eventstore.Query{
+		Criteria: []eventstore.Criterion{
+			{Tags: []eventstore.Tag{
+				{Key: "eventType", Value: eventType},
+				{Key: ProfileScopeUserRegisteredIDField, Value: userRegisteredID},
+			}},
+		},
+	}
 }
 
 func combineQueries(queries ...eventstore.Query) eventstore.Query {

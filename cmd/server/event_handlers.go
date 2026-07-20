@@ -11,6 +11,7 @@ import (
 	periodEvents "seek/internal/features/periods/events"
 	periodScheduleEvents "seek/internal/features/periods_schedules/events"
 	periodStudentEvents "seek/internal/features/periods_students/events"
+	profileEvents "seek/internal/features/profiles/events"
 	scheduleEvents "seek/internal/features/schedules/events"
 	studentEvents "seek/internal/features/students/events"
 	teacherEvents "seek/internal/features/teachers/events"
@@ -85,6 +86,19 @@ func eventHandlerFactories(
 					store,
 					components.authUsers,
 					components.verifications,
+					components.piiKeys,
+					logger,
+				)
+			},
+		},
+		{
+			name: "profile read model",
+			create: func() (eventHandler, error) {
+				return profileEvents.NewReadModelEventHandler(
+					store,
+					components.checkpointer,
+					components.profileReadModel,
+					bus,
 					components.piiKeys,
 					logger,
 				)

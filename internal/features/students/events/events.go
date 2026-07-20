@@ -150,9 +150,9 @@ func studentScope(id string) StudentScope {
 }
 
 func Channel(id string) string {
-	return "student." + id
+	return "students." + id
 }
 
 func ChannelAll() string {
-	return "student.>"
+	return "students.>"
 }

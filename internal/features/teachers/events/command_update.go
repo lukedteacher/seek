@@ -82,13 +82,13 @@ func (m *updateTeacherContext) handle(resolved eventstore.ResolvedEvent) {
 	case TeacherCreated:
 		m.exists = true
 		m.deleted = false
-		m.firstName, _ = data["firstName"].(string)
-		m.chosenName, _ = data["chosenName"].(string)
-		m.lastName, _ = data["lastName"].(string)
+		m.firstName, _ = data[TeacherFirstNameField].(string)
+		m.chosenName, _ = data[TeacherChosenNameField].(string)
+		m.lastName, _ = data[TeacherLastNameField].(string)
 	case TeacherUpdated:
-		m.firstName, _ = data["firstName"].(string)
-		m.chosenName, _ = data["chosenName"].(string)
-		m.lastName, _ = data["lastName"].(string)
+		m.firstName, _ = data[TeacherFirstNameField].(string)
+		m.chosenName, _ = data[TeacherChosenNameField].(string)
+		m.lastName, _ = data[TeacherLastNameField].(string)
 	case TeacherDeleted:
 		m.deleted = true
 	}

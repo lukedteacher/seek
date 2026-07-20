@@ -1,0 +1,18 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	sse "seek/internal/views"
+	"seek/internal/views/layouts"
+	"seek/internal/features/profiles/blocks"
+)
+
+templ Profile(user models.User, view any) {
+	@layouts.Base("SEEK: your profile", user) {
+		<main data-init={ sse.LongRunningGetSSE("/profiles/{id}/stream") }>
+			<section>
+			 @blocks.ProfileOverview(user)
+			</section>
+		</main>
+	}
+}

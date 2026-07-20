@@ -140,13 +140,13 @@ func (s Server) validateEmail(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s Server) sendOTP(w http.ResponseWriter, r *http.Request) {
-	println("new OTP requested")
+	ctx := r.Context()
 	setRequestAction(r, "auth.send_email_validation_otp", map[string]any{"userId": chi.URLParam(r, "userID")})
 	userID := chi.URLParam(r, "userID")
-	user, err := s.AuthUsers.UserByIDOrRegisteredID(r.Context(), userID)
+	user, err := s.AuthUsers.UserByIDOrRegisteredID(ctx, userID)
 	if err == nil {
 		_, _ = auth.GenerateEmailVerificationOTPCommandHandler(
-			r.Context(),
+			ctx,
 			auth.GenerateEmailVerificationOTPCommand{
 				User:     user,
 				Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),

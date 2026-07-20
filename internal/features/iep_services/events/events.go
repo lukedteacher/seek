@@ -193,9 +193,9 @@ func iepServiceScope(iepServiceID, studentID string) IEPServiceScope {
 }
 
 func Channel(id string) string {
-	return "iep_service." + id
+	return "iep_services." + id
 }
 
 func ChannelAll() string {
-	return "iep_service.>"
+	return "iep_services.>"
 }

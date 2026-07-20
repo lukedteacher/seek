@@ -77,12 +77,10 @@ func loadPeriodScheduleRemoveContext(
 	error,
 ) {
 	query := streamQuery(periodID, scheduleID)
-	println("cl: ", len(query.Criteria))
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err
 	}
-	println("el: ", len(events))
 
 	model := &periodScheduleRemoveContext{position: eventstore.NoEventPosition, events: events, query: query}
 	for _, event := range events {
@@ -119,10 +117,8 @@ func (c *periodScheduleRemoveContext) handle(resolved eventstore.ResolvedEvent) 
 	case se.ScheduleDeleted:
 		c.scheduleDeleted = true
 	case PeriodScheduleAdded:
-		println("added")
 		c.added = true
 	case PeriodScheduleRemoved:
-		println("removed")
 		c.added = false
 	}
 	if resolved.Position.After(c.position) {

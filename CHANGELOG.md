@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.2.0 (26.07.20) user profiles, reset read models command
+
+- added reset command to reset read models
+- fixed user profile field names stuff
+- user profile visible at /profile
+- first draft of personal view of profile
+
 ## v0.1.3 (26.07.20) icon component
 
 - replaced all icons with the templui icon component

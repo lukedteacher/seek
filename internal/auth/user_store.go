@@ -33,7 +33,7 @@ func (s *AuthUserStore) CreateRegisteredUserAccount(ctx context.Context, registe
 			Username:         stringPtr(registered.Username),
 			UserRegisteredId: registered.UserRegisteredID,
 		}); err != nil {
-			println(err.Error())
+			println("error in create user: ", err.Error())
 			return err
 		}
 		if registered.PasswordHash == "" {

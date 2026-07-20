@@ -86,7 +86,7 @@ func loadUpdateProfileBioContext(ctx context.Context, command UpdateProfileBioCo
 
 func (m *updateProfileBioContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case "UserRegistered":
+	case auth.UserRegistered:
 		m.userExists = true
 	case ProfileBioUpdated:
 		m.bio = protectedpii.MustDecryptEventStringWithDataKey(protectedpii.FromEnv(), m.subjectKey, resolved.Event.Data, ProfileBioUpdatedBioField)

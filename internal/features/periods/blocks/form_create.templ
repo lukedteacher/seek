@@ -25,7 +25,7 @@ func NewPeriodCreateFormView(p *models.Period, all []models.Student, selected []
 	}
 	view, err := dto.NewFormViewFromPeriod(p)
 		if err != nil {
-			println("error: ", err.Error())
+			println("form view from period error: ", err.Error())
 		}
 	return PeriodCreateFormView{
 		Period:      view,

@@ -62,6 +62,7 @@ type Server struct {
 	Verifications       VerificationStore
 	IEPServices         iepService.IEPServiceReadModelReader
 	Periods             period.PeriodReadModelReader
+	Profiles            ProfileReader
 	Schedules           schedule.ScheduleReadModelReader
 	Students            student.StudentReadModelReader
 	Teachers            teacher.TeacherReadModelReader
@@ -111,7 +112,7 @@ func (s Server) Routes() http.Handler {
 		s.scheduleRoutes(r)
 		s.studentRoutes(r)
 		s.teacherRoutes(r)
-		// 	s.profileRoutes(r)
+		s.profileRoutes(r)
 	})
 
 	return r

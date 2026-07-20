@@ -88,19 +88,19 @@ func (m *updateStudentContext) handle(resolved eventstore.ResolvedEvent) {
 	case StudentCreated:
 		m.exists = true
 		m.deleted = false
-		m.firstName, _ = data["firstName"].(string)
-		m.chosenName, _ = data["chosenName"].(string)
-		m.lastName, _ = data["lastName"].(string)
-		m.grade = int64(data["grade"].(float64))
-		m.homeroom, _ = data["homeroom"].(string)
-		m.caseManager, _ = data["case_manager"].(string)
+		m.firstName, _ = data[StudentFirstNameField].(string)
+		m.chosenName, _ = data[StudentChosenNameField].(string)
+		m.lastName, _ = data[StudentLastNameField].(string)
+		m.grade = int64(data[StudentGradeField].(float64))
+		m.homeroom, _ = data[StudentHomeroomField].(string)
+		m.caseManager, _ = data[StudentCaseManagerField].(string)
 	case StudentUpdated:
-		m.firstName, _ = data["firstName"].(string)
-		m.chosenName, _ = data["chosenName"].(string)
-		m.lastName, _ = data["lastName"].(string)
-		m.grade = int64(data["grade"].(float64))
-		m.homeroom, _ = data["homeroom"].(string)
-		m.caseManager, _ = data["case_manager"].(string)
+		m.firstName, _ = data[StudentFirstNameField].(string)
+		m.chosenName, _ = data[StudentChosenNameField].(string)
+		m.lastName, _ = data[StudentLastNameField].(string)
+		m.grade = int64(data[StudentGradeField].(float64))
+		m.homeroom, _ = data[StudentHomeroomField].(string)
+		m.caseManager, _ = data[StudentCaseManagerField].(string)
 	case StudentDeleted:
 		m.deleted = true
 	}

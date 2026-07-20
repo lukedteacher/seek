@@ -14,6 +14,7 @@ import (
 	"seek/internal/appdb"
 	"seek/internal/auth"
 	"seek/internal/config"
+	"seek/internal/dbsql"
 	"seek/internal/email"
 	"seek/internal/eventcatalog"
 	"seek/internal/eventstore"
@@ -30,11 +31,14 @@ import (
 	"seek/internal/protectedpii"
 	"seek/internal/storage"
 	"seek/internal/viewstore"
+
+	"zombiezen.com/go/sqlite"
 )
 
 type runOptions struct {
-	migrateOnly bool
-	seedOnly    bool
+	migrateOnly     bool
+	seedOnly        bool
+	resetReadModels bool
 }
 
 type appComponents struct {
@@ -43,6 +47,7 @@ type appComponents struct {
 	verifications           *auth.VerificationStore
 	iepServiceReadModel     *iepService.ReadModel
 	periodReadModel         *period.ReadModel
+	profileReadModel        *profile.ReadModel
 	scheduleReadModel       *schedule.ReadModel
 	studentReadModel        *student.ReadModel
 	teacherReadModel        *teacher.ReadModel
@@ -70,8 +75,9 @@ func main() {
 func parseOptions() runOptions {
 	migrateOnly := flag.Bool("migrate-only", false, "run database migrations and exit")
 	seedOnly := flag.Bool("seed-only", false, "run seed tasks and exit")
+	resetReadModels := flag.Bool("reset-read-models", false, "reset SQLite read models and event-handler checkpoints")
 	flag.Parse()
-	return runOptions{migrateOnly: *migrateOnly, seedOnly: *seedOnly}
+	return runOptions{migrateOnly: *migrateOnly, seedOnly: *seedOnly, resetReadModels: *resetReadModels}
 }
 
 func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts runOptions, logger *slog.Logger) error {
@@ -87,6 +93,13 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 	}
 	if opts.seedOnly {
 		logger.Info("seed requested; no seed tasks are currently defined")
+		return nil
+	}
+	if opts.resetReadModels {
+		if err := resetReadModels(ctx, db); err != nil {
+			return fmt.Errorf("reset read models: %w", err)
+		}
+		logger.Info("read models and event-handler checkpoints reset", "path", cfg.SQLitePath)
 		return nil
 	}
 
@@ -117,6 +130,7 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		PasswordCredentials: components.authUsers,
 		Verifications:       components.verifications,
 		IEPServices:         components.iepServiceReadModel,
+		Profiles:            components.profileReadModel,
 		Periods:             components.periodReadModel,
 		Schedules:           components.scheduleReadModel,
 		Students:            components.studentReadModel,
@@ -138,6 +152,48 @@ func closeDB(db *appdb.DB, logger *slog.Logger) {
 	if err := db.Close(); err != nil {
 		logger.Error("close sqlite", "err", err)
 	}
+}
+
+func resetReadModels(ctx context.Context, db *appdb.DB) error {
+	return db.WriteTX(ctx, func(conn *sqlite.Conn) error {
+		if err := dbsql.OnceResetReadModelAuthSessions(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelAuthAccounts(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelAuthVerifications(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelProfiles(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelIepservices(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelPeriods(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelSchedules(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelStudents(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelTeachers(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelPeriodsSchedules(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelPeriodsStudents(conn); err != nil {
+			return err
+		}
+		if err := dbsql.OnceResetReadModelAuthUsers(conn); err != nil {
+			return err
+		}
+		return dbsql.OnceResetEventHandlerCheckpoints(conn)
+	})
 }
 
 func startEventStore(ctx context.Context, cfg config.Config) (*eventstore.EmbeddedOrisun, error) {
@@ -171,6 +227,7 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 	sessionManager := auth.NewSessionManager(db, authUsers, !cfg.DevelopmentCookie)
 	verifications := auth.NewVerificationStore(db)
 	iepServiceReadModel := iepService.NewReadModel(db)
+	profileReadModel := profile.NewReadModel(db)
 	periodReadModel := period.NewReadModel(db)
 	scheduleReadModel := schedule.NewReadModel(db)
 	studentReadModel := student.NewReadModel(db)
@@ -186,6 +243,7 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 		authUsers:               authUsers,
 		verifications:           verifications,
 		iepServiceReadModel:     iepServiceReadModel,
+		profileReadModel:        profileReadModel,
 		periodReadModel:         periodReadModel,
 		scheduleReadModel:       scheduleReadModel,
 		studentReadModel:        studentReadModel,

@@ -14,11 +14,19 @@ tasks:
   build:
     deps: [sqlc, templ]
     cmds:
-      - go build ./cmd/server.exe
+      - go build ./cmd/server
 
   migrate:
     cmds:
       - go run ./cmd/server -migrate-only
+
+  seed:
+    cmds:
+      - go run ./cmd/server -seed-only
+
+  reset-read-models:
+    cmds:
+      - go run ./cmd/server -reset-read-models
 
   templ:
     sources:
@@ -41,4 +49,4 @@ tasks:
       - internal/dbsql/**/*.go
     cmds:
       - GOBIN="{{.ROOT_DIR}}/.bin" go install github.com/delaneyj/toolbelt/sqlc-gen-zombiezen
-      - PATH="{{.ROOT_DIR}}/.bin:$PATH" go tool sqlc generate
+      - PATH="{{.ROOT_DIR}}/.bin:$PATH" sqlc generate

@@ -129,5 +129,5 @@ func teacherScope(id string) TeacherScope {
 }
 
 func Channel(id string) string {
-	return "teacher." + id
+	return "teachers." + id
 }

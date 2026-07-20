@@ -122,5 +122,5 @@ func scheduleScope(id string) ScheduleScope {
 }
 
 func Channel(id string) string {
-	return "schedule." + id
+	return "schedules." + id
 }

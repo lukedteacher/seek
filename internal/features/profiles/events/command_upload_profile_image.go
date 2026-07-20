@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"seek/internal/auth"
 	"seek/internal/commandlimits"
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
@@ -98,7 +99,7 @@ func loadUploadProfileImageContext(ctx context.Context, command UploadProfileIma
 
 func (m *uploadProfileImageContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case "UserRegistered":
+	case auth.UserRegistered:
 		m.userExists = true
 	}
 	if resolved.Position.After(m.position) {

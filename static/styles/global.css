@@ -17,6 +17,7 @@
     --bd-rd0: var(--border-radius-0);
     --bd-rd1: var(--border-radius-1);
     --bd-rd2: var(--border-radius-2);
+    --border-circle: 100%;
     --bd-circle: 100%;
     --bd-pill: 9999px;
     /* fonts */

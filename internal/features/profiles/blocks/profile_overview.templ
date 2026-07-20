@@ -1,0 +1,174 @@
+package blocks
+
+import (
+	"seek/internal/views/components/icon"
+	"seek/internal/views/components/avatar"
+	"seek/internal/views/components/badge"
+	"seek/internal/views/components/button"
+	"seek/internal/views/components/card"
+	"seek/internal/domain/models"
+)
+
+templ ProfileOverview(user models.User) {
+	<div class="container mx-auto px-4 py-8">
+		<div class="max-w-6xl mx-auto">
+			@Header(user)
+			@Overview(user)
+			@Stats()
+			@RecentActivity()
+		</div>
+	</div>
+}
+
+templ Header(user models.User) {
+	<div style="margin-bottom: 2rem; display: flex; align-items: start; justify-content: space-between; gap: 1rem;">
+		<div style="display: flex; align-items: center; gap: 1rem;">
+			@avatar.Avatar(avatar.Props{Class: "h-16 w-16"}) {
+				@avatar.Fallback() {
+					{ models.UserInitials(user) }
+				}
+			}
+			<div>
+				<h2>
+					{ user.Name }
+				</h2>
+				<p class="text-muted-foreground">{ "@" + user.Username }</p>
+				<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+					@badge.Badge(badge.Props{Variant: badge.VariantSecondary}) {
+						teacher
+					}
+				</div>
+			</div>
+		</div>
+		<div style="display: flex; flex-direction: column; gap: 0.75rem; width: auto;">
+			@button.Button() {
+				@icon.Settings(icon.Props{Size: "16px"})
+				<span style="margin-left: 0.5rem;">edit profile</span>
+			}
+		</div>
+	</div>
+}
+
+templ Overview(user models.User) {
+	<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+		@InfoCard("personal", icon.User(icon.Props{Size: "20px"})) {
+			@InfoItem("full name", user.Name)
+			@InfoItem("email", user.Email)
+		}
+		@InfoCard("professional", icon.School(icon.Props{Size: "20px"})) {
+			@InfoItem("role", "resource room teacher")
+			@InfoItem("department", "SPED")
+			@InfoItem("teaching since", "2016")
+		}
+	</div>
+}
+
+templ InfoCard(title string, iconComponent templ.Component) {
+	@card.Card() {
+		@card.Header() {
+			@card.Title() {
+				<div style="display: flex; align-items: center; gap: 0.5rem;">
+					@iconComponent
+					<h3>{ title }</h3>
+				</div>
+			}
+		}
+		@card.Content() {
+			<div class="space-y-3">
+				{ children... }
+			</div>
+		}
+	}
+	@card.CardStyles()
+}
+
+templ InfoItem(label, value string) {
+	<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+		<span class="text-sm text-muted-foreground">{ label }</span>
+		<span class="text-sm font-medium">{ value }</span>
+	</div>
+}
+
+templ Stats() {
+	<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+		@StatCard("Projects", "12", "+2 this month", icon.Folder(icon.Props{Class: "size-5"}))
+		@StatCard("Team Members", "8", "2 pending invites", icon.Users(icon.Props{Class: "size-5"}))
+		@StatCard("Storage Used", "45.2 GB", "54% of quota", icon.HardDrive(icon.Props{Class: "size-5"}))
+		@StatCard("API Calls", "1.2M", "This month", icon.Activity(icon.Props{Class: "size-5"}))
+	</div>
+}
+
+templ StatCard(title, value, subtitle string, iconComponent templ.Component) {
+	@card.Card() {
+		@card.Content(card.ContentProps{Class: "p-4 sm:p-6"}) {
+			<div class="flex items-center justify-between mb-2">
+				<span class="text-sm text-muted-foreground">{ title }</span>
+				<div class="text-muted-foreground">
+					@iconComponent
+				</div>
+			</div>
+			<div class="text-2xl font-bold">{ value }</div>
+			<p class="text-sm text-muted-foreground mt-1">{ subtitle }</p>
+		}
+	}
+}
+
+templ RecentActivity() {
+	@card.Card() {
+		@card.Header() {
+			@card.Title() {
+				Recent Activity
+			}
+			@card.Description() {
+				Your latest actions and updates
+			}
+		}
+		@card.Content() {
+			<div class="space-y-4">
+				@ActivityItem(
+					icon.FileText(icon.Props{Class: "size-4"}),
+					"Updated profile information",
+					"2 hours ago",
+				)
+				@ActivityItem(
+					icon.UserPlus(icon.Props{Class: "size-4"}),
+					"Invited team member sarah@example.com",
+					"5 hours ago",
+				)
+				@ActivityItem(
+					icon.Key(icon.Props{Class: "size-4"}),
+					"Generated new API key",
+					"1 day ago",
+				)
+				@ActivityItem(
+					icon.Shield(icon.Props{Class: "size-4"}),
+					"Enabled two-factor authentication",
+					"3 days ago",
+				)
+				@ActivityItem(
+					icon.CreditCard(icon.Props{Class: "size-4"}),
+					"Updated billing information",
+					"1 week ago",
+				)
+			</div>
+		}
+		@card.Footer() {
+			@button.Button(button.Props{
+				Variant: button.VariantOutline,
+				Class:   "w-full",
+			}) {
+				View All Activity
+			}
+		}
+	}
+}
+
+templ ActivityItem(iconComponent templ.Component, title, time string) {
+	<div class="flex items-center gap-3">
+		@iconComponent
+		<div class="flex-1">
+			<p class="text-sm font-medium">{ title }</p>
+			<p class="text-xs text-muted-foreground">{ time }</p>
+		</div>
+	</div>
+}
