@@ -7,6 +7,7 @@ import (
 	"seek/internal/views/components/card"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
+	"seek/internal/views/components/button"
 )
 
 templ Index(user models.User, view sidebar.SidebarView) {
@@ -18,7 +19,15 @@ templ Index(user models.User, view sidebar.SidebarView) {
 				@sidebar.SidebarCollapsed()
 			}
 			<main>
-				<button data-signals:open={ view.Open } data-on:click="$open=!$open; @post('/sidebar')">close</button>
+				@button.Button(button.Props{
+					Size: button.SizeIcon,
+					Attributes: templ.Attributes{
+						"data-signals:open": view.Open,
+						"data-on:click": "$open=!$open; @post('/sidebar')",
+					},
+				}) {
+					@icon.Icon("lucide:panel-left")
+				}
 				<section style="margin-bottom: var(--size-2)">
 					<p>welcome to SEEK (aka shared educational environment knowledge)</p>
 					<p>there many features to come</p>
@@ -37,7 +46,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							}
 						}
 						@card.Content() {
-							<h4>features (coming soon)</h4>
+							<p>features (coming soon)</p>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>notifications on change</li>
 								<li>plan for actual calendar dates</li>
@@ -46,8 +55,18 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							</ul>
 						}
 						@card.Footer() {
-							<a href="/schedules"><button>list</button></a>	
-							<a href="/schedules/create"><button>create</button></a>
+							@button.Button(button.Props{
+								Href: "/schedules/list",
+							}) {
+								@icon.Icon("lucide:list")
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/schedules/create",
+							}) {
+								@icon.Icon("lucide:plus")
+								<span>create</span>
+							}
 						}
 					}
 					@card.Card() {
@@ -61,7 +80,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							}
 						}
 						@card.Content() {
-							<h4>features (coming soon)</h4>
+							<p>features (coming soon)</p>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>notifications on change</li>
 								<li>assign students with relevant goals</li>
@@ -70,8 +89,18 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							</ul>
 						}
 						@card.Footer() {
-							<a href="/periods/list"><button>list</button></a>	
-							<a href="/periods/create"><button>create</button></a>
+							@button.Button(button.Props{
+								Href: "/periods/list",
+							}) {
+								@icon.Icon("lucide:list")
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/periods/create",
+							}) {
+								@icon.Icon("lucide:plus")
+								<span>create</span>
+							}
 						}
 					}
 					@card.Card() {
@@ -85,7 +114,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							}
 						}
 						@card.Content() {
-							<h4>features (coming soon)</h4>
+							<p>features (coming soon)</p>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>pictures?</li>
 								<li>SPED data</li>
@@ -93,8 +122,18 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							</ul>
 						}
 						@card.Footer() {
-							<a href="/students"><button>list</button></a>	
-							<a href="/students/create"><button>create</button></a>
+							@button.Button(button.Props{
+								Href: "/students/list",
+							}) {
+								@icon.Icon("lucide:list")
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/students/create",
+							}) {
+								@icon.Icon("lucide:plus")
+								<span>create</span>
+							}
 						}
 					}
 					@card.Card() {
@@ -108,7 +147,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							}
 						}
 						@card.Content() {
-							<h4>features (coming soon)</h4>
+							<p>features (coming soon)</p>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>charts</li>
 								<li>schedule integration</li>
@@ -116,8 +155,18 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							</ul>
 						}
 						@card.Footer() {
-							<a href="/iepservices/list"><button>list</button></a>	
-							<a href="/iepservices/create"><button>create</button></a>
+							@button.Button(button.Props{
+								Href: "/iepservices/list",
+							}) {
+								@icon.Icon("lucide:list")
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/iepservices/create",
+							}) {
+								@icon.Icon("lucide:plus")
+								<span>create</span>
+							}
 						}
 					}
 					@card.Card() {
@@ -131,7 +180,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							}
 						}
 						@card.Content() {
-							<h4>features (coming soon)</h4>
+							<p>features (coming soon)</p>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>profiles?</li>
 								<li>view their schedule</li>
@@ -140,8 +189,18 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							</ul>
 						}
 						@card.Footer() {
-							<a href="/teachers"><button>list</button></a>	
-							<a href="/teachers/create"><button>create</button></a>
+							@button.Button(button.Props{
+								Href: "/teachers/list",
+							}) {
+								@icon.Icon("lucide:list")
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/teachers/create",
+							}) {
+								@icon.Icon("lucide:plus")
+								<span>create</span>
+							}
 						}
 					}
 					@card.Card() {
@@ -155,7 +214,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							}
 						}
 						@card.Content() {
-							<h4>features (coming soon)</h4>
+							<p>features (coming soon)</p>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>goal bank</li>
 								<li>goal builder</li>
@@ -164,8 +223,18 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							</ul>
 						}
 						@card.Footer() {
-							<a href="/goals"><button>list</button></a>	
-							<a href="/goals/create"><button>create</button></a>
+							@button.Button(button.Props{
+								Href: "/goals/list",
+							}) {
+								@icon.Icon("lucide:list")
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/goals/create",
+							}) {
+								@icon.Icon("lucide:plus")
+								<span>create</span>
+							}
 						}
 					}
 					@card.Card() {
@@ -179,7 +248,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							}
 						}
 						@card.Content() {
-							<h4>features (coming soon)</h4>
+							<p>features (coming soon)</p>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>easy progress monitoring</li>
 								<li>automatic progress report creation</li>
@@ -188,8 +257,18 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							</ul>
 						}
 						@card.Footer() {
-							<a href="/interventions"><button>list</button></a>	
-							<a href="/interventions/create"><button>create</button></a>
+							@button.Button(button.Props{
+								Href: "/interventions/list",
+							}) {
+								@icon.Icon("lucide:list")
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/interventions/create",
+							}) {
+								@icon.Icon("lucide:plus")
+								<span>create</span>
+							}
 						}
 					}
 					@card.Card() {
@@ -203,7 +282,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							}
 						}
 						@card.Content() {
-							<h4>features (coming soon)</h4>
+							<p>features (coming soon)</p>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>email templates & sending?</li>
 								<li>portals for their own access to data</li>
@@ -211,8 +290,18 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							</ul>
 						}
 						@card.Footer() {
-							<a href="/caregivers"><button>list</button></a>	
-							<a href="/caregivers/create"><button>create</button></a>
+							@button.Button(button.Props{
+								Href: "/caregivers/list",
+							}) {
+								@icon.Icon("lucide:list")
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/caregivers/create",
+							}) {
+								@icon.Icon("lucide:plus")
+								<span>create</span>
+							}
 						}
 					}
 					@card.Card() {
@@ -226,7 +315,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							}
 						}
 						@card.Content() {
-							<h4>features (coming maybe?)</h4>
+							<p>features (coming maybe?)</p>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
 								<li>gen ed student data?</li>
 								<li>interventions, goals, schedules, etc.</li>
@@ -234,8 +323,18 @@ templ Index(user models.User, view sidebar.SidebarView) {
 							</ul>
 						}
 						@card.Footer() {
-							<a href="/homerooms"><button>list</button></a>	
-							<a href="/homerooms/create"><button>create</button></a>
+							@button.Button(button.Props{
+								Href: "/homerooms/list",
+							}) {
+								@icon.Icon("lucide:list")
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/homerooms/create",
+							}) {
+								@icon.Icon("lucide:plus")
+								<span>create</span>
+							}
 						}
 					}
 				</section>

@@ -1,6 +1,7 @@
 package components
 
 import "seek/internal/views"
+import "seek/internal/views/components/button"
 
 type Field struct {
 	Name  string
@@ -19,8 +20,8 @@ templ AuthForm(action string, title string, fields []Field, errors map[string]st
 				</span>
 			</a>
 			<div class="auth-copy">
-				<h2>Fast, syncronized data for school staff and teachers.</h2>
-				<p>Create a schedule, add services, track goal data.</p>
+				<h2>fast, syncronized data for school staff and teachers.</h2>
+				<p>create a schedule, add services, track goal data.</p>
 			</div>
 		</section>
 		<section class="auth-card card" aria-label={ title }>
@@ -41,7 +42,12 @@ templ AuthForm(action string, title string, fields []Field, errors map[string]st
 							<small class="text-error">{ errors[field.Name] }</small>
 						}
 					}
-					<button class="btn btn-primary w-full" type="submit">{ title }</button>
+					@button.Button(button.Props{
+						Type: "submit",
+						Color: button.ColorSuccess,
+					}) {
+						{ title }
+					}
 				</form>
 				<div class="auth-links">
 					{ children... }

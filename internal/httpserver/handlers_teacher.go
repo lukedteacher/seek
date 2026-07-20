@@ -14,7 +14,7 @@ import (
 )
 
 func (s Server) teacherRoutes(r chi.Router) {
-	r.Get("/teachers", s.getTeachersList)
+	r.Get("/teachers/list", s.getTeachersList)
 	r.Get("/teachers/{id}", s.getTeacher)
 	r.Get("/teachers/create", s.getCreateTeacherForm)
 	r.Post("/teachers/create", s.createTeacher)

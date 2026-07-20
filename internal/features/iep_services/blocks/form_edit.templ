@@ -9,6 +9,7 @@ import (
 	"seek/internal/views/components/label"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/blocks/forms"
 )
 
 templ EditPeriodForm(view dto.IEPServiceFormView) {
@@ -37,16 +38,8 @@ templ EditPeriodForm(view dto.IEPServiceFormView) {
 			}
 		</section>
 		<footer>
-			<button 
-				type="button"
-			>
-				<span>cancel</span>
-			</button>
-			<button 
-				type="submit"
-			>
-				<span>submit</span>
-			</button>
+			@forms.CancelButton()
+			@forms.SaveButton()
 		</footer>
 	</form>
 }

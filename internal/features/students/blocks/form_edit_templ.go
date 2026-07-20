@@ -18,6 +18,7 @@ import (
 	"seek/internal/views/dto"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/blocks/forms"
 )
 
 func EditStudentForm(v dto.StudentFormView) templ.Component {
@@ -48,7 +49,7 @@ func EditStudentForm(v dto.StudentFormView) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/students/%s/edit", v.Student.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 16, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 17, Col: 75}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -202,7 +203,7 @@ func EditStudentForm(v dto.StudentFormView) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("option-%d", index))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 90, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 91, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 					if templ_7745c5c3_Err != nil {
@@ -225,7 +226,7 @@ func EditStudentForm(v dto.StudentFormView) templ.Component {
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(index)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 94, Col: 19}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 95, Col: 19}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 					if templ_7745c5c3_Err != nil {
@@ -238,7 +239,7 @@ func EditStudentForm(v dto.StudentFormView) templ.Component {
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(grade.Ordinal())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 96, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 97, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -348,20 +349,19 @@ func EditStudentForm(v dto.StudentFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</section><footer><button type=\"button\" data-on:click=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</section><footer>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/students/%s/delete", v.Student.ID))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 141, Col: 73}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+		templ_7745c5c3_Err = forms.CancelButton().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\">delete</button> <button type=\"button\"><span>cancel</span></button> <button type=\"submit\"><span>submit</span></button></footer></form>")
+		templ_7745c5c3_Err = forms.SaveButton().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</footer></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

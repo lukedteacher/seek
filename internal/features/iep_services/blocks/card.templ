@@ -4,8 +4,9 @@ import (
 	"fmt"
 
 	"seek/internal/features/iep_services/dto"
-	"seek/internal/views/components/card"
 	"seek/internal/views/components/button"
+	"seek/internal/views/components/card"
+	"seek/internal/views/components/icon"
 )
 
 templ Card(view dto.IEPServiceView) {
@@ -26,13 +27,19 @@ templ Card(view dto.IEPServiceView) {
 		}
 		@card.Footer() {
 			@button.Button(button.Props{
-				Href: fmt.Sprintf("/serviceminutes/%s/edit", view.IEPServiceID),
+				Href: fmt.Sprintf("/iepservices/%s/edit", view.IEPServiceID),
 			}) {
-				edit
+				@icon.Icon("lucide:pencil")
+				<span>edit</span>
 			}
-			<button 
-				data-on:click={ fmt.Sprintf("@delete('/serviceminutes/%s/delete')", view.IEPServiceID) }
-			>delete</button>
+			@button.Button(button.Props{
+				Attributes: templ.Attributes{
+					"data-on:click": fmt.Sprintf("@delete('/iepservices/%s/delete')", view.IEPServiceID),
+				},
+			}) {
+				@icon.Icon("lucide:delete")
+				<span>delete</span>
+			}
 		}
 	}
 	@card.CardStyles()

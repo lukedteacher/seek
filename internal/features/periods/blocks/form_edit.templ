@@ -11,6 +11,7 @@ import (
 	"seek/internal/views/dto"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/blocks/forms"
 )
 
 type PeriodEditFormView struct {
@@ -100,22 +101,9 @@ templ EditPeriodForm(view PeriodEditFormView) {
 			@sblocks.StudentMultiselect(view.StudentList)
 		</section>
 		<footer>
-			<button 
-				type="button"
-				data-on:click={ datastar.DeleteSSE("/periods/%s/delete", view.Period.ID) }
-			>
-				delete
-			</button>
-			<button 
-				type="button"
-			>
-				<span>cancel</span>
-			</button>
-			<button 
-				type="submit"
-			>
-				<span>submit</span>
-			</button>
+			@forms.ArchiveButton("periods", view.Period.ID)
+			@forms.CancelButton()
+			@forms.SaveButton()
 		</footer>
 	</form>
 }

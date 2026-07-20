@@ -19,7 +19,7 @@ import (
 )
 
 func (s Server) scheduleRoutes(r chi.Router) {
-	r.Get("/schedules", s.getSchedules)
+	r.Get("/schedules/list", s.getSchedulesList)
 	r.Get("/schedules/create", s.getScheduleCreate)
 	r.Post("/schedules/create/validate", s.postScheduleCreateValidate)
 	r.Post("/schedules/create", s.postScheduleCreate)
@@ -34,7 +34,7 @@ func (s Server) scheduleRoutes(r chi.Router) {
 }
 
 // GET request to /schedules
-func (s Server) getSchedules(w http.ResponseWriter, r *http.Request) {
+func (s Server) getSchedulesList(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	schedules, err := s.Schedules.List(r.Context())
 	if err != nil {

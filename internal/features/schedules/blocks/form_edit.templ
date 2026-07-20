@@ -10,6 +10,7 @@ import (
 	"seek/internal/views/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/blocks/forms"
 )
 
 type EditScheduleViewModel struct {
@@ -118,23 +119,8 @@ templ EditForm(vm EditScheduleViewModel) {
 		<section>
 		</section>
 		<footer>
-			<button 
-				type="button"
-				style="background-color: var(--gruvbox-red-neutral-0);"
-				data-on:click={ datastar.PostSSE("/schedules/%s/delete", vm.Schedule.ID) }
-			>
-				delete
-			</button>
-			<button 
-				type="button"
-			>
-				<span>cancel</span>
-			</button>
-			<button 
-				type="submit"
-			>
-				<span>submit</span>
-			</button>
+			@forms.CancelButton()
+			@forms.SaveButton()
 		</footer>
 	</form>
 }

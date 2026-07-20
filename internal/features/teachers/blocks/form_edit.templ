@@ -9,6 +9,7 @@ import (
 	"seek/internal/views/components/label"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/blocks/forms"
 )
 
 templ EditForm(teacher models.TeacherSignals, validation map[string]events.Validation) {
@@ -71,22 +72,8 @@ templ EditForm(teacher models.TeacherSignals, validation map[string]events.Valid
 			}
 		</section>
 		<footer>
-			<button 
-				type="button"
-				data-on:click={ datastar.PostSSE("/teachers/%s/delete", teacher.ID) }
-			>
-				delete
-			</button>
-			<button 
-				type="button"
-			>
-				<span>cancel</span>
-			</button>
-			<button 
-				type="submit"
-			>
-				<span>submit</span>
-			</button>
+			@forms.CancelButton()
+			@forms.SaveButton()
 		</footer>
 	</form>
 }

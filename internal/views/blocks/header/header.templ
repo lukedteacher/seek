@@ -3,6 +3,8 @@ package header
 import (
 	"seek/internal/domain/models"
 	"seek/internal/features/users/blocks"
+	"seek/internal/views/components/button"
+	"seek/internal/views/components/icon"
 )
 
 templ MainHeader(user models.User) {
@@ -17,9 +19,12 @@ templ MainHeader(user models.User) {
 		if user.UserRegisteredID != "" {
 			@blocks.UserHeaderMenu(user)
 		} else {
-			<a href="/login">
-				<button>login</button>
-			</a>
+			@button.Button(button.Props{
+				Href: "/login",
+			}) {
+				@icon.Icon("lucide:log-in")
+				<span>login</span>
+			}
 		}
 	</header>
 	@MainHeaderStyles()

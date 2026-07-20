@@ -314,6 +314,9 @@ a {
   :root {
     button[data-slot='button'],
     a[data-slot='button'] {
+      --_color: var(--neutral-6-on);
+      --_bg-color: var(--neutral-6);
+      --_border-color: transparent;
       cursor: pointer;
       flex-shrink: 0;
       display: inline-flex;
@@ -325,14 +328,14 @@ a {
       padding-bottom: 0.5rem;
       align-items: center;
       justify-content: center;
-      color: var(--clr-n5o);
-      background-color: var(--clr-n5);
-      border-radius: var(--bd-rd0);
+      color: var(--_color);
+      background-color: var(--_bg-color);
+      border-color: var(--_border-color);
+      border-radius: var(--border-radius-0);
       border-style: solid;
-      border-width: 1px;
-      border-color: transparent;
+      border-width: var(--border-width-0);
       background-clip: padding-box;
-      font-size: var(--fnt-sm);
+      font-size: var(--font-size--1);
       line-height: var(--font-line-height--1);
       font-weight: var(--font-weight-medium);
       white-space: nowrap;
@@ -343,11 +346,19 @@ a {
       transition-duration: var(--anim-duration-fast);
 
       &:hover {
-        background-color: color-mix(in oklch, var(--clr-n5) 80%, transparent);
+        background-color: color-mix(
+          in oklch,
+          var(--_bg-color) 80%,
+          transparent
+        );
       }
 
       &:active {
-        background-color: color-mix(in oklch, var(--clr-n5) 60%, transparent);
+        background-color: color-mix(
+          in oklch,
+          var(--_bg-color) 60%,
+          transparent
+        );
       }
 
       &:disabled {
@@ -359,15 +370,32 @@ a {
         pointer-events: none;
         flex-shrink: 0;
       }
+
+      &[data-color='success'] {
+        --_bg-color: var(--gruvbox-green-neutral-1);
+      }
+
+      &[data-color='info'] {
+        --_bg-color: var(--gruvbox-blue-neutral-1);
+      }
+
+      &[data-color='warning'] {
+        --_bg-color: var(--gruvbox-yellow-neutral-1);
+      }
+
+      &[data-color='error'] {
+        --_bg-color: var(--gruvbox-red-neutral-1);
+      }
     }
   }
 }
 
 @layer variants {
   :root {
-    button[data-slot='button'] {
+    button[data-slot='button'],
+    a[data-slot='button'] {
       &[data-variant='outline'] {
-        border-width: 1px;
+        border-color: var(--neutral-8);
       }
 
       &[data-variant='ghost']:not(:hover) {
@@ -384,9 +412,20 @@ a {
 
       &[data-variant='link'] {
         text-underline-offset: 4px;
+        --_bg-color: transparent;
 
         &:hover {
           text-decoration: underline;
+        }
+      }
+
+      &[data-size='icon'] {
+        width: 2rem;
+        height: 2rem;
+
+        svg {
+          width: 16px;
+          height: 16px;
         }
       }
     }

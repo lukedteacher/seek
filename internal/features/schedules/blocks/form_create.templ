@@ -10,6 +10,7 @@ import (
 	"seek/internal/views/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/blocks/forms"
 )
 
 templ CreateForm(
@@ -92,16 +93,8 @@ templ CreateForm(
 			</label>
 		</section>
 		<footer>
-			<button 
-				type="button"
-			>
-				<span>cancel</span>
-			</button>
-			<button 
-				type="submit"
-			>
-				<span>submit</span>
-			</button>
+			@forms.CancelButton()
+			@forms.SaveButton()
 		</footer>
 	</form>
 }

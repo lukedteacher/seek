@@ -4,34 +4,43 @@ import (
 	"seek/internal/domain/models"
 	"seek/internal/features/iep_services/blocks"
 	"seek/internal/features/iep_services/dto"
-	"seek/internal/views"
+	sse "seek/internal/views"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
+	"seek/internal/views/components/button"
 )
 
 
 
-templ List(user models.User, view int, periods []dto.IEPServiceView) {
-	@layouts.Base("SEEK: periods", user) {
-		<main data-signals:view={ view } data-init={ views.LongRunningGetSSE("/iepservices/list/stream") }>
+templ List(user models.User, view int, views []dto.IEPServiceView) {
+	@layouts.Base("SEEK: IEP services", user) {
+		<main data-signals:view={ view } data-init={ sse.LongRunningGetSSE("/iepservices/list/stream") }>
 			<section>
-				<h2>PERIODS</h2>
-				<p>review and enter period data here</p>
-				<p>many features to come</p>
+				<h2>IEP SERVICES</h2>
+				<p>review and enter IEP service data here.</p>
+				<p>many features to come.</p>
 				<div>
-					<button data-on:click="$view=0; @get('/iepservices/list')">
-						@icon.Icon("solar:list-bold-duotone")
+					@button.Button(button.Props{
+						Attributes: templ.Attributes{
+							"data-on:click": "$view=0; @get('/iepservices/list')",
+						},
+					}) {
+						@icon.Icon("lucide:table")
 						<span>list</span>
-					</button>
-					<button data-on:click="$view=1; @get('/iepservices/list')">
-						@icon.Icon("solar:widget-bold-duotone")
-						<span>cards</span>
-					</button>
+					}
+					@button.Button(button.Props{
+						Attributes: templ.Attributes{
+							"data-on:click": "$view=1; @get('/iepservices/list')",
+						},
+					}) {
+						@icon.Icon("lucide:layout-grid")
+						<span>grid</span>
+					}
 				</div>
 				if view == 0 {
-					@blocks.List(periods)
+					@blocks.List(views)
 				} else {
-					@blocks.CardGrid(periods)
+					@blocks.CardGrid(views)
 				}
 			</section>
 		</main>

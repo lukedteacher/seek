@@ -7,6 +7,7 @@ import (
 	"seek/internal/views/components/badge"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/components/table"
+	"seek/internal/views/components/button"
 )
 
 templ DataTable(view dto.TableView) {
@@ -20,7 +21,6 @@ templ DataTable(view dto.TableView) {
 			max-width: 72rem;
 			margin-left: auto;
 			margin-right: auto;
-			padding: 2rem;
 
 			& >:not(:last-child) {
 				margin-block-end: 1rem;
@@ -68,7 +68,11 @@ templ Table(view dto.TableView) {
 						</div>
 					}
 				}
-				@table.Head() {
+				@table.Head(table.HeadProps{
+					Attributes: templ.Attributes{
+						"style": "text-align: center;",
+					},
+				}) {
 					actions 
 				}
 			}
@@ -96,17 +100,33 @@ templ Row(columns []dto.ColumnMeta, row dto.RowView) {
 			}
 		}
 		@table.Cell() {
-			<a href={ fmt.Sprintf("/students/%s", row.ID) }>
+			@button.Button(button.Props{
+				Size: button.SizeIcon,
+				Variant: button.VariantGhost,
+				Href: fmt.Sprintf("/students/%s", row.ID),
+			}) {
 				@icon.Icon("lucide:eye")
-			</a>
+			}
+			@button.Button(button.Props{
+				Size: button.SizeIcon,
+				Variant: button.VariantGhost,
+				Href: fmt.Sprintf("/students/%s/edit", row.ID),
+			}) {
+				@icon.Icon("lucide:ellipsis-vertical")
+			}
 		}
 	}
 }
 
 templ SortButton(column string) {
-	<button  
-		data-on:click={ "$table." + column + "=!$table." + column + "; @post('/sort')" }
-	>
+	@button.Button(button.Props{
+		Size: button.SizeIcon,
+		Variant: button.VariantGhost,
+		Attributes: templ.Attributes{
+			"data-on:click": "$table." + column + "=!$table." + column + "; @post('/sort')",
+			"style": "margin-left: auto;",
+		},
+	}) {
 		@icon.Icon("lucide:arrow-up-down")
-	</button>
+	}
 }

@@ -4,6 +4,7 @@ import (
 	"seek/internal/domain/models"
 	period "seek/internal/features/periods/events"
 	sblocks "seek/internal/features/students/blocks"
+	"seek/internal/views/blocks/forms"
 	"seek/internal/views/components/day_buttons"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
@@ -100,16 +101,8 @@ templ CreateForm(view PeriodCreateFormView) {
 			@sblocks.StudentMultiselect(view.StudentList)
 		</section>
 		<footer>
-			<button 
-				type="button"
-			>
-				<span>cancel</span>
-			</button>
-			<button 
-				type="submit"
-			>
-				<span>submit</span>
-			</button>
+			@forms.CancelButton()
+			@forms.SaveButton()
 		</footer>
 	</form>
 }

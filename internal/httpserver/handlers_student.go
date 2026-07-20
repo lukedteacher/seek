@@ -18,7 +18,7 @@ import (
 )
 
 func (s Server) studentRoutes(r chi.Router) {
-	r.Get("/students", s.getStudentsList)
+	r.Get("/students/list", s.getStudentsList)
 	r.Get("/students/stream", s.getStudentsListStream)
 	r.Get("/students/create", s.getStudentCreate)
 	r.Get("/students/create/stream", s.getStudentCreateStream)

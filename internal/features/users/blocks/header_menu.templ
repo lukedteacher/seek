@@ -4,6 +4,7 @@ import (
 	"seek/internal/domain/models"
 	"seek/internal/views/components/popover"
 	"seek/internal/views/components/icon"
+	"seek/internal/views/components/button"
 )
 
 templ UserHeaderMenu(user models.User) {
@@ -23,10 +24,14 @@ templ UserHeaderMenu(user models.User) {
 			<li>schedule</li>
 			<li>settings</li>
 			<li>
-				<button data-on:click="@post('/logout')">
-					@icon.Icon("mdi:logout")
+				@button.Button(button.Props{
+					Attributes: templ.Attributes{
+						"data-on:click": "post('/logout')",
+					},
+				}) {
+					@icon.Icon("lucide:log-out")
 					<span>logout</span>
-				</button>
+				}
 			</li>
 		</ul>
 	}

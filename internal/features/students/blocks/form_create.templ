@@ -10,6 +10,7 @@ import (
 	"seek/internal/views/dto"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/views/blocks/forms"
 )
 
 templ CreateForm(v dto.StudentFormView) {
@@ -136,16 +137,8 @@ templ CreateForm(v dto.StudentFormView) {
 			}
 		</section>
 		<footer>
-			<button 
-				type="button"
-			>
-				<span>cancel</span>
-			</button>
-			<button 
-				type="submit"
-			>
-				<span>submit</span>
-			</button>
+			@forms.CancelButton()
+			@forms.SaveButton()
 		</footer>
 	</form>
 }

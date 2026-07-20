@@ -145,7 +145,7 @@ func Table(props ...Props) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</table></div><style>\r\n\t\tdiv[data-slot=\"table-container\"] {\r\n\t\t\tposition: relative;\r\n\t\t\twidth: 100%;\r\n\t\t\toverflow-x: auto;\r\n\t\t\tborder-radius: var(--bd-rd0);\r\n\t\t\tborder-width: var(--border-width-0);\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-color: var(--clr-n4d);\r\n\r\n\t\t\ttable {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\tfont-size: var(--font-size--1);\r\n\t\t\t\tline-height: var(--line-height--1);\r\n\t\t\t\tcaption-side: bottom;\r\n\r\n\t\t\t\tthead tr {\r\n\t\t\t\t\tborder-bottom-style: var(--border-style);\r\n\t\t\t\t\tborder-bottom-width: 1px;\r\n\r\n\t\t\t\t\tth {\r\n\t\t\t\t\t\theight: 2.5rem;\r\n\t\t\t\t\t\tpadding-left: 0.5rem;\r\n\t\t\t\t\t\tpadding-right: 0.5rem;\r\n\t\t\t\t\t\ttext-align: left;\r\n\t\t\t\t\t\tvertical-align: middle;\r\n\t\t\t\t\t\tfont-weight: var(--font-weight-medium);\r\n\t\t\t\t\t\tcolor: color-mix(in oklch, var(--clr-n4o) 50%, transparent);\r\n\r\n\t\t\t\t\t\t&:has([role=\"checkbox\"]) {\r\n\t\t\t\t\t\t\tpadding-right: 0;\r\n\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\t& > [role=\"checkbox\"] {\r\n\t\t\t\t\t\t\ttransform: translateY(2px);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t&:not(:last-of-type) {\r\n\t\t\t\t\t\t\tborder-right-style: dashed;\r\n\t\t\t\t\t\t\tborder-right-width: 1px;\r\n\t\t\t\t\t\t\tborder-right-color: color-mix(in oklch, var(--clr-n4d) 50%, transparent);\r\n\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\tdiv {\r\n\t\t\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\t\t\talign-items: center;\r\n\t\t\t\t\t\t\tgap: 0.4rem;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\r\n\t\t\t\ttbody tr:last-child {\r\n\t\t\t\t\tborder-style: var(--border-style);\r\n\t\t\t\t\tborder-width: 0;\r\n\t\t\t\t}\r\n\r\n\t\t\t\ttfoot {\r\n\t\t\t\t\tborder-top-style: var(--border-style);\r\n\t\t\t\t\tborder-top-width: 1px;\r\n\t\t\t\t\tbackground-color: color-mix(in oklab, var(--muted) 50%, transparent);;\r\n\t\t\t\t\tfont-weight: var(--font-weight-medium);\r\n\r\n\t\t\t\t\t& > tr:last-child {\r\n\t\t\t\t\t\tborder-bottom-style: var(--border-style);\r\n\t\t\t\t\t\tborder-bottom-width: 0;\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\r\n\t\t\t\ttr {\r\n\t\t\t\t\tborder-bottom-style: var(--border-style);\r\n\t\t\t\t\tborder-bottom-width: 1px;\r\n\t\t\t\t\ttransition-property: \r\n\t\t\t\t\t\tcolor, \r\n\t\t\t\t\t\tbackground-color, \r\n\t\t\t\t\t\tborder-color, \r\n\t\t\t\t\t\toutline-color, \r\n\t\t\t\t\t\ttext-decoration-color, \r\n\t\t\t\t\t\tfill, \r\n\t\t\t\t\t\tstroke, \r\n\t\t\t\t\t\t--tw-gradient-from, \r\n\t\t\t\t\t\t--tw-gradient-via, \r\n\t\t\t\t\t\t--tw-gradient-to;\r\n\t\t\t\t\ttransition-duration: var(--tw-ease, var(--default-transition-timing-function));\r\n\t\t\t\t\ttransition-timing-function: var(--tw-duration, var(--default-transition-duration));\r\n\r\n\t\t\t\t\t&:hover {\r\n\t\t\t\t\t\tbackground-color: color-mix(in oklch, var(--clr-n4) 50%, transparent);\r\n\t\t\t\t\t}\r\n\r\n\t\t\t\t\t&[data-state=selected] {\r\n\t\t\t\t\t\tbackground-color: var(--muted);\r\n\t\t\t\t\t}\r\n\r\n\t\t\t\t\t&:has(aria-expanded) {\r\n\t\t\t\t\t\tbackground-color: var(--muted);\r\n\t\t\t\t\t}\r\n\r\n\t\t\t\t\ttd {\r\n\t\t\t\t\t\tpadding: 0.5rem;\r\n\t\t\t\t\t\tvertical-align: middle;\r\n\r\n\t\t\t\t\t\t&:has([role=\"checkbox\"]) {\r\n\t\t\t\t\t\t\tpadding-right: 0;\r\n\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\t& > [role=\"checkbox\"] {\r\n\t\t\t\t\t\t\ttransform: translateY(2px);\r\n\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\t&:has(.badge) {\r\n\t\t\t\t\t\t\ttext-align: center;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t&:not(:last-of-type) {\r\n\t\t\t\t\t\t\tborder-right-style: dashed;\r\n\t\t\t\t\t\t\tborder-right-width: 1px;\r\n\t\t\t\t\t\t\tborder-right-color: color-mix(in oklch, var(--clr-n4d) 50%, transparent);\r\n\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\t&:last-of-type {\r\n\t\t\t\t\t\t\ttext-align: center;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</table></div><style>\r\n\t\tdiv[data-slot=\"table-container\"] {\r\n\t\t\tposition: relative;\r\n\t\t\twidth: 100%;\r\n\t\t\toverflow-x: auto;\r\n\t\t\tborder-radius: var(--border-radius-0);\r\n\t\t\tborder-width: var(--border-width-0);\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-color: var(--clr-n4d);\r\n\r\n\t\t\ttable {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\tfont-size: var(--font-size--1);\r\n\t\t\t\tline-height: var(--line-height--1);\r\n\t\t\t\tcaption-side: bottom;\r\n\r\n\t\t\t\tthead tr {\r\n\t\t\t\t\tborder-bottom-style: var(--border-style);\r\n\t\t\t\t\tborder-bottom-width: 1px;\r\n\r\n\t\t\t\t\tth {\r\n\t\t\t\t\t\theight: 2.5rem;\r\n\t\t\t\t\t\tpadding-left: 0.5rem;\r\n\t\t\t\t\t\tpadding-right: 0.5rem;\r\n\t\t\t\t\t\ttext-align: left;\r\n\t\t\t\t\t\tvertical-align: middle;\r\n\t\t\t\t\t\tfont-weight: var(--font-weight-medium);\r\n\t\t\t\t\t\tcolor: color-mix(in oklch, var(--clr-n4o) 50%, transparent);\r\n\r\n\t\t\t\t\t\t&:has([role=\"checkbox\"]) {\r\n\t\t\t\t\t\t\tpadding-right: 0;\r\n\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\t& > [role=\"checkbox\"] {\r\n\t\t\t\t\t\t\ttransform: translateY(2px);\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t&:not(:last-of-type) {\r\n\t\t\t\t\t\t\tborder-right-style: dashed;\r\n\t\t\t\t\t\t\tborder-right-width: 1px;\r\n\t\t\t\t\t\t\tborder-right-color: color-mix(in oklch, var(--clr-n4d) 50%, transparent);\r\n\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\tdiv {\r\n\t\t\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\t\t\talign-items: center;\r\n\t\t\t\t\t\t\tgap: 0.4rem;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\r\n\t\t\t\ttbody tr:last-child {\r\n\t\t\t\t\tborder-style: var(--border-style);\r\n\t\t\t\t\tborder-width: 0;\r\n\t\t\t\t}\r\n\r\n\t\t\t\ttfoot {\r\n\t\t\t\t\tborder-top-style: var(--border-style);\r\n\t\t\t\t\tborder-top-width: 1px;\r\n\t\t\t\t\tbackground-color: color-mix(in oklab, var(--muted) 50%, transparent);;\r\n\t\t\t\t\tfont-weight: var(--font-weight-medium);\r\n\r\n\t\t\t\t\t& > tr:last-child {\r\n\t\t\t\t\t\tborder-bottom-style: var(--border-style);\r\n\t\t\t\t\t\tborder-bottom-width: 0;\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\r\n\t\t\t\ttr {\r\n\t\t\t\t\tborder-bottom-style: var(--border-style);\r\n\t\t\t\t\tborder-bottom-width: 1px;\r\n\t\t\t\t\tborder-bottom-color: var(--neutral-4-dim);\r\n\t\t\t\t\ttransition-property: \r\n\t\t\t\t\t\tcolor, \r\n\t\t\t\t\t\tbackground-color, \r\n\t\t\t\t\t\tborder-color, \r\n\t\t\t\t\t\toutline-color, \r\n\t\t\t\t\t\ttext-decoration-color, \r\n\t\t\t\t\t\tfill, \r\n\t\t\t\t\t\tstroke, \r\n\t\t\t\t\t\t--tw-gradient-from, \r\n\t\t\t\t\t\t--tw-gradient-via, \r\n\t\t\t\t\t\t--tw-gradient-to;\r\n\t\t\t\t\ttransition-duration: var(--tw-ease, var(--default-transition-timing-function));\r\n\t\t\t\t\ttransition-timing-function: var(--tw-duration, var(--default-transition-duration));\r\n\r\n\t\t\t\t\t&:hover {\r\n\t\t\t\t\t\tbackground-color: color-mix(in oklch, var(--clr-n4) 50%, transparent);\r\n\t\t\t\t\t}\r\n\r\n\t\t\t\t\t&[data-state=selected] {\r\n\t\t\t\t\t\tbackground-color: var(--muted);\r\n\t\t\t\t\t}\r\n\r\n\t\t\t\t\t&:has(aria-expanded) {\r\n\t\t\t\t\t\tbackground-color: var(--muted);\r\n\t\t\t\t\t}\r\n\r\n\t\t\t\t\ttd {\r\n\t\t\t\t\t\tpadding: 0.5rem;\r\n\t\t\t\t\t\tvertical-align: middle;\r\n\r\n\t\t\t\t\t\t&:has([role=\"checkbox\"]) {\r\n\t\t\t\t\t\t\tpadding-right: 0;\r\n\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\t& > [role=\"checkbox\"] {\r\n\t\t\t\t\t\t\ttransform: translateY(2px);\r\n\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\t&:has(.badge) {\r\n\t\t\t\t\t\t\ttext-align: center;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t&:not(:last-of-type) {\r\n\t\t\t\t\t\t\tborder-right-style: dashed;\r\n\t\t\t\t\t\t\tborder-right-width: 1px;\r\n\t\t\t\t\t\t\tborder-right-color: color-mix(in oklch, var(--clr-n4d) 50%, transparent);\r\n\t\t\t\t\t\t}\r\n\r\n\t\t\t\t\t\t&:last-of-type {\r\n\t\t\t\t\t\t\ttext-align: center;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -195,7 +195,7 @@ func Header(props ...HeaderProps) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 206, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 207, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
@@ -287,7 +287,7 @@ func Body(props ...BodyProps) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 224, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 225, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 			if templ_7745c5c3_Err != nil {
@@ -379,7 +379,7 @@ func Footer(props ...FooterProps) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 242, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 243, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
@@ -471,7 +471,7 @@ func Row(props ...RowProps) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 260, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 261, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 			if templ_7745c5c3_Err != nil {
@@ -569,7 +569,7 @@ func Head(props ...HeadProps) templ.Component {
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 281, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 282, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 			if templ_7745c5c3_Err != nil {
@@ -661,7 +661,7 @@ func Cell(props ...CellProps) templ.Component {
 			var templ_7745c5c3_Var27 string
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 299, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 300, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 			if templ_7745c5c3_Err != nil {
@@ -753,7 +753,7 @@ func Caption(props ...CaptionProps) templ.Component {
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 317, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/table/table.templ`, Line: 318, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 			if templ_7745c5c3_Err != nil {

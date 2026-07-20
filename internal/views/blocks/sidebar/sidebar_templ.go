@@ -90,7 +90,7 @@ func SidebarDesktop() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>periods</span></summary><ul><li><a href=\"/teachers/list\">list</a></li><li><a href=\"/teachers/create\">create</a></li></ul></details></div><footer>ACCOUNT</footer>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>teachers</span></summary><ul><li><a href=\"/teachers/list\">list</a></li><li><a href=\"/teachers/create\">create</a></li></ul></details></div><footer>ACCOUNT</footer>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

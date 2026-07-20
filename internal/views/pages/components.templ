@@ -7,6 +7,7 @@ import (
 	"seek/internal/views/blocks/data_table"
 	"seek/internal/features/students/dto"
 	"seek/internal/views/components/button"
+	"seek/internal/views/components/icon"
 )
 
 templ Components(user models.User, tableView dto.TableView) {
@@ -32,6 +33,11 @@ templ Components(user models.User, tableView dto.TableView) {
 				}) {
 					link
 				}
+				@button.Button(button.Props{
+					Size: button.SizeIcon,
+				}) {
+					@icon.Icon("lucide:bomb", "height", "16px")
+				}
 			</section>
 			<section style="display: grid; gap: var(--size-2);">
 				<h3>badges</h3>
@@ -54,7 +60,7 @@ templ Components(user models.User, tableView dto.TableView) {
 					destructive
 				}
 			</section>
-			<section style="display: grid; gap: var(--size-2);">
+			<section style="display: grid; gap: var(--size-2); width: 100%;">
 				<h3>table</h3>
 				@datatable.DataTable(tableView)
 			</section>
