@@ -1,6 +1,11 @@
 @layer base, components, stellar, theme, variants;
 
 @font-face {
+  font-family: 'lexend';
+  src: url('/static/fonts/lexend-regular.ttf');
+}
+
+@font-face {
   font-family: 'tt2020';
   src: url('/static/fonts/tt2020-style-e-regular.ttf');
 }
@@ -23,6 +28,7 @@
     /* fonts */
     --fnt-lex: 'lexend', 'sans-serif';
     --fnt-typ: 'tt2020', 'serif';
+    --ff-type: 'tt2020', 'serif';
     --fnt-xsm: var(--font-size--2);
     --fnt-sm: var(--font-size--1);
     --fnt-md: var(--font-size-0);

@@ -1,0 +1,52 @@
+package blocks
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/views/blocks/forms"
+
+	"github.com/starfederation/datastar-go/datastar"
+)
+
+templ EditProfileForm(user models.User) {
+	<form id="edit-profile-form" data-on:submit={ datastar.PostSSE("/profile/edit") }>
+		<hgroup>
+			<h2>EDIT YOUR PROFILE</h2>
+			<p>edit the your profile.</p>
+		</hgroup>
+		<section>
+			@forms.TextInputWithLabel(
+				"given-name-label",
+				"given name",
+				"/profile/edit/validate",
+				"profile.first_name",
+				user.Name,
+			)
+			@forms.TextInputWithLabel(
+				"chosen-name-label",
+				"chosen name",
+				"/profile/edit/validate",
+				"profile.chosen_name",
+				user.Name,
+			)
+			@forms.TextInputWithLabel(
+				"family-name-label",
+				"family name",
+				"/profile/edit/validate",
+				"profile.family_name",
+				user.Name,
+			)
+			@forms.TextInputWithLabel(
+				"role-label",
+				"role",
+				"/profile/edit/validate",
+				"profile.role",
+				"test",
+			)
+		</section>
+		<footer>
+			@forms.CancelButton()
+			@forms.SaveButton()
+		</footer>
+	</form>
+}
+				

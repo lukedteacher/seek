@@ -7,7 +7,7 @@ import (
 	"seek/internal/eventstore"
 )
 
-const EmailValidationOTPToBeSentEventHandlerName = "seek_email_validation_otp_to_be_sent_event_handler"
+const EmailValidationOTPToBeSentEventHandlerName = "email_validation_otp_to_be_sent_event_handler"
 
 type EmailValidationOTPToBeSentEventHandler struct {
 	global    *eventstore.GlobalEventHandler

@@ -70,6 +70,7 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	sse := newSSE(w, r)
+	
 	notifier := NewDedupeNotifier()
 	// subscribes to the channel which publishes changes to any periods
 	sub, err := s.Subscriber.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {

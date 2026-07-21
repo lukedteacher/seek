@@ -60,8 +60,8 @@ func GetState[T any](ctx context.Context, store Store, key string) (T, bool, err
 	return zero, true, nil
 }
 
-func TodoListKey(sessionID, userRegisteredID string) string {
-	return viewKey("todo-list", sessionID, userRegisteredID)
+func ProfileKey(sessionID, userRegisteredID string) string {
+	return viewKey("profile", sessionID, userRegisteredID)
 }
 
 func viewKey(parts ...string) string {

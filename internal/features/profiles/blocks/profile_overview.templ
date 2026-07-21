@@ -41,7 +41,9 @@ templ Header(user models.User) {
 			</div>
 		</div>
 		<div style="display: flex; flex-direction: column; gap: 0.75rem; width: auto;">
-			@button.Button() {
+			@button.Button(button.Props{
+				Href: "/profile/edit",
+			}) {
 				@icon.Settings(icon.Props{Size: "16px"})
 				<span style="margin-left: 0.5rem;">edit profile</span>
 			}
@@ -74,7 +76,7 @@ templ InfoCard(title string, iconComponent templ.Component) {
 			}
 		}
 		@card.Content() {
-			<div class="space-y-3">
+			<div style="display: flex; flex-direction: column; gap: 0.75rem;" class="space-y-3">
 				{ children... }
 			</div>
 		}
@@ -83,32 +85,31 @@ templ InfoCard(title string, iconComponent templ.Component) {
 }
 
 templ InfoItem(label, value string) {
-	<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
-		<span class="text-sm text-muted-foreground">{ label }</span>
-		<span class="text-sm font-medium">{ value }</span>
+	<div style="display: flex; gap: 0.25rem; font-size: var(--font-size--1); justify-content: space-between;">
+		<span style="color: color-mix(in oklch, var(--neutral-4-on) 70%, transparent);">{ label }</span>
+		<span style="font-weight: var(--font-weight-medium);">{ value }</span>
 	</div>
 }
 
 templ Stats() {
-	<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-		@StatCard("Projects", "12", "+2 this month", icon.Folder(icon.Props{Class: "size-5"}))
-		@StatCard("Team Members", "8", "2 pending invites", icon.Users(icon.Props{Class: "size-5"}))
-		@StatCard("Storage Used", "45.2 GB", "54% of quota", icon.HardDrive(icon.Props{Class: "size-5"}))
-		@StatCard("API Calls", "1.2M", "This month", icon.Activity(icon.Props{Class: "size-5"}))
+	<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+		@StatCard("upcoming IEP meetings", "2", "+2 next month", icon.CalendarDays(icon.Props{Size: "24px"}))
+		@StatCard("progress monitoring", "8 times", "2 unfinished", icon.ChartColumn(icon.Props{Size: "24px"}))
+		@StatCard("Storage Used", "45.2 GB", "54% of quota", icon.HardDrive(icon.Props{Size: "24px"}))
 	</div>
 }
 
 templ StatCard(title, value, subtitle string, iconComponent templ.Component) {
 	@card.Card() {
 		@card.Content(card.ContentProps{Class: "p-4 sm:p-6"}) {
-			<div class="flex items-center justify-between mb-2">
-				<span class="text-sm text-muted-foreground">{ title }</span>
-				<div class="text-muted-foreground">
+			<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+				<span style="font-size: var(--font-size--1); color: color-mix(in oklch, var(--neutral-4-on) 70%, transparent);">{ title }</span>
+				<div style="color: color-mix(in oklch, var(--neutral-4-on) 70%, transparent);">
 					@iconComponent
 				</div>
 			</div>
-			<div class="text-2xl font-bold">{ value }</div>
-			<p class="text-sm text-muted-foreground mt-1">{ subtitle }</p>
+			<div style="font-size: var(--font-size-2); font-weight: var(--font-weight-bold);">{ value }</div>
+			<p style="font-size: var(--font-size--1); color: color-mix(in oklch, var(--neutral-4-on) 70%, transparent); margin-top: 0.25rem;">{ subtitle }</p>
 		}
 	}
 }
@@ -117,37 +118,37 @@ templ RecentActivity() {
 	@card.Card() {
 		@card.Header() {
 			@card.Title() {
-				Recent Activity
+				recent activity
 			}
 			@card.Description() {
-				Your latest actions and updates
+				your latest actions and updates
 			}
 		}
 		@card.Content() {
-			<div class="space-y-4">
+			<div style="display: flex; flex-direction: column; gap: 1rem;">
 				@ActivityItem(
 					icon.FileText(icon.Props{Class: "size-4"}),
-					"Updated profile information",
+					"updated profile information",
 					"2 hours ago",
 				)
 				@ActivityItem(
 					icon.UserPlus(icon.Props{Class: "size-4"}),
-					"Invited team member sarah@example.com",
+					"invited team member sarah@example.com",
 					"5 hours ago",
 				)
 				@ActivityItem(
 					icon.Key(icon.Props{Class: "size-4"}),
-					"Generated new API key",
+					"generated new API key",
 					"1 day ago",
 				)
 				@ActivityItem(
 					icon.Shield(icon.Props{Class: "size-4"}),
-					"Enabled two-factor authentication",
+					"enabled two-factor authentication",
 					"3 days ago",
 				)
 				@ActivityItem(
 					icon.CreditCard(icon.Props{Class: "size-4"}),
-					"Updated billing information",
+					"updated billing information",
 					"1 week ago",
 				)
 			</div>
@@ -157,18 +158,18 @@ templ RecentActivity() {
 				Variant: button.VariantOutline,
 				Class:   "w-full",
 			}) {
-				View All Activity
+				view all activity
 			}
 		}
 	}
 }
 
 templ ActivityItem(iconComponent templ.Component, title, time string) {
-	<div class="flex items-center gap-3">
+	<div style="display: flex; align-items: center; gap: 0.75rem;">
 		@iconComponent
-		<div class="flex-1">
-			<p class="text-sm font-medium">{ title }</p>
-			<p class="text-xs text-muted-foreground">{ time }</p>
+		<div style="flex-basis: 1; font-size: var(--font-size--1)">
+			<p style="font-weight: var(--font-weight-medium);">{ title }</p>
+			<p style="color: color-mix(in oklch, var(--neutral-4-on) 70%, transparent); font-size: var(--font-size--2);">{ time }</p>
 		</div>
 	</div>
 }

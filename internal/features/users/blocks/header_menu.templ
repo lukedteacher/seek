@@ -20,7 +20,14 @@ templ UserHeaderMenu(user models.User) {
 		ID: "user-header-menu-content",
 	}) {
 		<ul>
-			<li>profile</li>
+			<li>
+				@button.Button(button.Props{
+					Href: "/profile",
+					Variant: button.VariantGhost,
+				}) {
+					profile
+				}
+			</li>
 			<li>schedule</li>
 			<li>settings</li>
 			<li>
