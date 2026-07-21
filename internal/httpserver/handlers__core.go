@@ -3,7 +3,6 @@ package httpserver
 import (
 	"net/http"
 
-	"seek/internal/features/students/dto"
 	"seek/internal/views/blocks/sidebar"
 	"seek/internal/views/pages"
 	"seek/internal/viewstore"
@@ -18,6 +17,7 @@ func (s Server) coreRoutes(r chi.Router) {
 	r.Post("/sidebar", s.postSidebarToggle)
 	r.Get("/components", s.components)
 	r.Post("/sort", s.sort)
+	r.Get("/seed", s.seedData)
 }
 
 func (s Server) index(w http.ResponseWriter, r *http.Request) {
@@ -85,16 +85,7 @@ func (s Server) postSidebarToggle(w http.ResponseWriter, r *http.Request) {
 func (s Server) components(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	students, _ := s.Students.List(ctx)
-	view := dto.BuildTableView(students, nil, []string{
-		"FirstName",
-		"ChosenName",
-		"LastName",
-		"Grade",
-		"Homeroom",
-		"CaseManager",
-	})
-	_ = pages.Components(user, view).Render(ctx, w)
+	_ = pages.Components(user).Render(ctx, w)
 }
 
 func (s Server) sort(w http.ResponseWriter, r *http.Request) {

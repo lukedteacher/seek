@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.2.1 (26.07.21) data seeding, data table implemented
+
+- created an endpoint to seed period and student data when the db gets wiped
+- data table implemented for students and periods
+- profile page slightly updated
+
 ## v0.2.0 (26.07.20) user profiles, reset read models command
 
 - added reset command to reset read models

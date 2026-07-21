@@ -2,17 +2,17 @@ package pages
 
 import (
 	"seek/internal/domain/models"
+	"seek/internal/features/_shared/dto"
 	"seek/internal/features/periods/blocks"
 	sse "seek/internal/views"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
-	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
 )
 
 
 
-templ List(user models.User, view int, views []dto.PeriodView) {
+templ List(user models.User, view int, tview dto.TableView) {
 	@layouts.Base("SEEK: periods", user) {
 		<main data-signals:view={ view } data-init={ sse.LongRunningGetSSE("/periods/stream") }>
 			<section>
@@ -42,9 +42,7 @@ templ List(user models.User, view int, views []dto.PeriodView) {
 					}
 				</div>
 				if view == 0 {
-					@blocks.List(views)
-				} else {
-					@blocks.CardGrid(views)
+					@blocks.List(tview)
 				}
 			</section>
 		</main>

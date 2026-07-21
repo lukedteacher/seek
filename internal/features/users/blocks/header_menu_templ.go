@@ -86,11 +86,40 @@ func UserHeaderMenu(user models.User) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<ul><li>profile</li><li>schedule</li><li>settings</li><li>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<ul><li>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+				if !templ_7745c5c3_IsBuffer {
+					defer func() {
+						templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err == nil {
+							templ_7745c5c3_Err = templ_7745c5c3_BufErr
+						}
+					}()
+				}
+				ctx = templ.InitializeContext(ctx)
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "profile")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				return nil
+			})
+			templ_7745c5c3_Err = button.Button(button.Props{
+				Href:    "/profile",
+				Variant: button.VariantGhost,
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</li><li>schedule</li><li>settings</li><li>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 				if !templ_7745c5c3_IsBuffer {
@@ -108,7 +137,7 @@ func UserHeaderMenu(user models.User) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " <span>logout</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " <span>logout</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -118,11 +147,11 @@ func UserHeaderMenu(user models.User) templ.Component {
 				Attributes: templ.Attributes{
 					"data-on:click": "post('/logout')",
 				},
-			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</li></ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</li></ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -159,12 +188,12 @@ func UserHeaderMenuStyles() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var6 == nil {
-			templ_7745c5c3_Var6 = templ.NopComponent
+		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var7 == nil {
+			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<style>\r\n\t\tbutton#user-header-menu {\r\n\t\t\tcolor: var(--secondary-5-on);\r\n\t\t\tbackground-color: var(--secondary-5);\r\n\t\t\tdisplay: flex;\r\n\t\t\talign-items: center;\r\n\t\t\tjustify-content: center;\r\n\t\t\tgap: var(--size--2);\r\n\t\t\tborder-radius: var(--bd-pill);\r\n\t\t\tpadding: .4rem .5rem;\r\n\r\n\t\t\tdiv {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tjustify-content: center;\r\n\t\t\t\tbackground-color: white;\r\n\t\t\t\tborder-radius: var(--bd-circle);\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\tpadding: 2px;\r\n\t\t\t\t\r\n\t\t\t\timg {\r\n\t\t\t\t\twidth: 24px;\r\n\t\t\t\t\taspect-ratio: var(--ar-square);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t\tspan {\r\n\t\t\t\tfont-size: var(--font-size--2);\r\n\t\t\t}\r\n\t\t}\r\n\r\n\t\tdiv#user-header-menu-content {\r\n\t\t\tcolor: var(--neutral-4-on);\r\n\t\t\tbackground-color: var(--neutral-4);\r\n\t\t\tborder-color: var(--neutral-4-dim);\r\n\r\n\t\t\tul {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: column;\r\n\t\t\t\tgap: var(--size--2);\r\n\t\t\t\tfont-size: var(--font-size--2);\r\n\r\n\t\t\t\tli {\r\n\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\tgap: var(--size--2);\r\n\t\t\t\t\talign-items: center;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<style>\r\n\t\tbutton#user-header-menu {\r\n\t\t\tcolor: var(--secondary-5-on);\r\n\t\t\tbackground-color: var(--secondary-5);\r\n\t\t\tdisplay: flex;\r\n\t\t\talign-items: center;\r\n\t\t\tjustify-content: center;\r\n\t\t\tgap: var(--size--2);\r\n\t\t\tborder-radius: var(--bd-pill);\r\n\t\t\tpadding: .4rem .5rem;\r\n\r\n\t\t\tdiv {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tjustify-content: center;\r\n\t\t\t\tbackground-color: white;\r\n\t\t\t\tborder-radius: var(--bd-circle);\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\tpadding: 2px;\r\n\t\t\t\t\r\n\t\t\t\timg {\r\n\t\t\t\t\twidth: 24px;\r\n\t\t\t\t\taspect-ratio: var(--ar-square);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t\tspan {\r\n\t\t\t\tfont-size: var(--font-size--2);\r\n\t\t\t}\r\n\t\t}\r\n\r\n\t\tdiv#user-header-menu-content {\r\n\t\t\tcolor: var(--neutral-4-on);\r\n\t\t\tbackground-color: var(--neutral-4);\r\n\t\t\tborder-color: var(--neutral-4-dim);\r\n\r\n\t\t\tul {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: column;\r\n\t\t\t\tgap: var(--size--2);\r\n\t\t\t\tfont-size: var(--font-size--2);\r\n\r\n\t\t\t\tli {\r\n\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\tgap: var(--size--2);\r\n\t\t\t\t\talign-items: center;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

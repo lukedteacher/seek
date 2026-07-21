@@ -7,7 +7,7 @@ import (
 
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
-	newdto "seek/internal/features/students/dto"
+	sdto "seek/internal/features/_shared/dto"
 	"seek/internal/features/students/events"
 	"seek/internal/features/students/pages"
 	"seek/internal/views/dto"
@@ -24,8 +24,8 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students/create/stream", s.getStudentCreateStream)
 	r.Post("/students/create/validate", s.postStudentCreateValidate)
 	r.Post("/students/create", s.postStudentCreate)
-	r.Get("/students/{id}", s.getStudentView)
-	r.Get("/students/{id}/stream", s.getStudentViewStream)
+	r.Get("/students/{id}/view", s.getStudentView)
+	r.Get("/students/{id}/view/stream", s.getStudentViewStream)
 	r.Get("/students/{id}/edit", s.getStudentEdit)
 	r.Get("/students/{id}/edit/stream", s.getStudentEditStream)
 	r.Post("/students/{id}/edit/validate", s.postStudentEditValidate)
@@ -49,11 +49,15 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	studentViews := make([]newdto.StudentListView, len(students))
-	for i := range students {
-		studentViews[i] = *newdto.NewStudentListView(&students[i])
-	}
-	_ = pages.List(user, studentViews).Render(ctx, w)
+	view := sdto.BuildTableView(students, nil, []string{
+		"FirstName",
+		"ChosenName",
+		"LastName",
+		"Grade",
+		"Homeroom",
+		"CaseManager",
+	})
+	_ = pages.List(user, view).Render(ctx, w)
 }
 
 // GET request to /students/stream
@@ -84,12 +88,16 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			studentViews := make([]newdto.StudentListView, len(students))
-			for i := range students {
-				studentViews[i] = *newdto.NewStudentListView(&students[i])
-			}
+			view := sdto.BuildTableView(students, nil, []string{
+				"FirstName",
+				"ChosenName",
+				"LastName",
+				"Grade",
+				"Homeroom",
+				"CaseManager",
+			})
 
-			sse.PatchElementTempl(pages.List(user, studentViews))
+			sse.PatchElementTempl(pages.List(user, view))
 		}
 	}
 }

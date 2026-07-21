@@ -1,15 +1,15 @@
 package models
 
 type Period struct {
-	ID         string
-	Title      string
-	StartTime  string
-	Duration   int64
-	Days       int64
+	ID         string `json:"id" display:"ID"`
+	Title      string `json:"title" display:"title"`
+	StartTime  string `json:"start_time" display:"start"`
+	Duration   int64  `json:"duration" display:"duration (min)"`
+	Days       int64  `json:"days" display:"days"`
 	StudentIDs []string
 	CreatedAt  string
 	UpdatedAt  string
-	DeletedAt  string
+	ArchivedAt string
 }
 
 type PeriodSignals struct {

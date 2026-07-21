@@ -10,15 +10,15 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/domain/models"
+	"seek/internal/features/_shared/dto"
 	"seek/internal/features/periods/blocks"
 	sse "seek/internal/views"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
-	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
 )
 
-func List(user models.User, view int, views []dto.PeriodView) templ.Component {
+func List(user models.User, view int, tview dto.TableView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -150,12 +150,7 @@ func List(user models.User, view int, views []dto.PeriodView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if view == 0 {
-				templ_7745c5c3_Err = blocks.List(views).Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = blocks.CardGrid(views).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = blocks.List(tview).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

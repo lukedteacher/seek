@@ -3,9 +3,11 @@ package dto
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 type TableView struct {
+	Name    string
 	Columns []ColumnMeta
 	Rows    []RowView
 }
@@ -39,6 +41,8 @@ func BuildTableView[T any](items []T, hideFields []string, includeFields []strin
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
+
+	tableName := strings.ToLower(t.Name() + "s")
 
 	// build a map of field name -> struct field, and collect all fields
 	fieldMap := make(map[string]reflect.StructField)
@@ -117,7 +121,7 @@ func BuildTableView[T any](items []T, hideFields []string, includeFields []strin
 		rows[i] = RowView{ID: idStr, Cells: cells}
 	}
 
-	return TableView{Columns: columns, Rows: rows}
+	return TableView{Name: tableName, Columns: columns, Rows: rows}
 }
 
 // formatValue handles pointers and basic types

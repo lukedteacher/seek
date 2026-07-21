@@ -3,14 +3,12 @@ package pages
 import (
 	"seek/internal/views/layouts"
 	"seek/internal/domain/models"
-	"seek/internal/features/students/dto"
-	"seek/internal/views/blocks/data_table"
 	"seek/internal/views/components/badge"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
 )
 
-templ Components(user models.User, tableView dto.TableView) {
+templ Components(user models.User) {
 	@layouts.Base("SEEK: components", user) {
 		<main style="display: flex; flex-direction: column; gap: 1rem;">
 			<section>
@@ -76,10 +74,6 @@ templ Components(user models.User, tableView dto.TableView) {
 						destructive
 					}
 				</div>
-			</section>
-			<section style="display: grid; gap: var(--size-2); width: 100%;">
-				<h3>table</h3>
-				@datatable.DataTable(tableView)
 			</section>
 		</main>
 	}

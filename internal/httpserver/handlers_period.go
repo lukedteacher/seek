@@ -7,6 +7,7 @@ import (
 
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	sdto "seek/internal/features/_shared/dto"
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/pages"
@@ -52,17 +53,14 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	periodViews := make([]dto.PeriodView, len(periods))
-	for i := range periods {
-		period, err := dto.NewViewFromPeriod(&periods[i])
-		if err != nil {
-			println("error: ", err.Error())
-			return
-		}
-		periodViews[i] = period
-	}
+	view := sdto.BuildTableView(periods, nil, []string{
+		"Title",
+		"StartTime",
+		"Duration",
+		"Days",
+	})
 
-	_ = pages.List(user, signals.View, periodViews).Render(ctx, w)
+	_ = pages.List(user, signals.View, view).Render(ctx, w)
 }
 
 // GET request to /periods/stream
@@ -94,17 +92,14 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			periodViews := make([]dto.PeriodView, len(periods))
-			for i := range periods {
-				periodView, err := dto.NewViewFromPeriod(&periods[i])
-				if err != nil {
-					println("error: ", err.Error())
-					return
-				}
-				periodViews[i] = periodView
-			}
+			view := sdto.BuildTableView(periods, nil, []string{
+				"Title",
+				"StartTime",
+				"Duration",
+				"Days",
+			})
 
-			sse.PatchElementTempl(pages.List(user, 0, periodViews))
+			sse.PatchElementTempl(pages.List(user, 0, view))
 		}
 	}
 }
@@ -541,9 +536,6 @@ func (s Server) refreshPeriodViewState(ctx context.Context, periodID string) err
 	period, err := s.Periods.Get(ctx, periodID)
 	if err != nil {
 		return err
-	}
-	if period.DeletedAt != "" {
-		println("this period was deleted")
 	}
 	return viewstore.PutState(ctx, s.ViewStore, period.ID+".view", period)
 }
