@@ -6,6 +6,7 @@ import (
 	"seek/internal/views/components/badge"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
+	"seek/pkg/templui/components/input"
 )
 
 templ Components(user models.User) {
@@ -73,6 +74,10 @@ templ Components(user models.User) {
 					}) {
 						destructive
 					}
+					@input.Input() {
+						test
+					}
+					<input class="input" />
 				</div>
 			</section>
 		</main>

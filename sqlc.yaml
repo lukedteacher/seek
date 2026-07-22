@@ -1,4 +1,5 @@
-# for sqlc-gen-zombiezen to generate queries and such
+# for sqlc-gen-zombiezen to generate go code for queries
+# erases and exports to internal/dbsql directory
 
 version: "2"
 

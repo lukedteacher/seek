@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.2.2 (26.07.22) templui, tailwind, daisyui
+
+- installed all templui components for ease of access
+- installed tailwind temporarily for templui and daisyui
+- installed daisyui for basic styling until seek custom styles can be created
+
 ## v0.2.1 (26.07.21) data seeding, data table implemented
 
 - created an endpoint to seed period and student data when the db gets wiped

@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"log"
 	"net/http"
 
 	"seek/internal/views/blocks/sidebar"
@@ -28,7 +29,7 @@ func (s Server) index(w http.ResponseWriter, r *http.Request) {
 		println(err.Error())
 	}
 	if !ok {
-		println("no value found")
+		log.Println("no user view value found")
 	}
 	_ = pages.Index(user, view).Render(r.Context(), w)
 }

@@ -2,7 +2,7 @@ package events
 
 import (
 	"seek/internal/domain/models"
-	"seek/utils"
+	"seek/pkg/utils"
 )
 
 type Validation struct {
@@ -30,7 +30,7 @@ func ValidateTitle(title string) Validation {
 func ValidateTeacherID(teacherID string) Validation {
 	if teacherID == "" {
 		return Validation{Message: "required", State: "empty"}
-	} else	if teacherID == "select a teacher" {
+	} else if teacherID == "select a teacher" {
 		return Validation{Message: "required", State: "empty"}
 	} else {
 		return Validation{Message: "required", State: "valid"}

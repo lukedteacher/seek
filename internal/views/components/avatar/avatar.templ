@@ -65,7 +65,7 @@ templ Image(props ...ImageProps) {
 		}
 		alt={ p.Alt }
 		if p.Class != "" {
-			class={ p.Class }
+			class={ p.Class, "btn" }
 		}
 		{ p.Attributes... }
 	/>

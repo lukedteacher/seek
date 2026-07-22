@@ -2,7 +2,7 @@ package events
 
 import (
 	"seek/internal/domain/models"
-	"seek/utils"
+	"seek/pkg/utils"
 )
 
 type Validation struct {

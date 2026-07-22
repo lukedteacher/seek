@@ -2,7 +2,7 @@ package events
 
 import (
 	"seek/internal/domain/models"
-	"seek/utils"
+	"seek/pkg/utils"
 )
 
 type Validation struct {
@@ -43,7 +43,7 @@ func ValidateChosenName(chosenName string) Validation {
 	println("am i getting here??")
 	if chosenName == "" {
 		return Validation{Message: "optional", State: "empty"}
-	} else	if utils.ValidateAlphanumericLax(chosenName) {
+	} else if utils.ValidateAlphanumericLax(chosenName) {
 		return Validation{Message: "optional", State: "valid"}
 	} else {
 		return Validation{Message: "optional", State: "error"}

@@ -2,19 +2,31 @@ version: '3'
 
 tasks:
   dev:
-    deps: [templ]
+    desc: run air, templ, tailwind, and the server in development mode
+    deps: [templ, css]
     cmds:
-      - task --parallel templ-watch server-watch
+      - task --parallel templ-watch server-watch css-watch
 
   server-watch:
-    deps: [templ]
+    desc: runs air (hot-reload and build)
+    deps: [templ, css]
     cmds:
       - go tool air -c .air.toml
 
   build:
-    deps: [sqlc, templ]
+    deps: [sqlc, templ, css]
     cmds:
       - go build ./cmd/server
+
+  test:
+    deps: [sqlc, templ]
+    cmds:
+      - go test ./...
+
+  vet:
+    deps: [sqlc, templ]
+    cmds:
+      - go vet ./...
 
   migrate:
     cmds:
@@ -50,3 +62,19 @@ tasks:
     cmds:
       - GOBIN="{{.ROOT_DIR}}/.bin" go install github.com/delaneyj/toolbelt/sqlc-gen-zombiezen
       - PATH="{{.ROOT_DIR}}/.bin:$PATH" sqlc generate
+  
+  css:
+    sources:
+      - src/**/*.css
+      - src/daisyui/**/*.js
+      - internal/**/*.templ
+      - internal/**/*.go
+      - pkg/**/*.templ
+    generates:
+      - static/styles/style.css
+    cmds:
+      - go tool gotailwind -i src/input.css -o static/styles/style.css
+
+  css-watch:
+    cmds:
+      - go tool gotailwind -i src/input.css -o static/styles/style.css -w
