@@ -5,43 +5,80 @@ import (
 	"seek/internal/views/blocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
+	"seek/pkg/templui/components/textarea"
 )
 
 templ EditProfileForm(user models.User) {
-	<form id="edit-profile-form" data-on:submit={ datastar.PostSSE("/profile/edit") }>
+	<form
+		id="edit-profile-form"
+		class="seek-form"
+		data-on:submit={ datastar.PostSSE("/profile/edit") }
+	>
 		<hgroup>
-			<h2>EDIT YOUR PROFILE</h2>
-			<p>edit the your profile.</p>
+			<h2>edit your profile</h2>
+			<p>make changes to your public profile information</p>
 		</hgroup>
 		<section>
 			@forms.TextInputWithLabel(
-				"given-name-label",
-				"given name",
+				"name-label",
+				"name",
 				"/profile/edit/validate",
-				"profile.first_name",
+				"profile.name",
 				user.Name,
 			)
-			@forms.TextInputWithLabel(
-				"chosen-name-label",
-				"chosen name",
-				"/profile/edit/validate",
-				"profile.chosen_name",
-				user.Name,
-			)
-			@forms.TextInputWithLabel(
-				"family-name-label",
-				"family name",
-				"/profile/edit/validate",
-				"profile.family_name",
-				user.Name,
-			)
-			@forms.TextInputWithLabel(
-				"role-label",
-				"role",
-				"/profile/edit/validate",
-				"profile.role",
-				"test",
-			)
+			@label.Label() {
+				<p>
+					<span class="justify-start">role</span>
+					<span></span>
+				</p>
+				@selectbox.SelectBox() {
+					@selectbox.Trigger(selectbox.TriggerProps{
+						Attributes: templ.Attributes{
+							"data-bind:profile.role": "",
+						},
+					}) {
+						@selectbox.Value(selectbox.ValueProps{
+							Placeholder: "select a role",
+						})
+					}
+					@selectbox.Content(selectbox.ContentProps{
+						NoSearch: true,
+					}) {
+						@selectbox.Item(selectbox.ItemProps{
+							Value: "coteacher",
+						}) {
+							co-teacher
+						}
+						@selectbox.Item(selectbox.ItemProps{
+							Value: "ea",
+						}) {
+							EA
+						}
+						@selectbox.Item(selectbox.ItemProps{
+							Value: "teacher",
+						}) {
+							teacher
+						}
+						@selectbox.Item(selectbox.ItemProps{
+							Value: "admin",
+						}) {
+							admin
+						}
+					}
+				}
+			}
+			@textarea.Textarea(textarea.Props{
+				Value: user.Bio,
+				Attributes: templ.Attributes{
+					"data-bind:profile.bio": "",
+				},
+			}) {
+				test
+			}
+			@textarea.Script()
+			@selectbox.Script()
 		</section>
 		<footer>
 			@forms.CancelButton()
@@ -49,4 +86,3 @@ templ EditProfileForm(user models.User) {
 		</footer>
 	</form>
 }
-				

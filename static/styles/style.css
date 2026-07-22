@@ -7350,6 +7350,9 @@
   .justify-center {
     justify-content: center;
   }
+  .justify-start {
+    justify-content: flex-start;
+  }
   .justify-items-start {
     justify-items: start;
   }
@@ -12299,7 +12302,7 @@ a {
 .todo-delete {
   color: var(--color-error);
 }
-.empty {
+.empty-label {
   display: grid;
   place-items: center;
   min-height: 13rem;

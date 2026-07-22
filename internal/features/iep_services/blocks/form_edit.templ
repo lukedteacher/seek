@@ -13,27 +13,31 @@ import (
 )
 
 templ EditPeriodForm(view dto.IEPServiceFormView) {
-	<form id="edit-iep-service-form" data-on:submit={ datastar.PostSSE(fmt.Sprintf("/students/iepservices/%s/edit", view.IEPService.IEPServiceID)) }>
+	<form
+		id="edit-iep-service-form"
+		class="seek-form"
+		data-on:submit={ datastar.PostSSE(fmt.Sprintf("/students/iepservices/%s/edit", view.IEPService.IEPServiceID)) }
+	>
 		<hgroup>
 			<h2>EDIT SERVICE MINUTES</h2>
 			<p>edit an iep service for a student.</p>
 		</hgroup>
 		<section>
 			@label.Label(label.Props{
-				ID: "iep-service-type-label",
-				For: "iep-service-type",
-				Label: "service minutes type",
-				ValidationState: view.Validation[events.IEPServiceServiceTypeField].State,
+				ID:                "iep-service-type-label",
+				For:               "iep-service-type",
+				Label:             "service minutes type",
+				ValidationState:   view.Validation[events.IEPServiceServiceTypeField].State,
 				ValidationMessage: view.Validation[events.IEPServiceServiceTypeField].Message,
 			}) {
 				@input.Input(input.Props{
-					ID: "iep-service-type-input",
-					Name: "iep-service-type",
+					ID:       "iep-service-type-input",
+					Name:     "iep-service-type",
 					DataBind: "serviceminutes.service_type",
-					DataOn: "/students/iepservices/create/validate",
+					DataOn:   "/students/iepservices/create/validate",
 					HasError: view.Validation[events.IEPServiceServiceTypeField].State == "error",
-					IsValid: view.Validation[events.IEPServiceServiceTypeField].State == "valid",
-					Value: view.IEPService.ServiceType,
+					IsValid:  view.Validation[events.IEPServiceServiceTypeField].State == "valid",
+					Value:    view.IEPService.ServiceType,
 				})
 			}
 		</section>
@@ -43,4 +47,3 @@ templ EditPeriodForm(view dto.IEPServiceFormView) {
 		</footer>
 	</form>
 }
-				

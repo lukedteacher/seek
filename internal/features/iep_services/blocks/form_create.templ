@@ -8,57 +8,61 @@ import (
 )
 
 templ CreateForm(view dto.IEPServiceFormView) {
-	<form id="form-create-iep-service" data-on:submit={ datastar.PostSSE("/iepservices/create") }>
+	<form
+		id="form-create-iep-service"
+		class="seek-form"
+		data-on:submit={ datastar.PostSSE("/iepservices/create") }
+	>
 		<hgroup>
 			<h2>CREATE IEP SERVICE</h2>
 			<p>create a new iep service for a student.</p>
 		</hgroup>
 		<section>
 			@forms.TextInputWithLabel(
-				"iep-service-type", 
-				"type", 
-				"/iepservices/validate", 
-				"iepservice.service_type", 
+				"iep-service-type",
+				"type",
+				"/iepservices/validate",
+				"iepservice.service_type",
 				view.IEPService.ServiceType,
 			)
 			<div>
 				<p>minutes</p>
 				<div style="display:flex; gap:var(--size-1);">
 					@forms.NumberInputWithLabel(
-						"iep-service-indirect-minutes", 
-						"indirect", 
-						"/iepservices/validate", 
-						"iepservice.indirect_minutes", 
+						"iep-service-indirect-minutes",
+						"indirect",
+						"/iepservices/validate",
+						"iepservice.indirect_minutes",
 						view.IEPService.IndirectMinutes,
 					)
 					@forms.NumberInputWithLabel(
-						"iep-service-direct-minutes", 
-						"direct", 
-						"/iepservices/validate", 
-						"iepservice.direct_minutes", 
+						"iep-service-direct-minutes",
+						"direct",
+						"/iepservices/validate",
+						"iepservice.direct_minutes",
 						view.IEPService.DirectMinutes,
 					)
 				</div>
 			</div>
 			@forms.NumberInputWithLabel(
-				"iep-service-frequency-count", 
-				"count", 
-				"/iepservices/validate", 
-				"iepservice.frequency_count", 
+				"iep-service-frequency-count",
+				"count",
+				"/iepservices/validate",
+				"iepservice.frequency_count",
 				view.IEPService.FrequencyCount,
 			)
 			@forms.TextInputWithLabel(
-				"iep-service-location", 
-				"location", 
-				"/iepservices/validate", 
-				"iepservice.location", 
+				"iep-service-location",
+				"location",
+				"/iepservices/validate",
+				"iepservice.location",
 				view.IEPService.Location,
 			)
 			@forms.TextInputWithLabel(
-				"iep-service-provider", 
-				"provider", 
-				"/iepservices/validate", 
-				"iepservice.provider", 
+				"iep-service-provider",
+				"provider",
+				"/iepservices/validate",
+				"iepservice.provider",
 				view.IEPService.Provider,
 			)
 		</section>
@@ -68,4 +72,3 @@ templ CreateForm(view dto.IEPServiceFormView) {
 		</footer>
 	</form>
 }
-				

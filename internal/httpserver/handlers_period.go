@@ -30,8 +30,8 @@ func (s Server) periodRoutes(r chi.Router) {
 	r.Get("/periods/{id}/view/stream", s.getPeriodViewStream)
 	r.Get("/periods/{id}/edit", s.getPeriodEdit)
 	r.Get("/periods/{id}/edit/stream", s.getPeriodEditStream)
-	r.Post("/periods/{id}/edit", s.postPeriodEdit)
 	r.Post("/periods/{id}/edit/validate", s.postPeriodEditValidate)
+	r.Post("/periods/{id}/edit", s.postPeriodEdit)
 	r.Delete("/periods/{id}/delete", s.deletePeriod)
 }
 

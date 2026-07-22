@@ -41,14 +41,14 @@ func EditPeriodForm(view dto.IEPServiceFormView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"edit-iep-service-form\" data-on:submit=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"edit-iep-service-form\" class=\"seek-form\" data-on:submit=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE(fmt.Sprintf("/students/iepservices/%s/edit", view.IEPService.IEPServiceID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/blocks/form_edit.templ`, Line: 16, Col: 143}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/blocks/form_edit.templ`, Line: 19, Col: 111}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {

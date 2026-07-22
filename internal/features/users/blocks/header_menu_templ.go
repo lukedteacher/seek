@@ -145,7 +145,7 @@ func UserHeaderMenu(user models.User) templ.Component {
 			})
 			templ_7745c5c3_Err = button.Button(button.Props{
 				Attributes: templ.Attributes{
-					"data-on:click": "post('/logout')",
+					"data-on:click": "@post('/logout')",
 				},
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

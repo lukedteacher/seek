@@ -42,14 +42,14 @@ func EditStudentForm(v dto.StudentFormView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form data-on:submit=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"student-edit-form\" class=\"seek-form\" data-on:submit=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/students/%s/edit", v.Student.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 17, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 20, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -203,7 +203,7 @@ func EditStudentForm(v dto.StudentFormView) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("option-%d", index))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 91, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 95, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 					if templ_7745c5c3_Err != nil {
@@ -226,7 +226,7 @@ func EditStudentForm(v dto.StudentFormView) templ.Component {
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(index)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 95, Col: 19}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 99, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 					if templ_7745c5c3_Err != nil {
@@ -239,7 +239,7 @@ func EditStudentForm(v dto.StudentFormView) templ.Component {
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(grade.Ordinal())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 97, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_edit.templ`, Line: 101, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {

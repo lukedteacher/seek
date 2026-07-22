@@ -1,12 +1,12 @@
 package blocks
 
 import (
-	"seek/internal/views/components/icon"
+	"seek/internal/domain/models"
 	"seek/internal/views/components/avatar"
 	"seek/internal/views/components/badge"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/card"
-	"seek/internal/domain/models"
+	"seek/internal/views/components/icon"
 )
 
 templ ProfileOverview(user models.User) {
@@ -56,6 +56,7 @@ templ Overview(user models.User) {
 		@InfoCard("personal", icon.User(icon.Props{Size: "20px"})) {
 			@InfoItem("full name", user.Name)
 			@InfoItem("email", user.Email)
+			@InfoItem("bio", user.Bio)
 		}
 		@InfoCard("professional", icon.School(icon.Props{Size: "20px"})) {
 			@InfoItem("role", "resource room teacher")
@@ -101,7 +102,7 @@ templ Stats() {
 
 templ StatCard(title, value, subtitle string, iconComponent templ.Component) {
 	@card.Card() {
-		@card.Content(card.ContentProps{Class: "p-4 sm:p-6"}) {
+		@card.Content() {
 			<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
 				<span style="font-size: var(--font-size--1); color: color-mix(in oklch, var(--neutral-4-on) 70%, transparent);">{ title }</span>
 				<div style="color: color-mix(in oklch, var(--neutral-4-on) 70%, transparent);">

@@ -90,7 +90,7 @@ func (h *ReadModelEventHandler) handle(ctx context.Context, resolved eventstore.
 	}
 	return h.publisher.Publish(
 		ctx, Channel(userRegisteredID),
-		map[string]string{"userRegisteredId": userRegisteredID},
+		map[string]string{"user_registered_id": userRegisteredID},
 	)
 }
 

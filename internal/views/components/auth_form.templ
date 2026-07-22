@@ -44,6 +44,12 @@ templ AuthForm(action string, title string, fields []Field, errors map[string]st
 					}
 					@button.Button(button.Props{
 						Type: "submit",
+						Class: "btn btn-success",
+					}) {
+						{ title }
+					}
+					@button.Button(button.Props{
+						Type: "submit",
 						Color: button.ColorSuccess,
 					}) {
 						{ title }

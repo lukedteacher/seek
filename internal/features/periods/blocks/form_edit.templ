@@ -36,7 +36,11 @@ func NewPeriodEditFormView(p *models.Period, all []models.Student, selected []st
 }
 
 templ EditPeriodForm(view PeriodEditFormView) {
-	<form id="edit-period-form" data-on:submit={ datastar.PostSSE("/periods/%s/edit", view.Period.ID) }>
+	<form 
+		id="edit-period-form" 
+		class="seek-form"
+		data-on:submit={ datastar.PostSSE("/periods/%s/edit", view.Period.ID) }
+	>
 		<hgroup>
 			<h2>EDIT A PERIOD</h2>
 			<p>edit the data of an existing period.</p>
@@ -96,7 +100,7 @@ templ EditPeriodForm(view PeriodEditFormView) {
 				}
 			</div>
 			<label for="duration">duration</label>
-			<input id="duration" name="duration" data-bind:period.duration type="number" value={ view.Period.Duration } />
+			@DurationSlider(view.Period.Duration)
 			@day_buttons.DayButtons(view.Period.Days)
 			@sblocks.StudentMultiselect(view.StudentList)
 		</section>

@@ -14,7 +14,11 @@ import (
 )
 
 templ CreateForm(v dto.StudentFormView) {
-	<form data-on:submit={ datastar.PostSSE("/students/create") }>
+	<form 
+		id="student-create-form" 
+		class="seek-form" 
+		data-on:submit={ datastar.PostSSE("/students/create") }
+	>
 		<hgroup>
 			<h2>CREATE A STUDENT</h2>
 			<p>create a student.</p>

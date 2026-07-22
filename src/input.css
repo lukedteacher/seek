@@ -813,7 +813,7 @@ a {
     color: var(--color-error);
 }
 
-.empty {
+.empty-label {
     display: grid;
     place-items: center;
     min-height: 13rem;

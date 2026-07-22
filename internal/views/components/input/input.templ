@@ -71,7 +71,7 @@ templ Input(props ...Props) {
 		if p.DataOn != "" {
 			data-on:input__debounce.200ms={ datastar.PostSSE( p.DataOn ) }
 		}
-		class={	p.Class }
+		class={	p.Class, "input" }
 		{ p.Attributes... }
 	>
 		{ children... }

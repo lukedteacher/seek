@@ -2,6 +2,6 @@
   "componentsDir": "pkg/templui/components",
   "utilsDir": "pkg/utils",
   "moduleName": "seek",
-  "jsDir": "internal/static/scripts/js",
-  "jsPublicPath": "assets/scripts/js"
+  "jsDir": "/static/scripts/templui",
+  "jsPublicPath": "/static/scripts/templui"
 }

@@ -2,7 +2,7 @@ package blocks
 
 import (
 	"fmt"
-	
+
 	"seek/internal/domain/models"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
@@ -14,85 +14,89 @@ import (
 )
 
 templ EditStudentForm(v dto.StudentFormView) {
-	<form data-on:submit={ datastar.PostSSE("/students/%s/edit", v.Student.ID) }>
+	<form
+		id="student-edit-form"
+		class="seek-form"
+		data-on:submit={ datastar.PostSSE("/students/%s/edit", v.Student.ID) }
+	>
 		<hgroup>
 			<h2>EDIT A STUDENT</h2>
 			<p>edit the data of an existing student.</p>
 		</hgroup>
 		<section>
 			@label.Label(label.Props{
-				ID: "first-name-label",
-				For: "first-name",
-				Label: "first name",
-				ValidationState: v.Validation["first_name"].State,
+				ID:                "first-name-label",
+				For:               "first-name",
+				Label:             "first name",
+				ValidationState:   v.Validation["first_name"].State,
 				ValidationMessage: v.Validation["first_name"].Message,
 			}) {
 				@input.Input(input.Props{
-					ID: "first-name",
-					Name: "first-name",
+					ID:       "first-name",
+					Name:     "first-name",
 					DataBind: "student.first_name",
-					DataOn: fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
+					DataOn:   fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
 					HasError: v.Validation["first_name"].State == "error",
-					IsValid: v.Validation["first_name"].State == "valid",
-					Value: v.Student.FirstName,
+					IsValid:  v.Validation["first_name"].State == "valid",
+					Value:    v.Student.FirstName,
 				})
 			}
 			@label.Label(label.Props{
-				ID: "chosen-name-label",
-				For: "chosen-name",
-				Label: "chosen name",
-				ValidationState: v.Validation["chosen_name"].State,
+				ID:                "chosen-name-label",
+				For:               "chosen-name",
+				Label:             "chosen name",
+				ValidationState:   v.Validation["chosen_name"].State,
 				ValidationMessage: v.Validation["chosen_name"].Message,
 			}) {
 				@input.Input(input.Props{
-					ID: "chosen-name",
-					Name: "chosen-name",
+					ID:       "chosen-name",
+					Name:     "chosen-name",
 					DataBind: "student.chosen_name",
-					DataOn: fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
+					DataOn:   fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
 					HasError: v.Validation["chosen_name"].State == "error",
-					IsValid: v.Validation["chosen_name"].State == "valid",
-					Value: v.Student.ChosenName,
+					IsValid:  v.Validation["chosen_name"].State == "valid",
+					Value:    v.Student.ChosenName,
 				})
 			}
 			@label.Label(label.Props{
-				ID: "last-name-label",
-				For: "last-name",
-				Label: "last name",
-				ValidationState: v.Validation["last_name"].State,
+				ID:                "last-name-label",
+				For:               "last-name",
+				Label:             "last name",
+				ValidationState:   v.Validation["last_name"].State,
 				ValidationMessage: v.Validation["last_name"].Message,
 			}) {
 				@input.Input(input.Props{
-					ID: "last-name",
-					Name: "last-name",
+					ID:       "last-name",
+					Name:     "last-name",
 					DataBind: "student.last_name",
-					DataOn: fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
+					DataOn:   fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
 					HasError: v.Validation["last_name"].State == "error",
-					IsValid: v.Validation["last_name"].State == "valid",
-					Value: v.Student.LastName,
+					IsValid:  v.Validation["last_name"].State == "valid",
+					Value:    v.Student.LastName,
 				})
 			}
 		</section>
 		<section>
 			@label.Label(label.Props{
-				ID: "grade-label",
-				For: "grade-select",
-				Label: "grade",
-				ValidationState: v.Validation["grade"].State,
+				ID:                "grade-label",
+				For:               "grade-select",
+				Label:             "grade",
+				ValidationState:   v.Validation["grade"].State,
 				ValidationMessage: v.Validation["grade"].Message,
 			}) {
 				@selectbox.Select(selectbox.Props{
-					ID: "grade-select",
-					Placeholder: "select a grade",
-					DataBind: "student.grade",
+					ID:           "grade-select",
+					Placeholder:  "select a grade",
+					DataBind:     "student.grade",
 					DataOnChange: fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
 				}) {
 					for index, grade := range models.GradeList {
-						<option 
-						id={ fmt.Sprintf( "option-%d", index ) }
-						if grade.Str() == v.Student.Grade {
-							selected
-						}
-						value={ index }
+						<option
+							id={ fmt.Sprintf("option-%d", index) }
+							if grade.Str() == v.Student.Grade {
+								selected
+							}
+							value={ index }
 						>
 							{ grade.Ordinal() }
 						</option>
@@ -102,37 +106,37 @@ templ EditStudentForm(v dto.StudentFormView) {
 		</section>
 		<section>
 			@label.Label(label.Props{
-				ID: "homeroom-label",
-				For: "homeroom",
-				Label: "homeroom",
-				ValidationState: v.Validation["homeroom"].State,
+				ID:                "homeroom-label",
+				For:               "homeroom",
+				Label:             "homeroom",
+				ValidationState:   v.Validation["homeroom"].State,
 				ValidationMessage: v.Validation["homeroom"].Message,
 			}) {
 				@input.Input(input.Props{
-					ID: "homeroom",
-					Name: "homeroom",
+					ID:       "homeroom",
+					Name:     "homeroom",
 					DataBind: "student.homeroom",
-					DataOn: fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
+					DataOn:   fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
 					HasError: v.Validation["homeroom"].State == "error",
-					IsValid: v.Validation["homeroom"].State == "valid",
-					Value: v.Student.Homeroom,
+					IsValid:  v.Validation["homeroom"].State == "valid",
+					Value:    v.Student.Homeroom,
 				})
 			}
 			@label.Label(label.Props{
-				ID: "case-manager-label",
-				For: "case-manager",
-				Label: "case manager",
-				ValidationState: v.Validation["case_manager"].State,
+				ID:                "case-manager-label",
+				For:               "case-manager",
+				Label:             "case manager",
+				ValidationState:   v.Validation["case_manager"].State,
 				ValidationMessage: v.Validation["case_manager"].Message,
 			}) {
 				@input.Input(input.Props{
-					ID: "case-manager",
-					Name: "case-manager",
+					ID:       "case-manager",
+					Name:     "case-manager",
 					DataBind: "student.case_manager",
-					DataOn: fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
+					DataOn:   fmt.Sprintf("/students/%s/edit/validate", v.Student.ID),
 					HasError: v.Validation["case_manager"].State == "error",
-					IsValid: v.Validation["case_manager"].State == "valid",
-					Value: v.Student.CaseManager,
+					IsValid:  v.Validation["case_manager"].State == "valid",
+					Value:    v.Student.CaseManager,
 				})
 			}
 		</section>
@@ -142,4 +146,3 @@ templ EditStudentForm(v dto.StudentFormView) {
 		</footer>
 	</form>
 }
-				

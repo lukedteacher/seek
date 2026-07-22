@@ -35,7 +35,7 @@ func NewPeriodCreateFormView(p *models.Period, all []models.Student, selected []
 }
 
 templ CreateForm(view PeriodCreateFormView) {
-	<form id="create-period-form" data-on:submit={ datastar.PostSSE("/periods/create") }>
+	<form id="create-period-form" class="seek-form" data-on:submit={ datastar.PostSSE("/periods/create") }>
 		<hgroup>
 			<h2>CREATE A PERIOD</h2>
 			<p>create a new period.</p>
@@ -95,7 +95,6 @@ templ CreateForm(view PeriodCreateFormView) {
 				}
 			</div>
 			<label for="duration">duration</label>
-			<input id="duration" name="duration" data-bind:period.duration type="number" value={ view.Period.Duration } />
 			@DurationSlider(30)
 			@day_buttons.DayButtons(view.Period.Days)
 			@sblocks.StudentMultiselect(view.StudentList)

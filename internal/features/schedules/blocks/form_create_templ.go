@@ -48,14 +48,14 @@ func CreateForm(
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"create-schedule-form\" data-on:submit=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"create-schedule-form\" class=\"seek-form\" data-on:submit=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/schedules/create"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_create.templ`, Line: 23, Col: 87}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_create.templ`, Line: 26, Col: 56}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -142,7 +142,7 @@ func CreateForm(
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("option-%d", index))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_create.templ`, Line: 73, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_create.templ`, Line: 77, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 					if templ_7745c5c3_Err != nil {
@@ -165,7 +165,7 @@ func CreateForm(
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(teacher.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_create.templ`, Line: 77, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_create.templ`, Line: 81, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -178,7 +178,7 @@ func CreateForm(
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(teacher.DisplayName())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_create.templ`, Line: 79, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_create.templ`, Line: 83, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -227,7 +227,7 @@ func CreateForm(
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(period.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_create.templ`, Line: 90, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_create.templ`, Line: 94, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {

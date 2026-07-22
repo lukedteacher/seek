@@ -33,7 +33,7 @@ templ UserHeaderMenu(user models.User) {
 			<li>
 				@button.Button(button.Props{
 					Attributes: templ.Attributes{
-						"data-on:click": "post('/logout')",
+						"data-on:click": "@post('/logout')",
 					},
 				}) {
 					@icon.LogOut(icon.Props{

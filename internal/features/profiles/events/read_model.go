@@ -12,7 +12,6 @@ import (
 	"seek/internal/protectedpii"
 
 	"zombiezen.com/go/sqlite"
-
 )
 
 const (
@@ -102,7 +101,7 @@ func (m *ReadModel) UpdateName(ctx context.Context, resolved eventstore.Resolved
 }
 
 func (m *ReadModel) UpdateBio(ctx context.Context, resolved eventstore.ResolvedEvent, keys auth.SubjectPiiKeyPort) error {
-	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[ProfileScopeUserRegisteredIDField].(string)
+	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[auth.UserRegisteredIDField].(string)
 	subjectKey, ok, err := keys.GetSubjectDataKey(ctx, userRegisteredID)
 	if err != nil {
 		return err
@@ -122,7 +121,7 @@ func (m *ReadModel) UpdateBio(ctx context.Context, resolved eventstore.ResolvedE
 }
 
 func (m *ReadModel) UpdateImage(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[ProfileScopeUserRegisteredIDField].(string)
+	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[auth.UserRegisteredIDField].(string)
 	url, _ := resolved.Event.Data[ProfileImageURLField].(string)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpsertProfileImage(conn, dbsql.UpsertProfileImageParams{
@@ -135,7 +134,7 @@ func (m *ReadModel) UpdateImage(ctx context.Context, resolved eventstore.Resolve
 }
 
 func (m *ReadModel) UpdateHeaderImage(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[ProfileScopeUserRegisteredIDField].(string)
+	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[auth.UserRegisteredIDField].(string)
 	url, _ := resolved.Event.Data[ProfileImageURLField].(string)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpsertProfileHeaderImage(conn, dbsql.UpsertProfileHeaderImageParams{

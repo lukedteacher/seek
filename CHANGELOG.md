@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.2.3 (26.07.22) profile bio updateable, fixed templui js bug
+
+- implemented updating the profile bio via the 'edit profile' page
+- added a role selectbox to the edit profile page
+- fixed templui's js not being served correctly bug
+- fixed minor layout bugs
+
 ## v0.2.2 (26.07.22) templui, tailwind, daisyui
 
 - installed all templui components for ease of access

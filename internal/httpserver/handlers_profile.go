@@ -3,25 +3,30 @@ package httpserver
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 
 	"seek/internal/appdb"
-	"seek/internal/domain/models"
+	um "seek/internal/domain/models"
+	"seek/internal/eventstore"
 	"seek/internal/features/profiles/events"
+	"seek/internal/features/profiles/models"
 	"seek/internal/features/profiles/pages"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 type profileViewState struct {
-	User models.User `json:"user"`
+	User um.User `json:"user"`
 }
 
 func (s Server) profileRoutes(r chi.Router) {
 	r.Get("/profile", s.getProfile)
 	r.Get("/profile/stream", s.getProfileStream)
 	r.Get("/profile/edit", s.getEdit)
+	r.Post("/profile/edit", s.postProfileEdit)
 }
 
 // GET request to /profile
@@ -95,8 +100,37 @@ func (s Server) getEdit(w http.ResponseWriter, r *http.Request) {
 	_ = pages.EditProfile(user, nil).Render(ctx, w)
 }
 
+// POST request to /profile/edit
+func (s Server) postProfileEdit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user, err := s.profileUser(ctx, currentUser(r))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	signals := &struct {
+		Profile models.Profile `json:"profile"`
+	}{}
+	datastar.ReadSignals(r, signals)
+	command := events.UpdateProfileBioCommand{
+		User:     user,
+		Bio:      signals.Profile.Bio,
+		Metadata: eventstore.HTTPCommandMetadata(r, user.ID),
+	}
+	if err := events.UpdateProfileBioCommandHandler(
+		ctx,
+		command,
+		s.EventSaver,
+		s.EventRetriever,
+		s.PIIKeys,
+	); err != nil {
+		println("update success")
+	}
+	log.Println("s:", signals.Profile.Bio)
+}
+
 // refreshes profile view state in kv store when there is an update for the SSE stream
-func (s Server) refreshProfileViewState(ctx context.Context, key string, current models.User) error {
+func (s Server) refreshProfileViewState(ctx context.Context, key string, current um.User) error {
 	user, err := s.profileUser(ctx, current)
 	if err != nil {
 		return err
@@ -105,13 +139,13 @@ func (s Server) refreshProfileViewState(ctx context.Context, key string, current
 }
 
 // helper to get profile for the user
-func (s Server) profileUser(ctx context.Context, current models.User) (models.User, error) {
+func (s Server) profileUser(ctx context.Context, current um.User) (um.User, error) {
 	user, err := s.Profiles.User(ctx, current.UserRegisteredID)
 	if err != nil {
 		if errors.Is(err, appdb.ErrNoRows) {
 			return current, nil
 		}
-		return models.User{}, err
+		return um.User{}, err
 	}
 	user.EmailVerified = current.EmailVerified
 	return user, nil

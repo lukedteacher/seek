@@ -20,7 +20,11 @@ templ CreateForm(
 	validation map[string]events.Validation, 
 	selectedTeacher *models.Teacher,
 ) {
-	<form id="create-schedule-form" data-on:submit={ datastar.PostSSE("/schedules/create") }>
+	<form 
+		id="create-schedule-form" 
+		class="seek-form"
+		data-on:submit={ datastar.PostSSE("/schedules/create") }
+	>
 		<hgroup>
 			<h2>CREATE A SCHEDULE</h2>
 			<p>create a new schedule.</p>
