@@ -12,7 +12,7 @@ import (
 	"fmt"
 
 	"seek/internal/domain/models"
-	"seek/internal/views/components/selectbox"
+	"seek/internal/views/components/selectboxold"
 )
 
 type StudentMultiselectView struct {
@@ -78,7 +78,7 @@ func StudentMultiselect(s []StudentMultiselectView) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("option-%d", i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/multiselect.templ`, Line: 40, Col: 37}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/multiselect.templ`, Line: 40, Col: 36}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 				if templ_7745c5c3_Err != nil {
@@ -91,7 +91,7 @@ func StudentMultiselect(s []StudentMultiselectView) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(s[i].StudentID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/multiselect.templ`, Line: 41, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/multiselect.templ`, Line: 41, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
@@ -127,7 +127,7 @@ func StudentMultiselect(s []StudentMultiselectView) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = selectbox.Select(selectbox.Props{
+		templ_7745c5c3_Err = selectboxold.Select(selectboxold.Props{
 			ID:       "student-multiselect",
 			Multiple: true,
 			DataBind: "period.student_ids",

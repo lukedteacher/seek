@@ -11229,11 +11229,6 @@
       justify-content: flex-end;
     }
   }
-  .sm\:p-6 {
-    @media (width >= 40rem) {
-      padding: calc(var(--spacing) * 6);
-    }
-  }
   .sm\:text-left {
     @media (width >= 40rem) {
       text-align: left;

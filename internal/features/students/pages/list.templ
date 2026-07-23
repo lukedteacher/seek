@@ -10,7 +10,7 @@ import (
 
 templ List(user models.User, view dto.TableView) {
 	@layouts.Base("SEEK: students", user) {
-		<main data-init={ views.LongRunningGetSSE("/students/stream") }>
+		<main data-init={ views.LongRunningGetSSE("/students/list/stream") }>
 			<section style="display: flex; flex-direction: column; gap: 1rem;">
 				<header style="display: flex; flex-direction: column; gap: 0.25rem;">
 					<h2>students</h2>

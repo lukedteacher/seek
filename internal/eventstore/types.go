@@ -10,6 +10,7 @@ import (
 
 var (
 	ErrNotFound         = errors.New("not found")
+	ErrNotActive        = errors.New("not active")
 	ErrPeriodNotFound   = errors.New("period not found")
 	ErrScheduleNotFound = errors.New("schedule not found")
 	ErrStudentNotFound  = errors.New("student not found")

@@ -18,6 +18,7 @@ import (
 	"seek/internal/email"
 	"seek/internal/eventcatalog"
 	"seek/internal/eventstore"
+	educatorEvents "seek/internal/features/educators/events"
 	iepService "seek/internal/features/iep_services/events"
 	period "seek/internal/features/periods/events"
 	periodSchedule "seek/internal/features/periods_schedules/events"
@@ -45,6 +46,7 @@ type appComponents struct {
 	sessionManager          *auth.SessionManager
 	authUsers               *auth.AuthUserStore
 	verifications           *auth.VerificationStore
+	educatorReadModel       *educatorEvents.ReadModel
 	iepServiceReadModel     *iepService.ReadModel
 	periodReadModel         *period.ReadModel
 	profileReadModel        *profile.ReadModel
@@ -129,6 +131,7 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		PIIKeys:             components.piiKeys,
 		PasswordCredentials: components.authUsers,
 		Verifications:       components.verifications,
+		Educators:           components.educatorReadModel,
 		IEPServices:         components.iepServiceReadModel,
 		Profiles:            components.profileReadModel,
 		Periods:             components.periodReadModel,
@@ -226,6 +229,7 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 	authUsers := auth.NewAuthUserStore(db)
 	sessionManager := auth.NewSessionManager(db, authUsers, !cfg.DevelopmentCookie)
 	verifications := auth.NewVerificationStore(db)
+	educatorReadModel := educatorEvents.NewReadModel(db)
 	iepServiceReadModel := iepService.NewReadModel(db)
 	profileReadModel := profile.NewReadModel(db)
 	periodReadModel := period.NewReadModel(db)
@@ -242,6 +246,7 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 		sessionManager:          sessionManager,
 		authUsers:               authUsers,
 		verifications:           verifications,
+		educatorReadModel:       educatorReadModel,
 		iepServiceReadModel:     iepServiceReadModel,
 		profileReadModel:        profileReadModel,
 		periodReadModel:         periodReadModel,

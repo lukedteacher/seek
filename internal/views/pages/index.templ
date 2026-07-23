@@ -4,10 +4,10 @@ import (
 	"seek/internal/domain/models"
 	"seek/internal/views"
 	"seek/internal/views/blocks/sidebar"
+	"seek/internal/views/components/button"
 	"seek/internal/views/components/card"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
-	"seek/internal/views/components/button"
 )
 
 templ Index(user models.User, view sidebar.SidebarView) {
@@ -23,7 +23,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 					Size: button.SizeIcon,
 					Attributes: templ.Attributes{
 						"data-signals:open": view.Open,
-						"data-on:click": "$open=!$open; @post('/sidebar')",
+						"data-on:click":     "$open=!$open; @post('/sidebar')",
 					},
 				}) {
 					@icon.PanelLeft(icon.Props{
@@ -201,7 +201,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 								@icon.Apple(icon.Props{
 									Size: "20",
 								})
-								teachers
+								educators
 							}
 							@card.Description() {
 								they do the work of learning the students.
@@ -210,7 +210,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 						@card.Content() {
 							<p>features (coming soon)</p>
 							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
-								<li>profiles?</li>
+								<li>profiles!</li>
 								<li>view their schedule</li>
 								<li>caseloads</li>
 								<li>idk</li>
@@ -218,7 +218,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 						}
 						@card.Footer() {
 							@button.Button(button.Props{
-								Href: "/teachers/list",
+								Href: "/educators/list",
 							}) {
 								@icon.List(icon.Props{
 									Size: "16",
@@ -226,7 +226,7 @@ templ Index(user models.User, view sidebar.SidebarView) {
 								<span>list</span>
 							}
 							@button.Button(button.Props{
-								Href: "/teachers/create",
+								Href: "/educators/create",
 							}) {
 								@icon.Plus(icon.Props{
 									Size: "16",

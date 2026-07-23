@@ -1,8 +1,12 @@
 @layer base, components, stellar, theme, variants;
 
+@view-transition {
+  navigation: auto;
+}
+
 @font-face {
   font-family: 'lexend';
-  src: url('/static/fonts/lexend-regular.ttf');
+  src: url('/static/fonts/lexend-regular-latin.woff2');
 }
 
 @font-face {

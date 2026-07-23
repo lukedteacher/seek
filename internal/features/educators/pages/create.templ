@@ -1,0 +1,19 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/features/educators/blocks"
+	"seek/internal/features/educators/dto"
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+)
+
+templ Create(user models.User, view dto.EducatorView) {
+	@layouts.Base("SEEK: create educator", user) {
+		<main data-init={ views.LongRunningGetSSE("/educators/create/stream") }>
+			<section>
+				@blocks.EducatorCreateForm(view)
+			</section>
+		</main>
+	}
+}

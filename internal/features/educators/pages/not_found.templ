@@ -1,0 +1,17 @@
+package pages
+
+import (
+	"seek/internal/domain/models"
+	"seek/internal/views/layouts"
+)
+
+templ NotFound(user models.User) {
+	@layouts.Base("SEEK: educator not found", user) {
+		<main id="main">
+			<section>
+				<h3>not found</h3>
+				<p>that educator doesn't seem to exist. are you sure you're in the right place?</p>
+			</section>
+		</main>
+	}
+}

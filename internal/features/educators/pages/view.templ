@@ -1,0 +1,21 @@
+package pages
+
+import (
+	"fmt"
+	
+	"seek/internal/domain/models"
+	"seek/internal/features/educators/blocks"
+	"seek/internal/features/educators/dto"
+	"seek/internal/views"
+	"seek/internal/views/layouts"
+)
+
+templ View(user models.User, view dto.EducatorView) {
+	@layouts.Base("SEEK: educator", user) {
+		<main id="main" data-init={ views.LongRunningGetSSE(fmt.Sprintf("/educators/%s/stream", view.ID)) }>
+			<section style="width: 100%;">
+				@blocks.Card(view)
+			</section>
+		</main>
+	}
+}

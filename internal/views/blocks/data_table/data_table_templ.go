@@ -403,7 +403,7 @@ func Row(target string, columns []dto.ColumnMeta, row dto.RowView) templ.Compone
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = icon.EllipsisVertical(icon.Props{
+					templ_7745c5c3_Err = icon.Pencil(icon.Props{
 						Size: "16",
 					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {

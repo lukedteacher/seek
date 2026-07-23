@@ -12,7 +12,7 @@ templ Create(user models.User, v dto.StudentFormView) {
 	@layouts.Base("SEEK: create student", user) {
 		<main data-init={ views.LongRunningGetSSE("/students/create/stream") }>
 			<section>
-				@blocks.CreateForm(v)
+				@blocks.StudentCreateForm(v)
 			</section>
 		</main>
 	}

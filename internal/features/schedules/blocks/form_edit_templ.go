@@ -15,7 +15,7 @@ import (
 	"seek/internal/features/schedules/events"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
-	"seek/internal/views/components/selectbox"
+	"seek/internal/views/components/selectboxold"
 
 	"github.com/starfederation/datastar-go/datastar"
 	"seek/internal/views/blocks/forms"
@@ -188,7 +188,7 @@ func EditForm(vm EditScheduleViewModel) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = selectbox.Select(selectbox.Props{
+			templ_7745c5c3_Err = selectboxold.Select(selectboxold.Props{
 				ID:           "teacher-select",
 				Placeholder:  "select a teacher",
 				DataBind:     "schedule.teacher_id",
@@ -328,7 +328,7 @@ func EditForm(vm EditScheduleViewModel) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = selectbox.Select(selectbox.Props{
+			templ_7745c5c3_Err = selectboxold.Select(selectboxold.Props{
 				ID:           "periods-multiselect",
 				DataBind:     "schedule.period_ids",
 				DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", vm.Schedule.ID),

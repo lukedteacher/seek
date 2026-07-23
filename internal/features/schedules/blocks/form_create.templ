@@ -7,7 +7,7 @@ import (
 	"seek/internal/features/schedules/events"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
-	"seek/internal/views/components/selectbox"
+	"seek/internal/views/components/selectboxold"
 
 	"github.com/starfederation/datastar-go/datastar"
 	"seek/internal/views/blocks/forms"
@@ -63,7 +63,7 @@ templ CreateForm(
 				ValidationState: validation["teacher_id"].State,
 				ValidationMessage: validation["teacher_id"].Message,
 			}) {
-				@selectbox.Select(selectbox.Props{
+				@selectboxold.Select(selectboxold.Props{
 					ID: "teacher-select",
 					Placeholder: "select a teacher",
 					DataBind: "schedule.teacher_id",

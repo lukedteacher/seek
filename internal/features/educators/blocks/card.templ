@@ -1,0 +1,38 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/educators/dto"
+	"seek/internal/views/components/button"
+	"seek/internal/views/components/card"
+	"seek/internal/views/components/icon"
+)
+
+templ Card(view dto.EducatorView) {
+	@card.Card(card.Props{
+		ID:    fmt.Sprintf("educator-%s-card", view.ID),
+		Class: "educator-card",
+	}) {
+		@card.Header() {
+			@card.Title() {
+				{ view.FullName() }
+			}
+		}
+		@card.Content() {
+			<p>role: { view.Role }</p>
+			<p>email: { view.Email }</p>
+		}
+		@card.Footer() {
+			@button.Button(button.Props{
+				Href: fmt.Sprintf("/educators/%s/edit", view.ID),
+			}) {
+				@icon.Pencil(icon.Props{
+					Size: "16",
+				})
+				<span>edit</span>
+			}
+		}
+	}
+	@card.CardStyles()
+}

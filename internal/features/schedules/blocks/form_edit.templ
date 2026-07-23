@@ -7,7 +7,7 @@ import (
 	"seek/internal/features/schedules/events"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
-	"seek/internal/views/components/selectbox"
+	"seek/internal/views/components/selectboxold"
 
 	"github.com/starfederation/datastar-go/datastar"
 	"seek/internal/views/blocks/forms"
@@ -58,7 +58,7 @@ templ EditForm(vm EditScheduleViewModel) {
 				ValidationState:   vm.Validation["teacher_id"].State,
 				ValidationMessage: vm.Validation["teacher_id"].Message,
 			}) {
-				@selectbox.Select(selectbox.Props{
+				@selectboxold.Select(selectboxold.Props{
 					ID:           "teacher-select",
 					Placeholder:  "select a teacher",
 					DataBind:     "schedule.teacher_id",
@@ -88,7 +88,7 @@ templ EditForm(vm EditScheduleViewModel) {
 				ValidationState:   vm.Validation["periods"].State,
 				ValidationMessage: vm.Validation["periods"].Message,
 			}) {
-				@selectbox.Select(selectbox.Props{
+				@selectboxold.Select(selectboxold.Props{
 					ID:           "periods-multiselect",
 					DataBind:     "schedule.period_ids",
 					DataOnChange: fmt.Sprintf("/schedules/%s/edit/validate", vm.Schedule.ID),

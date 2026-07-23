@@ -5,9 +5,9 @@ import (
 
 	"seek/internal/features/_shared/dto"
 	"seek/internal/views/components/badge"
+	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/components/table"
-	"seek/internal/views/components/button"
 )
 
 templ DataTable(view dto.TableView) {
@@ -34,13 +34,13 @@ templ Table(view dto.TableView) {
 			@table.Row() {
 				for i := range view.Columns {
 					@table.Head() {
-						<div 
+						<div
 							{ "data-signals:table." + view.Columns[i].JSON + "=false" }
 						>
 							<span>
 								{ view.Columns[i].Display }
 							</span>
-							@SortButton(view.Columns[i].JSON)						
+							@SortButton(view.Columns[i].JSON)
 						</div>
 					}
 				}
@@ -77,20 +77,20 @@ templ Row(target string, columns []dto.ColumnMeta, row dto.RowView) {
 		}
 		@table.Cell() {
 			@button.Button(button.Props{
-				Size: button.SizeIcon,
+				Size:    button.SizeIcon,
 				Variant: button.VariantGhost,
-				Href: fmt.Sprintf("/%s/%s/view", target, row.ID),
+				Href:    fmt.Sprintf("/%s/%s/view", target, row.ID),
 			}) {
 				@icon.Eye(icon.Props{
 					Size: "16",
 				})
 			}
 			@button.Button(button.Props{
-				Size: button.SizeIcon,
+				Size:    button.SizeIcon,
 				Variant: button.VariantGhost,
-				Href: fmt.Sprintf("/%s/%s/edit", target, row.ID),
+				Href:    fmt.Sprintf("/%s/%s/edit", target, row.ID),
 			}) {
-				@icon.EllipsisVertical(icon.Props{
+				@icon.Pencil(icon.Props{
 					Size: "16",
 				})
 			}
@@ -100,11 +100,11 @@ templ Row(target string, columns []dto.ColumnMeta, row dto.RowView) {
 
 templ SortButton(column string) {
 	@button.Button(button.Props{
-		Size: button.SizeIcon,
+		Size:    button.SizeIcon,
 		Variant: button.VariantGhost,
 		Attributes: templ.Attributes{
 			"data-on:click": "$table." + column + "=!$table." + column + "; @post('/sort')",
-			"style": "margin-left: auto;",
+			"style":         "margin-left: auto;",
 		},
 	}) {
 		@icon.ArrowUpDown(icon.Props{

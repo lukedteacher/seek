@@ -971,7 +971,7 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, " teachers")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, " educators")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1029,7 +1029,7 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<p>features (coming soon)</p><ul style=\"list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);\"><li>profiles?</li><li>view their schedule</li><li>caseloads</li><li>idk</li></ul>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<p>features (coming soon)</p><ul style=\"list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);\"><li>profiles!</li><li>view their schedule</li><li>caseloads</li><li>idk</li></ul>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1080,7 +1080,7 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = button.Button(button.Props{
-						Href: "/teachers/list",
+						Href: "/educators/list",
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var43), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -1114,7 +1114,7 @@ func Index(user models.User, view sidebar.SidebarView) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = button.Button(button.Props{
-						Href: "/teachers/create",
+						Href: "/educators/create",
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var44), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

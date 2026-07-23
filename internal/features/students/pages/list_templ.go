@@ -54,9 +54,9 @@ func List(user models.User, view dto.TableView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/students/stream"))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/students/list/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/list.templ`, Line: 13, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/list.templ`, Line: 13, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {

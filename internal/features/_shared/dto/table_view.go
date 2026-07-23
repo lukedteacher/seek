@@ -44,14 +44,26 @@ func BuildTableView[T any](items []T, hideFields []string, includeFields []strin
 
 	tableName := strings.ToLower(t.Name() + "s")
 
-	// build a map of field name -> struct field, and collect all fields
+	// collect all fields (including embedded) into a map and ordered names
 	fieldMap := make(map[string]reflect.StructField)
-	allFieldNames := []string{}
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		fieldMap[f.Name] = f
-		allFieldNames = append(allFieldNames, f.Name)
+	var allFieldNames []string
+
+	var collect func(reflect.Type)
+	collect = func(typ reflect.Type) {
+		for i := 0; i < typ.NumField(); i++ {
+			f := typ.Field(i)
+			if f.Anonymous {
+				// recurse into embedded struct (ignore pointer-to-struct for now)
+				if f.Type.Kind() == reflect.Struct {
+					collect(f.Type)
+				}
+			} else {
+				fieldMap[f.Name] = f
+				allFieldNames = append(allFieldNames, f.Name)
+			}
+		}
 	}
+	collect(t)
 
 	// determine visible fields
 	var visibleFields []reflect.StructField
@@ -96,7 +108,7 @@ func BuildTableView[T any](items []T, hideFields []string, includeFields []strin
 			v = v.Elem()
 		}
 
-		// Extract ID (if field exists)
+		// extract ID (if field exists)
 		idVal := v.FieldByName("ID")
 		idStr := formatValue(idVal)
 

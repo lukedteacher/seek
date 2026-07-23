@@ -19,7 +19,7 @@ import (
 
 func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students/list", s.getStudentsList)
-	r.Get("/students/stream", s.getStudentsListStream)
+	r.Get("/students/list/stream", s.getStudentsListStream)
 	r.Get("/students/create", s.getStudentCreate)
 	r.Get("/students/create/stream", s.getStudentCreateStream)
 	r.Post("/students/create/validate", s.postStudentCreateValidate)
@@ -60,7 +60,7 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	_ = pages.List(user, view).Render(ctx, w)
 }
 
-// GET request to /students/stream
+// GET request to /students/list/stream
 func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)

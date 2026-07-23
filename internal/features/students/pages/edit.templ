@@ -1,19 +1,19 @@
 package pages
 
 import (
+	"fmt"
+	"seek/internal/domain/models"
 	"seek/internal/features/students/blocks"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 	"seek/internal/views/dto"
-	"fmt"
-	"seek/internal/domain/models"
 )
 
 templ Edit(user models.User, s dto.StudentFormView) {
 	@layouts.Base("SEEK: edit student", user) {
 		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/students/%s/edit/stream", s.Student.ID)) }>
 			<section>
-				@blocks.EditStudentForm(s)
+				@blocks.StudentEditForm(s)
 			</section>
 		</main>
 	}

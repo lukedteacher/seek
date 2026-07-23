@@ -1,0 +1,11 @@
+package blocks
+
+import "seek/internal/features/educators/dto"
+
+templ CardGrid(educator []dto.EducatorView) {
+	<div class="educator-card-grid">
+		for i := range educator {
+			@Card(educator[i])
+		}
+	</div>
+}

@@ -2,6 +2,14 @@
 
 updates for SEEK
 
+## v0.2.4 (26.07.22) no-cache static assets, view transitions, educators
+
+- switched static asset route to "no-cache" (from "no-store") to speed up page loads
+- enabled navigation: auto for view transitions as first step
+- implemented educator events for create, update, archive, and delete
+- fixed many random bugs
+- implemented person model with name functions to be used as embedded struct in students, educators, etc.
+
 ## v0.2.3 (26.07.22) profile bio updateable, fixed templui js bug
 
 - implemented updating the profile bio via the 'edit profile' page

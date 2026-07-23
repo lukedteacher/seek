@@ -3,14 +3,14 @@ package blocks
 import (
 	"fmt"
 
-  "seek/internal/views/components/selectbox"
 	"seek/internal/domain/models"
+	"seek/internal/views/components/selectboxold"
 )
 
 type StudentMultiselectView struct {
-	StudentID string
+	StudentID   string
 	DisplayName string
-	Selected bool
+	Selected    bool
 }
 
 func NewStudentMultiselectView(all []models.Student, selected []string) []StudentMultiselectView {
@@ -30,18 +30,18 @@ func NewStudentMultiselectView(all []models.Student, selected []string) []Studen
 }
 
 templ StudentMultiselect(s []StudentMultiselectView) {
-	@selectbox.Select(selectbox.Props{
-		ID: "student-multiselect",
+	@selectboxold.Select(selectboxold.Props{
+		ID:       "student-multiselect",
 		Multiple: true,
 		DataBind: "period.student_ids",
 	}) {
 		for i := range s {
-			<option 
-			id={ fmt.Sprintf( "option-%d", i ) }
-			value={ s[i].StudentID }
-			if s[i].Selected {
-				selected
-			}
+			<option
+				id={ fmt.Sprintf("option-%d", i) }
+				value={ s[i].StudentID }
+				if s[i].Selected {
+					selected
+				}
 			>
 				{ s[i].DisplayName }
 			</option>

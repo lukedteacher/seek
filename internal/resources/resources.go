@@ -16,7 +16,7 @@ func Handler() http.Handler {
 	files := http.StripPrefix("/static/", http.FileServer(http.Dir(StaticDirectoryPath)))
 	// serves the files
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set("Cache-Control", "no-cache") // changed from "no-store" to speed up page loading
 		files.ServeHTTP(w, r)
 	})
 }

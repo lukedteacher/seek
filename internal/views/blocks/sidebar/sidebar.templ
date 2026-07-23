@@ -1,8 +1,8 @@
 package sidebar
 
 import (
-	"seek/internal/views/components/sidebar"
 	"seek/internal/views/components/icon"
+	"seek/internal/views/components/sidebar"
 )
 
 type SidebarView struct {
@@ -39,7 +39,7 @@ templ SidebarDesktop() {
 					<li><a href="/periods/create">create</a></li>
 				</ul>
 			</details>
-			<hr style="color: var(--neutral-4-dim);">
+			<hr style="color: var(--neutral-4-dim);"/>
 			<details>
 				<summary>
 					@icon.GraduationCap(icon.Props{
@@ -64,17 +64,17 @@ templ SidebarDesktop() {
 					<li><a href="/iepservices/create">create</a></li>
 				</ul>
 			</details>
-			<hr style="color: var(--neutral-4-dim);">
+			<hr style="color: var(--neutral-4-dim);"/>
 			<details>
 				<summary>
 					@icon.Apple(icon.Props{
 						Size: "20",
 					})
-					<span>teachers</span>
+					<span>educators</span>
 				</summary>
 				<ul>
-					<li><a href="/teachers/list">list</a></li>
-					<li><a href="/teachers/create">create</a></li>
+					<li><a href="/educators/list">list</a></li>
+					<li><a href="/educators/create">create</a></li>
 				</ul>
 			</details>
 		</div>
@@ -117,11 +117,10 @@ templ SidebarCollapsed() {
 					})
 				</li>
 			</ul>
-			<hr style="color: var(--neutral-4-dim);">
+			<hr style="color: var(--neutral-4-dim);"/>
 		</div>
 		<footer>
 			ACCOUNT
 		</footer>
 	}
 }
-
