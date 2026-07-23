@@ -549,7 +549,7 @@ func (s Server) refreshPeriodEditState(ctx context.Context, periodID string) err
 	return viewstore.PutState(ctx, s.ViewStore, period.ID+".edit", period)
 }
 
-func (s *Server) periodToSignals(period *models.Period) models.PeriodSignals {
+func (s Server) periodToSignals(period *models.Period) models.PeriodSignals {
 	if period == nil {
 		return models.PeriodSignals{}
 	}
@@ -562,7 +562,7 @@ func (s *Server) periodToSignals(period *models.Period) models.PeriodSignals {
 	}
 }
 
-func (s *Server) periodSignalsToModel(period *models.PeriodSignals) models.Period {
+func (s Server) periodSignalsToModel(period *models.PeriodSignals) models.Period {
 	if period == nil {
 		return models.Period{}
 	}

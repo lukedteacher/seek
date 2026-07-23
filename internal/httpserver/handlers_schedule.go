@@ -424,7 +424,7 @@ func (s Server) refreshScheduleEditState(ctx context.Context, scheduleID string)
 // builds a view model for the edit schedule view
 // TODO genericize it to be used for other contexts?
 // TODO save it in the state?
-func (s *Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedule) (blocks.EditScheduleViewModel, error) {
+func (s Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedule) (blocks.EditScheduleViewModel, error) {
 	if sm == nil {
 		return blocks.EditScheduleViewModel{}, nil
 	}
@@ -489,7 +489,7 @@ func (s *Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedu
 	}, nil
 }
 
-func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.Schedule) (dto.ScheduleView, error) {
+func (s Server) newScheduleComponentViewModel(ctx context.Context, sm *models.Schedule) (dto.ScheduleView, error) {
 	if sm == nil {
 		return dto.ScheduleView{}, nil
 	}
@@ -516,7 +516,7 @@ func (s *Server) newScheduleComponentViewModel(ctx context.Context, sm *models.S
 	}, nil
 }
 
-func (s *Server) teacherToSignals(teacher *models.Teacher) models.TeacherSignals {
+func (s Server) teacherToSignals(teacher *models.Teacher) models.TeacherSignals {
 	if teacher == nil {
 		return models.TeacherSignals{}
 	}

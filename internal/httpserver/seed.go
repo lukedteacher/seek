@@ -9,7 +9,7 @@ import (
 	sm "seek/internal/features/students/models"
 )
 
-func (s *Server) seedData(w http.ResponseWriter, r *http.Request) {
+func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	students := []sm.Student{

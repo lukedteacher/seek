@@ -2,6 +2,11 @@
 
 updates for SEEK
 
+## v0.3.3 (26.07.23) csv file read, diff table view
+
+- added a rudimentary csv file read via gocsv
+- very sloppy diff and diff table view to see if it works
+
 ## v0.3.2 (26.07.23) more templui, iep service crud
 
 - swapped the user header bit for a different block

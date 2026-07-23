@@ -2,16 +2,16 @@ package models
 
 type IEPService struct {
 	ID              string `display:"ID"`
-	StudentID       string `display:"student ID"`
-	ServiceType     string `display:"type"`
-	IndirectMinutes int    `display:"indirect (min)"`
-	DirectMinutes   int    `display:"direct (min)"`
-	FrequencyCount  int    `display:"freq count"`
-	FrequencyType   string `display:"freq type"`
+	StudentID       string `display:"student ID" csv:"MARSS ID"`
+	ServiceType     string `display:"type" csv:"Service"`
+	IndirectMinutes int    `display:"indirect (min)" csv:"Indirect minutes"`
+	DirectMinutes   int    `display:"direct (min)" csv:"Direct minutes"`
+	FrequencyCount  int    `display:"freq count" csv:"Frequency count"`
+	FrequencyType   string `display:"freq type" csv:"Frequency"`
 	Location        string `display:"location"`
-	StartDate       string `display:"start date"`
-	EndDate         string `display:"end date"`
-	Provider        string `display:"provider"`
+	StartDate       string `display:"start date" csv:"Start date"`
+	EndDate         string `display:"end date" csv:"End date"`
+	Provider        string `display:"provider" csv:"Provider"`
 	CreatedAt       string
 	UpdatedAt       string
 	ArchivedAt      string

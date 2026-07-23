@@ -1,0 +1,63 @@
+package blocks
+
+import "seek/internal/views/components/table"
+
+type DiffStatus string
+
+type DiffRowView struct {
+	ID       string
+	Status   DiffStatus // "added", "updated", "deleted"
+	OldCells []string   // values from DB (nil for added)
+	NewCells []string   // values from CSV (nil for deleted)
+}
+
+type DiffTableView struct {
+	Columns []string // field names
+	Rows    []DiffRowView
+}
+
+templ DiffTable(view DiffTableView) {
+	@table.Table() {
+		@table.Header() {
+			@table.Row() {
+				@table.Head() {
+					Status 
+				}
+				for _, col := range view.Columns {
+					@table.Head() {
+						{ col }
+					}
+				}
+			}
+		}
+		@table.Body() {
+			for _, row := range view.Rows {
+				@DiffRow(view.Columns, row)
+			}
+		}
+	}
+}
+
+templ DiffRow(columns []string, row DiffRowView) {
+	@table.Row() {
+		// Status column
+		@table.Cell() {
+			<span class="badge {statusClass(row.Status)}">{ row.Status }</span>
+		}
+		// Data columns – show old and new side‑by‑side
+		for i := range columns {
+			@table.Cell() {
+				if row.Status == "added" {
+					<span class="text-green-600">+ { row.NewCells[i] }</span>
+				} else if row.Status == "deleted" {
+					<span class="text-red-600">- { row.OldCells[i] }</span>
+				} else if row.OldCells[i] != row.NewCells[i] {
+					<span class="line-through text-muted">{ row.OldCells[i] }</span>
+					<span class="text-green-600">→ { row.NewCells[i] }</span>
+				} else {
+					{ row.NewCells[i] }
+				}
+			}
+		}
+	}
+}
