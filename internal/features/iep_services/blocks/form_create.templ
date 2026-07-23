@@ -2,26 +2,31 @@ package blocks
 
 import (
 	"seek/internal/features/iep_services/dto"
+	sb "seek/internal/features/students/blocks"
 	"seek/internal/views/blocks/forms"
+	"seek/pkg/templui/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ CreateForm(view dto.IEPServiceFormView) {
+templ CreateServiceForm(view dto.IEPServiceFormView) {
 	<form
 		id="form-create-iep-service"
 		class="seek-form"
-		data-on:submit={ datastar.PostSSE("/iepservices/create") }
+		data-on:submit={ datastar.PostSSE(view.URL) }
 	>
 		<hgroup>
-			<h2>CREATE IEP SERVICE</h2>
+			<h2>create IEP service</h2>
 			<p>create a new iep service for a student.</p>
 		</hgroup>
+		<section>
+			@sb.StudentSelect(view.Students)
+		</section>
 		<section>
 			@forms.TextInputWithLabel(
 				"iep-service-type",
 				"type",
-				"/iepservices/validate",
+				view.URL+"/validate",
 				"iepservice.service_type",
 				view.IEPService.ServiceType,
 			)
@@ -31,37 +36,38 @@ templ CreateForm(view dto.IEPServiceFormView) {
 					@forms.NumberInputWithLabel(
 						"iep-service-indirect-minutes",
 						"indirect",
-						"/iepservices/validate",
+						view.URL+"/validate",
 						"iepservice.indirect_minutes",
 						view.IEPService.IndirectMinutes,
 					)
 					@forms.NumberInputWithLabel(
 						"iep-service-direct-minutes",
 						"direct",
-						"/iepservices/validate",
+						view.URL+"/validate",
 						"iepservice.direct_minutes",
 						view.IEPService.DirectMinutes,
 					)
 				</div>
 			</div>
-			@forms.NumberInputWithLabel(
-				"iep-service-frequency-count",
-				"count",
-				"/iepservices/validate",
-				"iepservice.frequency_count",
-				view.IEPService.FrequencyCount,
-			)
-			@forms.TextInputWithLabel(
-				"iep-service-location",
-				"location",
-				"/iepservices/validate",
-				"iepservice.location",
-				view.IEPService.Location,
-			)
+			<div>
+				<p>frequency</p>
+				<div style="display:flex; align-items: center; justify-content: space-between; gap:var(--size-1);">
+					@forms.NumberInputWithLabel(
+						"iep-service-frequency-count",
+						"count",
+						view.URL+"/validate",
+						"iepservice.frequency_count",
+						view.IEPService.FrequencyCount,
+					)
+					<span>x</span>
+					@FrequencyTypeSelect(view.IEPService.FrequencyType)
+				</div>
+			</div>
+			@ServiceLocationSelect(view.IEPService.Location)
 			@forms.TextInputWithLabel(
 				"iep-service-provider",
 				"provider",
-				"/iepservices/validate",
+				view.URL+"/validate",
 				"iepservice.provider",
 				view.IEPService.Provider,
 			)
@@ -71,4 +77,5 @@ templ CreateForm(view dto.IEPServiceFormView) {
 			@forms.SaveButton()
 		</footer>
 	</form>
+	@selectbox.Script()
 }

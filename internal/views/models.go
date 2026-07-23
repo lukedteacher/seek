@@ -6,19 +6,19 @@ import (
 )
 
 type Student struct {
-	Id             string			`db:"id"`
-	FirstName      string			`db:"first_name"`
-	ChosenName     *string			`db:"chosen_name"`
-	LastName       string			`db:"last_name"`
-	Grade          int64				`db:"grade"`
-	Homeroom       string			`db:"homeroom"`
-	CaseManager    *string			`db:"case_manager"`
+	Id          string  `db:"id"`
+	FirstName   string  `db:"first_name"`
+	ChosenName  *string `db:"chosen_name"`
+	LastName    string  `db:"last_name"`
+	Grade       int64   `db:"grade"`
+	Homeroom    string  `db:"homeroom"`
+	CaseManager *string `db:"case_manager"`
 }
 
 type DataView int
 
 const (
-	DataViewCard	DataView = iota
+	DataViewCard DataView = iota
 	DataViewList
 )
 

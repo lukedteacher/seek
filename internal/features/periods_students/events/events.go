@@ -21,9 +21,9 @@ const (
 )
 
 type PeriodStudentAddedEvent struct {
-	EventID   string             `json:"period_student_added_event_id"`
-	AddedAt   string             `json:"added_at"`
-	Scope     PeriodStudentScope `json:"scope"`
+	EventID string             `json:"period_student_added_event_id"`
+	AddedAt string             `json:"added_at"`
+	Scope   PeriodStudentScope `json:"scope"`
 }
 
 type PeriodStudentRemovedEvent struct {
@@ -45,9 +45,9 @@ func NewPeriodStudentAddedEvent(
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := PeriodStudentAddedEvent{
-		EventID:   eventID,
-		AddedAt:   addedAt.Format(time.RFC3339),
-		Scope:     periodStudentScope(periodID, studentID),
+		EventID: eventID,
+		AddedAt: addedAt.Format(time.RFC3339),
+		Scope:   periodStudentScope(periodID, studentID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,

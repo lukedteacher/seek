@@ -97,11 +97,11 @@ func (s *Server) seedData(w http.ResponseWriter, r *http.Request) {
 
 	for _, student := range students {
 		command := se.CreateStudentCommand{
-			FirstName: student.FirstName,
-			ChosenName: student.ChosenName,
-			LastName: student.LastName,
-			Grade: student.Grade,
-			Homeroom: student.Homeroom,
+			FirstName:   student.FirstName,
+			ChosenName:  student.ChosenName,
+			LastName:    student.LastName,
+			Grade:       student.Grade,
+			Homeroom:    student.Homeroom,
 			CaseManager: student.CaseManager,
 		}
 		_, err := se.CreateStudentCommandHandler(
@@ -116,24 +116,24 @@ func (s *Server) seedData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	periods := []pm.Period{
-    {Title: "SEL", StartTime: "08:00", Duration: 20, Days: 1},
-    {Title: "reading", StartTime: "08:55", Duration: 30, Days: 5},
-    {Title: "writing", StartTime: "09:50", Duration: 30, Days: 15},
-    {Title: "SEL", StartTime: "10:50", Duration: 20, Days: 8},
-    {Title: "ex fun", StartTime: "11:45", Duration: 15, Days: 19},
-    {Title: "OT", StartTime: "13:00", Duration: 30, Days: 18},
-    {Title: "speech", StartTime: "13:40", Duration: 20, Days: 22},
-    {Title: "speech", StartTime: "14:35", Duration: 20, Days: 29},
-    {Title: "math (push-in)", StartTime: "13:30", Duration: 60, Days: 10},
-    {Title: "reading", StartTime: "14:20", Duration: 30, Days: 17},
+		{Title: "SEL", StartTime: "08:00", Duration: 20, Days: 1},
+		{Title: "reading", StartTime: "08:55", Duration: 30, Days: 5},
+		{Title: "writing", StartTime: "09:50", Duration: 30, Days: 15},
+		{Title: "SEL", StartTime: "10:50", Duration: 20, Days: 8},
+		{Title: "ex fun", StartTime: "11:45", Duration: 15, Days: 19},
+		{Title: "OT", StartTime: "13:00", Duration: 30, Days: 18},
+		{Title: "speech", StartTime: "13:40", Duration: 20, Days: 22},
+		{Title: "speech", StartTime: "14:35", Duration: 20, Days: 29},
+		{Title: "math (push-in)", StartTime: "13:30", Duration: 60, Days: 10},
+		{Title: "reading", StartTime: "14:20", Duration: 30, Days: 17},
 	}
 
 	for _, period := range periods {
 		command := pe.CreatePeriodCommand{
-			Title: period.Title,
+			Title:     period.Title,
 			StartTime: period.StartTime,
-			Duration: period.Duration,
-			Days: period.Days,
+			Duration:  period.Duration,
+			Days:      period.Days,
 		}
 		_, err := pe.CreatePeriodCommandHandler(
 			ctx,

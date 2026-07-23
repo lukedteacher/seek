@@ -55,7 +55,13 @@ func PeriodScheduleAddCommandHandler(
 		metadataWithQuery(command.Metadata, model.query),
 	)
 
-	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
+	if _, err := saver.SaveEvents(
+		ctx,
+		[]eventstore.DomainEvent{event},
+		model.position,
+		model.events,
+		model.query,
+	); err != nil {
 		return nil, err
 	}
 	return &PeriodScheduleAddResult{EventID: eventID, Skipped: false}, nil
@@ -82,7 +88,13 @@ func loadPeriodScheduleAddContext(
 	error,
 ) {
 	query := streamQuery(periodID, scheduleID)
-	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
+	events, err := retriever.GetEvents(
+		ctx,
+		eventstore.NoEventPosition,
+		100,
+		eventstore.Forward,
+		query,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -95,38 +107,38 @@ func loadPeriodScheduleAddContext(
 	return model, nil
 }
 
-func (c *periodScheduleAddContext) isPeriodActive() error {
-	if !c.periodCreated || c.periodDeleted {
+func (m *periodScheduleAddContext) isPeriodActive() error {
+	if !m.periodCreated || m.periodDeleted {
 		return eventstore.ErrPeriodNotFound
 	}
 	return nil
 }
 
-func (c *periodScheduleAddContext) isScheduleActive() error {
-	if !c.scheduleCreated || c.scheduleDeleted {
+func (m *periodScheduleAddContext) isScheduleActive() error {
+	if !m.scheduleCreated || m.scheduleDeleted {
 		return eventstore.ErrScheduleNotFound
 	}
 	return nil
 }
 
-func (c *periodScheduleAddContext) handle(resolved eventstore.ResolvedEvent) {
+func (m *periodScheduleAddContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case pe.PeriodCreated:
-		c.periodCreated = true
-		c.periodDeleted = false
+		m.periodCreated = true
+		m.periodDeleted = false
 	case pe.PeriodDeleted:
-		c.periodDeleted = true
+		m.periodDeleted = true
 	case se.ScheduleCreated:
-		c.scheduleCreated = true
-		c.scheduleDeleted = false
+		m.scheduleCreated = true
+		m.scheduleDeleted = false
 	case se.ScheduleDeleted:
-		c.scheduleDeleted = true
+		m.scheduleDeleted = true
 	case PeriodScheduleAdded:
-		c.added = true
+		m.added = true
 	case PeriodScheduleRemoved:
-		c.added = false
+		m.added = false
 	}
-	if resolved.Position.After(c.position) {
-		c.position = resolved.Position
+	if resolved.Position.After(m.position) {
+		m.position = resolved.Position
 	}
 }

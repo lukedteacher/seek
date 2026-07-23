@@ -81,10 +81,10 @@ func (m *deleteIEPServiceContext) requireActive() error {
 
 func (m *deleteIEPServiceContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case IEPServiceCreated:
+	case EventTypeIEPServiceAddedToStudent:
 		m.exists = true
 		m.deleted = false
-	case IEPServiceDeleted:
+	case EventTypeIEPServiceDeleted:
 		m.deleted = true
 	}
 	if resolved.Position.After(m.position) {

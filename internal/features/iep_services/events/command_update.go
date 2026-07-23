@@ -155,31 +155,31 @@ func (m *updateIEPServiceContext) handle(resolved eventstore.ResolvedEvent) {
 		m.studentDeleted = false
 	case se.StudentDeleted:
 		m.studentDeleted = true
-	case IEPServiceCreated:
+	case EventTypeIEPServiceAddedToStudent:
 		m.serviceExists = true
 		m.serviceDeleted = false
-		m.studentID, _ = data[IEPServiceStudentIDField].(string)
-		m.serviceType, _ = data[IEPServiceServiceTypeField].(string)
-		m.indirectMinutes = int(data[IEPServiceIndirectMinutesField].(float64))
-		m.directMinutes = int(data[IEPServiceDirectMinutesField].(float64))
-		m.frequencyCount = int(data[IEPServiceFrequencyCountField].(float64))
-		m.frequencyType, _ = data[IEPServiceFrequencyTypeField].(string)
-		m.location, _ = data[IEPServiceLocationField].(string)
-		m.startDate, _ = data[IEPServiceStartDateField].(string)
-		m.endDate, _ = data[IEPServiceEndDateField].(string)
-		m.provider, _ = data[IEPServiceProviderField].(string)
-	case IEPServiceUpdated:
-		m.studentID, _ = data[IEPServiceStudentIDField].(string)
-		m.serviceType, _ = data[IEPServiceServiceTypeField].(string)
-		m.indirectMinutes = int(data[IEPServiceIndirectMinutesField].(float64))
-		m.directMinutes = int(data[IEPServiceDirectMinutesField].(float64))
-		m.frequencyCount = int(data[IEPServiceFrequencyCountField].(float64))
-		m.frequencyType, _ = data[IEPServiceFrequencyTypeField].(string)
-		m.location, _ = data[IEPServiceLocationField].(string)
-		m.startDate, _ = data[IEPServiceStartDateField].(string)
-		m.endDate, _ = data[IEPServiceEndDateField].(string)
-		m.provider, _ = data[IEPServiceProviderField].(string)
-	case IEPServiceDeleted:
+		m.studentID, _ = data[FieldIEPServiceStudentID].(string)
+		m.serviceType, _ = data[FieldIEPServiceServiceType].(string)
+		m.indirectMinutes = int(data[FieldIEPServiceIndirectMinutes].(float64))
+		m.directMinutes = int(data[FieldIEPServiceDirectMinutes].(float64))
+		m.frequencyCount = int(data[FieldIEPServiceFrequencyCount].(float64))
+		m.frequencyType, _ = data[FieldIEPServiceFrequencyType].(string)
+		m.location, _ = data[FieldIEPServiceLocation].(string)
+		m.startDate, _ = data[FieldIEPServiceStartDate].(string)
+		m.endDate, _ = data[FieldIEPServiceEndDate].(string)
+		m.provider, _ = data[FieldIEPServiceProvider].(string)
+	case EventTypeIEPServiceUpdated:
+		m.studentID, _ = data[FieldIEPServiceStudentID].(string)
+		m.serviceType, _ = data[FieldIEPServiceServiceType].(string)
+		m.indirectMinutes = int(data[FieldIEPServiceIndirectMinutes].(float64))
+		m.directMinutes = int(data[FieldIEPServiceDirectMinutes].(float64))
+		m.frequencyCount = int(data[FieldIEPServiceFrequencyCount].(float64))
+		m.frequencyType, _ = data[FieldIEPServiceFrequencyType].(string)
+		m.location, _ = data[FieldIEPServiceLocation].(string)
+		m.startDate, _ = data[FieldIEPServiceStartDate].(string)
+		m.endDate, _ = data[FieldIEPServiceEndDate].(string)
+		m.provider, _ = data[FieldIEPServiceProvider].(string)
+	case EventTypeIEPServiceDeleted:
 		m.serviceDeleted = true
 	}
 	if resolved.Position.After(m.position) {

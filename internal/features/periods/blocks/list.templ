@@ -1,10 +1,10 @@
 package blocks
 
 import (
-	"seek/internal/features/_shared/dto"
+	shareddto "seek/internal/features/_shared/dto"
 	"seek/internal/views/blocks/data_table"
 )
 
-templ List(view dto.TableView) {
+templ List(view shareddto.TableView) {
 	@datatable.DataTable(view)
 }

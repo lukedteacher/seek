@@ -29,7 +29,7 @@ templ Label(props ...Props) {
 		if p.Type != "" {
 			type={ p.Type }
 		}
-		class={p.ValidationState}
+		class={ p.ValidationState, "seek-label" }
 	>
 		<p>
 			<span class="label-span">{ p.Label }</span>
@@ -42,7 +42,7 @@ templ Label(props ...Props) {
 
 templ LabelStyle() {
 	<style>
-		label {
+		label.seek-label {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -55,6 +55,7 @@ templ LabelStyle() {
 				justify-content: space-between;
 				align-items: center;
 				font-size: var(--fnt-sm);
+				color: color-mix(in oklch, var(--neutral-4-on) 70%, transparent);
 
 				.validation-span {
 					color: color-mix(in oklch, currentColor 80%, black 10%)

@@ -8,9 +8,10 @@ import (
 
 // EVENT NAMES
 const (
-	StudentCreated = "StudentCreated"
-	StudentUpdated = "StudentUpdated"
-	StudentDeleted = "StudentDeleted"
+	StudentCreated  = "StudentCreated"
+	StudentUpdated  = "StudentUpdated"
+	StudentArchived = "StudentArchived"
+	StudentDeleted  = "StudentDeleted"
 )
 
 // EVENT FIELDS

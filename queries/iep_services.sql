@@ -54,7 +54,7 @@ WHERE student_id = @student_id
 	AND archived_at IS NULL
 ORDER BY service_type DESC;
 
--- name: CreateIEPService :exec
+-- name: AddIEPServiceToStudent :exec
 INSERT INTO iep_services (
 	id, 
 	student_id, 

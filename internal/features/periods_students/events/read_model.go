@@ -125,8 +125,8 @@ func (m *ReadModel) AddStudentToPeriod(ctx context.Context, event PeriodStudentA
 func (m *ReadModel) RemoveStudentFromPeriod(ctx context.Context, event PeriodStudentRemovedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceRemoveStudentFromPeriod(conn, dbsql.RemoveStudentFromPeriodParams{
-			PeriodId:                 event.PeriodID,
-			StudentId:                event.StudentID,
+			PeriodId:  event.PeriodID,
+			StudentId: event.StudentID,
 		})
 	})
 }

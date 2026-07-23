@@ -1,4 +1,4 @@
-package dto
+package shareddto
 
 import (
 	"fmt"
@@ -25,14 +25,14 @@ type RowView struct {
 
 type CellView string
 
-// BuildTableView converts a slice of structs to a TableView.
+// NewTableView converts a slice of structs to a TableView.
 // parameters:
 //   - items: slice of structs (or pointers to structs)
 //   - hideFields: field names to exclude from the visible columns (e.g., ["CaseManager"])
 //   - includeFields: if non-nil, only these fields (in this order) are shown (ignored if nil)
 //
 // The "ID" field is always hidden and stored in RowView.ID.
-func BuildTableView[T any](items []T, hideFields []string, includeFields []string) TableView {
+func NewTableView[T any](items []T, hideFields []string, includeFields []string) TableView {
 	if len(items) == 0 {
 		return TableView{Columns: []ColumnMeta{}, Rows: []RowView{}}
 	}
@@ -138,6 +138,9 @@ func BuildTableView[T any](items []T, hideFields []string, includeFields []strin
 
 // formatValue handles pointers and basic types
 func formatValue(val reflect.Value) string {
+	if !val.IsValid() {
+		return ""
+	}
 	switch val.Kind() {
 	case reflect.Ptr:
 		if val.IsNil() {

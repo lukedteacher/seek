@@ -1,0 +1,51 @@
+package blocks
+
+import (
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
+)
+
+templ ServiceLocationSelect(selected string) {
+	@selectbox.SelectBox(selectbox.Props{
+		ID: "service-location-multiselect-container",
+	}) {
+		@label.Label(label.Props{
+			For:   "service-location-multiselect",
+			Class: "text-neutral-content/80 mb-3",
+		}) {
+			location
+		}
+		@selectbox.Trigger(selectbox.TriggerProps{
+			ID: "service-location-multiselect",
+			Attributes: templ.Attributes{
+				"data-bind:iepservice.location": "",
+			},
+		}) {
+			@selectbox.Value(selectbox.ValueProps{
+				Placeholder: "no location selected",
+			})
+		}
+		@selectbox.Content(selectbox.ContentProps{
+			NoSearch: true,
+		}) {
+			@selectbox.Item(selectbox.ItemProps{
+				Value:    "gen",
+				Selected: selected == "gen",
+			}) {
+				general education classroom
+			}
+			@selectbox.Item(selectbox.ItemProps{
+				Value:    "res",
+				Selected: selected == "res",
+			}) {
+				resource room
+			}
+			@selectbox.Item(selectbox.ItemProps{
+				Value:    "other",
+				Selected: selected == "other",
+			}) {
+				other
+			}
+		}
+	}
+}

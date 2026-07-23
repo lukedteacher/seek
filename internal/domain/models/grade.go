@@ -31,58 +31,58 @@ var GradeList = []Grade{
 }
 
 func (g Grade) Ordinal() string {
-  ordinalMap := map[Grade]string{
+	ordinalMap := map[Grade]string{
 		0:  "K",
-    1:  "1st",
-    2:  "2nd", 
-    3:  "3rd",
-    4:  "4th",
-    5:  "5th",
-    6:  "6th",
-    7:  "7th",
-    8:  "8th",
+		1:  "1st",
+		2:  "2nd",
+		3:  "3rd",
+		4:  "4th",
+		5:  "5th",
+		6:  "6th",
+		7:  "7th",
+		8:  "8th",
 		9:  "9th",
 		10: "10th",
 		11: "11th",
 		12: "12th",
-  }
-  return ordinalMap[g]
+	}
+	return ordinalMap[g]
 }
 
 func (g Grade) Word() string {
-  wordMap := map[Grade]string{
+	wordMap := map[Grade]string{
 		0:  "kindergarten",
-    1:  "first",
-    2:  "second", 
-    3:  "third",
-    4:  "fourth",
-    5:  "fifth",
-    6:  "eighth",
-    7:  "seventh",
-    8:  "eighth",
+		1:  "first",
+		2:  "second",
+		3:  "third",
+		4:  "fourth",
+		5:  "fifth",
+		6:  "eighth",
+		7:  "seventh",
+		8:  "eighth",
 		9:  "ninth",
 		10: "tenth",
 		11: "eleventh",
 		12: "twelfth",
-  }
-  return wordMap[g]
+	}
+	return wordMap[g]
 }
 
 func (g Grade) Str() string {
-  strMap := map[Grade]string{
+	strMap := map[Grade]string{
 		0:  "0",
-    1:  "1",
-    2:  "2", 
-    3:  "3",
-    4:  "4",
-    5:  "5",
-    6:  "6",
-    7:  "7",
-    8:  "8",
+		1:  "1",
+		2:  "2",
+		3:  "3",
+		4:  "4",
+		5:  "5",
+		6:  "6",
+		7:  "7",
+		8:  "8",
 		9:  "9",
 		10: "10",
 		11: "11",
 		12: "12",
-  }
-  return strMap[g]
+	}
+	return strMap[g]
 }

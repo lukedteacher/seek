@@ -76,7 +76,6 @@ templ Input(props ...Props) {
 	>
 		{ children... }
 	</input>
-	@InputStyle()
 }
 
 templ InputStyle() {
@@ -91,7 +90,6 @@ templ InputStyle() {
 			cursor: text;
 			display: inline-flex;
 			/* size */
-			height: var(--size-4);
 			width: 100%;
 			min-width: 0; /* needed to stop text overflow or something? */
 			/* text */
@@ -108,7 +106,6 @@ templ InputStyle() {
 			border-color: var(--neutral-4-dim);
 			color: var(--neutral-4-on);
 			background-color: var(--neutral-4);
-			padding: 0 var(--size--2);
 
 			&:focus, &:active {
 				outline-color: var(--primary-12-dim);

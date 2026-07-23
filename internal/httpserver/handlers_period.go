@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"seek/internal/domain/models"
 	"seek/internal/eventstore"
@@ -53,7 +54,7 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := sdto.BuildTableView(periods, nil, []string{
+	view := sdto.NewTableView(periods, nil, []string{
 		"Title",
 		"StartTime",
 		"Duration",
@@ -68,7 +69,7 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	sse := newSSE(w, r)
-	
+
 	notifier := NewDedupeNotifier()
 	// subscribes to the channel which publishes changes to any periods
 	sub, err := s.Subscriber.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {
@@ -92,7 +93,7 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			view := sdto.BuildTableView(periods, nil, []string{
+			view := sdto.NewTableView(periods, nil, []string{
 				"Title",
 				"StartTime",
 				"Duration",
@@ -212,8 +213,8 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 		println("ph cpch error: ", err.Error())
 		return
 	}
-
-	for _, studentID := range signals.Period.StudentIDs {
+	studentIDs := strings.Split(signals.Period.StudentIDs, ",")
+	for _, studentID := range studentIDs {
 		periodStudentAddCommand := psevents.PeriodStudentAddCommand{
 			PeriodID:  result.PeriodID,
 			StudentID: studentID,
@@ -248,7 +249,6 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 		_ = pages.NotFound(user).Render(ctx, w)
 		return
 	}
-
 	view, err := dto.NewViewFromPeriod(model)
 	if err != nil {
 		println("error: ", err.Error())
@@ -466,7 +466,8 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		println("period update skipped")
 	}
 	current, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, periodID)
-	proposed := signals.Period.StudentIDs
+	proposed := strings.Split(signals.Period.StudentIDs, ",")
+	println("p: ", len(proposed))
 	if len(current) != 0 || len(proposed) != 0 {
 		// build maps for O(1) lookups
 		currentMap := make(map[string]bool)

@@ -10,9 +10,9 @@ import (
 
 templ Create(user models.User, view dto.IEPServiceFormView) {
 	@layouts.Base("SEEK: create service", user) {
-		<main data-init={ views.LongRunningGetSSE("/students/iepservices/create/stream") }>
+		<main data-init={ views.LongRunningGetSSE("/iepservices/create/stream") }>
 			<section>
-				@blocks.CreateForm(view)
+				@blocks.CreateServiceForm(view)
 			</section>
 		</main>
 	}

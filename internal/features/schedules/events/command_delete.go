@@ -10,7 +10,7 @@ import (
 
 type DeleteScheduleCommand struct {
 	ScheduleID string
-	Metadata  CommandMetadata
+	Metadata   CommandMetadata
 }
 
 type DeleteScheduleResult struct {

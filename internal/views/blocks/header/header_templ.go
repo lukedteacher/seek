@@ -49,7 +49,7 @@ func MainHeader(user models.User) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if user.UserRegisteredID != "" {
-			templ_7745c5c3_Err = blocks.UserHeaderMenu(user).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.UserHeader(user).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

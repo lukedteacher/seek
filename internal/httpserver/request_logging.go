@@ -8,7 +8,6 @@ import (
 	"seek/internal/eventstore"
 
 	"github.com/go-chi/chi/v5/middleware"
-
 )
 
 type statusRecorder struct {

@@ -49,7 +49,7 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := sdto.BuildTableView(students, nil, []string{
+	view := sdto.NewTableView(students, nil, []string{
 		"FirstName",
 		"ChosenName",
 		"LastName",
@@ -88,7 +88,7 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			view := sdto.BuildTableView(students, nil, []string{
+			view := sdto.NewTableView(students, nil, []string{
 				"FirstName",
 				"ChosenName",
 				"LastName",

@@ -10,7 +10,7 @@ import (
 
 type DeletePeriodCommand struct {
 	PeriodID string
-	Metadata  CommandMetadata
+	Metadata CommandMetadata
 }
 
 type DeletePeriodResult struct {

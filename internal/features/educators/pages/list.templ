@@ -2,13 +2,13 @@ package pages
 
 import (
 	"seek/internal/domain/models"
-	"seek/internal/features/_shared/dto"
+	shareddto "seek/internal/features/_shared/dto"
 	"seek/internal/views"
 	"seek/internal/views/blocks/data_table"
 	"seek/internal/views/layouts"
 )
 
-templ List(user models.User, view dto.TableView) {
+templ List(user models.User, view shareddto.TableView) {
 	@layouts.Base("SEEK: educators", user) {
 		<main data-init={ views.LongRunningGetSSE("/educators/list/stream") }>
 			<section style="display: flex; flex-direction: column; gap: 1rem;">

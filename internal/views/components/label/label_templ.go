@@ -49,7 +49,7 @@ func Label(props ...Props) templ.Component {
 		if len(props) > 0 {
 			p = props[0]
 		}
-		var templ_7745c5c3_Var2 = []any{p.ValidationState}
+		var templ_7745c5c3_Var2 = []any{p.ValidationState, "seek-label"}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -189,7 +189,7 @@ func LabelStyle() templ.Component {
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<style>\r\n\t\tlabel {\r\n\t\t\tdisplay: flex;\r\n\t\t\tflex-direction: column;\r\n\t\t\talign-items: center;\r\n\t\t\tgap: var(--size-0);\r\n\t\t\tflex-grow: 1;\r\n\r\n\t\t\tp {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tjustify-content: space-between;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tfont-size: var(--fnt-sm);\r\n\r\n\t\t\t\t.validation-span {\r\n\t\t\t\t\tcolor: color-mix(in oklch, currentColor 80%, black 10%)\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t&.error {\r\n\t\t\t\tcolor: var(--error-6);\r\n\t\t\t\tspan {\r\n\t\t\t\t\tcolor: var(--error-7);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t&.valid {\r\n\t\t\t\tcolor: green;\r\n\t\t\t\tspan {\r\n\t\t\t\t\tcolor: var(green);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<style>\r\n\t\tlabel.seek-label {\r\n\t\t\tdisplay: flex;\r\n\t\t\tflex-direction: column;\r\n\t\t\talign-items: center;\r\n\t\t\tgap: var(--size-0);\r\n\t\t\tflex-grow: 1;\r\n\r\n\t\t\tp {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tjustify-content: space-between;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tfont-size: var(--fnt-sm);\r\n\t\t\t\tcolor: color-mix(in oklch, var(--neutral-4-on) 70%, transparent);\r\n\r\n\t\t\t\t.validation-span {\r\n\t\t\t\t\tcolor: color-mix(in oklch, currentColor 80%, black 10%)\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t&.error {\r\n\t\t\t\tcolor: var(--error-6);\r\n\t\t\t\tspan {\r\n\t\t\t\t\tcolor: var(--error-7);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t&.valid {\r\n\t\t\t\tcolor: green;\r\n\t\t\t\tspan {\r\n\t\t\t\t\tcolor: var(green);\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

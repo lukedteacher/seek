@@ -111,34 +111,44 @@ func (ds *DaysSignals) IsDaySet(day Day) bool {
 }
 
 func DaysBitmaskToDaysSignals(mask int64) DaysSignals {
-    ds := DaysSignals{}
-    for _, d := range Days {
-        set := mask&d.Bit() != 0
-        switch d {
-        case Day(time.Monday):    ds.Monday = set
-        case Day(time.Tuesday):   ds.Tuesday = set
-        case Day(time.Wednesday): ds.Wednesday = set
-        case Day(time.Thursday):  ds.Thursday = set
-        case Day(time.Friday):    ds.Friday = set
-        }
-    }
-    return ds
+	ds := DaysSignals{}
+	for _, d := range Days {
+		set := mask&d.Bit() != 0
+		switch d {
+		case Day(time.Monday):
+			ds.Monday = set
+		case Day(time.Tuesday):
+			ds.Tuesday = set
+		case Day(time.Wednesday):
+			ds.Wednesday = set
+		case Day(time.Thursday):
+			ds.Thursday = set
+		case Day(time.Friday):
+			ds.Friday = set
+		}
+	}
+	return ds
 }
 
 func DaysSignalsToDaysBitmask(ds DaysSignals) int64 {
-    mask := int64(0)
-    for _, d := range Days {
-        var set bool
-        switch d {
-        case Day(time.Monday):    set = ds.Monday
-        case Day(time.Tuesday):   set = ds.Tuesday
-        case Day(time.Wednesday): set = ds.Wednesday
-        case Day(time.Thursday):  set = ds.Thursday
-        case Day(time.Friday):    set = ds.Friday
-        }
-        if set {
-            mask |= d.Bit()
-        }
-    }
-    return mask
+	mask := int64(0)
+	for _, d := range Days {
+		var set bool
+		switch d {
+		case Day(time.Monday):
+			set = ds.Monday
+		case Day(time.Tuesday):
+			set = ds.Tuesday
+		case Day(time.Wednesday):
+			set = ds.Wednesday
+		case Day(time.Thursday):
+			set = ds.Thursday
+		case Day(time.Friday):
+			set = ds.Friday
+		}
+		if set {
+			mask |= d.Bit()
+		}
+	}
+	return mask
 }

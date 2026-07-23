@@ -6,43 +6,41 @@ import (
 	"seek/internal/eventstore"
 )
 
-// EVENT NAMES
+// event types
 const (
-	IEPServiceCreated = "IEPServiceCreated"
-	IEPServiceUpdated = "IEPServiceUpdated"
-	IEPServiceDeleted = "IEPServiceDeleted"
+	EventTypeIEPServiceAddedToStudent = "IEPServiceAddedToStudent"
+	EventTypeIEPServiceUpdated        = "IEPServiceUpdated"
+	EventTypeIEPServiceDeleted        = "IEPServiceDeleted"
 )
 
-// EVENT METADATA
+// event fields for event IDs
 const (
-	IEPServiceCreatedIDField = "iep_service_created_event_id"
-	IEPServiceUpdatedIDField = "iep_service_updated_event_id"
-	IEPServiceDeletedIDField = "iep_service_deleted_event_id"
+	FieldIEPServiceEventIDIEPServiceAddedToStudent = "iep_service_added_to_student_event_id"
+	FieldIEPServiceEventIDIEPServiceUpdated        = "iep_service_updated_event_id"
+	FieldIEPServiceEventIDIEPServiceDeleted        = "iep_service_deleted_event_id"
 )
 
-// EVENT FIELDS
+// event fields
 const (
-	IEPServiceIDField              = "iep_service_id"
-	IEPServiceStudentIDField       = "student_id"
-	IEPServiceServiceTypeField     = "service_type"
-	IEPServiceIndirectMinutesField = "indirect_minutes"
-	IEPServiceDirectMinutesField   = "direct_minutes"
-	IEPServiceFrequencyCountField  = "frequency_count"
-	IEPServiceFrequencyTypeField   = "frequency_type"
-	IEPServiceLocationField        = "location"
-	IEPServiceStartDateField       = "start_date"
-	IEPServiceEndDateField         = "end_date"
-	IEPServiceProviderField        = "provider"
-	IEPServiceCreatedAtField       = "created_at"
-	IEPServiceUpdatedAtField       = "updated_at"
-	IEPServiceDeletedAtField       = "deleted_at"
-	IEPServiceScopeIDField         = "scope.iep_service_id"
+	FieldIEPServiceID              = "iep_service_id"
+	FieldIEPServiceStudentID       = "student_id"
+	FieldIEPServiceServiceType     = "service_type"
+	FieldIEPServiceIndirectMinutes = "indirect_minutes"
+	FieldIEPServiceDirectMinutes   = "direct_minutes"
+	FieldIEPServiceFrequencyCount  = "frequency_count"
+	FieldIEPServiceFrequencyType   = "frequency_type"
+	FieldIEPServiceLocation        = "location"
+	FieldIEPServiceStartDate       = "start_date"
+	FieldIEPServiceEndDate         = "end_date"
+	FieldIEPServiceProvider        = "provider"
+	FieldIEPServiceAddedAt         = "added_at"
+	FieldIEPServiceUpdatedAt       = "updated_at"
+	FieldIEPServiceDeletedAt       = "deleted_at"
+	FieldIEPServiceScopeID         = "scope.iep_service_added_to_student_event_id"
 )
 
-// includes iep_service scope which may be redundant
-// since event ID is the same as the iep_service for created
-type IEPServiceCreatedEvent struct {
-	EventID         string          `json:"iep_service_created_event_id"`
+type IEPServiceAddedToStudentEvent struct {
+	EventID         string          `json:"iep_service_added_to_student_event_id"`
 	IEPServiceID    string          `json:"iep_service_id"`
 	StudentID       string          `json:"student_id"`
 	ServiceType     string          `json:"service_type"`
@@ -54,7 +52,7 @@ type IEPServiceCreatedEvent struct {
 	StartDate       string          `json:"start_date"`
 	EndDate         string          `json:"end_date"`
 	Provider        string          `json:"provider"`
-	CreatedAt       string          `json:"created_at"`
+	AddedAt         string          `json:"added_at"`
 	Scope           IEPServiceScope `json:"scope"`
 }
 
@@ -82,44 +80,35 @@ type IEPServiceDeletedEvent struct {
 }
 
 type IEPServiceScope struct {
-	IEPServiceID string `json:"iep_service_id"`
+	IEPServiceID string `json:"iep_service_added_to_student_event_id"`
 	StudentID    string `json:"student_id"`
 }
 
-func NewIEPServiceCreatedEvent(
-	iepServiceID string,
-	studentID string,
-	serviceType string,
-	indirectMinutes int,
-	directMinutes int,
-	frequencyCount int,
-	frequencyType string,
-	location string,
-	startDate string,
-	endDate string,
-	provider string,
-	createdAt time.Time,
+func NewIEPServiceAddedToStudentEvent(
+	eventID string,
+	command AddIEPServiceToStudentCommand,
+	addedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
-	event := IEPServiceCreatedEvent{
-		EventID:         iepServiceID,
-		IEPServiceID:    iepServiceID,
-		StudentID:       studentID,
-		ServiceType:     serviceType,
-		IndirectMinutes: indirectMinutes,
-		DirectMinutes:   directMinutes,
-		FrequencyCount:  frequencyCount,
-		FrequencyType:   frequencyType,
-		Location:        location,
-		StartDate:       startDate,
-		EndDate:         endDate,
-		Provider:        provider,
-		CreatedAt:       createdAt.Format(time.RFC3339),
-		Scope:           iepServiceScope(iepServiceID, studentID),
+	event := IEPServiceAddedToStudentEvent{
+		EventID:         eventID,
+		IEPServiceID:    eventID,
+		StudentID:       command.StudentID,
+		ServiceType:     command.ServiceType,
+		IndirectMinutes: command.IndirectMinutes,
+		DirectMinutes:   command.DirectMinutes,
+		FrequencyCount:  command.FrequencyCount,
+		FrequencyType:   command.FrequencyType,
+		Location:        command.Location,
+		StartDate:       command.StartDate,
+		EndDate:         command.EndDate,
+		Provider:        command.Provider,
+		AddedAt:         addedAt.Format(time.RFC3339),
+		Scope:           iepServiceScope(eventID, command.StudentID),
 	}
 	return eventstore.DomainEvent{
-		EventID:   iepServiceID,
-		EventType: IEPServiceCreated,
+		EventID:   eventID,
+		EventType: EventTypeIEPServiceAddedToStudent,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}
@@ -159,7 +148,7 @@ func NewIEPServiceUpdatedEvent(
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: IEPServiceUpdated,
+		EventType: EventTypeIEPServiceUpdated,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}
@@ -179,7 +168,7 @@ func NewIEPServiceDeletedEvent(
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: IEPServiceDeleted,
+		EventType: EventTypeIEPServiceDeleted,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}

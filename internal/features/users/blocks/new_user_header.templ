@@ -1,0 +1,142 @@
+package blocks
+
+import (
+	"seek/internal/domain/models"
+	"seek/pkg/templui/components/avatar"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/dropdown"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/separator"
+)
+
+templ UserHeader(user models.User) {
+	<div class="flex items-center space-x-4 text-muted-foreground">
+		@button.Button(button.Props{
+			Variant: button.VariantGhost,
+			Size:    button.SizeIcon,
+		}) {
+			@icon.Search(icon.Props{
+				Class: "size-5",
+			})
+		}
+		@button.Button(button.Props{
+			Variant: button.VariantGhost,
+			Size:    button.SizeIcon,
+		}) {
+			@icon.Bell(icon.Props{
+				Class: "size-5",
+			})
+		}
+		@button.Button(button.Props{
+			Variant: button.VariantGhost,
+			Size:    button.SizeIcon,
+		}) {
+			@icon.MessageSquare(icon.Props{
+				Class: "size-5",
+			})
+		}
+		@separator.Separator(separator.Props{
+			Orientation: "vertical",
+			Class:       "h-6",
+		})
+		@UserHeaderDropdown(user)
+	</div>
+}
+
+templ UserHeaderDropdown(user models.User) {
+	@dropdown.Dropdown(dropdown.Props{
+		ID: "user-menu",
+	}) {
+		@dropdown.Trigger() {
+			@button.Button(button.Props{
+				Variant: button.VariantGhost,
+				Class:   "flex items-center justify-center",
+			}) {
+				@avatar.Avatar(avatar.Props{
+					Class: "h-6 w-6 border-2 border-border text-xs",
+				}) {
+					@avatar.Fallback() {
+						{ models.UserInitials(user) }
+					}
+				}
+				@icon.ChevronDown(icon.Props{Class: "size-4 text-muted-foreground"})
+			}
+		}
+		@dropdown.Content(dropdown.ContentProps{
+			Class: "w-64 bg-base-100",
+		}) {
+			<div class="px-4 py-3 border-b">
+				<div class="flex items-center space-x-3">
+					@avatar.Avatar(avatar.Props{
+						Class: "h-12 w-12",
+					}) {
+						@avatar.Fallback() {
+							{ models.UserInitials(user) }
+						}
+					}
+					<div class="flex-1 min-w-0">
+						<div class="font-medium text-neutral-content">{ user.Name }</div>
+						<div class="text-sm truncate text-neutral-content/80">{ user.Email }</div>
+						<div class="flex items-center space-x-2 mt-1">
+							@badge.Badge(badge.Props{
+								Variant: badge.VariantSecondary,
+								Class:   "text-xs bg-success/32 text-success",
+							}) {
+								online
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="py-1">
+				@dropdown.Item(dropdown.ItemProps{
+					Class: "px-4 py-2",
+					Href:  "/",
+				}) {
+					<div class="flex items-center space-x-3 text-muted-foreground">
+						@icon.LayoutDashboard(icon.Props{Class: "size-4"})
+						<span class="text-sm">dashboard</span>
+					</div>
+				}
+				@dropdown.Item(dropdown.ItemProps{
+					Class: "px-4 py-2",
+					Href:  "/profile",
+				}) {
+					<div class="flex items-center space-x-3 text-muted-foreground">
+						@icon.User(icon.Props{Class: "size-4"})
+						<span class="text-sm">view profile</span>
+					</div>
+				}
+				@dropdown.Item(dropdown.ItemProps{
+					Class: "px-4 py-2",
+				}) {
+					<div class="flex items-center space-x-3 text-muted-foreground">
+						@icon.Settings(icon.Props{Class: "size-4"})
+						<span class="text-sm">account settings</span>
+					</div>
+				}
+			</div>
+			@separator.Separator()
+			<div class="py-1">
+				@dropdown.Item(dropdown.ItemProps{
+					Class: "px-4 py-2",
+				}) {
+					<div class="flex items-center space-x-3 text-muted-foreground">
+						@icon.CircleQuestionMark(icon.Props{Class: "size-4"})
+						<span class="text-sm">help & support</span>
+					</div>
+				}
+				@dropdown.Item(dropdown.ItemProps{
+					Class: "px-4 py-2 hover:text-accent-foreground",
+				}) {
+					<div class="flex items-center space-x-3 text-muted-foreground">
+						@icon.LogOut(icon.Props{Class: "size-4 text-destructive"})
+						<span class="text-sm text-destructive">sign out</span>
+					</div>
+				}
+			</div>
+		}
+	}
+	@dropdown.Script()
+}

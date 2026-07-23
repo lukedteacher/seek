@@ -3,14 +3,14 @@ package datatable
 import (
 	"fmt"
 
-	"seek/internal/features/_shared/dto"
+	shareddto "seek/internal/features/_shared/dto"
 	"seek/internal/views/components/badge"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/components/table"
 )
 
-templ DataTable(view dto.TableView) {
+templ DataTable(view shareddto.TableView) {
 	<section data-slot="data-table">
 		@Table(view)
 	</section>
@@ -28,7 +28,7 @@ templ DataTable(view dto.TableView) {
 	</style>
 }
 
-templ Table(view dto.TableView) {
+templ Table(view shareddto.TableView) {
 	@table.Table() {
 		@table.Header() {
 			@table.Row() {
@@ -61,7 +61,7 @@ templ Table(view dto.TableView) {
 	}
 }
 
-templ Row(target string, columns []dto.ColumnMeta, row dto.RowView) {
+templ Row(target string, columns []shareddto.ColumnMeta, row shareddto.RowView) {
 	@table.Row() {
 		for i := range row.Cells {
 			{{ col := columns[i] }}

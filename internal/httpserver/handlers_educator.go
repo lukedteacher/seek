@@ -43,7 +43,7 @@ func (s Server) getEducatorsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := sdto.BuildTableView(educators, nil, []string{
+	view := sdto.NewTableView(educators, nil, []string{
 		"GivenName",
 		"ChosenName",
 		"FamilyName",
@@ -81,7 +81,7 @@ func (s Server) getEducatorsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			view := sdto.BuildTableView(educators, nil, []string{
+			view := sdto.NewTableView(educators, nil, []string{
 				"GivenName",
 				"ChosenName",
 				"FamilyName",

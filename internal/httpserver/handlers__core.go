@@ -94,7 +94,6 @@ func (s Server) sort(w http.ResponseWriter, r *http.Request) {
 		Table Table `json:"table"`
 	}{}
 	datastar.ReadSignals(r, signals)
-	println(signals.Table.FirstName)
 }
 
 type Table struct {

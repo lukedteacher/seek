@@ -26,7 +26,7 @@ type PeriodFormView struct {
 	EndTime    string             `json:"end_time"`
 	Duration   int                `json:"duration"`
 	Days       models.DaysSignals `json:"days"`
-	StudentIDs []string           `json:"student_ids"`
+	StudentIDs string             `json:"student_ids"`
 }
 
 func NewViewFromPeriod(p *models.Period) (PeriodView, error) {
@@ -37,7 +37,7 @@ func NewViewFromPeriod(p *models.Period) (PeriodView, error) {
 		return PeriodView{}, fmt.Errorf("start time not initialized in period")
 	}
 	if p.Duration == 0 {
-		return PeriodView{}, fmt.Errorf("duration not initialized in period")
+		println("duration not initialized in period")
 	}
 	return PeriodView{
 		ID:        p.ID,
@@ -56,11 +56,11 @@ func NewPeriodFromView(pv *PeriodView) models.Period {
 		return models.Period{}
 	}
 	return models.Period{
-		ID:         pv.ID,
-		Title:      pv.Title,
-		StartTime:  pv.StartTime,
-		Duration:   int64(pv.Duration),
-		Days:       0,
+		ID:        pv.ID,
+		Title:     pv.Title,
+		StartTime: pv.StartTime,
+		Duration:  int64(pv.Duration),
+		Days:      0,
 	}
 }
 
@@ -73,7 +73,7 @@ func NewFormViewFromPeriod(p *models.Period) (PeriodFormView, error) {
 		return PeriodFormView{}, fmt.Errorf("start time not initialized in period")
 	}
 	if p.Duration == 0 {
-		return PeriodFormView{}, fmt.Errorf("duration not initialized in period")
+		println("duration not initialized in period")
 	}
 	days := models.DaysBitmaskToDaysSignals(p.Days)
 	return PeriodFormView{
@@ -96,7 +96,7 @@ func NewPeriodFromFormView(v *PeriodFormView) models.Period {
 		StartTime:  v.StartTime,
 		Duration:   int64(v.Duration),
 		Days:       models.DaysSignalsToDaysBitmask(v.Days),
-		StudentIDs: v.StudentIDs,
+		StudentIDs: strings.Split(v.StudentIDs, ","),
 	}
 }
 

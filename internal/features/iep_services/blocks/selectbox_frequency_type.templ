@@ -1,0 +1,57 @@
+package blocks
+
+import (
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
+)
+
+templ FrequencyTypeSelect(selected string) {
+	@selectbox.SelectBox(selectbox.Props{
+		ID: "frequency-type-multiselect-container",
+	}) {
+		@label.Label(label.Props{
+			For:   "frequency-type-multiselect",
+			Class: "text-neutral-content/80 mb-3",
+		}) {
+			type
+		}
+		@selectbox.Trigger(selectbox.TriggerProps{
+			ID: "frequency-type-multiselect",
+			Attributes: templ.Attributes{
+				"data-bind:iepservice.frequency_type": "",
+			},
+		}) {
+			@selectbox.Value(selectbox.ValueProps{
+				Placeholder: "no frequency selected",
+			})
+		}
+		@selectbox.Content(selectbox.ContentProps{
+			NoSearch: true,
+		}) {
+			@selectbox.Item(selectbox.ItemProps{
+				Value:    "day",
+				Selected: selected == "day",
+			}) {
+				day
+			}
+			@selectbox.Item(selectbox.ItemProps{
+				Value:    "week",
+				Selected: selected == "week",
+			}) {
+				week
+			}
+			@selectbox.Item(selectbox.ItemProps{
+				Value:    "month",
+				Selected: selected == "month",
+			}) {
+				month
+			}
+			@selectbox.Item(selectbox.ItemProps{
+				Value:    "year",
+				Selected: selected == "year",
+			}) {
+				year
+			}
+		}
+	}
+}

@@ -1,45 +1,75 @@
 package blocks
 
 import (
-	"fmt"
-
 	"seek/internal/features/iep_services/dto"
-	"seek/internal/features/iep_services/events"
-	"seek/internal/views/components/input"
-	"seek/internal/views/components/label"
+	"seek/internal/features/students/blocks"
+	"seek/internal/views/blocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
-	"seek/internal/views/blocks/forms"
 )
 
-templ EditPeriodForm(view dto.IEPServiceFormView) {
+templ EditServiceForm(view dto.IEPServiceFormView) {
 	<form
 		id="edit-iep-service-form"
 		class="seek-form"
-		data-on:submit={ datastar.PostSSE(fmt.Sprintf("/students/iepservices/%s/edit", view.IEPService.IEPServiceID)) }
+		data-on:submit={ datastar.PostSSE(view.URL) }
 	>
 		<hgroup>
-			<h2>EDIT SERVICE MINUTES</h2>
+			<h2>edit IEP service</h2>
 			<p>edit an iep service for a student.</p>
 		</hgroup>
 		<section>
-			@label.Label(label.Props{
-				ID:                "iep-service-type-label",
-				For:               "iep-service-type",
-				Label:             "service minutes type",
-				ValidationState:   view.Validation[events.IEPServiceServiceTypeField].State,
-				ValidationMessage: view.Validation[events.IEPServiceServiceTypeField].Message,
-			}) {
-				@input.Input(input.Props{
-					ID:       "iep-service-type-input",
-					Name:     "iep-service-type",
-					DataBind: "serviceminutes.service_type",
-					DataOn:   "/students/iepservices/create/validate",
-					HasError: view.Validation[events.IEPServiceServiceTypeField].State == "error",
-					IsValid:  view.Validation[events.IEPServiceServiceTypeField].State == "valid",
-					Value:    view.IEPService.ServiceType,
-				})
-			}
+			@blocks.StudentSelect(view.Students)
+		</section>
+		<section>
+			@forms.TextInputWithLabel(
+				"iep-service-type",
+				"type",
+				view.URL+"/validate",
+				"iepservice.service_type",
+				view.IEPService.ServiceType,
+			)
+			<div>
+				<p>minutes</p>
+				<div style="display:flex; gap:var(--size-1);">
+					@forms.NumberInputWithLabel(
+						"iep-service-indirect-minutes",
+						"indirect",
+						view.URL+"/validate",
+						"iepservice.indirect_minutes",
+						view.IEPService.IndirectMinutes,
+					)
+					@forms.NumberInputWithLabel(
+						"iep-service-direct-minutes",
+						"direct",
+						view.URL+"/validate",
+						"iepservice.direct_minutes",
+						view.IEPService.DirectMinutes,
+					)
+				</div>
+			</div>
+			<div>
+				<p>frequency</p>
+				<div style="display:flex; align-items: center; justify-content: space-between; gap:var(--size-1);">
+					@forms.NumberInputWithLabel(
+						"iep-service-frequency-count",
+						"count",
+						view.URL+"/validate",
+						"iepservice.frequency_count",
+						view.IEPService.FrequencyCount,
+					)
+					<span>x</span>
+					@FrequencyTypeSelect(view.IEPService.FrequencyType)
+				</div>
+			</div>
+			@ServiceLocationSelect(view.IEPService.Location)
+			@forms.TextInputWithLabel(
+				"iep-service-provider",
+				"provider",
+				view.URL+"/validate",
+				"iepservice.provider",
+				view.IEPService.Provider,
+			)
 		</section>
 		<footer>
 			@forms.CancelButton()

@@ -9,9 +9,9 @@ type CommandMetadata = eventstore.CommandMetadata
 
 func streamQuery(iepServiceID, studentID string) eventstore.Query {
 	serviceEventTypes := []string{
-		IEPServiceCreated,
-		IEPServiceUpdated,
-		IEPServiceDeleted,
+		EventTypeIEPServiceAddedToStudent,
+		EventTypeIEPServiceUpdated,
+		EventTypeIEPServiceDeleted,
 	}
 	studentEventTypes := []string{
 		se.StudentCreated,
@@ -23,7 +23,7 @@ func streamQuery(iepServiceID, studentID string) eventstore.Query {
 			Tags: []eventstore.Tag{
 				{Key: "eventType", Value: eventType},
 				{Key: se.StudentScopeIDField, Value: studentID},
-				{Key: IEPServiceScopeIDField, Value: iepServiceID},
+				{Key: FieldIEPServiceScopeID, Value: iepServiceID},
 			},
 		})
 	}

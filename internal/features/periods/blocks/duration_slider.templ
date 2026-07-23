@@ -8,6 +8,7 @@ templ DurationSlider(value int) {
 		type="number"
 		class="input"
 		data-bind:period.duration
+		value={ value }
 		data-on:click="$foo.showPopover()"
 		data-on:focus="$foo.showPopover()"
 	/>

@@ -31,7 +31,7 @@ func Open(ctx context.Context, filename string) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &DB{inner: inner}, nil
 }
 

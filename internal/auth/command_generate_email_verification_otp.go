@@ -34,7 +34,7 @@ func GenerateEmailVerificationOTPCommandHandler(ctx context.Context, command Gen
 	if !model.userExists {
 		return GenerateEmailVerificationOTPResult{}, errors.New("registered user event not found")
 	}
-	
+
 	// TODO this check should be more informative
 	if model.emailValidated || model.latestOTPExpiresAt.After(time.Now()) {
 		return GenerateEmailVerificationOTPResult{Skipped: true}, nil

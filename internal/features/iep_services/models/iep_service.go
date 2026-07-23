@@ -1,24 +1,24 @@
 package models
 
 type IEPService struct {
-	IEPServiceID    string
-	StudentID       string
-	ServiceType     string
-	IndirectMinutes int
-	DirectMinutes   int
-	FrequencyCount  int
-	FrequencyType   string
-	Location        string
-	StartDate       string
-	EndDate         string
-	Provider        string
+	ID              string `display:"ID"`
+	StudentID       string `display:"student ID"`
+	ServiceType     string `display:"type"`
+	IndirectMinutes int    `display:"indirect (min)"`
+	DirectMinutes   int    `display:"direct (min)"`
+	FrequencyCount  int    `display:"freq count"`
+	FrequencyType   string `display:"freq type"`
+	Location        string `display:"location"`
+	StartDate       string `display:"start date"`
+	EndDate         string `display:"end date"`
+	Provider        string `display:"provider"`
 	CreatedAt       string
 	UpdatedAt       string
 	ArchivedAt      string
 }
 
 type IEPServiceSignals struct {
-	IEPServiceID    string `json:"iep_service_id"`
+	ID              string `json:"id"`
 	StudentID       string `json:"student_id"`
 	ServiceType     string `json:"service_type"`
 	IndirectMinutes int    `json:"indirect_minutes"`

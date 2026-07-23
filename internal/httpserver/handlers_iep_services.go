@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"reflect"
 
 	"seek/internal/eventstore"
+	shareddto "seek/internal/features/_shared/dto"
 	"seek/internal/features/iep_services/dto"
 	"seek/internal/features/iep_services/events"
 	"seek/internal/features/iep_services/models"
@@ -50,16 +52,20 @@ func (s Server) getIEPServicesList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	iepServiceViews := make([]dto.IEPServiceView, len(iepServices))
-	for i := range iepServices {
-		iepService := dto.NewIEPServiceView(&iepServices[i])
-		iepServiceViews[i] = iepService
-	}
+	view := shareddto.NewTableView(iepServices, nil, []string{
+		"ServiceType",
+		"IndirectMinutes",
+		"DirectMinutes",
+		"FrequencyCount",
+		"FrequencyType",
+		"Location",
+		"Provider",
+	})
 
-	_ = pages.List(user, signals.View, iepServiceViews).Render(ctx, w)
+	_ = pages.List(user, view).Render(ctx, w)
 }
 
-// GET request to /iepServices/stream
+// GET request to /iepservices/stream
 func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
@@ -87,28 +93,34 @@ func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			iepServiceViews := make([]dto.IEPServiceView, len(iepServices))
-			for i := range iepServices {
-				iepServiceView := dto.NewIEPServiceView(&iepServices[i])
-				iepServiceViews[i] = iepServiceView
-			}
+			view := shareddto.NewTableView(iepServices, nil, []string{
+				"ServiceType",
+				"IndirectMinutes",
+				"DirectMinutes",
+				"FrequencyCount",
+				"FrequencyType",
+				"Location",
+				"Provider",
+			})
 
-			sse.PatchElementTempl(pages.List(user, 0, iepServiceViews))
+			sse.PatchElementTempl(pages.List(user, view))
 		}
 	}
 }
 
-// GET request to /iepServices/create
+// GET request to /iepservices/create
 // TODO figure out if there's a way to have this use the same form as edit?
 func (s Server) getIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	empty := models.NewIEPService()
-	view := dto.NewIEPServiceFormView(empty)
+	students, _ := s.Students.List(ctx)
+	view := dto.NewIEPServiceFormView(empty, students)
+	view.URL = "/iepservices/create"
 	_ = pages.Create(user, view).Render(ctx, w)
 }
 
-// GET request to /iepServices/create/stream
+// GET request to /iepservices/create/stream
 func (s Server) getIEPServiceCreateStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
@@ -143,23 +155,25 @@ func (s Server) getIEPServiceCreateStream(w http.ResponseWriter, r *http.Request
 				println(err.Error())
 				return
 			}
-			view := dto.NewIEPServiceFormView(&model)
+			students, _ := s.Students.List(ctx)
+			view := dto.NewIEPServiceFormView(&model, students)
+			view.URL = "/iepservices/create"
 			sse.PatchElementTempl(pages.Create(user, view))
 		}
 	}
 }
 
-// POST request to /iepServices/create/validate
+// POST request to /iepservices/create/validate
 func (s Server) postIEPServiceCreateValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	signals := &struct {
-		View dto.IEPServiceFormView `json:"view"`
+		View dto.IEPServiceView `json:"iepservice"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		println("pcv signal read: ", err.Error())
 		return
 	}
-	model := dto.NewModelFromView(&signals.View.IEPService)
+	model := dto.NewModelFromView(&signals.View)
 	// saves the state to a view store so that the SSE can update
 	// TODO look into a better name for the channel
 	if err := viewstore.PutState(ctx, s.ViewStore, "new", model); err != nil {
@@ -167,30 +181,32 @@ func (s Server) postIEPServiceCreateValidate(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// POST request to /iepServices/create
+// POST request to /iepservices/create
 func (s Server) postIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	signals := &struct {
-		View dto.IEPServiceFormView `json:"view"`
+		View dto.IEPServiceView `json:"iepservice"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		println("pc signal read: ", err.Error())
 		return
 	}
-	model := dto.NewModelFromView(&signals.View.IEPService)
+	if signals.View.StudentID == "" {
+		println("no student ID!")
+		return
+	}
+	model := dto.NewModelFromView(&signals.View)
 	validation := events.Validate(&model)
 	if validation == nil {
 		println("some error")
 		return
 		// TODO actually validate
 	}
-	createIEPServiceCommand := events.CreateIEPServiceCommand{
-		StudentID:   model.StudentID,
-		ServiceType: model.ServiceType,
-		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-	}
-	_, err := events.CreateIEPServiceCommandHandler(ctx, createIEPServiceCommand, s.EventSaver)
+	var command events.AddIEPServiceToStudentCommand
+	CopyFields(&command, &model)
+	command.Metadata = eventstore.HTTPCommandMetadata(r, user.UserRegisteredID)
+	_, err := events.AddIEPServiceToStudentCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
 	if err != nil {
 		println("ph cpch error: ", err.Error())
 		return
@@ -200,7 +216,7 @@ func (s Server) postIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GET request to /iepServices/{id}
+// GET request to /iepservices/{id}
 func (s Server) getIEPServiceView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
@@ -219,7 +235,7 @@ func (s Server) getIEPServiceView(w http.ResponseWriter, r *http.Request) {
 	_ = pages.View(user, view).Render(ctx, w)
 }
 
-// GET request to /iepServices/{id}/stream
+// GET request to /iepservices/{id}/stream
 func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
@@ -284,7 +300,7 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-// GET request to /iepServices/{id}/edit
+// GET request to /iepservices/{id}/edit
 func (s Server) getIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
@@ -294,7 +310,9 @@ func (s Server) getIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := dto.NewIEPServiceFormView(model)
+	students, _ := s.Students.List(ctx)
+	view := dto.NewIEPServiceFormView(model, students)
+	view.URL = fmt.Sprintf("/iepservices/%s/edit", iepServiceID)
 	_ = pages.Edit(user, view).Render(ctx, w)
 }
 
@@ -351,45 +369,45 @@ func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) 
 				println(err.Error())
 				return
 			}
-			view := dto.NewIEPServiceFormView(&model)
+			students, _ := s.Students.List(ctx)
+			view := dto.NewIEPServiceFormView(&model, students)
+			view.URL = fmt.Sprintf("/iepservices/%s/edit", iepServiceID)
 			sse.PatchElementTempl(pages.Edit(user, view))
 		}
 	}
 }
 
-// POST request to /iepServices/{id}/edit/validate
+// POST request to /iepservices/{id}/edit/validate
 func (s Server) postIEPServiceEditValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	iepServiceID := chi.URLParam(r, "id")
 	signals := &struct {
-		View dto.IEPServiceFormView `json:"view"`
+		View dto.IEPServiceView `json:"iepservice"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		println("vep signals: ", err.Error())
 		return
 	}
-	signals.View.IEPService.IEPServiceID = iepServiceID
-	model := dto.NewModelFromView(&signals.View.IEPService)
+	signals.View.IEPServiceID = iepServiceID
+	model := dto.NewModelFromView(&signals.View)
 	viewstore.PutState(ctx, s.ViewStore, iepServiceID, model)
 }
 
-// POST request to /iepServices/{id}/edit
+// POST request to /iepservices/{id}/edit
 func (s Server) postIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	signals := &struct{
-		View dto.IEPServiceFormView `json:"view"`
+	signals := &struct {
+		View dto.IEPServiceView `json:"iepservice"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		println("iep service edit read signals error: ", err.Error())
 		return
 	}
-	iepServiceID := chi.URLParam(r, "id")
-	command := events.UpdateIEPServiceCommand{
-		IEPServiceID: iepServiceID,
-		ServiceType:  signals.View.IEPService.ServiceType,
-		Metadata:     eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-	}
+	var command events.UpdateIEPServiceCommand
+	CopyFields(&command, &signals.View)
+	command.IEPServiceID = chi.URLParam(r, "id")
+	command.Metadata = eventstore.HTTPCommandMetadata(r, user.UserRegisteredID)
 	result, err := events.UpdateIEPServiceCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
 	if err != nil {
 		println(fmt.Errorf("upch error: %w", err))
@@ -400,7 +418,7 @@ func (s Server) postIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// DELETE request to /iepServices/{id}
+// DELETE request to /iepservices/{id}
 func (s Server) deleteIEPService(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
@@ -425,7 +443,7 @@ func (s Server) refreshIEPServiceViewState(ctx context.Context, iepServiceID str
 	if iepService.ArchivedAt != "" {
 		println("this iep service was archived")
 	}
-	return viewstore.PutState(ctx, s.ViewStore, iepService.IEPServiceID+".view", iepService)
+	return viewstore.PutState(ctx, s.ViewStore, iepService.ID+".view", iepService)
 }
 
 func (s Server) refreshIEPServiceEditState(ctx context.Context, iepServiceID string) error {
@@ -433,5 +451,18 @@ func (s Server) refreshIEPServiceEditState(ctx context.Context, iepServiceID str
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, s.ViewStore, iepService.IEPServiceID+".edit", iepService)
+	return viewstore.PutState(ctx, s.ViewStore, iepService.ID+".edit", iepService)
+}
+
+// copies a view to a model
+// llm slop
+func CopyFields(dst, src interface{}) {
+	srcV := reflect.ValueOf(src).Elem()
+	dstV := reflect.ValueOf(dst).Elem()
+	for i := 0; i < srcV.NumField(); i++ {
+		f := srcV.Field(i)
+		if dstF := dstV.FieldByName(srcV.Type().Field(i).Name); dstF.IsValid() && dstF.Type() == f.Type() {
+			dstF.Set(f)
+		}
+	}
 }

@@ -7,15 +7,16 @@ import (
 
 type IEPServiceView struct {
 	IEPServiceID    string
-	ServiceType     string `display:"type"`
-	IndirectMinutes int    `display:"indirect"`
-	DirectMinutes   int    `display:"direct"`
-	FrequencyCount  int    `display:"count"`
-	FrequencyType   string `display:"frequency type"`
-	Location        string `display:"location"`
-	StartDate       string `display:"start"`
-	EndDate         string `display:"end"`
-	Provider        string `display:"provider"`
+	ServiceType     string `json:"service_type"`
+	IndirectMinutes int    `json:"indirect_minutes"`
+	DirectMinutes   int    `json:"direct_minutes"`
+	FrequencyCount  int    `json:"frequency_count"`
+	FrequencyType   string `json:"frequency_type"`
+	Location        string `json:"location"`
+	StartDate       string `json:"start"`
+	EndDate         string `json:"end"`
+	Provider        string `json:"provider"`
+	StudentID       string `json:"student_id"`
 	StudentView     dto.StudentView
 }
 
@@ -24,7 +25,7 @@ func NewIEPServiceView(sm *models.IEPService) IEPServiceView {
 		return IEPServiceView{}
 	}
 	return IEPServiceView{
-		IEPServiceID:    sm.IEPServiceID,
+		IEPServiceID:    sm.ID,
 		ServiceType:     sm.ServiceType,
 		IndirectMinutes: sm.IndirectMinutes,
 		DirectMinutes:   sm.DirectMinutes,
@@ -34,6 +35,7 @@ func NewIEPServiceView(sm *models.IEPService) IEPServiceView {
 		StartDate:       sm.StartDate,
 		EndDate:         sm.EndDate,
 		Provider:        sm.Provider,
+		StudentID:       sm.StudentID,
 	}
 }
 
@@ -42,7 +44,7 @@ func NewModelFromView(v *IEPServiceView) models.IEPService {
 		return models.IEPService{}
 	}
 	return models.IEPService{
-		IEPServiceID:    v.IEPServiceID,
+		ID:    v.IEPServiceID,
 		ServiceType:     v.ServiceType,
 		IndirectMinutes: v.IndirectMinutes,
 		DirectMinutes:   v.DirectMinutes,
@@ -52,5 +54,6 @@ func NewModelFromView(v *IEPServiceView) models.IEPService {
 		StartDate:       v.StartDate,
 		EndDate:         v.EndDate,
 		Provider:        v.Provider,
+		StudentID:       v.StudentID,
 	}
 }

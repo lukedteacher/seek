@@ -56,7 +56,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 	}); err != nil {
 		return nil, err
 	}
-	
+
 	students := make([]models.Student, len(rows))
 	for i := range rows {
 		students[i] = models.Student{

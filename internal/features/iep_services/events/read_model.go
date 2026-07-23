@@ -35,7 +35,7 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.IEPService, err
 	}
 
 	service := &models.IEPService{
-		IEPServiceID:    row.Id,
+		ID:    row.Id,
 		StudentID:       row.StudentId,
 		ServiceType:     row.ServiceType,
 		IndirectMinutes: int(row.IndirectMinutes),
@@ -66,7 +66,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.IEPService, error) {
 	services := make([]models.IEPService, len(rows))
 	for i := range rows {
 		services[i] = models.IEPService{
-			IEPServiceID:    rows[i].Id,
+			ID:    rows[i].Id,
 			StudentID:       rows[i].StudentId,
 			ServiceType:     rows[i].ServiceType,
 			IndirectMinutes: int(rows[i].IndirectMinutes),
@@ -86,9 +86,9 @@ func (m *ReadModel) List(ctx context.Context) ([]models.IEPService, error) {
 
 // READ MODEL WRITER FUNCTIONS
 
-func (m *ReadModel) CreateIEPService(ctx context.Context, event IEPServiceCreatedProjection) error {
+func (m *ReadModel) AddIEPServiceToStudent(ctx context.Context, event IEPServiceAddedToStudentProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceCreateIepservice(conn, dbsql.CreateIepserviceParams{
+		return dbsql.OnceAddIepserviceToStudent(conn, dbsql.AddIepserviceToStudentParams{
 			Id:              event.IEPServiceID,
 			StudentId:       event.StudentID,
 			ServiceType:     event.ServiceType,

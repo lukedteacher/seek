@@ -57,6 +57,6 @@ func newCreateStudentContext(command CreateStudentCommand) (*createStudentContex
 		grade:       command.Grade,
 		homeroom:    command.Homeroom,
 		caseManager: command.CaseManager,
-		query:       streamQuery(id),
+		query:       StreamQuery(id),
 	}, nil
 }

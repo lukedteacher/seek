@@ -2,6 +2,14 @@
 
 updates for SEEK
 
+## v0.3.2 (26.07.23) more templui, iep service crud
+
+- swapped the user header bit for a different block
+- period now uses new student multiselect
+- IEP service creation & editing implemented
+- IEP service uses a modified student select and some others with static data
+- ran go fmt
+
 ## v0.3.1 (26.07.22) more ttf -> woff2
 
 - switched type font to woff2

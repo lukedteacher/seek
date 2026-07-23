@@ -1,34 +1,10 @@
 package blocks
 
 import (
-	"fmt"
-
-	"seek/internal/views/components/icon"
-	"seek/internal/features/iep_services/dto"
+	shareddto "seek/internal/features/_shared/dto"
+	"seek/internal/views/blocks/data_table"
 )
 
-templ List(views []dto.IEPServiceView) {
-	<table>
-		<thead>
-			<th>link</th>
-			<th>type</th>
-			<th>student id</th>
-		</thead>
-		<tbody>
-			for i := range views {
-				<tr>
-					<td>
-						<a href={ fmt.Sprintf("/students/iepservices/%s", views[i].IEPServiceID) }>
-							<button>
-								@icon.Link(icon.Props{
-									Size: "16",
-								})
-							</button>
-						</a>
-					</td>
-					<td>{ views[i].ServiceType }</td>
-				</tr>
-			}
-		</tbody>
-	</table>
+templ List(view shareddto.TableView) {
+	@datatable.DataTable(view)
 }

@@ -44,7 +44,7 @@ type deleteStudentContext struct {
 }
 
 func loadDeleteStudentContext(ctx context.Context, retriever eventstore.Retriever, studentID string) (*deleteStudentContext, error) {
-	query := streamQuery(studentID)
+	query := StreamQuery(studentID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err

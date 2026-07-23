@@ -55,7 +55,13 @@ func PeriodStudentAddCommandHandler(
 		metadataWithQuery(command.Metadata, model.query),
 	)
 
-	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
+	if _, err := saver.SaveEvents(
+		ctx,
+		[]eventstore.DomainEvent{event},
+		model.position,
+		model.events,
+		model.query,
+	); err != nil {
 		return nil, err
 	}
 	return &PeriodStudentAddResult{EventID: eventID, Skipped: false}, nil

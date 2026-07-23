@@ -2,7 +2,7 @@ package pages
 
 import (
 	"seek/internal/domain/models"
-	"seek/internal/features/_shared/dto"
+	shareddto "seek/internal/features/_shared/dto"
 	"seek/internal/features/periods/blocks"
 	sse "seek/internal/views"
 	"seek/internal/views/components/button"
@@ -12,7 +12,7 @@ import (
 
 
 
-templ List(user models.User, view int, tview dto.TableView) {
+templ List(user models.User, view int, tview shareddto.TableView) {
 	@layouts.Base("SEEK: periods", user) {
 		<main data-signals:view={ view } data-init={ sse.LongRunningGetSSE("/periods/stream") }>
 			<section>

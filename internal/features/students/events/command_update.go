@@ -61,7 +61,7 @@ type updateStudentContext struct {
 }
 
 func loadUpdateStudentContext(ctx context.Context, retriever eventstore.Retriever, id string) (*updateStudentContext, error) {
-	query := streamQuery(id)
+	query := StreamQuery(id)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err

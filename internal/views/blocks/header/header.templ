@@ -17,7 +17,7 @@ templ MainHeader(user models.User) {
 		@Nav()
 		{ children... }
 		if user.UserRegisteredID != "" {
-			@blocks.UserHeaderMenu(user)
+			@blocks.UserHeader(user)
 		} else {
 			@button.Button(button.Props{
 				Href: "/login",
