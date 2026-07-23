@@ -11,7 +11,7 @@
 
 @font-face {
   font-family: 'tt2020';
-  src: url('/static/fonts/tt2020-style-e-regular.ttf');
+  src: url('/static/fonts/tt2020-style-e-regular.woff2');
 }
 
 @layer stellar {

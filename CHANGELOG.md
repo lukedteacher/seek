@@ -2,9 +2,14 @@
 
 updates for SEEK
 
-## v0.2.4 (26.07.22) no-cache static assets, view transitions, educators
+## v0.3.1 (26.07.22) more ttf -> woff2
+
+- switched type font to woff2
+
+## v0.3.0 (26.07.22) no-cache static assets, view transitions, educators
 
 - switched static asset route to "no-cache" (from "no-store") to speed up page loads
+- lexend ttf -> woff2
 - enabled navigation: auto for view transitions as first step
 - implemented educator events for create, update, archive, and delete
 - fixed many random bugs
