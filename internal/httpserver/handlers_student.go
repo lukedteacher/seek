@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
-	sdto "seek/internal/features/_shared/dto"
+	sdto "seek/internal/features/students/dto"
 	"seek/internal/features/students/events"
+	"seek/internal/features/students/models"
 	"seek/internal/features/students/pages"
 	"seek/internal/views/dto"
 	"seek/internal/viewstore"
@@ -49,14 +49,7 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := sdto.NewTableView(students, nil, []string{
-		"FirstName",
-		"ChosenName",
-		"LastName",
-		"Grade",
-		"Homeroom",
-		"CaseManager",
-	})
+	view := sdto.NewStudentTableView(students)
 	_ = pages.List(user, view).Render(ctx, w)
 }
 
@@ -88,14 +81,7 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			view := sdto.NewTableView(students, nil, []string{
-				"FirstName",
-				"ChosenName",
-				"LastName",
-				"Grade",
-				"Homeroom",
-				"CaseManager",
-			})
+			view := sdto.NewStudentTableView(students)
 
 			sse.PatchElementTempl(pages.List(user, view))
 		}
@@ -107,7 +93,7 @@ func (s Server) getStudentCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	empty := models.NewStudent()
-	view := dto.NewStudentFormViewFromModel(empty)
+	view := dto.NewStudentFormViewFromModel(*empty)
 	_ = pages.Create(user, *view).Render(ctx, w)
 }
 
@@ -146,7 +132,7 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 				println(err.Error())
 				return
 			}
-			view := dto.NewStudentFormViewFromModel(&model)
+			view := dto.NewStudentFormViewFromModel(model)
 			sse.PatchElementTempl(pages.Create(user, *view))
 		}
 	}
@@ -190,9 +176,9 @@ func (s Server) postStudentCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err := events.CreateStudentCommandHandler(ctx, events.CreateStudentCommand{
-		FirstName:   signals.Student.FirstName,
+		GivenName:   signals.Student.GivenName,
 		ChosenName:  signals.Student.ChosenName,
-		LastName:    signals.Student.LastName,
+		FamilyName:  signals.Student.FamilyName,
 		Grade:       grade,
 		Homeroom:    signals.Student.Homeroom,
 		CaseManager: signals.Student.CaseManager,
@@ -216,7 +202,7 @@ func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := dto.NewStudentViewFromModel(student)
+	view := dto.NewStudentViewFromModel(*student)
 	periodIDs, _ := s.PeriodsStudents.ListPeriodIDsForStudent(ctx, studentID)
 	periodViews := make([]dto.PeriodView, len(periodIDs))
 	for i := range periodIDs {
@@ -287,7 +273,7 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 				println(err.Error())
 				return
 			}
-			view := dto.NewStudentViewFromModel(&model)
+			view := dto.NewStudentViewFromModel(model)
 			periodIDs, _ := s.PeriodsStudents.ListPeriodIDsForStudent(ctx, studentID)
 			periodViews := make([]dto.PeriodView, len(periodIDs))
 			for i := range periodIDs {
@@ -316,7 +302,7 @@ func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	view := dto.NewStudentFormViewFromModel(model)
+	view := dto.NewStudentFormViewFromModel(*model)
 	_ = pages.Edit(user, *view).Render(ctx, w)
 }
 
@@ -373,7 +359,7 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 				println(err.Error())
 				return
 			}
-			view := dto.NewStudentFormViewFromModel(&model)
+			view := dto.NewStudentFormViewFromModel(model)
 			sse.PatchElementTempl(pages.Edit(user, *view))
 		}
 	}
@@ -392,7 +378,7 @@ func (s Server) postStudentEditValidate(w http.ResponseWriter, r *http.Request) 
 	}
 	model := dto.NewStudentModelFromView(&signals.Student)
 	model.ID = chi.URLParam(r, "id")
-	view := dto.NewStudentFormViewFromModel(model)
+	view := dto.NewStudentFormViewFromModel(*model)
 	_ = pages.Edit(user, *view).Render(ctx, w)
 }
 
@@ -417,9 +403,9 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 	studentID := chi.URLParam(r, "id")
 	result, err := events.UpdateStudentCommandHandler(ctx, events.UpdateStudentCommand{
 		Id:          studentID,
-		FirstName:   signals.Student.FirstName,
+		GivenName:   signals.Student.GivenName,
 		ChosenName:  signals.Student.ChosenName,
-		LastName:    signals.Student.LastName,
+		FamilyName:  signals.Student.FamilyName,
 		Grade:       gradeInt64,
 		Homeroom:    signals.Student.Homeroom,
 		CaseManager: signals.Student.CaseManager,

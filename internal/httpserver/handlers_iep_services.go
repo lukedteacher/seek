@@ -9,8 +9,7 @@ import (
 	"strconv"
 
 	"seek/internal/eventstore"
-	shareddto "seek/internal/features/_shared/dto"
-	"seek/internal/features/iep_services/blocks"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iep_services/dto"
 	"seek/internal/features/iep_services/events"
 	"seek/internal/features/iep_services/models"
@@ -52,20 +51,12 @@ func (s Server) getIEPServicesList(w http.ResponseWriter, r *http.Request) {
 		println("signal read error: ", err.Error())
 		return
 	}
-	iepServices, err := s.IEPServices.List(ctx)
+	services, err := s.IEPServices.List(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := shareddto.NewTableView(iepServices, nil, []string{
-		"ServiceType",
-		"IndirectMinutes",
-		"DirectMinutes",
-		"FrequencyCount",
-		"FrequencyType",
-		"Location",
-		"Provider",
-	})
+	view := dto.NewIEPServiceTableView(services)
 
 	_ = pages.List(user, view).Render(ctx, w)
 }
@@ -93,20 +84,12 @@ func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request)
 		case <-notifier.Signal(): // triggers when the read model publishes
 			// for now just reloads the page
 			// consider adding a view store for the list
-			iepServices, err := s.IEPServices.List(ctx)
+			services, err := s.IEPServices.List(ctx)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			view := shareddto.NewTableView(iepServices, nil, []string{
-				"ServiceType",
-				"IndirectMinutes",
-				"DirectMinutes",
-				"FrequencyCount",
-				"FrequencyType",
-				"Location",
-				"Provider",
-			})
+			view := dto.NewIEPServiceTableView(services)
 
 			sse.PatchElementTempl(pages.List(user, view))
 		}
@@ -463,15 +446,8 @@ func (s Server) ReadCSV(w http.ResponseWriter, r *http.Request) {
 	for i := range dbServices {
 		dbPtrs[i] = &dbServices[i]
 	}
-	diff := CompareServices(dbPtrs, csvServices)
-	view := BuildDiffView(diff, []string{
-		"StudentID",
-		"ServiceType",
-		"IndirectMinutes",
-		"DirectMinutes",
-		"FrequencyCount",
-		"FrequencyType",
-	})
+	diffs := models.CompareIEPServices(dbPtrs, csvServices)
+	view := dto.NewIEPServiceDiffTableView(diffs)
 	pages.CSV(user, view).Render(ctx, w)
 }
 
@@ -507,16 +483,9 @@ func CopyFields(dst, src interface{}) {
 	}
 }
 
-const (
-	DiffAdded   blocks.DiffStatus = "added"
-	DiffUpdated blocks.DiffStatus = "updated"
-	DiffDeleted blocks.DiffStatus = "deleted"
-	DiffSame    blocks.DiffStatus = "same"
-)
-
 type ServiceDiff struct {
-	Key           string
-	Status        blocks.DiffStatus
+	Key           string // unique identifier
+	Status        sharedmodels.DiffStatus
 	Old           *models.IEPService // nil for added
 	New           *models.IEPService // nil for deleted
 	ChangedFields []string           // optional: list of changed field names
@@ -543,18 +512,18 @@ func CompareServices(dbServices, csvServices []*models.IEPService) []ServiceDiff
 			if fieldsChanged := compareFields(dbSvc, csvSvc); len(fieldsChanged) > 0 {
 				diffs = append(diffs, ServiceDiff{
 					Key:           key,
-					Status:        DiffUpdated,
+					Status:        sharedmodels.DiffUpdated,
 					Old:           dbSvc,
 					New:           csvSvc,
 					ChangedFields: fieldsChanged,
 				})
 			} else {
-				diffs = append(diffs, ServiceDiff{Key: key, Status: DiffSame, New: csvSvc})
+				diffs = append(diffs, ServiceDiff{Key: key, Status: sharedmodels.DiffSame, New: csvSvc})
 			}
 		} else {
 			diffs = append(diffs, ServiceDiff{
 				Key:    key,
-				Status: DiffAdded,
+				Status: sharedmodels.DiffAdded,
 				New:    csvSvc,
 			})
 		}
@@ -565,7 +534,7 @@ func CompareServices(dbServices, csvServices []*models.IEPService) []ServiceDiff
 		if !csvKeys[key] {
 			diffs = append(diffs, ServiceDiff{
 				Key:    key,
-				Status: DiffDeleted,
+				Status: sharedmodels.DiffRemoved,
 				Old:    dbSvc,
 			})
 		}
@@ -593,21 +562,6 @@ func compareFields(a, b *models.IEPService) []string {
 		changed = append(changed, "FrequencyCount")
 	}
 	return changed
-}
-
-func BuildDiffView(diffs []ServiceDiff, fieldNames []string) blocks.DiffTableView {
-	rows := make([]blocks.DiffRowView, len(diffs))
-	for i, d := range diffs {
-		oldCells := extractValues(d.Old, fieldNames)
-		newCells := extractValues(d.New, fieldNames)
-		rows[i] = blocks.DiffRowView{
-			ID:       d.Key,
-			Status:   d.Status,
-			OldCells: oldCells,
-			NewCells: newCells,
-		}
-	}
-	return blocks.DiffTableView{Columns: fieldNames, Rows: rows}
 }
 
 func extractValues(svc *models.IEPService, fields []string) []string {

@@ -3,20 +3,20 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/views/dto"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/card"
 	"seek/internal/views/components/icon"
+	"seek/internal/views/dto"
 )
 
 templ Card(view dto.StudentView) {
 	@card.Card(card.Props{
-		ID: fmt.Sprintf("student-%s-card", view.ID),
+		ID:    fmt.Sprintf("student-%s-card", view.ID),
 		Class: "student-card",
 	}) {
 		@card.Header() {
 			@card.Title() {
-				{ view.FirstName } { view.LastName }
+				{ view.GivenName } { view.FamilyName }
 			}
 			@card.Description() {
 				a student description

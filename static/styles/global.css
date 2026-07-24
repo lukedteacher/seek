@@ -199,6 +199,38 @@ body {
   }
 }
 
+span.badge-same {
+  background-color: var(--color-info);
+  color: var(--color-info-content);
+}
+
+span.badge-updated {
+  background-color: var(--color-warning);
+  color: var(--color-warning-content);
+}
+
+span.badge-added {
+  background-color: var(--color-success);
+  color: var(--color-success-content);
+}
+
+span.badge-removed {
+  background-color: var(--color-error);
+  color: var(--color-error-content);
+}
+
+span.span-updated {
+  color: var(--color-warning);
+}
+
+span.span-added {
+  color: var(--color-success);
+}
+
+span.span-removed {
+  color: var(--color-error);
+}
+
 /* sidebar */
 aside {
   width: var(--sidebar-w);

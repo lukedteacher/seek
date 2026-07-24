@@ -3,7 +3,7 @@ package datatable
 import (
 	"fmt"
 
-	shareddto "seek/internal/features/_shared/dto"
+	"seek/internal/features/_shared/shareddto"
 	"seek/internal/views/components/badge"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
@@ -61,12 +61,11 @@ templ Table(view shareddto.TableView) {
 	}
 }
 
-templ Row(target string, columns []shareddto.ColumnMeta, row shareddto.RowView) {
+templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) {
 	@table.Row() {
 		for i := range row.Cells {
-			{{ col := columns[i] }}
 			@table.Cell() {
-				if col.Renderer == "badge" {
+				if columns[i].Renderer == "badge" && row.Cells[i] != "" {
 					@badge.Badge() {
 						{ row.Cells[i] }
 					}

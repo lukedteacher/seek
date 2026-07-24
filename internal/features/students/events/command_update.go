@@ -11,9 +11,9 @@ import (
 type UpdateStudentCommand struct {
 	UserRegisteredID string
 	Id               string
-	FirstName        string
+	GivenName        string
 	ChosenName       string
-	LastName         string
+	FamilyName       string
 	Grade            int64
 	Homeroom         string
 	CaseManager      string
@@ -33,12 +33,12 @@ func UpdateStudentCommandHandler(ctx context.Context, command UpdateStudentComma
 	if err := model.requireActive(); err != nil {
 		return UpdateStudentResult{}, err
 	}
-	if model.firstName == command.FirstName && model.chosenName == command.ChosenName && model.lastName == command.LastName && model.grade == command.Grade && model.homeroom == command.Homeroom && model.caseManager == command.CaseManager {
+	if model.firstName == command.GivenName && model.chosenName == command.ChosenName && model.lastName == command.FamilyName && model.grade == command.Grade && model.homeroom == command.Homeroom && model.caseManager == command.CaseManager {
 		return UpdateStudentResult{Skipped: true}, nil
 	}
 
 	eventID := uuidv7.NewString()
-	event := NewStudentUpdatedEvent(eventID, command.Id, command.FirstName, command.ChosenName, command.LastName, command.Grade, command.Homeroom, command.CaseManager, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewStudentUpdatedEvent(eventID, command.Id, command.GivenName, command.ChosenName, command.FamilyName, command.Grade, command.Homeroom, command.CaseManager, time.Now(), metadataWithQuery(command.Metadata, model.query))
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return UpdateStudentResult{}, err
@@ -88,16 +88,16 @@ func (m *updateStudentContext) handle(resolved eventstore.ResolvedEvent) {
 	case StudentCreated:
 		m.exists = true
 		m.deleted = false
-		m.firstName, _ = data[StudentFirstNameField].(string)
+		m.firstName, _ = data[StudentGivenNameField].(string)
 		m.chosenName, _ = data[StudentChosenNameField].(string)
-		m.lastName, _ = data[StudentLastNameField].(string)
+		m.lastName, _ = data[StudentFamilyNameField].(string)
 		m.grade = int64(data[StudentGradeField].(float64))
 		m.homeroom, _ = data[StudentHomeroomField].(string)
 		m.caseManager, _ = data[StudentCaseManagerField].(string)
 	case StudentUpdated:
-		m.firstName, _ = data[StudentFirstNameField].(string)
+		m.firstName, _ = data[StudentGivenNameField].(string)
 		m.chosenName, _ = data[StudentChosenNameField].(string)
-		m.lastName, _ = data[StudentLastNameField].(string)
+		m.lastName, _ = data[StudentFamilyNameField].(string)
 		m.grade = int64(data[StudentGradeField].(float64))
 		m.homeroom, _ = data[StudentHomeroomField].(string)
 		m.caseManager, _ = data[StudentCaseManagerField].(string)

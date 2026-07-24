@@ -9,8 +9,8 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 
 	"seek/internal/auth"
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	"seek/internal/features/users/models"
 	"seek/internal/views/pages"
 )
 

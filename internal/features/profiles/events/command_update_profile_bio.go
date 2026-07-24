@@ -8,8 +8,8 @@ import (
 
 	"seek/internal/auth"
 	"seek/internal/commandlimits"
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	"seek/internal/features/users/models"
 	"seek/internal/protectedpii"
 	"seek/internal/uuidv7"
 )

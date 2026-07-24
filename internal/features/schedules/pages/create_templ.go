@@ -9,19 +9,22 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
+	pm "seek/internal/features/periods/models"
 	"seek/internal/features/schedules/blocks"
 	"seek/internal/features/schedules/events"
+	"seek/internal/features/schedules/models"
+	tm "seek/internal/features/teachers/models"
+	um "seek/internal/features/users/models"
 	"seek/internal/views/layouts"
 )
 
 func Create(
-	user models.User,
+	user um.User,
 	schedule models.Schedule,
-	teachers []models.Teacher,
-	periods []models.Period,
+	teachers []tm.Teacher,
+	periods []pm.Period,
 	validation map[string]events.Validation,
-	selectedTeacher *models.Teacher,
+	selectedTeacher *tm.Teacher,
 ) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

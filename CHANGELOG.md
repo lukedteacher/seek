@@ -2,6 +2,15 @@
 
 updates for SEEK
 
+## v0.3.4 (26.07.24) first pass at cleaning up diff stuff, refactor folder structure
+
+- moved diff to shared models
+- moved diff views to dto
+- changed folder structure to match package names
+- genericized many table related functions
+- added helpers for creating them for specific types
+- removed last remnants of domain/models folder structure
+
 ## v0.3.3 (26.07.23) csv file read, diff table view
 
 - added a rudimentary csv file read via gocsv

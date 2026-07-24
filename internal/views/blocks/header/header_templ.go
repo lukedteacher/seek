@@ -9,8 +9,8 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
 	"seek/internal/features/users/blocks"
+	"seek/internal/features/users/models"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
 )

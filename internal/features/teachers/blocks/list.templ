@@ -3,7 +3,7 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
+	"seek/internal/features/teachers/models"
 	"seek/internal/views/components/icon"
 )
 
@@ -30,10 +30,10 @@ templ List(teachers []models.Teacher) {
 					<td>{ teachers[i].FirstName }</td>
 					<td>
 						if teachers[i].ChosenName != nil {
-							{*teachers[i].ChosenName}
+							{ *teachers[i].ChosenName }
 						}
 					</td>
-					<td>{teachers[i].LastName}</td>
+					<td>{ teachers[i].LastName }</td>
 				</tr>
 			}
 		</tbody>

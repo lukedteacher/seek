@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
+	"seek/internal/features/users/models"
 	"seek/pkg/templui/components/avatar"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"

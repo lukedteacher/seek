@@ -9,14 +9,15 @@ import (
 
 type GetStudentRes struct {
 	Id          string  `json:"id"`
-	FirstName   string  `json:"first_name"`
-	ChosenName  *string `json:"chosen_name"`
-	LastName    string  `json:"last_name"`
+	GivenName   string  `json:"given_name"`
+	ChosenName  string  `json:"chosen_name"`
+	FamilyName  string  `json:"family_name"`
 	Grade       int64   `json:"grade"`
 	Homeroom    string  `json:"homeroom"`
-	CaseManager *string `json:"case_manager"`
+	CaseManager string  `json:"case_manager"`
 	CreatedAt   string  `json:"created_at"`
 	UpdatedAt   string  `json:"updated_at"`
+	ArchivedAt  *string `json:"archived_at"`
 }
 
 type GetStudentStmt struct {
@@ -28,7 +29,17 @@ type GetStudentStmt struct {
 
 func GetStudent(tx *sqlite.Conn) *GetStudentStmt {
 	const querySQL = `
-SELECT id, first_name, chosen_name, last_name, grade, homeroom, case_manager, created_at, updated_at
+SELECT 
+	id, 
+	given_name, 
+	chosen_name, 
+	family_name, 
+	grade, 
+	homeroom, 
+	case_manager, 
+	created_at, 
+	updated_at,
+	archived_at
 FROM students
 WHERE deleted_at IS NULL
 	AND id = ?1
@@ -79,22 +90,19 @@ func (ps *GetStudentStmt) Run(
 	} else if hasRow {
 		row := GetStudentRes{}
 		row.Id = stmt.ColumnText(0)
-		row.FirstName = stmt.ColumnText(1)
-		isNullChosenName := stmt.ColumnIsNull(2)
-		if !isNullChosenName {
-			tmp := stmt.ColumnText(2)
-			row.ChosenName = &tmp
-		}
-		row.LastName = stmt.ColumnText(3)
+		row.GivenName = stmt.ColumnText(1)
+		row.ChosenName = stmt.ColumnText(2)
+		row.FamilyName = stmt.ColumnText(3)
 		row.Grade = stmt.ColumnInt64(4)
 		row.Homeroom = stmt.ColumnText(5)
-		isNullCaseManager := stmt.ColumnIsNull(6)
-		if !isNullCaseManager {
-			tmp := stmt.ColumnText(6)
-			row.CaseManager = &tmp
-		}
+		row.CaseManager = stmt.ColumnText(6)
 		row.CreatedAt = stmt.ColumnText(7)
 		row.UpdatedAt = stmt.ColumnText(8)
+		isNullArchivedAt := stmt.ColumnIsNull(9)
+		if !isNullArchivedAt {
+			tmp := stmt.ColumnText(9)
+			row.ArchivedAt = &tmp
+		}
 		res = &row
 	}
 

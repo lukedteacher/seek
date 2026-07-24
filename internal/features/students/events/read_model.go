@@ -7,7 +7,8 @@ import (
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
-	"seek/internal/domain/models"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/students/models"
 
 	"zombiezen.com/go/sqlite"
 )
@@ -35,11 +36,13 @@ func (m *ReadModel) Get(ctx context.Context, studentID string) (*models.Student,
 	}
 
 	student := &models.Student{
-		ID:          row.Id,
-		FirstName:   row.FirstName,
-		ChosenName:  row.ChosenName,
-		LastName:    row.LastName,
-		Grade:       row.Grade,
+		ID: row.Id,
+		Person: sharedmodels.Person{
+			GivenName:  row.GivenName,
+			ChosenName: row.ChosenName,
+			FamilyName: row.FamilyName,
+		},
+		Grade:       int(row.Grade),
 		Homeroom:    row.Homeroom,
 		CaseManager: row.CaseManager,
 	}
@@ -60,11 +63,13 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 	students := make([]models.Student, len(rows))
 	for i := range rows {
 		students[i] = models.Student{
-			ID:          rows[i].Id,
-			FirstName:   rows[i].FirstName,
-			ChosenName:  rows[i].ChosenName,
-			LastName:    rows[i].LastName,
-			Grade:       rows[i].Grade,
+			ID: rows[i].Id,
+			Person: sharedmodels.Person{
+				GivenName:  rows[i].GivenName,
+				ChosenName: rows[i].ChosenName,
+				FamilyName: rows[i].FamilyName,
+			},
+			Grade:       int(rows[i].Grade),
 			Homeroom:    rows[i].Homeroom,
 			CaseManager: rows[i].CaseManager,
 		}
@@ -76,10 +81,10 @@ func (m *ReadModel) CreateStudent(ctx context.Context, event StudentCreatedProje
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceCreateStudent(conn, dbsql.CreateStudentParams{
 			Id:                       event.StudentID,
-			FirstName:                event.FirstName,
+			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
-			LastName:                 event.LastName,
-			Grade:                    event.Grade,
+			FamilyName:               event.FamilyName,
+			Grade:                    int64(event.Grade),
 			Homeroom:                 event.Homeroom,
 			CaseManager:              event.CaseManager,
 			LastEventCommitPosition:  event.Position.Commit,
@@ -92,10 +97,10 @@ func (m *ReadModel) CreateStudent(ctx context.Context, event StudentCreatedProje
 func (m *ReadModel) UpdateStudent(ctx context.Context, event StudentUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateStudent(conn, dbsql.UpdateStudentParams{
-			FirstName:                event.FirstName,
+			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
-			LastName:                 event.LastName,
-			Grade:                    event.Grade,
+			FamilyName:               event.FamilyName,
+			Grade:                    int64(event.Grade),
 			Homeroom:                 event.Homeroom,
 			CaseManager:              event.CaseManager,
 			LastEventCommitPosition:  event.Position.Commit,

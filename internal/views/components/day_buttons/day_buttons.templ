@@ -1,19 +1,21 @@
 package day_buttons
 
-import "seek/internal/domain/models"
-import "fmt"
+import (
+	"fmt"
+	"seek/internal/features/_shared/sharedmodels"
+)
 
-templ DayButtons(days models.DaysSignals) {
+templ DayButtons(days sharedmodels.DaysSignals) {
 	<div class="days-selector">
-		for i := range models.Days {
-			<label for={ models.Days[i].NameLower() }>
-				{ models.Days[i].Short() }
-				<input 
-					data-bind={ fmt.Sprintf("period.days.%s", models.Days[i].NameLower()) } 
-					name="days" 
-					type="checkbox" 
-					id={ models.Days[i].NameLower() } 
-					if days.IsDaySet(models.Days[i]) {
+		for i := range sharedmodels.Days {
+			<label for={ sharedmodels.Days[i].NameLower() }>
+				{ sharedmodels.Days[i].Short() }
+				<input
+					data-bind={ fmt.Sprintf("period.days.%s", sharedmodels.Days[i].NameLower()) }
+					name="days"
+					type="checkbox"
+					id={ sharedmodels.Days[i].NameLower() }
+					if days.IsDaySet(sharedmodels.Days[i]) {
 						checked
 					}
 				/>

@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"seek/internal/domain/models"
 	"seek/internal/features/students/blocks"
+	"seek/internal/features/users/models"
 	"seek/internal/views"
 	"seek/internal/views/dto"
 	"seek/internal/views/layouts"

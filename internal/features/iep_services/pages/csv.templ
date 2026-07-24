@@ -1,12 +1,13 @@
 package pages
 
 import (
-	"seek/internal/domain/models"
+	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/iep_services/blocks"
+	"seek/internal/features/users/models"
 	"seek/internal/views/layouts"
 )
 
-templ CSV(user models.User, view blocks.DiffTableView) {
+templ CSV(user models.User, view shareddto.DiffTableView) {
 	@layouts.Base("SEEK: IEP services", user) {
 		<main>
 			<section>

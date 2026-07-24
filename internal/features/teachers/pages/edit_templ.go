@@ -9,14 +9,15 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
 	"seek/internal/features/teachers/blocks"
 	"seek/internal/features/teachers/events"
+	"seek/internal/features/teachers/models"
+	um "seek/internal/features/users/models"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 )
 
-func Edit(user models.User, teacher models.TeacherSignals, validation map[string]events.Validation) templ.Component {
+func Edit(user um.User, teacher models.TeacherSignals, validation map[string]events.Validation) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -56,7 +57,7 @@ func Edit(user models.User, teacher models.TeacherSignals, validation map[string
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/teachers/edit/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/pages/edit.templ`, Line: 13, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/pages/edit.templ`, Line: 14, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {

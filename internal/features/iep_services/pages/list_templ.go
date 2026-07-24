@@ -9,9 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
-	shareddto "seek/internal/features/_shared/dto"
+	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/iep_services/blocks"
+	"seek/internal/features/users/models"
 	sse "seek/internal/views"
 	"seek/internal/views/layouts"
 )
@@ -56,7 +56,7 @@ func List(user models.User, view shareddto.TableView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(view)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/pages/list.templ`, Line: 15, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/pages/list.templ`, Line: 13, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -69,7 +69,7 @@ func List(user models.User, view shareddto.TableView) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE("/iepservices/list/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/pages/list.templ`, Line: 15, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/pages/list.templ`, Line: 13, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"seek/internal/commandlimits"
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	"seek/internal/features/users/models"
 )
 
 type AuthUserByIDReader interface {

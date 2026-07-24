@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	"seek/internal/features/teachers/models"
 )
 
 const TeacherReadModelEventHandlerName = "teacher_read_model_event_handler"

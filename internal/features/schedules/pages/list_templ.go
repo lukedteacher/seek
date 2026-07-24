@@ -9,12 +9,13 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
 	"seek/internal/features/schedules/blocks"
+	"seek/internal/features/schedules/models"
+	um "seek/internal/features/users/models"
 	"seek/internal/views/layouts"
 )
 
-func List(user models.User, schedules []models.Schedule) templ.Component {
+func List(user um.User, schedules []models.Schedule) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

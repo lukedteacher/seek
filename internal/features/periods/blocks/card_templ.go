@@ -161,9 +161,9 @@ func Card(view dto.PeriodView) templ.Component {
 				}
 				for i := range view.Students {
 					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(view.Students[i].FirstName + ", ")
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(view.Students[i].GivenName + ", ")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/card.templ`, Line: 31, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/card.templ`, Line: 32, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {

@@ -11,8 +11,8 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
 	"seek/internal/features/schedules/blocks"
+	"seek/internal/features/users/models"
 	"seek/internal/views"
 	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
@@ -58,7 +58,7 @@ func Edit(user models.User, esvm blocks.EditScheduleViewModel, scv dto.ScheduleV
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE(fmt.Sprintf("/schedules/%s/edit/stream", esvm.Schedule.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/edit.templ`, Line: 17, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/edit.templ`, Line: 15, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {

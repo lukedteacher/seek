@@ -7,6 +7,7 @@ require (
 	github.com/a-h/templ v0.3.1020
 	github.com/delaneyj/toolbelt v0.9.1
 	github.com/go-chi/chi/v5 v5.3.0
+	github.com/gocarina/gocsv v0.0.0-20260628180327-50907998929c
 	github.com/oexza/Orisun v0.4.1
 	github.com/starfederation/datastar-go v1.2.2
 	github.com/templui/templui v1.12.1
@@ -29,7 +30,6 @@ require (
 	github.com/gertd/go-pluralize v0.2.1 // indirect
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
-	github.com/gocarina/gocsv v0.0.0-20260628180327-50907998929c // indirect
 	github.com/goccy/go-json v0.10.6 // indirect
 	github.com/google/cel-go v0.28.0 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect

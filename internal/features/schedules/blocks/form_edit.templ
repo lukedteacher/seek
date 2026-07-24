@@ -3,8 +3,10 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
+	pm "seek/internal/features/periods/models"
 	"seek/internal/features/schedules/events"
+	"seek/internal/features/schedules/models"
+	tm "seek/internal/features/teachers/models"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
 	"seek/internal/views/components/selectboxold"
@@ -15,10 +17,10 @@ import (
 
 type EditScheduleViewModel struct {
 	Schedule        models.ScheduleSignals
-	SchedulePeriods []models.PeriodSignals
+	SchedulePeriods []pm.PeriodSignals
 	Validation      map[string]events.Validation
-	Teachers        []models.TeacherSignals // list of teachers TODO remove this
-	Periods         []models.PeriodSignals  // list of periods TODO remove this
+	Teachers        []tm.TeacherSignals // list of teachers TODO remove this
+	Periods         []pm.PeriodSignals  // list of periods TODO remove this
 }
 
 templ EditForm(vm EditScheduleViewModel) {

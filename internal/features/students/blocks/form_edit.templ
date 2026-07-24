@@ -3,7 +3,6 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
 	"seek/internal/views/blocks/forms"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
@@ -11,6 +10,7 @@ import (
 	"seek/internal/views/dto"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/features/_shared/sharedmodels"
 )
 
 templ StudentEditForm(view dto.StudentFormView) {
@@ -38,7 +38,7 @@ templ StudentEditForm(view dto.StudentFormView) {
 					DataOn:   fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
 					HasError: view.Validation["first_name"].State == "error",
 					IsValid:  view.Validation["first_name"].State == "valid",
-					Value:    view.Student.FirstName,
+					Value:    view.Student.GivenName,
 				})
 			}
 			@label.Label(label.Props{
@@ -72,7 +72,7 @@ templ StudentEditForm(view dto.StudentFormView) {
 					DataOn:   fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
 					HasError: view.Validation["last_name"].State == "error",
 					IsValid:  view.Validation["last_name"].State == "valid",
-					Value:    view.Student.LastName,
+					Value:    view.Student.FamilyName,
 				})
 			}
 		</section>
@@ -90,7 +90,7 @@ templ StudentEditForm(view dto.StudentFormView) {
 					DataBind:     "student.grade",
 					DataOnChange: fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
 				}) {
-					for index, grade := range models.GradeList {
+					for index, grade := range sharedmodels.GradeList {
 						<option
 							id={ fmt.Sprintf("option-%d", index) }
 							if grade.Str() == view.Student.Grade {

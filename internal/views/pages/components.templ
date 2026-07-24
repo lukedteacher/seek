@@ -1,11 +1,11 @@
 package pages
 
 import (
-	"seek/internal/views/layouts"
-	"seek/internal/domain/models"
+	"seek/internal/features/users/models"
 	"seek/internal/views/components/badge"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
+	"seek/internal/views/layouts"
 	"seek/pkg/templui/components/input"
 )
 
@@ -77,7 +77,7 @@ templ Components(user models.User) {
 					@input.Input() {
 						test
 					}
-					<input class="input" />
+					<input class="input"/>
 				</div>
 			</section>
 		</main>

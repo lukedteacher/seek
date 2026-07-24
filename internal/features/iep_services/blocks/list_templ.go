@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	shareddto "seek/internal/features/_shared/dto"
+	"seek/internal/features/_shared/shareddto"
 	"seek/internal/views/blocks/data_table"
 )
 

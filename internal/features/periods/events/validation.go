@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"seek/internal/domain/models"
+	"seek/internal/features/periods/models"
 	"seek/pkg/utils"
 )
 

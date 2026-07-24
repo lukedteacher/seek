@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"seek/internal/domain/models"
+	"seek/internal/features/students/models"
 )
 
 type StudentListView struct {
@@ -15,21 +15,13 @@ type StudentListView struct {
 }
 
 func NewStudentListView(s *models.Student) *StudentListView {
-	chosenName := ""
-	if s.ChosenName != nil {
-		chosenName = *s.ChosenName
-	}
-	caseManager := ""
-	if s.CaseManager != nil {
-		caseManager = *s.CaseManager
-	}
 	return &StudentListView{
 		ID:          s.ID,
-		FirstName:   s.FirstName,
-		ChosenName:  chosenName,
-		LastName:    s.LastName,
+		FirstName:   s.GivenName,
+		ChosenName:  s.ChosenName,
+		LastName:    s.FamilyName,
 		Grade:       s.GradeOrdinal(),
 		Homeroom:    s.Homeroom,
-		CaseManager: caseManager,
+		CaseManager: s.CaseManager,
 	}
 }

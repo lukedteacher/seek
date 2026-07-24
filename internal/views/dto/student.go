@@ -3,15 +3,15 @@ package dto
 import (
 	"strconv"
 
-	"seek/internal/domain/models"
 	"seek/internal/features/students/events"
+	"seek/internal/features/students/models"
 )
 
 type StudentView struct {
 	ID          string       `json:"id"`
-	FirstName   string       `json:"first_name"`
+	GivenName   string       `json:"first_name"`
 	ChosenName  string       `json:"chosen_name"`
-	LastName    string       `json:"last_name"`
+	FamilyName  string       `json:"last_name"`
 	Grade       string       `json:"grade"`
 	Homeroom    string       `json:"homeroom"`
 	CaseManager string       `json:"case_manager"`
@@ -23,29 +23,21 @@ type StudentFormView struct {
 	Validation map[string]events.Validation `json:"validation"`
 }
 
-func NewStudentViewFromModel(s *models.Student) *StudentView {
-	chosenName := ""
-	if s.ChosenName != nil {
-		chosenName = *s.ChosenName
-	}
-	caseManager := ""
-	if s.CaseManager != nil {
-		caseManager = *s.CaseManager
-	}
+func NewStudentViewFromModel(s models.Student) *StudentView {
 	return &StudentView{
 		ID:          s.ID,
-		FirstName:   s.FirstName,
-		ChosenName:  chosenName,
-		LastName:    s.LastName,
+		GivenName:   s.GivenName,
+		ChosenName:  s.ChosenName,
+		FamilyName:  s.FamilyName,
 		Grade:       strconv.Itoa(int(s.Grade)),
 		Homeroom:    s.Homeroom,
-		CaseManager: caseManager,
+		CaseManager: s.CaseManager,
 	}
 }
 
-func NewStudentFormViewFromModel(s *models.Student) *StudentFormView {
+func NewStudentFormViewFromModel(s models.Student) *StudentFormView {
 	student := NewStudentViewFromModel(s)
-	validation := events.Validate(s)
+	validation := events.Validate(&s)
 	return &StudentFormView{
 		Student:    *student,
 		Validation: validation,
@@ -55,19 +47,19 @@ func NewStudentFormViewFromModel(s *models.Student) *StudentFormView {
 func NewStudentModelFromView(v *StudentView) *models.Student {
 	m := models.NewStudent()
 	m.ID = v.ID
-	m.FirstName = v.FirstName
+	m.GivenName = v.GivenName
 	if v.ChosenName != "" {
-		m.ChosenName = &v.ChosenName
+		m.ChosenName = v.ChosenName
 	}
-	m.LastName = v.LastName
+	m.FamilyName = v.FamilyName
 	grade := -1
 	if v.Grade != "select a grade" {
 		grade, _ = strconv.Atoi(v.Grade)
 	}
-	m.Grade = int64(grade)
+	m.Grade = grade
 	m.Homeroom = v.Homeroom
 	if v.CaseManager != "" {
-		m.CaseManager = &v.CaseManager
+		m.CaseManager = v.CaseManager
 	}
 	return m
 }

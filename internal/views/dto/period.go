@@ -2,7 +2,9 @@ package dto
 
 import (
 	"fmt"
-	"seek/internal/domain/models"
+	"seek/internal/features/_shared/shareddto"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/periods/models"
 	"strconv"
 	"strings"
 )
@@ -20,13 +22,13 @@ type PeriodView struct {
 }
 
 type PeriodFormView struct {
-	ID         string             `json:"id"`
-	Title      string             `json:"title"`
-	StartTime  string             `json:"start_time"`
-	EndTime    string             `json:"end_time"`
-	Duration   int                `json:"duration"`
-	Days       models.DaysSignals `json:"days"`
-	StudentIDs string             `json:"student_ids"`
+	ID         string                   `json:"id"`
+	Title      string                   `json:"title"`
+	StartTime  string                   `json:"start_time"`
+	EndTime    string                   `json:"end_time"`
+	Duration   int                      `json:"duration"`
+	Days       sharedmodels.DaysSignals `json:"days"`
+	StudentIDs string                   `json:"student_ids"`
 }
 
 func NewViewFromPeriod(p *models.Period) (PeriodView, error) {
@@ -46,7 +48,7 @@ func NewViewFromPeriod(p *models.Period) (PeriodView, error) {
 		EndTime:   add(p.StartTime, int(p.Duration)),
 		Duration:  int(p.Duration),
 		Days:      BitmaskToInitial(p.Days),
-		Columns:   models.DaysBitmaskToColumnNumbers(p.Days),
+		Columns:   sharedmodels.DaysBitmaskToColumnNumbers(p.Days),
 		Row:       timeToRow(p.StartTime, 479),
 	}, nil
 }
@@ -75,7 +77,7 @@ func NewFormViewFromPeriod(p *models.Period) (PeriodFormView, error) {
 	if p.Duration == 0 {
 		println("duration not initialized in period")
 	}
-	days := models.DaysBitmaskToDaysSignals(p.Days)
+	days := sharedmodels.DaysBitmaskToDaysSignals(p.Days)
 	return PeriodFormView{
 		ID:        p.ID,
 		Title:     p.Title,
@@ -95,7 +97,7 @@ func NewPeriodFromFormView(v *PeriodFormView) models.Period {
 		Title:      v.Title,
 		StartTime:  v.StartTime,
 		Duration:   int64(v.Duration),
-		Days:       models.DaysSignalsToDaysBitmask(v.Days),
+		Days:       sharedmodels.DaysSignalsToDaysBitmask(v.Days),
 		StudentIDs: strings.Split(v.StudentIDs, ","),
 	}
 }
@@ -117,4 +119,12 @@ func timeToMinutes(time string) int {
 func timeToRow(time string, offset int) string {
 	totalMinutes := timeToMinutes(time)
 	return strconv.Itoa(totalMinutes - offset)
+}
+
+var PeriodColumns = []shareddto.ColumnView{
+	{Field: "Title", Display: "title"},
+	{Field: "StartTime", Display: "start", Group: "time"},
+	{Field: "EndTime", Display: "end", Group: "time"},
+	{Field: "Duration", Display: "duration (min)"},
+	{Field: "Days", Display: "days"},
 }

@@ -10,9 +10,10 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"seek/internal/domain/models"
 	period "seek/internal/features/periods/events"
+	"seek/internal/features/periods/models"
 	sblocks "seek/internal/features/students/blocks"
+	smodels "seek/internal/features/students/models"
 	"seek/internal/views/components/day_buttons"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
@@ -28,7 +29,7 @@ type PeriodEditFormView struct {
 	StudentList []sblocks.StudentMultiselectView
 }
 
-func NewPeriodEditFormView(p *models.Period, all []models.Student, selected []string) PeriodEditFormView {
+func NewPeriodEditFormView(p *models.Period, all []smodels.Student, selected []string) PeriodEditFormView {
 	if p == nil {
 		return PeriodEditFormView{}
 	}
@@ -71,7 +72,7 @@ func EditPeriodForm(view PeriodEditFormView) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/%s/edit", view.Period.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_edit.templ`, Line: 42, Col: 71}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_edit.templ`, Line: 43, Col: 71}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {

@@ -10,9 +10,9 @@ import (
 )
 
 type CreateStudentCommand struct {
-	FirstName   string
+	GivenName   string
 	ChosenName  string
-	LastName    string
+	FamilyName  string
 	Grade       int64
 	Homeroom    string
 	CaseManager string
@@ -51,9 +51,9 @@ func newCreateStudentContext(command CreateStudentCommand) (*createStudentContex
 	id := uuidv7.NewString()
 	return &createStudentContext{
 		id:          id,
-		firstName:   command.FirstName,
+		firstName:   command.GivenName,
 		chosenName:  command.ChosenName,
-		lastName:    command.LastName,
+		lastName:    command.FamilyName,
 		grade:       command.Grade,
 		homeroom:    command.Homeroom,
 		caseManager: command.CaseManager,

@@ -1,15 +1,16 @@
 package pages
 
 import (
-	"seek/internal/domain/models"
 	"seek/internal/features/teachers/blocks"
+	"seek/internal/features/teachers/models"
+	um "seek/internal/features/users/models"
 	sse "seek/internal/views"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
 )
 
-templ List(user models.User, view int64, views []models.Teacher) {
+templ List(user um.User, view int64, views []models.Teacher) {
 	@layouts.Base("SEEK: teachers", user) {
 		<main data-signals:view={ view } data-init={ sse.LongRunningGetSSE("/teachers/stream") }>
 			<section>

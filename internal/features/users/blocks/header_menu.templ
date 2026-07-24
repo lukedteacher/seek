@@ -1,28 +1,28 @@
 package blocks
 
 import (
-	"seek/internal/domain/models"
-	"seek/internal/views/components/popover"
-	"seek/internal/views/components/icon"
+	"seek/internal/features/users/models"
 	"seek/internal/views/components/button"
+	"seek/internal/views/components/icon"
+	"seek/internal/views/components/popover"
 )
 
 templ UserHeaderMenu(user models.User) {
 	@popover.Trigger(popover.TriggerProps{
-		ID: "user-header-menu",
+		ID:  "user-header-menu",
 		For: "user-header-menu-content",
 	}) {
-		<div><img src="/static/images/om-fox.svg" /></div>
+		<div><img src="/static/images/om-fox.svg"/></div>
 		<span>{ user.Username }</span>
 	}
 	@popover.Content(popover.ContentProps{
 		Anchor: "user-header-menu",
-		ID: "user-header-menu-content",
+		ID:     "user-header-menu-content",
 	}) {
 		<ul>
 			<li>
 				@button.Button(button.Props{
-					Href: "/profile",
+					Href:    "/profile",
 					Variant: button.VariantGhost,
 				}) {
 					profile

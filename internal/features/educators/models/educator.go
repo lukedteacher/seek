@@ -1,7 +1,7 @@
 package models
 
 import (
-	sharedmodels "seek/internal/features/_shared/models"
+	"seek/internal/features/_shared/sharedmodels"
 )
 
 type Educator struct {

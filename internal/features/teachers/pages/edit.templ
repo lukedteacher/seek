@@ -1,14 +1,15 @@
 package pages
 
 import (
-	"seek/internal/domain/models"
 	"seek/internal/features/teachers/blocks"
 	"seek/internal/features/teachers/events"
+	"seek/internal/features/teachers/models"
+	um "seek/internal/features/users/models"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 )
 
-templ Edit(user models.User, teacher models.TeacherSignals, validation map[string]events.Validation) {
+templ Edit(user um.User, teacher models.TeacherSignals, validation map[string]events.Validation) {
 	@layouts.Base("SEEK: edit student", user) {
 		<main data-init={ views.LongRunningGetSSE("/teachers/edit/stream") }>
 			<section>

@@ -11,8 +11,8 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
 	"seek/internal/features/periods/blocks"
+	"seek/internal/features/users/models"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 )

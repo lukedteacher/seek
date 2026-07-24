@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"strings"
 
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	"seek/internal/features/users/models"
 )
 
 const RegistrationOTPToBeGeneratedEventHandlerName = "seek_registration_otp_to_be_generated_event_handler"

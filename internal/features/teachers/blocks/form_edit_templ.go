@@ -11,8 +11,8 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
 	"seek/internal/features/teachers/events"
+	"seek/internal/features/teachers/models"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
 
@@ -54,7 +54,7 @@ func EditForm(teacher models.TeacherSignals, validation map[string]events.Valida
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><hgroup><h2>EDIT A TEACHER</h2><p>edit the data of an existing teacher.</p></hgroup><section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><hgroup><h2>edit teacher</h2><p>edit the data of an existing teacher.</p></hgroup><section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

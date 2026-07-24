@@ -1,10 +1,10 @@
 package pages
 
 import (
+	"seek/internal/features/users/models"
 	"seek/internal/views"
-	"seek/internal/views/layouts"
-	"seek/internal/domain/models"
 	"seek/internal/views/blocks/forms"
+	"seek/internal/views/layouts"
 )
 
 templ Create(user models.User) {
@@ -15,11 +15,11 @@ templ Create(user models.User) {
 				<p>create a new teacher</p>
 				<form data-on:submit="@post('/teachers/create')">
 					<label for="first_name">first</label>
-					<input id="first_name" name="first_name" data-bind:first_name />
+					<input id="first_name" name="first_name" data-bind:first_name/>
 					<label for="chosen_name">chosen</label>
-					<input id="chosen_name" name="chosen_name" data-bind:chosen_name />
+					<input id="chosen_name" name="chosen_name" data-bind:chosen_name/>
 					<label for="last_name">last</label>
-					<input id="last_name" name="last_name" data-bind:last_name />
+					<input id="last_name" name="last_name" data-bind:last_name/>
 					@forms.SaveButton()
 				</form>
 			</section>

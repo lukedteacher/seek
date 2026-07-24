@@ -1,6 +1,8 @@
 package models
 
-import "seek/internal/domain/models"
+import (
+	"seek/internal/features/_shared/sharedmodels"
+)
 
 type Period struct {
 	ID         string
@@ -15,11 +17,11 @@ type Period struct {
 }
 
 type PeriodSignals struct {
-	ID        string             `json:"id"`
-	Title     string             `json:"title"`
-	StartTime string             `json:"start_time"`
-	Duration  int                `json:"duration"`
-	Days      models.DaysSignals `json:"days"`
+	ID        string                   `json:"id"`
+	Title     string                   `json:"title"`
+	StartTime string                   `json:"start_time"`
+	Duration  int                      `json:"duration"`
+	Days      sharedmodels.DaysSignals `json:"days"`
 }
 
 func NewPeriod() *Period {
@@ -27,4 +29,8 @@ func NewPeriod() *Period {
 		StartTime: "9:30",
 		Duration:  30,
 	}
+}
+
+func (p Period) StudentCount() int {
+	return len(p.StudentIDs)
 }

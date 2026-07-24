@@ -6,7 +6,7 @@ import (
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
-	"seek/internal/domain/models"
+	"seek/internal/features/users/models"
 
 	"zombiezen.com/go/sqlite"
 )

@@ -7,8 +7,8 @@ import (
 	"seek/internal/appdb"
 	"seek/internal/auth"
 	"seek/internal/dbsql"
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	"seek/internal/features/users/models"
 	"seek/internal/protectedpii"
 
 	"zombiezen.com/go/sqlite"

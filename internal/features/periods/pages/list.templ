@@ -1,16 +1,14 @@
 package pages
 
 import (
-	"seek/internal/domain/models"
-	shareddto "seek/internal/features/_shared/dto"
+	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/periods/blocks"
+	"seek/internal/features/users/models"
 	sse "seek/internal/views"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
 )
-
-
 
 templ List(user models.User, view int, tview shareddto.TableView) {
 	@layouts.Base("SEEK: periods", user) {

@@ -1,10 +1,10 @@
 package pages
 
 import (
-	"seek/internal/views/layouts"
-	"seek/internal/views/components"
+	"seek/internal/features/users/models"
 	"seek/internal/views"
-	"seek/internal/domain/models"
+	"seek/internal/views/components"
+	"seek/internal/views/layouts"
 )
 
 templ Login(user models.User, errors map[string]string) {
@@ -63,7 +63,7 @@ templ ResetPassword(user models.User, token string, errors map[string]string) {
 }
 
 templ ResetPasswordForm(token string, errors map[string]string) {
-	@components.AuthForm("/reset-password/" + token, "reset password", []components.Field{
+	@components.AuthForm("/reset-password/"+token, "reset password", []components.Field{
 		{Name: "password", Type: "password", Label: "new password"},
 	}, errors) {
 	}
@@ -76,7 +76,7 @@ templ ValidateEmail(user models.User, userID string, errors map[string]string) {
 }
 
 templ ValidateEmailForm(userID string, errors map[string]string) {
-	@components.AuthForm("/register/" + userID + "/validate-email", "validate email", []components.Field{
+	@components.AuthForm("/register/"+userID+"/validate-email", "validate email", []components.Field{
 		{Name: "otp", Type: "text", Label: "verification code"},
 	}, errors) {
 		<form class="w-full" data-on:submit={ sendValidationOTPSSE(userID) }>

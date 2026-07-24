@@ -11,7 +11,7 @@ import (
 
 templ Card(view dto.PeriodView) {
 	@card.Card(card.Props{
-		ID: fmt.Sprintf("period-%s-card", view.ID),
+		ID:    fmt.Sprintf("period-%s-card", view.ID),
 		Class: "period-card",
 	}) {
 		@card.Header() {
@@ -26,9 +26,10 @@ templ Card(view dto.PeriodView) {
 			<p>teacher: ...</p>
 			<p>location: ...</p>
 			<p>days: { view.Days }</p>
-			<p>students:
+			<p>
+				students:
 				for i := range view.Students {
-					{ view.Students[i].FirstName + ", "}
+					{ view.Students[i].GivenName + ", " }
 				}
 			</p>
 		}

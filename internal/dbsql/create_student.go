@@ -8,16 +8,16 @@ import (
 )
 
 type CreateStudentParams struct {
-	Id                       string  `json:"id"`
-	FirstName                string  `json:"first_name"`
-	ChosenName               *string `json:"chosen_name"`
-	LastName                 string  `json:"last_name"`
-	Grade                    int64   `json:"grade"`
-	Homeroom                 string  `json:"homeroom"`
-	CaseManager              *string `json:"case_manager"`
-	CreatedAt                string  `json:"created_at"`
-	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
-	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
+	Id                       string `json:"id"`
+	GivenName                string `json:"given_name"`
+	ChosenName               string `json:"chosen_name"`
+	FamilyName               string `json:"family_name"`
+	Grade                    int64  `json:"grade"`
+	Homeroom                 string `json:"homeroom"`
+	CaseManager              string `json:"case_manager"`
+	CreatedAt                string `json:"created_at"`
+	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
+	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 }
 
 type CreateStudentStmt struct {
@@ -29,8 +29,32 @@ type CreateStudentStmt struct {
 
 func CreateStudent(tx *sqlite.Conn) *CreateStudentStmt {
 	const querySQL = `
-INSERT INTO students (id, first_name, chosen_name, last_name, grade, homeroom, case_manager, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
-VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8, ?9, ?10)
+INSERT INTO students (
+	id, 
+	given_name, 
+	chosen_name, 
+	family_name, 
+	grade, 
+	homeroom, 
+	case_manager, 
+	created_at, 
+	updated_at,
+	last_event_commit_position,
+	last_event_prepare_position
+)
+VALUES (
+	?1, 
+	?2, 
+	?3, 
+	?4, 
+	?5, 
+	?6, 
+	?7, 
+	?8, 
+	?8, 
+	?9, 
+	?10
+)
 ON CONFLICT (id) DO NOTHING
     `
 
@@ -71,17 +95,13 @@ func (ps *CreateStudentStmt) Run(
 	stmt.BindText(bindIndex, params.Id)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.FirstName)
+	stmt.BindText(bindIndex, params.GivenName)
 
 	bindIndex++
-	if params.ChosenName == nil {
-		stmt.BindNull(bindIndex)
-	} else {
-		stmt.BindText(bindIndex, *params.ChosenName)
+	stmt.BindText(bindIndex, params.ChosenName)
 
-	}
 	bindIndex++
-	stmt.BindText(bindIndex, params.LastName)
+	stmt.BindText(bindIndex, params.FamilyName)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.Grade)
@@ -90,12 +110,8 @@ func (ps *CreateStudentStmt) Run(
 	stmt.BindText(bindIndex, params.Homeroom)
 
 	bindIndex++
-	if params.CaseManager == nil {
-		stmt.BindNull(bindIndex)
-	} else {
-		stmt.BindText(bindIndex, *params.CaseManager)
+	stmt.BindText(bindIndex, params.CaseManager)
 
-	}
 	bindIndex++
 	stmt.BindText(bindIndex, params.CreatedAt)
 

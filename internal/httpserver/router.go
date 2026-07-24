@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"seek/internal/auth"
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
 	educators "seek/internal/features/educators/events"
 	iepService "seek/internal/features/iep_services/events"
@@ -20,6 +19,7 @@ import (
 	schedule "seek/internal/features/schedules/events"
 	student "seek/internal/features/students/events"
 	teacher "seek/internal/features/teachers/events"
+	"seek/internal/features/users/models"
 	"seek/internal/resources"
 	"seek/internal/viewstore"
 

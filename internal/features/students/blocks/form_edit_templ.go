@@ -11,7 +11,6 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
 	"seek/internal/views/blocks/forms"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
@@ -19,6 +18,7 @@ import (
 	"seek/internal/views/dto"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/features/_shared/sharedmodels"
 )
 
 func StudentEditForm(view dto.StudentFormView) templ.Component {
@@ -78,7 +78,7 @@ func StudentEditForm(view dto.StudentFormView) templ.Component {
 				DataOn:   fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
 				HasError: view.Validation["first_name"].State == "error",
 				IsValid:  view.Validation["first_name"].State == "valid",
-				Value:    view.Student.FirstName,
+				Value:    view.Student.GivenName,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -150,7 +150,7 @@ func StudentEditForm(view dto.StudentFormView) templ.Component {
 				DataOn:   fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
 				HasError: view.Validation["last_name"].State == "error",
 				IsValid:  view.Validation["last_name"].State == "valid",
-				Value:    view.Student.LastName,
+				Value:    view.Student.FamilyName,
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -195,7 +195,7 @@ func StudentEditForm(view dto.StudentFormView) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				for index, grade := range models.GradeList {
+				for index, grade := range sharedmodels.GradeList {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<option id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

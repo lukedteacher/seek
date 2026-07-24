@@ -8,16 +8,16 @@ import (
 )
 
 type UpdateStudentParams struct {
-	FirstName                string  `json:"first_name"`
-	ChosenName               *string `json:"chosen_name"`
-	LastName                 string  `json:"last_name"`
-	Grade                    int64   `json:"grade"`
-	Homeroom                 string  `json:"homeroom"`
-	CaseManager              *string `json:"case_manager"`
-	UpdatedAt                string  `json:"updated_at"`
-	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
-	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
-	Id                       string  `json:"id"`
+	GivenName                string `json:"given_name"`
+	ChosenName               string `json:"chosen_name"`
+	FamilyName               string `json:"family_name"`
+	Grade                    int64  `json:"grade"`
+	Homeroom                 string `json:"homeroom"`
+	CaseManager              string `json:"case_manager"`
+	UpdatedAt                string `json:"updated_at"`
+	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
+	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
+	Id                       string `json:"id"`
 }
 
 type UpdateStudentStmt struct {
@@ -30,9 +30,9 @@ type UpdateStudentStmt struct {
 func UpdateStudent(tx *sqlite.Conn) *UpdateStudentStmt {
 	const querySQL = `
 UPDATE students
-SET first_name = ?1,
+SET given_name = ?1,
 	chosen_name = ?2,
-	last_name = ?3,
+	family_name = ?3,
 	grade = ?4,
 	homeroom = ?5,
 	case_manager = ?6,
@@ -76,17 +76,13 @@ func (ps *UpdateStudentStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, params.FirstName)
+	stmt.BindText(bindIndex, params.GivenName)
 
 	bindIndex++
-	if params.ChosenName == nil {
-		stmt.BindNull(bindIndex)
-	} else {
-		stmt.BindText(bindIndex, *params.ChosenName)
+	stmt.BindText(bindIndex, params.ChosenName)
 
-	}
 	bindIndex++
-	stmt.BindText(bindIndex, params.LastName)
+	stmt.BindText(bindIndex, params.FamilyName)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.Grade)
@@ -95,12 +91,8 @@ func (ps *UpdateStudentStmt) Run(
 	stmt.BindText(bindIndex, params.Homeroom)
 
 	bindIndex++
-	if params.CaseManager == nil {
-		stmt.BindNull(bindIndex)
-	} else {
-		stmt.BindText(bindIndex, *params.CaseManager)
+	stmt.BindText(bindIndex, params.CaseManager)
 
-	}
 	bindIndex++
 	stmt.BindText(bindIndex, params.UpdatedAt)
 

@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	"seek/internal/features/periods/models"
 )
 
 const PeriodReadModelEventHandlerName = "period_read_model_event_handler"

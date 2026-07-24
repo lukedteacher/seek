@@ -3,8 +3,8 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
 	"seek/internal/features/teachers/events"
+	"seek/internal/features/teachers/models"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
 
@@ -19,7 +19,7 @@ templ EditForm(teacher models.TeacherSignals, validation map[string]events.Valid
 		data-on:submit={ datastar.PostSSE("/teachers/%s/edit", teacher.ID) }
 	>
 		<hgroup>
-			<h2>EDIT A TEACHER</h2>
+			<h2>edit teacher</h2>
 			<p>edit the data of an existing teacher.</p>
 		</hgroup>
 		<section>

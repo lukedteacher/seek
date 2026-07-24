@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
+	"seek/internal/features/students/models"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
@@ -29,7 +29,7 @@ func NewStudentMultiselectView(all []models.Student, selected []string) []Studen
 	for i := range all {
 		view[i] = StudentMultiselectView{
 			StudentID:   all[i].ID,
-			DisplayName: all[i].FirstLast(),
+			DisplayName: all[i].FullName(),
 			Selected:    selectedMap[all[i].ID],
 		}
 	}

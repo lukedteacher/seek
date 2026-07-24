@@ -1,4 +1,4 @@
-package models
+package sharedmodels
 
 type Grade int
 

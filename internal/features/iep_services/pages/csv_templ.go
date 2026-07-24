@@ -9,12 +9,13 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
+	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/iep_services/blocks"
+	"seek/internal/features/users/models"
 	"seek/internal/views/layouts"
 )
 
-func CSV(user models.User, view blocks.DiffTableView) templ.Component {
+func CSV(user models.User, view shareddto.DiffTableView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

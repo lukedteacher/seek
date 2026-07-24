@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	pm "seek/internal/features/periods/models"
 	pse "seek/internal/features/periods_schedules/events"
 	"seek/internal/features/schedules/blocks"
 	"seek/internal/features/schedules/events"
+	"seek/internal/features/schedules/models"
 	"seek/internal/features/schedules/pages"
+	tm "seek/internal/features/teachers/models"
 	"seek/internal/views/dto"
 	"seek/internal/viewstore"
 
@@ -74,7 +76,7 @@ func (s Server) postScheduleCreateValidate(w http.ResponseWriter, r *http.Reques
 		TeacherId: signals.Schedule.TeacherID,
 	}
 
-	selectedTeacher := &models.Teacher{}
+	selectedTeacher := &tm.Teacher{}
 
 	teachers, _ := s.Teachers.List(ctx)
 	for _, teacher := range teachers {
@@ -146,7 +148,7 @@ func (s Server) getPeriodScheduleView(w http.ResponseWriter, r *http.Request) {
 	studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, pview.ID)
 	for i := range studentIDs {
 		student, _ := s.Students.Get(ctx, studentIDs[i])
-		studentView := dto.NewStudentViewFromModel(student)
+		studentView := dto.NewStudentViewFromModel(*student)
 		pview.Students = append(pview.Students, *studentView)
 	}
 	_ = pages.ViewWithPeriod(user, view, pview).Render(ctx, w)
@@ -433,7 +435,7 @@ func (s Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedul
 		return blocks.EditScheduleViewModel{}, fmt.Errorf("list schedule periods %s: %w", sm.ID, err)
 	}
 
-	schedulePeriodsSignals := make([]models.PeriodSignals, 0, len(periodIDs))
+	schedulePeriodsSignals := make([]pm.PeriodSignals, 0, len(periodIDs))
 	for _, periodID := range periodIDs {
 		pm, err := s.Periods.Get(ctx, periodID)
 		if err != nil {
@@ -455,13 +457,13 @@ func (s Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedul
 	if err != nil {
 		return blocks.EditScheduleViewModel{}, fmt.Errorf("list teachers: %w", err)
 	}
-	teachersSignals := make([]models.TeacherSignals, 0, len(teachers))
+	teachersSignals := make([]tm.TeacherSignals, 0, len(teachers))
 	for i := range teachers {
 		chosenName := ""
 		if teachers[i].ChosenName != nil {
 			chosenName = *teachers[i].ChosenName
 		}
-		teacherSignals := models.TeacherSignals{
+		teacherSignals := tm.TeacherSignals{
 			ID:         teachers[i].ID,
 			FirstName:  teachers[i].FirstName,
 			ChosenName: chosenName,
@@ -474,7 +476,7 @@ func (s Server) newEditScheduleViewModel(ctx context.Context, sm *models.Schedul
 	if err != nil {
 		return blocks.EditScheduleViewModel{}, fmt.Errorf("list periods: %w", err)
 	}
-	periodsSignals := make([]models.PeriodSignals, 0, len(periods))
+	periodsSignals := make([]pm.PeriodSignals, 0, len(periods))
 	for i := range periods {
 		periodSignals := s.periodToSignals(&periods[i])
 		periodsSignals = append(periodsSignals, periodSignals)
@@ -516,15 +518,15 @@ func (s Server) newScheduleComponentViewModel(ctx context.Context, sm *models.Sc
 	}, nil
 }
 
-func (s Server) teacherToSignals(teacher *models.Teacher) models.TeacherSignals {
+func (s Server) teacherToSignals(teacher *tm.Teacher) tm.TeacherSignals {
 	if teacher == nil {
-		return models.TeacherSignals{}
+		return tm.TeacherSignals{}
 	}
 	chosenName := ""
 	if teacher.ChosenName != nil {
 		chosenName = *teacher.ChosenName
 	}
-	return models.TeacherSignals{
+	return tm.TeacherSignals{
 		ID:         teacher.ID,
 		FirstName:  teacher.FirstName,
 		ChosenName: chosenName,

@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	"seek/internal/features/schedules/models"
 )
 
 const ScheduleReadModelEventHandlerName = "schedule_read_model_event_handler"

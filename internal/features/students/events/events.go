@@ -17,9 +17,9 @@ const (
 // EVENT FIELDS
 const (
 	StudentIDField          = "student_id"
-	StudentFirstNameField   = "first_name"
+	StudentGivenNameField   = "first_name"
 	StudentChosenNameField  = "chosen_name"
-	StudentLastNameField    = "last_name"
+	StudentFamilyNameField  = "last_name"
 	StudentGradeField       = "grade"
 	StudentHomeroomField    = "homeroom"
 	StudentCaseManagerField = "case_manager"
@@ -34,9 +34,9 @@ const (
 
 type StudentCreatedEvent struct {
 	EventID     string       `json:"student_created_event_id"`
-	FirstName   string       `json:"first_name"`
+	GivenName   string       `json:"first_name"`
 	ChosenName  string       `json:"chosen_name"`
-	LastName    string       `json:"last_name"`
+	FamilyName  string       `json:"last_name"`
 	Grade       int64        `json:"grade"`
 	Homeroom    string       `json:"homeroom"`
 	CaseManager string       `json:"case_manager"`
@@ -46,9 +46,9 @@ type StudentCreatedEvent struct {
 
 type StudentUpdatedEvent struct {
 	EventID     string       `json:"student_updated_event_id"`
-	FirstName   string       `json:"first_name"`
+	GivenName   string       `json:"first_name"`
 	ChosenName  string       `json:"chosen_name"`
-	LastName    string       `json:"last_name"`
+	FamilyName  string       `json:"last_name"`
 	Grade       int64        `json:"grade"`
 	Homeroom    string       `json:"homeroom"`
 	CaseManager string       `json:"case_manager"`
@@ -79,9 +79,9 @@ func NewStudentCreatedEvent(
 ) eventstore.DomainEvent {
 	event := StudentCreatedEvent{
 		EventID:     studentID,
-		FirstName:   firstName,
+		GivenName:   firstName,
 		ChosenName:  chosenName,
-		LastName:    lastName,
+		FamilyName:  lastName,
 		Grade:       grade,
 		Homeroom:    homeroom,
 		CaseManager: caseManager,
@@ -110,9 +110,9 @@ func NewStudentUpdatedEvent(
 ) eventstore.DomainEvent {
 	event := StudentUpdatedEvent{
 		EventID:     eventID,
-		FirstName:   firstName,
+		GivenName:   firstName,
 		ChosenName:  chosenName,
-		LastName:    lastName,
+		FamilyName:  lastName,
 		Grade:       grade,
 		Homeroom:    homeroom,
 		CaseManager: caseManager,

@@ -3,10 +3,10 @@ package httpserver
 import (
 	"net/http"
 
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
 	"seek/internal/features/teachers/blocks"
 	"seek/internal/features/teachers/events"
+	"seek/internal/features/teachers/models"
 	"seek/internal/features/teachers/pages"
 
 	"github.com/go-chi/chi/v5"

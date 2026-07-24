@@ -8,7 +8,7 @@ import (
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
-	"seek/internal/domain/models"
+	"seek/internal/features/users/models"
 )
 
 func userFromSessionRow(row *dbsql.UserBySessionTokenRes) (models.User, error) {

@@ -6,8 +6,7 @@ import (
 	"net/http"
 
 	"seek/internal/eventstore"
-	sdto "seek/internal/features/_shared/dto"
-	sm "seek/internal/features/_shared/models"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/dto"
 	"seek/internal/features/educators/events"
 	"seek/internal/features/educators/models"
@@ -43,13 +42,7 @@ func (s Server) getEducatorsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := sdto.NewTableView(educators, nil, []string{
-		"GivenName",
-		"ChosenName",
-		"FamilyName",
-		"Role",
-		"Email",
-	})
+	view := dto.NewEducatorTableView(educators)
 	_ = pages.List(user, view).Render(ctx, w)
 }
 
@@ -81,13 +74,7 @@ func (s Server) getEducatorsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			view := sdto.NewTableView(educators, nil, []string{
-				"GivenName",
-				"ChosenName",
-				"FamilyName",
-				"Role",
-				"Email",
-			})
+			view := dto.NewEducatorTableView(educators)
 
 			sse.PatchElementTempl(pages.List(user, view))
 		}
@@ -156,7 +143,7 @@ func (s Server) postEducatorCreateValidate(w http.ResponseWriter, r *http.Reques
 	}
 	model := models.Educator{
 		ID: signals.Educator.ID,
-		Person: sm.Person{
+		Person: sharedmodels.Person{
 			GivenName:  signals.Educator.GivenName,
 			ChosenName: signals.Educator.ChosenName,
 			FamilyName: signals.Educator.FamilyName,

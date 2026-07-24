@@ -9,15 +9,16 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
 	"seek/internal/features/teachers/blocks"
+	"seek/internal/features/teachers/models"
+	um "seek/internal/features/users/models"
 	sse "seek/internal/views"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
 )
 
-func List(user models.User, view int64, views []models.Teacher) templ.Component {
+func List(user um.User, view int64, views []models.Teacher) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -57,7 +58,7 @@ func List(user models.User, view int64, views []models.Teacher) templ.Component 
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(view)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/pages/list.templ`, Line: 14, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/pages/list.templ`, Line: 15, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -70,7 +71,7 @@ func List(user models.User, view int64, views []models.Teacher) templ.Component 
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE("/teachers/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/pages/list.templ`, Line: 14, Col: 88}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/pages/list.templ`, Line: 15, Col: 88}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {

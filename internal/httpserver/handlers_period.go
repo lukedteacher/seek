@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"strings"
 
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
-	sdto "seek/internal/features/_shared/dto"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/blocks"
+	pdto "seek/internal/features/periods/dto"
 	"seek/internal/features/periods/events"
+	"seek/internal/features/periods/models"
 	"seek/internal/features/periods/pages"
 	psevents "seek/internal/features/periods_students/events"
 	"seek/internal/views/dto"
@@ -54,12 +55,7 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := sdto.NewTableView(periods, nil, []string{
-		"Title",
-		"StartTime",
-		"Duration",
-		"Days",
-	})
+	view := pdto.NewPeriodTableView(periods)
 
 	_ = pages.List(user, signals.View, view).Render(ctx, w)
 }
@@ -93,12 +89,7 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			view := sdto.NewTableView(periods, nil, []string{
-				"Title",
-				"StartTime",
-				"Duration",
-				"Days",
-			})
+			view := pdto.NewPeriodTableView(periods)
 
 			sse.PatchElementTempl(pages.List(user, 0, view))
 		}
@@ -257,7 +248,7 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 	studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 	for i := range studentIDs {
 		student, _ := s.Students.Get(ctx, studentIDs[i])
-		studentView := dto.NewStudentViewFromModel(student)
+		studentView := dto.NewStudentViewFromModel(*student)
 		view.Students = append(view.Students, *studentView)
 	}
 	_ = pages.View(user, view).Render(ctx, w)
@@ -329,7 +320,7 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 			studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 			for i := range studentIDs {
 				student, _ := s.Students.Get(ctx, studentIDs[i])
-				studentView := dto.NewStudentViewFromModel(student)
+				studentView := dto.NewStudentViewFromModel(*student)
 				view.Students = append(view.Students, *studentView)
 			}
 			sse.PatchElementTempl(pages.View(user, view))
@@ -454,7 +445,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		Title:     signals.Period.Title,
 		StartTime: signals.Period.StartTime,
 		Duration:  int64(signals.Period.Duration),
-		Days:      models.DaysSignalsToDaysBitmask(signals.Period.Days),
+		Days:      sharedmodels.DaysSignalsToDaysBitmask(signals.Period.Days),
 		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
 	result, err := events.UpdatePeriodCommandHandler(ctx, updatePeriodCommand, s.EventSaver, s.EventRetriever)
@@ -558,7 +549,7 @@ func (s Server) periodToSignals(period *models.Period) models.PeriodSignals {
 		Title:     period.Title,
 		StartTime: period.StartTime,
 		Duration:  int(period.Duration),
-		Days:      models.DaysBitmaskToDaysSignals(period.Days),
+		Days:      sharedmodels.DaysBitmaskToDaysSignals(period.Days),
 	}
 }
 
@@ -571,6 +562,6 @@ func (s Server) periodSignalsToModel(period *models.PeriodSignals) models.Period
 		Title:     period.Title,
 		StartTime: period.StartTime,
 		Duration:  int64(period.Duration),
-		Days:      models.DaysSignalsToDaysBitmask(period.Days),
+		Days:      sharedmodels.DaysSignalsToDaysBitmask(period.Days),
 	}
 }

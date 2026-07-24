@@ -10,7 +10,7 @@ import (
 	"seek/internal/appdb"
 	"seek/internal/commandlimits"
 	"seek/internal/dbsql"
-	"seek/internal/domain/models"
+	"seek/internal/features/users/models"
 	"seek/internal/uuidv7"
 
 	"golang.org/x/crypto/bcrypt"

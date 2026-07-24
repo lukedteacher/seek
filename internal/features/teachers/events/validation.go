@@ -1,7 +1,7 @@
 package events
 
 import (
-	"seek/internal/domain/models"
+	"seek/internal/features/teachers/models"
 	"seek/pkg/utils"
 )
 

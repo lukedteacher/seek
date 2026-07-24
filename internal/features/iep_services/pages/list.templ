@@ -1,14 +1,12 @@
 package pages
 
 import (
-	"seek/internal/domain/models"
-	shareddto "seek/internal/features/_shared/dto"
+	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/iep_services/blocks"
+	"seek/internal/features/users/models"
 	sse "seek/internal/views"
 	"seek/internal/views/layouts"
 )
-
-
 
 templ List(user models.User, view shareddto.TableView) {
 	@layouts.Base("SEEK: IEP services", user) {

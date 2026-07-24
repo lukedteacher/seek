@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	"seek/internal/features/students/models"
 )
 
 const StudentReadModelEventHandlerName = "student_read_model_event_handler"
@@ -26,24 +26,24 @@ type StudentReadModelWriter interface {
 type StudentCreatedProjection struct {
 	Position    eventstore.Position
 	StudentID   string
-	FirstName   string
-	ChosenName  *string
-	LastName    string
-	Grade       int64
+	GivenName   string
+	ChosenName  string
+	FamilyName  string
+	Grade       int
 	Homeroom    string
-	CaseManager *string
+	CaseManager string
 	CreatedAt   time.Time
 }
 
 type StudentUpdatedProjection struct {
 	Position    eventstore.Position
 	StudentID   string
-	FirstName   string
-	ChosenName  *string
-	LastName    string
-	Grade       int64
+	GivenName   string
+	ChosenName  string
+	FamilyName  string
+	Grade       int
 	Homeroom    string
-	CaseManager *string
+	CaseManager string
 	UpdatedAt   time.Time
 }
 
@@ -117,41 +117,41 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	studentID, _ := scope[StudentIDField].(string)
 	switch resolved.Event.EventType {
 	case StudentCreated:
-		firstName, _ := data[StudentFirstNameField].(string)
+		firstName, _ := data[StudentGivenNameField].(string)
 		chosenName, _ := data[StudentChosenNameField].(string)
-		lastName, _ := data[StudentLastNameField].(string)
-		grade := int64(data[StudentGradeField].(float64))
+		lastName, _ := data[StudentFamilyNameField].(string)
+		grade := int(data[StudentGradeField].(float64))
 		homeroom, _ := data[StudentHomeroomField].(string)
 		caseManager, _ := data[StudentCaseManagerField].(string)
 		if err := h.readModel.CreateStudent(ctx, StudentCreatedProjection{
 			Position:    resolved.Position,
 			StudentID:   studentID,
-			FirstName:   firstName,
-			ChosenName:  stringPtr(chosenName),
-			LastName:    lastName,
+			GivenName:   firstName,
+			ChosenName:  chosenName,
+			FamilyName:  lastName,
 			Grade:       grade,
 			Homeroom:    homeroom,
-			CaseManager: stringPtr(caseManager),
+			CaseManager: caseManager,
 			CreatedAt:   parseTime(data[StudentCreatedAtField]),
 		}); err != nil {
 			return err
 		}
 	case StudentUpdated:
-		firstName, _ := data[StudentFirstNameField].(string)
+		firstName, _ := data[StudentGivenNameField].(string)
 		chosenName, _ := data[StudentChosenNameField].(string)
-		lastName, _ := data[StudentLastNameField].(string)
-		grade := int64(data[StudentGradeField].(float64))
+		lastName, _ := data[StudentFamilyNameField].(string)
+		grade := int(data[StudentGradeField].(float64))
 		homeroom, _ := data[StudentHomeroomField].(string)
 		caseManager, _ := data[StudentCaseManagerField].(string)
 		if err := h.readModel.UpdateStudent(ctx, StudentUpdatedProjection{
 			Position:    resolved.Position,
 			StudentID:   studentID,
-			FirstName:   firstName,
-			ChosenName:  stringPtr(chosenName),
-			LastName:    lastName,
+			GivenName:   firstName,
+			ChosenName:  chosenName,
+			FamilyName:  lastName,
 			Grade:       grade,
 			Homeroom:    homeroom,
-			CaseManager: stringPtr(caseManager),
+			CaseManager: caseManager,
 			UpdatedAt:   parseTime(data[StudentUpdatedAtField]),
 		}); err != nil {
 			return err

@@ -3,8 +3,10 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
+	pm "seek/internal/features/periods/models"
 	"seek/internal/features/schedules/events"
+	"seek/internal/features/schedules/models"
+	tm "seek/internal/features/teachers/models"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
 	"seek/internal/views/components/selectboxold"
@@ -14,14 +16,14 @@ import (
 )
 
 templ CreateForm(
-	schedule models.Schedule, 
-	teachers []models.Teacher, 
-	periods []models.Period, 
-	validation map[string]events.Validation, 
-	selectedTeacher *models.Teacher,
+	schedule models.Schedule,
+	teachers []tm.Teacher,
+	periods []pm.Period,
+	validation map[string]events.Validation,
+	selectedTeacher *tm.Teacher,
 ) {
-	<form 
-		id="create-schedule-form" 
+	<form
+		id="create-schedule-form"
 		class="seek-form"
 		data-on:submit={ datastar.PostSSE("/schedules/create") }
 	>
@@ -31,54 +33,54 @@ templ CreateForm(
 		</hgroup>
 		<section>
 			@label.Label(label.Props{
-				ID: "title--input-label",
-				For: "title",
-				Label: "title",
-				ValidationState: validation["title"].State,
+				ID:                "title--input-label",
+				For:               "title",
+				Label:             "title",
+				ValidationState:   validation["title"].State,
 				ValidationMessage: validation["title"].Message,
 			}) {
 				@input.Input(input.Props{
-					ID: "title",
-					Name: "title",
+					ID:       "title",
+					Name:     "title",
 					DataBind: "schedule.title",
-					DataOn: "/schedules/create/validate",
+					DataOn:   "/schedules/create/validate",
 					HasError: validation["title"].State == "error",
-					IsValid: validation["title"].State == "valid",
+					IsValid:  validation["title"].State == "valid",
 				})
 			}
 		</section>
 		<section>
-		{{
-			selectedContent := "select a teacher"
-			selectedTeacherID := ""
-			if selectedTeacher != nil {
-				selectedContent = selectedTeacher.DisplayName()
-				selectedTeacherID = selectedTeacher.ID
-			}
-		}}
+			{{
+				selectedContent := "select a teacher"
+				selectedTeacherID := ""
+				if selectedTeacher != nil {
+					selectedContent = selectedTeacher.DisplayName()
+					selectedTeacherID = selectedTeacher.ID
+				}
+			}}
 			@label.Label(label.Props{
-				ID: "teacher-select-label",
-				For: "teacher-select",
-				Label: "teacher",
-				ValidationState: validation["teacher_id"].State,
+				ID:                "teacher-select-label",
+				For:               "teacher-select",
+				Label:             "teacher",
+				ValidationState:   validation["teacher_id"].State,
 				ValidationMessage: validation["teacher_id"].Message,
 			}) {
 				@selectboxold.Select(selectboxold.Props{
-					ID: "teacher-select",
-					Placeholder: "select a teacher",
-					DataBind: "schedule.teacher_id",
-					DataOnChange: fmt.Sprintf("/schedules/create/validate"),
-					HasError: validation["teacher_id"].State == "error",
-					IsValid: validation["teacher_id"].State == "valid",
+					ID:              "teacher-select",
+					Placeholder:     "select a teacher",
+					DataBind:        "schedule.teacher_id",
+					DataOnChange:    fmt.Sprintf("/schedules/create/validate"),
+					HasError:        validation["teacher_id"].State == "error",
+					IsValid:         validation["teacher_id"].State == "valid",
 					SelectedContent: selectedContent,
 				}) {
 					for index, teacher := range teachers {
-						<option 
-						id={ fmt.Sprintf( "option-%d", index ) }
-						if teacher.ID == selectedTeacherID {
-							selected
-						}
-						value={ teacher.ID }
+						<option
+							id={ fmt.Sprintf("option-%d", index) }
+							if teacher.ID == selectedTeacherID {
+								selected
+							}
+							value={ teacher.ID }
 						>
 							{ teacher.DisplayName() }
 						</option>
@@ -102,4 +104,3 @@ templ CreateForm(
 		</footer>
 	</form>
 }
-				

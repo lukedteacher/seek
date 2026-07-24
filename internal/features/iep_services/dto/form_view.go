@@ -1,10 +1,10 @@
 package dto
 
 import (
-	sm "seek/internal/domain/models"
 	"seek/internal/features/iep_services/events"
 	"seek/internal/features/iep_services/models"
 	sb "seek/internal/features/students/blocks"
+	sm "seek/internal/features/students/models"
 )
 
 type IEPServiceFormView struct {

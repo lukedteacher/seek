@@ -7,7 +7,7 @@ import (
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
-	sm "seek/internal/features/_shared/models"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/models"
 
 	"zombiezen.com/go/sqlite"
@@ -37,7 +37,7 @@ func (m *ReadModel) Get(ctx context.Context, educatorID string) (*models.Educato
 
 	educator := &models.Educator{
 		ID: row.Id,
-		Person: sm.Person{
+		Person: sharedmodels.Person{
 			GivenName:  row.GivenName,
 			ChosenName: row.ChosenName,
 			FamilyName: row.FamilyName,
@@ -63,7 +63,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Educator, error) {
 	for i := range rows {
 		educators[i] = models.Educator{
 			ID: rows[i].Id,
-			Person: sm.Person{
+			Person: sharedmodels.Person{
 				GivenName:  rows[i].GivenName,
 				ChosenName: rows[i].ChosenName,
 				FamilyName: rows[i].FamilyName,

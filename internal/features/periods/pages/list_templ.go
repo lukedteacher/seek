@@ -9,9 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/domain/models"
-	shareddto "seek/internal/features/_shared/dto"
+	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/periods/blocks"
+	"seek/internal/features/users/models"
 	sse "seek/internal/views"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/icon"
@@ -58,7 +58,7 @@ func List(user models.User, view int, tview shareddto.TableView) templ.Component
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(view)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/list.templ`, Line: 17, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/list.templ`, Line: 15, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -71,7 +71,7 @@ func List(user models.User, view int, tview shareddto.TableView) templ.Component
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE("/periods/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/list.templ`, Line: 17, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/list.templ`, Line: 15, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {

@@ -5,11 +5,12 @@ import (
 	"errors"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
 	"seek/internal/commandlimits"
-	"seek/internal/domain/models"
 	"seek/internal/eventstore"
+	"seek/internal/features/users/models"
 	"seek/internal/uuidv7"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type ChangePasswordCommand struct {

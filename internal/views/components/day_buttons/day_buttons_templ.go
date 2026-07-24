@@ -8,10 +8,12 @@ package day_buttons
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "seek/internal/domain/models"
-import "fmt"
+import (
+	"fmt"
+	"seek/internal/features/_shared/sharedmodels"
+)
 
-func DayButtons(days models.DaysSignals) templ.Component {
+func DayButtons(days sharedmodels.DaysSignals) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -36,15 +38,15 @@ func DayButtons(days models.DaysSignals) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for i := range models.Days {
+		for i := range sharedmodels.Days {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<label for=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(models.Days[i].NameLower())
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(sharedmodels.Days[i].NameLower())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 9, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 11, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
@@ -55,9 +57,9 @@ func DayButtons(days models.DaysSignals) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(models.Days[i].Short())
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(sharedmodels.Days[i].Short())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 10, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 12, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -68,9 +70,9 @@ func DayButtons(days models.DaysSignals) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("period.days.%s", models.Days[i].NameLower()))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("period.days.%s", sharedmodels.Days[i].NameLower()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 12, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 14, Col: 80}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -81,9 +83,9 @@ func DayButtons(days models.DaysSignals) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(models.Days[i].NameLower())
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(sharedmodels.Days[i].NameLower())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 15, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 17, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -93,7 +95,7 @@ func DayButtons(days models.DaysSignals) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if days.IsDaySet(models.Days[i]) {
+			if days.IsDaySet(sharedmodels.Days[i]) {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

@@ -11,7 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
-	"seek/internal/domain/models"
+	"seek/internal/features/teachers/models"
 	"seek/internal/views/components/icon"
 )
 
@@ -85,7 +85,7 @@ func List(teachers []models.Teacher) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(*teachers[i].ChosenName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/blocks/list.templ`, Line: 33, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/blocks/list.templ`, Line: 33, Col: 32}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -99,7 +99,7 @@ func List(teachers []models.Teacher) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(teachers[i].LastName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/blocks/list.templ`, Line: 36, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/blocks/list.templ`, Line: 36, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {

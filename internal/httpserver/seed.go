@@ -3,6 +3,7 @@ package httpserver
 import (
 	"net/http"
 
+	"seek/internal/features/_shared/sharedmodels"
 	pe "seek/internal/features/periods/events"
 	pm "seek/internal/features/periods/models"
 	se "seek/internal/features/students/events"
@@ -14,93 +15,114 @@ func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 
 	students := []sm.Student{
 		{
-			FirstName:   "Emma",
-			ChosenName:  "Em",
-			LastName:    "Johnson",
+			Person: sharedmodels.Person{
+				GivenName:  "Emma",
+				ChosenName: "Em",
+				FamilyName: "Johnson",
+			},
 			Grade:       5,
 			Homeroom:    "Ms. Smith",
 			CaseManager: "Mr. Davis",
 		},
 		{
-			FirstName:   "Liam",
-			ChosenName:  "",
-			LastName:    "Garcia",
+			Person: sharedmodels.Person{
+				GivenName:  "Liam",
+				ChosenName: "",
+				FamilyName: "Garcia",
+			},
 			Grade:       6,
 			Homeroom:    "Mr. Brown",
 			CaseManager: "Ms. Wilson",
 		},
 		{
-			FirstName:   "Olivia",
-			ChosenName:  "Liv",
-			LastName:    "Martinez",
+			Person: sharedmodels.Person{
+				GivenName:  "Olivia",
+				ChosenName: "Liv",
+				FamilyName: "Martinez",
+			},
 			Grade:       2,
 			Homeroom:    "Mrs. Lee",
 			CaseManager: "",
 		},
 		{
-			FirstName:   "Noah",
-			ChosenName:  "",
-			LastName:    "Rodriguez",
+			Person: sharedmodels.Person{
+				GivenName:  "Noah",
+				ChosenName: "",
+				FamilyName: "Rodriguez",
+			},
 			Grade:       1,
 			Homeroom:    "Mr. Jones",
 			CaseManager: "Ms. Taylor",
 		},
 		{
-			FirstName:   "Ava",
-			ChosenName:  "Aves",
-			LastName:    "Williams",
+			Person: sharedmodels.Person{
+				GivenName:  "Ava",
+				ChosenName: "Aves",
+				FamilyName: "Williams",
+			},
 			Grade:       4,
 			Homeroom:    "Mrs. Clark",
 			CaseManager: "Mr. Harris",
 		},
 		{
-			FirstName:   "Mason",
-			ChosenName:  "Mace",
-			LastName:    "Brown",
+			Person: sharedmodels.Person{
+				GivenName:  "Mason",
+				ChosenName: "Mace",
+				FamilyName: "Brown",
+			},
 			Grade:       8,
 			Homeroom:    "Ms. White",
 			CaseManager: "",
 		},
 		{
-			FirstName:   "Sophia",
-			ChosenName:  "Soph",
-			LastName:    "Jones",
+			Person: sharedmodels.Person{
+				GivenName:  "Sophia",
+				ChosenName: "Soph",
+				FamilyName: "Jones",
+			},
 			Grade:       0,
 			Homeroom:    "Mr. Anderson",
 			CaseManager: "Ms. Thomas",
 		},
 		{
-			FirstName:   "Logan",
-			ChosenName:  "",
-			LastName:    "Miller",
+			Person: sharedmodels.Person{
+				GivenName:  "Logan",
+				ChosenName: "",
+				FamilyName: "Miller",
+			},
 			Grade:       7,
 			Homeroom:    "Mrs. Martinez",
 			CaseManager: "Mr. Garcia",
 		},
 		{
-			FirstName:   "Mia",
-			ChosenName:  "",
-			LastName:    "Davis",
+			Person: sharedmodels.Person{
+				GivenName:  "Mia",
+				ChosenName: "",
+				FamilyName: "Davis",
+			},
 			Grade:       5,
 			Homeroom:    "Ms. Smith",
 			CaseManager: "Ms. Wilson",
 		},
 		{
-			FirstName:   "Ethan",
-			ChosenName:  "E",
-			LastName:    "Moore",
+			Person: sharedmodels.Person{
+				GivenName:  "Ethan",
+				ChosenName: "E",
+				FamilyName: "Moore",
+			},
 			Grade:       6,
 			Homeroom:    "Mr. Brown",
 			CaseManager: "",
 		},
 	}
 
+	// helper if CaseManager is *string
 	for _, student := range students {
 		command := se.CreateStudentCommand{
-			FirstName:   student.FirstName,
+			GivenName:   student.GivenName,
 			ChosenName:  student.ChosenName,
-			LastName:    student.LastName,
-			Grade:       student.Grade,
+			FamilyName:  student.FamilyName,
+			Grade:       int64(student.Grade),
 			Homeroom:    student.Homeroom,
 			CaseManager: student.CaseManager,
 		}

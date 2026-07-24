@@ -7,11 +7,11 @@ import (
 	"net/http"
 
 	"seek/internal/appdb"
-	um "seek/internal/domain/models"
 	"seek/internal/eventstore"
 	"seek/internal/features/profiles/events"
 	"seek/internal/features/profiles/models"
 	"seek/internal/features/profiles/pages"
+	um "seek/internal/features/users/models"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
