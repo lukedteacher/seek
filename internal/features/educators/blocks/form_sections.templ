@@ -1,0 +1,94 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/educators/dto"
+	"seek/internal/views/blocks/forms"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
+)
+
+templ FormSections(url string, view dto.EducatorView) {
+	<section>
+		@forms.TextInputWithLabel(
+			"given-name-label",
+			"given name",
+			fmt.Sprintf("%s/validate", url),
+			"educator.given_name",
+			view.GivenName,
+		)
+		@forms.TextInputWithLabel(
+			"chosen-name-label",
+			"chosen name",
+			fmt.Sprintf("%s/validate", url),
+			"educator.chosen_name",
+			view.ChosenName,
+		)
+		@forms.TextInputWithLabel(
+			"family-name-label",
+			"family name",
+			fmt.Sprintf("%s/validate", url),
+			"educator.family_name",
+			view.FamilyName,
+		)
+	</section>
+	<section>
+		@forms.TextInputWithLabel(
+			"email-label",
+			"email",
+			fmt.Sprintf("%s/validate", url),
+			"educator.email",
+			view.Email,
+		)
+	</section>
+	<section>
+		@selectbox.SelectBox() {
+			@label.Label(label.Props{
+				Class: "text-neutral-content/70 mb-3",
+				For:   "educator-role-select",
+			}) {
+				role
+			}
+			@selectbox.Trigger(selectbox.TriggerProps{
+				ID: "educator-role-select",
+				Attributes: templ.Attributes{
+					"data-bind:educator.role": "",
+				},
+			}) {
+				@selectbox.Value(selectbox.ValueProps{
+					Placeholder: "select a role",
+				})
+			}
+			@selectbox.Content(selectbox.ContentProps{
+				NoSearch: true,
+			}) {
+				@selectbox.Item(selectbox.ItemProps{
+					Value:    "coteacher",
+					Selected: view.Role == "coteacher",
+				}) {
+					co-teacher
+				}
+				@selectbox.Item(selectbox.ItemProps{
+					Value:    "ea",
+					Selected: view.Role == "ea",
+				}) {
+					EA
+				}
+				@selectbox.Item(selectbox.ItemProps{
+					Value:    "teacher",
+					Selected: view.Role == "teacher",
+				}) {
+					teacher
+				}
+				@selectbox.Item(selectbox.ItemProps{
+					Value:    "admin",
+					Selected: view.Role == "admin",
+				}) {
+					admin
+				}
+			}
+		}
+		@selectbox.Script()
+	</section>
+}

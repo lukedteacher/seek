@@ -11,7 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 	"seek/internal/views/components/button"
-	"seek/internal/views/components/icon"
+	"seek/pkg/templui/components/icon"
 )
 
 func CancelButton() templ.Component {

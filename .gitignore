@@ -12,3 +12,7 @@
 
 # vscode
 .vscode
+
+# binaries
+/.bin
+/bin

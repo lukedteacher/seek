@@ -10,11 +10,11 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/features/users/models"
-	"seek/internal/views/components/avatar"
-	"seek/internal/views/components/badge"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/card"
-	"seek/internal/views/components/icon"
+	"seek/pkg/templui/components/avatar"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/icon"
 )
 
 func ProfileOverview(user models.User) templ.Component {

@@ -1,8 +1,8 @@
 package blocks
 
 import (
-  "fmt"
-	"seek/internal/views/dto"
+	"fmt"
+	"seek/internal/features/schedules/dto"
 )
 
 templ ScheduleStyle() {
@@ -73,15 +73,17 @@ templ ScheduleComponent(v dto.ScheduleView) {
 }
 
 templ DayHeaders() {
-  {{days := []string{
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-  }}}
+	{{
+		days := []string{
+			"Monday",
+			"Tuesday",
+			"Wednesday",
+			"Thursday",
+			"Friday",
+		}
+	}}
 	for index, day := range days {
-		<div 
+		<div
 			class="day-header"
 			style={ fmt.Sprintf("grid-column: %d / span 1;", index+2) }
 		>
@@ -91,40 +93,42 @@ templ DayHeaders() {
 }
 
 templ TimeColumn() {
-  {{times := []string{
-    "8:00",
-    "9:00",
-    "10:00",
-    "11:00",
-    "12:00",
-    "1:00",
-    "2:00",
-    "3:00",
-  }}}
-  <div id="schedule-times">
-    for _, time := range times {
-      <div>
-        { time }
-      </div>
-    }
-  </div>
+	{{
+		times := []string{
+			"8:00",
+			"9:00",
+			"10:00",
+			"11:00",
+			"12:00",
+			"1:00",
+			"2:00",
+			"3:00",
+		}
+	}}
+	<div id="schedule-times">
+		for _, time := range times {
+			<div>
+				{ time }
+			</div>
+		}
+	</div>
 }
 
 templ GridContainer() {
-  <div id="schedule-grid">
-    { children... }
-  </div>
+	<div id="schedule-grid">
+		{ children... }
+	</div>
 }
 
 templ TimeGrid(interval int, totalRows int) {
-  for index := 1; index < totalRows; index++ {
-    if index%interval == 1 {
-      <div 
-        class="time-grid"
-        style={ fmt.Sprintf("grid-row: %d / span 1;", index) }
-      />
-    }
-  }
+	for index := 1; index < totalRows; index++ {
+		if index%interval == 1 {
+			<div
+				class="time-grid"
+				style={ fmt.Sprintf("grid-row: %d / span 1;", index) }
+			></div>
+		}
+	}
 	<div class="time-grid" style="grid-row: -1 / span 1;"></div>
 	<style>
 		.time-grid {
@@ -136,17 +140,17 @@ templ TimeGrid(interval int, totalRows int) {
 }
 
 templ DayGrid() {
-  // this is ugly TODO: fix
-  <div 
-    class="day-grid" 
-    style="grid-column: 1 / span 1;"
-  ></div>
-  for index := 1; index < 6; index++ {
-    <div 
-      class="day-grid"
-      style={ fmt.Sprintf("grid-column: %d / span 1;", index) }
-    ></div>
-  }
+	// this is ugly TODO: fix
+	<div
+		class="day-grid"
+		style="grid-column: 1 / span 1;"
+	></div>
+	for index := 1; index < 6; index++ {
+		<div
+			class="day-grid"
+			style={ fmt.Sprintf("grid-column: %d / span 1;", index) }
+		></div>
+	}
 	<style>
 		.day-grid {
 			grid-row: 1 / -1;

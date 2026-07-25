@@ -3,14 +3,12 @@ package httpserver
 import (
 	"context"
 	"net/http"
-	"strconv"
 
 	"seek/internal/eventstore"
-	sdto "seek/internal/features/students/dto"
+	"seek/internal/features/students/dto"
 	"seek/internal/features/students/events"
 	"seek/internal/features/students/models"
 	"seek/internal/features/students/pages"
-	"seek/internal/views/dto"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -49,7 +47,7 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := sdto.NewStudentTableView(students)
+	view := dto.NewStudentTableView(students)
 	_ = pages.List(user, view).Render(ctx, w)
 }
 
@@ -81,7 +79,7 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			view := sdto.NewStudentTableView(students)
+			view := dto.NewStudentTableView(students)
 
 			sse.PatchElementTempl(pages.List(user, view))
 		}
@@ -132,6 +130,7 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 				println(err.Error())
 				return
 			}
+			println(model.Grade)
 			view := dto.NewStudentFormViewFromModel(model)
 			sse.PatchElementTempl(pages.Create(user, *view))
 		}
@@ -168,12 +167,7 @@ func (s Server) postStudentCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var grade int64
-	if signals.Student.Grade == "select a grade" {
-		grade = -1
-	} else {
-		grade, _ = strconv.ParseInt(signals.Student.Grade, 10, 64)
-	}
+	var grade int64 = -1
 
 	_, err := events.CreateStudentCommandHandler(ctx, events.CreateStudentCommand{
 		GivenName:   signals.Student.GivenName,
@@ -197,21 +191,13 @@ func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	studentID := chi.URLParam(r, "id")
-	student, err := s.Students.Get(r.Context(), studentID)
+	student, err := s.Students.Get(ctx, studentID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	view := dto.NewStudentViewFromModel(*student)
-	periodIDs, _ := s.PeriodsStudents.ListPeriodIDsForStudent(ctx, studentID)
-	periodViews := make([]dto.PeriodView, len(periodIDs))
-	for i := range periodIDs {
-		period, _ := s.Periods.Get(ctx, periodIDs[i])
-		view, _ := dto.NewViewFromPeriod(period)
-		periodViews[i] = view
-	}
-	view.Schedule.Periods = periodViews
-	_ = pages.View(user, *view).Render(r.Context(), w)
+	_ = pages.View(user, *view).Render(ctx, w)
 }
 
 // GET request to /students/{id}/stream
@@ -274,14 +260,6 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			view := dto.NewStudentViewFromModel(model)
-			periodIDs, _ := s.PeriodsStudents.ListPeriodIDsForStudent(ctx, studentID)
-			periodViews := make([]dto.PeriodView, len(periodIDs))
-			for i := range periodIDs {
-				period, _ := s.Periods.Get(ctx, periodIDs[i])
-				view, _ := dto.NewViewFromPeriod(period)
-				periodViews[i] = view
-			}
-			view.Schedule.Periods = periodViews
 			sse.PatchElementTempl(pages.View(user, *view))
 		}
 	}
@@ -395,10 +373,7 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gradeInt64, err := strconv.ParseInt(signals.Student.Grade, 10, 64)
-	if err != nil {
-		println("convert int64 error: ", err.Error())
-	}
+	gradeInt64 := int64(signals.Student.Grade)
 
 	studentID := chi.URLParam(r, "id")
 	result, err := events.UpdateStudentCommandHandler(ctx, events.UpdateStudentCommand{
@@ -424,9 +399,10 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 
 // POST request to /students/{id}/delete
 func (s Server) deleteStudent(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	user := currentUser(r)
 	studentID := chi.URLParam(r, "id")
-	_, err := events.DeleteStudentCommandHandler(r.Context(), events.DeleteStudentCommand{
+	_, err := events.DeleteStudentCommandHandler(ctx, events.DeleteStudentCommand{
 		StudentID: studentID,
 		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)

@@ -8,9 +8,7 @@ package blocks
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import (
-	"seek/internal/views/dto"
-)
+import "seek/internal/features/students/dto"
 
 func CardGrid(students []dto.StudentView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

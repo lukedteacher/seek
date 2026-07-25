@@ -10,13 +10,13 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/features/students/blocks"
+	"seek/internal/features/students/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/dto"
+	sse "seek/internal/views"
 	"seek/internal/views/layouts"
 )
 
-func Create(user models.User, v dto.StudentFormView) templ.Component {
+func Create(user models.User, view dto.StudentFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -54,9 +54,9 @@ func Create(user models.User, v dto.StudentFormView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/students/create/stream"))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE("/students/create/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/create.templ`, Line: 13, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/create.templ`, Line: 13, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -66,7 +66,7 @@ func Create(user models.User, v dto.StudentFormView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.StudentCreateForm(v).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.StudentCreateForm(view).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

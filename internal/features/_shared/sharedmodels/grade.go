@@ -1,9 +1,16 @@
 package sharedmodels
 
+import (
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
+
 type Grade int
 
 const (
-	GradeK Grade = iota
+	GradeUnassigned Grade = iota - 1
+	GradeK
 	Grade1
 	Grade2
 	Grade3
@@ -32,6 +39,7 @@ var GradeList = []Grade{
 
 func (g Grade) Ordinal() string {
 	ordinalMap := map[Grade]string{
+		-1: "unassigned",
 		0:  "K",
 		1:  "1st",
 		2:  "2nd",
@@ -51,6 +59,7 @@ func (g Grade) Ordinal() string {
 
 func (g Grade) Word() string {
 	wordMap := map[Grade]string{
+		-1: "unassigned",
 		0:  "kindergarten",
 		1:  "first",
 		2:  "second",
@@ -70,6 +79,7 @@ func (g Grade) Word() string {
 
 func (g Grade) Str() string {
 	strMap := map[Grade]string{
+		-1: "-1",
 		0:  "0",
 		1:  "1",
 		2:  "2",
@@ -85,4 +95,29 @@ func (g Grade) Str() string {
 		12: "12",
 	}
 	return strMap[g]
+}
+
+func (g *Grade) UnmarshalJSON(b []byte) error {
+	var v interface{}
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	switch val := v.(type) {
+	case float64:
+		*g = Grade(int(val))
+		return nil
+	case string:
+		if val == "" {
+			*g = Grade(-1)
+			return nil
+		}
+		i, err := strconv.Atoi(val)
+		if err != nil {
+			return err
+		}
+		*g = Grade(i)
+		return nil
+	default:
+		return fmt.Errorf("grade: unsupported type %T", v)
+	}
 }

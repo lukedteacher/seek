@@ -20,7 +20,7 @@ func NewStudentListView(s *models.Student) *StudentListView {
 		FirstName:   s.GivenName,
 		ChosenName:  s.ChosenName,
 		LastName:    s.FamilyName,
-		Grade:       s.GradeOrdinal(),
+		Grade:       s.Grade.Ordinal(),
 		Homeroom:    s.Homeroom,
 		CaseManager: s.CaseManager,
 	}

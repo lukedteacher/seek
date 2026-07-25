@@ -8,11 +8,11 @@ import (
 	"seek/internal/views/layouts"
 )
 
-templ Create(user models.User, view dto.EducatorView) {
+templ Create(user models.User, url string, view dto.EducatorView) {
 	@layouts.Base("SEEK: create educator", user) {
 		<main data-init={ views.LongRunningGetSSE("/educators/create/stream") }>
 			<section>
-				@blocks.EducatorCreateForm(view)
+				@blocks.EducatorCreateForm(url, view)
 			</section>
 		</main>
 	}

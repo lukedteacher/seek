@@ -30,8 +30,8 @@ type EducatorCreatedProjection struct {
 	GivenName  string
 	ChosenName string
 	FamilyName string
-	Role       string
 	Email      string
+	Role       string
 	CreatedAt  time.Time
 }
 
@@ -41,8 +41,8 @@ type EducatorUpdatedProjection struct {
 	GivenName  string
 	ChosenName string
 	FamilyName string
-	Role       string
 	Email      string
+	Role       string
 	UpdatedAt  time.Time
 }
 
@@ -126,16 +126,16 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 		givenName, _ := data[EducatorGivenNameField].(string)
 		chosenName, _ := data[EducatorChosenNameField].(string)
 		familyName, _ := data[EducatorFamilyNameField].(string)
-		role, _ := data[EducatorRoleField].(string)
 		email, _ := data[EducatorEmailField].(string)
+		role, _ := data[EducatorRoleField].(string)
 		if err := h.readModel.CreateEducator(ctx, EducatorCreatedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
 			GivenName:  givenName,
 			ChosenName: chosenName,
 			FamilyName: familyName,
-			Role:       role,
 			Email:      email,
+			Role:       role,
 			CreatedAt:  parseTime(data[EducatorCreatedAtField]),
 		}); err != nil {
 			return err
@@ -144,16 +144,16 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 		givenName, _ := data[EducatorGivenNameField].(string)
 		chosenName, _ := data[EducatorChosenNameField].(string)
 		familyName, _ := data[EducatorFamilyNameField].(string)
-		role, _ := data[EducatorRoleField].(string)
 		email, _ := data[EducatorEmailField].(string)
+		role, _ := data[EducatorRoleField].(string)
 		if err := h.readModel.UpdateEducator(ctx, EducatorUpdatedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
 			GivenName:  givenName,
 			ChosenName: chosenName,
 			FamilyName: familyName,
-			Role:       role,
 			Email:      email,
+			Role:       role,
 			UpdatedAt:  parseTime(data[EducatorUpdatedAtField]),
 		}); err != nil {
 			return err

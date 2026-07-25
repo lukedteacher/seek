@@ -1,15 +1,14 @@
 package forms
 
 import (
-	"seek/internal/views/components/button"
-	"seek/internal/views/components/icon"
 	"fmt"
+	"seek/internal/views/components/button"
+	"seek/pkg/templui/components/icon"
 )
-
 
 templ CancelButton() {
 	@button.Button(button.Props{
-		Type: "button",
+		Type:  "button",
 		Color: button.ColorWarning,
 		Attributes: templ.Attributes{
 			"style": "flex: 1;",
@@ -24,7 +23,7 @@ templ CancelButton() {
 
 templ SaveButton() {
 	@button.Button(button.Props{
-		Type: "submit",
+		Type:  "submit",
 		Color: button.ColorSuccess,
 		Attributes: templ.Attributes{
 			"style": "flex: 1;",
@@ -39,11 +38,11 @@ templ SaveButton() {
 
 templ ArchiveButton(object, id string) {
 	@button.Button(button.Props{
-		Type: "button",
+		Type:  "button",
 		Color: button.ColorInfo,
 		Attributes: templ.Attributes{
 			"data-on:click": fmt.Sprintf("@post('/%s/%s/archive'", object, id),
-			"style": "flex: 1;",
+			"style":         "flex: 1;",
 		},
 	}) {
 		@icon.Archive(icon.Props{
@@ -55,11 +54,11 @@ templ ArchiveButton(object, id string) {
 
 templ DeleteButton(object, id string) {
 	@button.Button(button.Props{
-		Type: "button",
+		Type:  "button",
 		Color: button.ColorError,
 		Attributes: templ.Attributes{
 			"data-on:click": fmt.Sprintf("@post('/%s/%s/delete'", object, id),
-			"style": "flex: 1;",
+			"style":         "flex: 1;",
 		},
 	}) {
 		@icon.Trash(icon.Props{

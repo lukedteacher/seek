@@ -2,7 +2,7 @@ package dto
 
 import (
 	"seek/internal/features/iep_services/models"
-	"seek/internal/views/dto"
+	sdto "seek/internal/features/students/dto"
 )
 
 type IEPServiceView struct {
@@ -17,7 +17,7 @@ type IEPServiceView struct {
 	EndDate         string `json:"end_date"`
 	Provider        string `json:"provider"`
 	StudentID       string `json:"student_id"`
-	StudentView     dto.StudentView
+	StudentView     sdto.StudentView
 }
 
 func NewIEPServiceView(sm *models.IEPService) IEPServiceView {

@@ -3,11 +3,10 @@ package pages
 import (
 	"fmt"
 
-	sb "seek/internal/features/schedules/blocks"
 	"seek/internal/features/students/blocks"
+	"seek/internal/features/students/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/views"
-	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
 )
 
@@ -16,7 +15,6 @@ templ View(user models.User, s dto.StudentView) {
 		<main id="main" data-init={ views.LongRunningGetSSE(fmt.Sprintf("/students/%s/stream", s.ID)) }>
 			<section style="width: 100%;">
 				@blocks.Card(s)
-				@sb.ScheduleComponent(s.Schedule)
 			</section>
 		</main>
 	}

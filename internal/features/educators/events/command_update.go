@@ -13,8 +13,8 @@ type UpdateEducatorCommand struct {
 	GivenName  string
 	ChosenName string
 	FamilyName string
-	Role       string
 	Email      string
+	Role       string
 	Metadata   CommandMetadata
 }
 
@@ -48,8 +48,8 @@ func UpdateEducatorCommandHandler(
 		command.GivenName,
 		command.ChosenName,
 		command.FamilyName,
-		command.Role,
 		command.Email,
+		command.Role,
 		time.Now(),
 		metadataWithQuery(command.Metadata, model.query),
 	)
@@ -72,8 +72,8 @@ type updateEducatorContext struct {
 	givenName  string
 	chosenName string
 	familyName string
-	role       string
 	email      string
+	role       string
 	position   eventstore.Position
 	events     []eventstore.ResolvedEvent
 	query      eventstore.Query
@@ -117,14 +117,14 @@ func (m *updateEducatorContext) handle(resolved eventstore.ResolvedEvent) {
 		m.givenName, _ = data[EducatorGivenNameField].(string)
 		m.chosenName, _ = data[EducatorChosenNameField].(string)
 		m.familyName, _ = data[EducatorFamilyNameField].(string)
-		m.role = data[EducatorRoleField].(string)
 		m.email = data[EducatorEmailField].(string)
+		m.role = data[EducatorRoleField].(string)
 	case EducatorUpdated:
 		m.givenName, _ = data[EducatorGivenNameField].(string)
 		m.chosenName, _ = data[EducatorChosenNameField].(string)
 		m.familyName, _ = data[EducatorFamilyNameField].(string)
-		m.role = data[EducatorRoleField].(string)
 		m.email = data[EducatorEmailField].(string)
+		m.role = data[EducatorRoleField].(string)
 	case EducatorDeleted:
 		m.deleted = true
 	}

@@ -2,6 +2,18 @@
 
 updates for SEEK
 
+## v0.3.6 (26.07.25) more folder, model refactoring
+
+- moved central views/dto to features/{feature}/dto
+- consolidated form for educator
+- reordered fields for educator
+- added person component to create command, elsewhere
+- person now includes email
+- student form grade updated to templui select
+- student model & view now use shared model 'grade'
+- unmarshal function implemented for 'grade'
+- added end time field to period model
+
 ## v0.3.5 (26.07.24) date picker component for IEP services
 
 - added date picker component on create IEP service form

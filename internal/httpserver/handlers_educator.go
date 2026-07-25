@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -85,9 +86,10 @@ func (s Server) getEducatorsListStream(w http.ResponseWriter, r *http.Request) {
 func (s Server) getEducatorCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	empty := models.NewEducator()
-	view := dto.NewEducatorView(empty)
-	_ = pages.Create(user, *view).Render(ctx, w)
+	empty := models.Educator{}
+	view := dto.NewEducatorView(&empty)
+	url := "/educators/create"
+	_ = pages.Create(user, url, *view).Render(ctx, w)
 }
 
 // GET request to /educators/create/stream
@@ -126,7 +128,8 @@ func (s Server) getEducatorCreateStream(w http.ResponseWriter, r *http.Request) 
 				return
 			}
 			view := dto.NewEducatorView(&model)
-			sse.PatchElementTempl(pages.Create(user, *view))
+			url := "/educators/create"
+			sse.PatchElementTempl(pages.Create(user, url, *view))
 		}
 	}
 }
@@ -147,9 +150,9 @@ func (s Server) postEducatorCreateValidate(w http.ResponseWriter, r *http.Reques
 			GivenName:  signals.Educator.GivenName,
 			ChosenName: signals.Educator.ChosenName,
 			FamilyName: signals.Educator.FamilyName,
+			Email:      signals.Educator.Email,
 		},
-		Role:  signals.Educator.Role,
-		Email: signals.Educator.Email,
+		Role: signals.Educator.Role,
 	}
 	// saves the state to a view store so that the SSE can update
 	// TODO look into a better name for the channel
@@ -169,14 +172,15 @@ func (s Server) postEducatorCreate(w http.ResponseWriter, r *http.Request) {
 		println(err.Error())
 		return
 	}
-	println("seg:", signals.Educator.GivenName)
 	_, err := events.CreateEducatorCommandHandler(ctx, events.CreateEducatorCommand{
-		GivenName:  signals.Educator.GivenName,
-		ChosenName: signals.Educator.ChosenName,
-		FamilyName: signals.Educator.FamilyName,
-		Role:       signals.Educator.Role,
-		Email:      signals.Educator.Email,
-		Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+		Person: sharedmodels.Person{
+			GivenName:  signals.Educator.GivenName,
+			ChosenName: signals.Educator.ChosenName,
+			FamilyName: signals.Educator.FamilyName,
+			Email:      signals.Educator.Email,
+		},
+		Role:     signals.Educator.Role,
+		Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver)
 	if err != nil {
 		log.Println(err.Error())
@@ -279,7 +283,8 @@ func (s Server) getEducatorEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	view := dto.NewEducatorView(model)
-	_ = pages.Edit(user, *view).Render(ctx, w)
+	url := fmt.Sprintf("/educators/%s/edit", educatorID)
+	_ = pages.Edit(user, url, *view).Render(ctx, w)
 }
 
 // GET request to /educator/{id}/stream
@@ -336,7 +341,8 @@ func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			view := dto.NewEducatorView(&model)
-			sse.PatchElementTempl(pages.Edit(user, *view))
+			url := fmt.Sprintf("/educators/%s/edit", educatorID)
+			sse.PatchElementTempl(pages.Edit(user, url, *view))
 		}
 	}
 }
@@ -349,7 +355,6 @@ func (s Server) postEducatorEditValidate(w http.ResponseWriter, r *http.Request)
 		Educator dto.EducatorView `json:"educator"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -357,11 +362,11 @@ func (s Server) postEducatorEditValidate(w http.ResponseWriter, r *http.Request)
 		ID:     signals.Educator.ID,
 		Person: signals.Educator.Person,
 		Role:   signals.Educator.Role,
-		Email:  signals.Educator.Email,
 	}
 	model.ID = chi.URLParam(r, "id")
 	view := dto.NewEducatorView(&model)
-	_ = pages.Edit(user, *view).Render(ctx, w)
+	url := fmt.Sprintf("/educators/%s/edit", model.ID)
+	_ = pages.Edit(user, url, *view).Render(ctx, w)
 }
 
 // POST request to /educators/{id}/edit

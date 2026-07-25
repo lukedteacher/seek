@@ -42,7 +42,7 @@ func (m *ReadModel) Get(ctx context.Context, studentID string) (*models.Student,
 			ChosenName: row.ChosenName,
 			FamilyName: row.FamilyName,
 		},
-		Grade:       int(row.Grade),
+		Grade:       sharedmodels.Grade(row.Grade),
 		Homeroom:    row.Homeroom,
 		CaseManager: row.CaseManager,
 	}
@@ -69,7 +69,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 				ChosenName: rows[i].ChosenName,
 				FamilyName: rows[i].FamilyName,
 			},
-			Grade:       int(rows[i].Grade),
+			Grade:       sharedmodels.Grade(rows[i].Grade),
 			Homeroom:    rows[i].Homeroom,
 			CaseManager: rows[i].CaseManager,
 		}

@@ -546,7 +546,7 @@ func Item(props ...ItemProps) templ.Component {
 		if p.Href != "" {
 			var templ_7745c5c3_Var18 = []any{utils.TwMerge(
 				"flex text-left items-center justify-between px-2 py-1.5 text-sm rounded-sm",
-				utils.If(!p.Disabled, "focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground cursor-default"),
+				utils.If(!p.Disabled, "focus:bg-primary focus:text-primary-foreground hover:bg-primary hover:text-primary-foreground cursor-default"),
 				utils.If(p.Disabled, "opacity-50 pointer-events-none"),
 				p.Class,
 			),
@@ -652,7 +652,7 @@ func Item(props ...ItemProps) templ.Component {
 		} else {
 			var templ_7745c5c3_Var23 = []any{utils.TwMerge(
 				"w-full text-left flex items-center justify-between px-2 py-1.5 text-sm rounded-sm",
-				utils.If(!p.Disabled, "focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground cursor-default"),
+				utils.If(!p.Disabled, "focus:bg-primary focus:text-primary-foreground hover:bg-primary hover:text-primary-foreground cursor-default"),
 				utils.If(p.Disabled, "opacity-50 pointer-events-none"),
 				p.Class,
 			),

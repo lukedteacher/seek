@@ -11,7 +11,7 @@ var EducatorColumns = []shareddto.ColumnView{
 	{Field: "ChosenName", Display: "chosen", Group: "name"},
 	{Field: "FamilyName", Display: "family", Group: "name"},
 	{Field: "Email", Display: "email"},
-	{Field: "Role", Display: "role", Renderer: "badge"},
+	{Field: "Role", Display: "role", Renderer: "badge", Alignment: "center"},
 	// id omitted from display (auto‑stored in RowView.ID)
 }
 

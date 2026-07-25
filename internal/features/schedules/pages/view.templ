@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	pblocks "seek/internal/features/periods/blocks"
+	pdto "seek/internal/features/periods/dto"
 	"seek/internal/features/schedules/blocks"
+	"seek/internal/features/schedules/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/views"
-	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
 )
 
@@ -28,7 +29,7 @@ templ View(user models.User, v dto.ScheduleView) {
 	}
 }
 
-templ ViewWithPeriod(user models.User, v dto.ScheduleView, p dto.PeriodView) {
+templ ViewWithPeriod(user models.User, v dto.ScheduleView, p pdto.PeriodView) {
 	@layouts.Base("SEEK: schedule", user) {
 		<main data-init={ views.LongRunningGetSSE("/schedules/stream") }>
 			@pblocks.Card(p)

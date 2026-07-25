@@ -4,8 +4,8 @@ SELECT
 	given_name, 
 	chosen_name, 
 	family_name, 
-	role,
 	email, 
+	role,
 	created_at, 
 	updated_at
 FROM educators
@@ -18,8 +18,8 @@ SELECT
 	given_name, 
 	chosen_name, 
 	family_name, 
-	role,
 	email, 
+	role,
 	created_at, 
 	updated_at
 FROM educators
@@ -32,8 +32,8 @@ INSERT INTO educators (
 	given_name, 
 	chosen_name, 
 	family_name, 
-	role,
 	email,
+	role,
 	created_at, 
 	updated_at, 
 	last_event_commit_position, 
@@ -44,8 +44,8 @@ VALUES (
 	@given_name, 
 	@chosen_name, 
 	@family_name, 
-	@role,
 	@email,
+	@role,
 	@created_at, 
 	@created_at, 
 	@last_event_commit_position, 
@@ -59,8 +59,8 @@ SET
 	given_name = @given_name,
 	chosen_name = @chosen_name,
 	family_name = @family_name,
-	role = @role,
 	email = @email,
+	role = @role,
 	updated_at = @updated_at,
 	last_event_commit_position = @last_event_commit_position,
 	last_event_prepare_position = @last_event_prepare_position

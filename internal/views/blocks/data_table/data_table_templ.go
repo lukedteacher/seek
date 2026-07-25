@@ -12,10 +12,10 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/shareddto"
-	"seek/internal/views/components/badge"
 	"seek/internal/views/components/button"
-	"seek/internal/views/components/icon"
 	"seek/internal/views/components/table"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/icon"
 )
 
 func DataTable(view shareddto.TableView) templ.Component {
@@ -47,7 +47,7 @@ func DataTable(view shareddto.TableView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</section><style>\n\t\tsection[data-slot=\"data-table\"] {\n\t\t\twidth: 100%;\n\t\t\tmax-width: 72rem;\n\t\t\tmargin-left: auto;\n\t\t\tmargin-right: auto;\n\n\t\t\t& >:not(:last-child) {\n\t\t\t\tmargin-block-end: 1rem;\n\t\t\t}\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</section><style>\r\n\t\tsection[data-slot=\"data-table\"] {\r\n\t\t\twidth: 100%;\r\n\t\t\tmax-width: 72rem;\r\n\t\t\tmargin-left: auto;\r\n\t\t\tmargin-right: auto;\r\n\r\n\t\t\t& >:not(:last-child) {\r\n\t\t\t\tmargin-block-end: 1rem;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -312,7 +312,7 @@ func Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) t
 							var templ_7745c5c3_Var15 string
 							templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(row.Cells[i])
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/data_table/data_table.templ`, Line: 70, Col: 20}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/data_table/data_table.templ`, Line: 72, Col: 20}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 							if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) t
 						var templ_7745c5c3_Var16 string
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(row.Cells[i])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/data_table/data_table.templ`, Line: 73, Col: 19}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/blocks/data_table/data_table.templ`, Line: 75, Col: 19}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
@@ -337,7 +337,9 @@ func Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) t
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = table.Cell().Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = table.Cell(table.CellProps{
+					Class: fmt.Sprintf("text-%s", columns[i].Alignment),
+				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

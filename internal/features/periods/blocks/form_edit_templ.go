@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+	"seek/internal/features/periods/dto"
 	period "seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
 	sblocks "seek/internal/features/students/blocks"
@@ -17,7 +18,6 @@ import (
 	"seek/internal/views/components/day_buttons"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
-	"seek/internal/views/dto"
 
 	"github.com/starfederation/datastar-go/datastar"
 	"seek/internal/views/blocks/forms"

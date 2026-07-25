@@ -14,8 +14,8 @@ import (
 	"seek/internal/views/blocks/sidebar"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/card"
-	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
+	"seek/pkg/templui/components/icon"
 )
 
 func Index(user models.User, view sidebar.SidebarView) templ.Component {

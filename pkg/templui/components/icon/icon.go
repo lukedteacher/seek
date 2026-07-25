@@ -21,6 +21,7 @@ var (
 // Props defines the properties that can be set for an icon.
 type Props struct {
 	Class string
+	Size  string
 }
 
 // Icon returns a function that generates a templ.Component for the specified icon name.
@@ -70,11 +71,15 @@ func generateSVG(name string, props Props) (string, error) {
 	if err != nil {
 		return "", err // Error from getIconContent already includes icon name
 	}
+	size := "24"
+	if props.Size != "" {
+		size = props.Size
+	}
 
-	// Construct the final SVG string.
-	// The data-lucide attribute helps identify these as Lucide icons if needed.
-	return fmt.Sprintf("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"%s\" data-lucide=\"icon\">%s</svg>",
-		props.Class, content), nil
+	// construct the final SVG string.
+	// the data-lucide attribute helps identify these as Lucide icons if needed.
+	return fmt.Sprintf("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%s\" height=\"%s\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"%s\" data-lucide=\"icon\">%s</svg>",
+		size, size, props.Class, content), nil
 }
 
 // getIconContent retrieves the raw inner SVG content for a given icon name.

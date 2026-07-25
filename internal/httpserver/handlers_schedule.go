@@ -6,14 +6,16 @@ import (
 	"net/http"
 
 	"seek/internal/eventstore"
+	pdto "seek/internal/features/periods/dto"
 	pm "seek/internal/features/periods/models"
 	pse "seek/internal/features/periods_schedules/events"
 	"seek/internal/features/schedules/blocks"
+	"seek/internal/features/schedules/dto"
 	"seek/internal/features/schedules/events"
 	"seek/internal/features/schedules/models"
 	"seek/internal/features/schedules/pages"
+	sdto "seek/internal/features/students/dto"
 	tm "seek/internal/features/teachers/models"
-	"seek/internal/views/dto"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -144,11 +146,11 @@ func (s Server) getPeriodScheduleView(w http.ResponseWriter, r *http.Request) {
 	periodID := chi.URLParam(r, "pid")
 	periodRes, _ := s.Periods.Get(ctx, periodID)
 	view, _ := s.newScheduleComponentViewModel(ctx, scheduleRes)
-	pview, _ := dto.NewViewFromPeriod(periodRes)
+	pview, _ := pdto.NewViewFromPeriod(periodRes)
 	studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, pview.ID)
 	for i := range studentIDs {
 		student, _ := s.Students.Get(ctx, studentIDs[i])
-		studentView := dto.NewStudentViewFromModel(*student)
+		studentView := sdto.NewStudentViewFromModel(*student)
 		pview.Students = append(pview.Students, *studentView)
 	}
 	_ = pages.ViewWithPeriod(user, view, pview).Render(ctx, w)
@@ -499,13 +501,13 @@ func (s Server) newScheduleComponentViewModel(ctx context.Context, sm *models.Sc
 	if err != nil {
 		return dto.ScheduleView{}, fmt.Errorf("list period IDs: %w", err)
 	}
-	pcvs := make([]dto.PeriodView, 0, len(periodIDs))
+	pcvs := make([]pdto.PeriodView, 0, len(periodIDs))
 	for _, periodID := range periodIDs {
 		period, err := s.Periods.Get(ctx, periodID)
 		if err != nil {
 			println(err.Error())
 		}
-		view, err := dto.NewViewFromPeriod(period)
+		view, err := pdto.NewViewFromPeriod(period)
 		if err != nil {
 			println("new view error in new schedule component view model function: ", err.Error())
 		}

@@ -9,7 +9,7 @@ var StudentColumns = []shareddto.ColumnView{
 	{Field: "FirstName", Display: "given", Group: "name"},
 	{Field: "ChosenName", Display: "chosen", Group: "name"},
 	{Field: "LastName", Display: "family", Group: "name"},
-	{Field: "Grade", Display: "grade", Renderer: "badge"},
+	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center"},
 	{Field: "Homeroom", Display: "homeroom"},
 	{Field: "CaseManager", Display: "case manager"},
 	// id omitted from display (auto‑stored in RowView.ID)
@@ -29,7 +29,7 @@ func extractStudent(s *models.Student, field string) string {
 	case "LastName":
 		return s.FamilyName
 	case "Grade":
-		return s.GradeOrdinal() // method on Student
+		return s.Grade.Ordinal()
 	case "Homeroom":
 		return s.Homeroom
 	case "CaseManager":

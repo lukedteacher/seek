@@ -11,10 +11,10 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
+	"seek/internal/features/students/dto"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/card"
-	"seek/internal/views/components/icon"
-	"seek/internal/views/dto"
+	"seek/pkg/templui/components/icon"
 )
 
 func Card(view dto.StudentView) templ.Component {

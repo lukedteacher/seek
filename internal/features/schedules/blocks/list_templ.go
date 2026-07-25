@@ -12,7 +12,7 @@ import (
 	"fmt"
 
 	"seek/internal/features/schedules/models"
-	"seek/internal/views/components/icon"
+	"seek/pkg/templui/components/icon"
 )
 
 func List(schedules []models.Schedule) templ.Component {

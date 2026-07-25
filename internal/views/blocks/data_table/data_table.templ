@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/shareddto"
-	"seek/internal/views/components/badge"
 	"seek/internal/views/components/button"
-	"seek/internal/views/components/icon"
 	"seek/internal/views/components/table"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/icon"
 )
 
 templ DataTable(view shareddto.TableView) {
@@ -64,7 +64,9 @@ templ Table(view shareddto.TableView) {
 templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) {
 	@table.Row() {
 		for i := range row.Cells {
-			@table.Cell() {
+			@table.Cell(table.CellProps{
+				Class: fmt.Sprintf("text-%s", columns[i].Alignment),
+			}) {
 				if columns[i].Renderer == "badge" && row.Cells[i] != "" {
 					@badge.Badge() {
 						{ row.Cells[i] }

@@ -14,8 +14,8 @@ import (
 	um "seek/internal/features/users/models"
 	sse "seek/internal/views"
 	"seek/internal/views/components/button"
-	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
+	"seek/pkg/templui/components/icon"
 )
 
 func List(user um.User, view int64, views []models.Teacher) templ.Component {

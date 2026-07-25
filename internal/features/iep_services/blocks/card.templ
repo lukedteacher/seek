@@ -6,12 +6,12 @@ import (
 	"seek/internal/features/iep_services/dto"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/card"
-	"seek/internal/views/components/icon"
+	"seek/pkg/templui/components/icon"
 )
 
 templ Card(view dto.IEPServiceView) {
 	@card.Card(card.Props{
-		ID: fmt.Sprintf("period-%s-card", view.IEPServiceID),
+		ID:    fmt.Sprintf("period-%s-card", view.IEPServiceID),
 		Class: "iep-service-card",
 	}) {
 		@card.Header() {

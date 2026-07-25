@@ -14,7 +14,7 @@ import (
 	"seek/internal/features/iep_services/dto"
 	"seek/internal/views/components/button"
 	"seek/internal/views/components/card"
-	"seek/internal/views/components/icon"
+	"seek/pkg/templui/components/icon"
 )
 
 func Card(view dto.IEPServiceView) templ.Component {

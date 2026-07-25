@@ -11,11 +11,10 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
-	sb "seek/internal/features/schedules/blocks"
 	"seek/internal/features/students/blocks"
+	"seek/internal/features/students/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/views"
-	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
 )
 
@@ -59,7 +58,7 @@ func View(user models.User, s dto.StudentView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE(fmt.Sprintf("/students/%s/stream", s.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/view.templ`, Line: 16, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/view.templ`, Line: 15, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -70,10 +69,6 @@ func View(user models.User, s dto.StudentView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = blocks.Card(s).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = sb.ScheduleComponent(s.Schedule).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

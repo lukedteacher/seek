@@ -14,8 +14,8 @@ import (
 	"seek/internal/features/users/models"
 	sse "seek/internal/views"
 	"seek/internal/views/components/button"
-	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
+	"seek/pkg/templui/components/icon"
 )
 
 func List(user models.User, view int, tview shareddto.TableView) templ.Component {

@@ -3,14 +3,14 @@ package blocks
 import (
 	"fmt"
 
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/students/dto"
 	"seek/internal/views/blocks/forms"
 	"seek/internal/views/components/input"
 	"seek/internal/views/components/label"
-	"seek/internal/views/components/selectboxold"
-	"seek/internal/views/dto"
+	"seek/pkg/templui/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
-	"seek/internal/features/_shared/sharedmodels"
 )
 
 templ StudentEditForm(view dto.StudentFormView) {
@@ -78,31 +78,36 @@ templ StudentEditForm(view dto.StudentFormView) {
 		</section>
 		<section>
 			@label.Label(label.Props{
-				ID:                "grade-label",
-				For:               "grade-select",
+				ID:                "student-grade-label",
+				For:               "student-grade-select",
 				Label:             "grade",
 				ValidationState:   view.Validation["grade"].State,
 				ValidationMessage: view.Validation["grade"].Message,
 			}) {
-				@selectboxold.Select(selectboxold.Props{
-					ID:           "grade-select",
-					Placeholder:  "select a grade",
-					DataBind:     "student.grade",
-					DataOnChange: fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
-				}) {
-					for index, grade := range sharedmodels.GradeList {
-						<option
-							id={ fmt.Sprintf("option-%d", index) }
-							if grade.Str() == view.Student.Grade {
-								selected
+				@selectbox.SelectBox() {
+					@selectbox.Trigger(selectbox.TriggerProps{
+						ID: "student-grade-select",
+						Attributes: templ.Attributes{
+							"data-bind:student.grade": "",
+						},
+					}) {
+						@selectbox.Value(selectbox.ValueProps{
+							Placeholder: "select a grade",
+						})
+					}
+					@selectbox.Content() {
+						for i := range sharedmodels.GradeList {
+							@selectbox.Item(selectbox.ItemProps{
+								Value:    sharedmodels.GradeList[i].Str(),
+								Selected: sharedmodels.GradeList[i].Str() == view.Student.Grade.Str(),
+							}) {
+								{ sharedmodels.GradeList[i].Ordinal() }
 							}
-							value={ index }
-						>
-							{ grade.Ordinal() }
-						</option>
+						}
 					}
 				}
 			}
+			@selectbox.Script()
 		</section>
 		<section>
 			@label.Label(label.Props{

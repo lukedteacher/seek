@@ -12,7 +12,7 @@ import (
 	"fmt"
 
 	"seek/internal/features/teachers/models"
-	"seek/internal/views/components/icon"
+	"seek/pkg/templui/components/icon"
 )
 
 func List(teachers []models.Teacher) templ.Component {

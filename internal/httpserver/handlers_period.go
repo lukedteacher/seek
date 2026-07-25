@@ -9,12 +9,12 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/blocks"
-	pdto "seek/internal/features/periods/dto"
+	"seek/internal/features/periods/dto"
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
 	"seek/internal/features/periods/pages"
 	psevents "seek/internal/features/periods_students/events"
-	"seek/internal/views/dto"
+	sdto "seek/internal/features/students/dto"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -55,7 +55,7 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := pdto.NewPeriodTableView(periods)
+	view := dto.NewPeriodTableView(periods)
 
 	_ = pages.List(user, signals.View, view).Render(ctx, w)
 }
@@ -89,7 +89,7 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			view := pdto.NewPeriodTableView(periods)
+			view := dto.NewPeriodTableView(periods)
 
 			sse.PatchElementTempl(pages.List(user, 0, view))
 		}
@@ -248,7 +248,7 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 	studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 	for i := range studentIDs {
 		student, _ := s.Students.Get(ctx, studentIDs[i])
-		studentView := dto.NewStudentViewFromModel(*student)
+		studentView := sdto.NewStudentViewFromModel(*student)
 		view.Students = append(view.Students, *studentView)
 	}
 	_ = pages.View(user, view).Render(ctx, w)
@@ -320,7 +320,7 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 			studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 			for i := range studentIDs {
 				student, _ := s.Students.Get(ctx, studentIDs[i])
-				studentView := dto.NewStudentViewFromModel(*student)
+				studentView := sdto.NewStudentViewFromModel(*student)
 				view.Students = append(view.Students, *studentView)
 			}
 			sse.PatchElementTempl(pages.View(user, view))

@@ -12,8 +12,8 @@ type CreateEducatorParams struct {
 	GivenName                string `json:"given_name"`
 	ChosenName               string `json:"chosen_name"`
 	FamilyName               string `json:"family_name"`
-	Role                     string `json:"role"`
 	Email                    string `json:"email"`
+	Role                     string `json:"role"`
 	CreatedAt                string `json:"created_at"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
@@ -33,8 +33,8 @@ INSERT INTO educators (
 	given_name, 
 	chosen_name, 
 	family_name, 
-	role,
 	email,
+	role,
 	created_at, 
 	updated_at, 
 	last_event_commit_position, 
@@ -101,10 +101,10 @@ func (ps *CreateEducatorStmt) Run(
 	stmt.BindText(bindIndex, params.FamilyName)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.Role)
+	stmt.BindText(bindIndex, params.Email)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.Email)
+	stmt.BindText(bindIndex, params.Role)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.CreatedAt)

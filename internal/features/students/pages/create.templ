@@ -2,17 +2,17 @@ package pages
 
 import (
 	"seek/internal/features/students/blocks"
+	"seek/internal/features/students/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/dto"
+	sse "seek/internal/views"
 	"seek/internal/views/layouts"
 )
 
-templ Create(user models.User, v dto.StudentFormView) {
+templ Create(user models.User, view dto.StudentFormView) {
 	@layouts.Base("SEEK: create student", user) {
-		<main data-init={ views.LongRunningGetSSE("/students/create/stream") }>
+		<main data-init={ sse.LongRunningGetSSE("/students/create/stream") }>
 			<section>
-				@blocks.StudentCreateForm(v)
+				@blocks.StudentCreateForm(view)
 			</section>
 		</main>
 	}

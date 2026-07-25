@@ -8108,6 +8108,9 @@
   .bg-green-500 {
     background-color: var(--color-green-500);
   }
+  .bg-neutral {
+    background-color: var(--color-neutral);
+  }
   .bg-primary {
     background-color: var(--color-primary);
   }
@@ -9305,6 +9308,12 @@
   }
   .text-neutral-content {
     color: var(--color-neutral-content);
+  }
+  .text-neutral-content\/70 {
+    color: var(--color-neutral-content);
+    @supports (color: color-mix(in lab, red, red)) {
+      color: color-mix(in oklab, var(--color-neutral-content) 70%, transparent);
+    }
   }
   .text-neutral-content\/80 {
     color: var(--color-neutral-content);
@@ -10805,12 +10814,29 @@
       }
     }
   }
+  .hover\:bg-primary {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-primary);
+      }
+    }
+  }
   .hover\:bg-primary\/30 {
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-primary);
         @supports (color: color-mix(in lab, red, red)) {
           background-color: color-mix(in oklab, var(--color-primary) 30%, transparent);
+        }
+      }
+    }
+  }
+  .hover\:bg-primary\/80 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-primary);
+        @supports (color: color-mix(in lab, red, red)) {
+          background-color: color-mix(in oklab, var(--color-primary) 80%, transparent);
         }
       }
     }
@@ -10852,6 +10878,11 @@
   .focus\:bg-accent {
     &:focus {
       background-color: var(--color-accent);
+    }
+  }
+  .focus\:bg-primary {
+    &:focus {
+      background-color: var(--color-primary);
     }
   }
   .focus\:ring-1 {
@@ -11365,13 +11396,13 @@
       background-color: transparent;
     }
   }
-  .dark\:hover\:bg-accent\/50 {
+  .dark\:hover\:bg-primary\/50 {
     @media (prefers-color-scheme: dark) {
       &:hover {
         @media (hover: hover) {
-          background-color: var(--color-accent);
+          background-color: var(--color-primary);
           @supports (color: color-mix(in lab, red, red)) {
-            background-color: color-mix(in oklab, var(--color-accent) 50%, transparent);
+            background-color: color-mix(in oklab, var(--color-primary) 50%, transparent);
           }
         }
       }
@@ -12683,8 +12714,8 @@ a {
       --color-base-200: oklch(14.5% 0.014 247);
       --color-base-300: oklch(28% 0.018 247);
       --color-base-content: oklch(97% 0.012 86);
-      --color-primary: var(--primary-4);
-      --color-primary-content: var(--primary-4-on);
+      --color-primary: var(--primary-6);
+      --color-primary-content: var(--primary-6-on);
       --color-secondary: oklch(70% 0.117 184);
       --color-secondary-content: oklch(15% 0.023 219);
       --color-accent: oklch(78% 0.145 82);
@@ -12707,7 +12738,7 @@ a {
       --border: 1px;
       --depth: 0;
       --noise: 0;
-      --color-primary-muted: var(--primary-4-dim);
+      --color-primary-muted: var(--primary-6-dim);
       --color-neutral-muted: var(--neutral-4-dim);
     }
   }
@@ -12719,8 +12750,8 @@ a {
     --color-base-200: oklch(14.5% 0.014 247);
     --color-base-300: oklch(28% 0.018 247);
     --color-base-content: oklch(97% 0.012 86);
-    --color-primary: var(--primary-4);
-    --color-primary-content: var(--primary-4-on);
+    --color-primary: var(--primary-6);
+    --color-primary-content: var(--primary-6-on);
     --color-secondary: oklch(70% 0.117 184);
     --color-secondary-content: oklch(15% 0.023 219);
     --color-accent: oklch(78% 0.145 82);
@@ -12743,7 +12774,7 @@ a {
     --border: 1px;
     --depth: 0;
     --noise: 0;
-    --color-primary-muted: var(--primary-4-dim);
+    --color-primary-muted: var(--primary-6-dim);
     --color-neutral-muted: var(--neutral-4-dim);
   }
 }

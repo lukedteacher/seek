@@ -12,10 +12,11 @@ import (
 	"fmt"
 
 	pblocks "seek/internal/features/periods/blocks"
+	pdto "seek/internal/features/periods/dto"
 	"seek/internal/features/schedules/blocks"
+	"seek/internal/features/schedules/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/views"
-	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
 )
 
@@ -59,7 +60,7 @@ func View(user models.User, v dto.ScheduleView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE(fmt.Sprintf("/schedules/%s/stream", v.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/view.templ`, Line: 16, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/view.templ`, Line: 17, Col: 86}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -72,7 +73,7 @@ func View(user models.User, v dto.ScheduleView) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(v.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/view.templ`, Line: 19, Col: 14}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/view.templ`, Line: 20, Col: 14}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -85,7 +86,7 @@ func View(user models.User, v dto.ScheduleView) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(v.Teacher.FirstName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/view.templ`, Line: 21, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/view.templ`, Line: 22, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -98,7 +99,7 @@ func View(user models.User, v dto.ScheduleView) templ.Component {
 			var templ_7745c5c3_Var6 templ.SafeURL
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/schedules/%s/edit", v.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/view.templ`, Line: 22, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/view.templ`, Line: 23, Col: 53}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -126,7 +127,7 @@ func View(user models.User, v dto.ScheduleView) templ.Component {
 	})
 }
 
-func ViewWithPeriod(user models.User, v dto.ScheduleView, p dto.PeriodView) templ.Component {
+func ViewWithPeriod(user models.User, v dto.ScheduleView, p pdto.PeriodView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -166,7 +167,7 @@ func ViewWithPeriod(user models.User, v dto.ScheduleView, p dto.PeriodView) temp
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/schedules/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/view.templ`, Line: 33, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/pages/view.templ`, Line: 34, Col: 64}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {

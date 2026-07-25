@@ -2,11 +2,10 @@ package pages
 
 import (
 	"seek/internal/features/users/models"
-	"seek/internal/views/components/badge"
-	"seek/internal/views/components/button"
-	"seek/internal/views/components/icon"
 	"seek/internal/views/layouts"
-	"seek/pkg/templui/components/input"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
 )
 
 templ Components(user models.User) {
@@ -56,28 +55,19 @@ templ Components(user models.User) {
 			<section>
 				<div style="margin-top: 1rem; display: grid; grid-template: repeat(4, 1fr) / repeat(4, 1fr); gap: var(--size-0);">
 					<h3>badges</h3>
-					@badge.BadgeStyles()
 					@badge.Badge() {
 						default
 					}
 					@badge.Badge(badge.Props{
-						Attributes: templ.Attributes{
-							"data-theme": "secondary",
-						},
+						Variant: badge.VariantSecondary,
 					}) {
 						secondary
 					}
 					@badge.Badge(badge.Props{
-						Attributes: templ.Attributes{
-							"data-theme": "destructive",
-						},
+						Variant: badge.VariantDestructive,
 					}) {
 						destructive
 					}
-					@input.Input() {
-						test
-					}
-					<input class="input"/>
 				</div>
 			</section>
 		</main>

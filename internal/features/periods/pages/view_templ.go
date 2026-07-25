@@ -12,9 +12,9 @@ import (
 	"fmt"
 
 	"seek/internal/features/periods/blocks"
+	"seek/internal/features/periods/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/views"
-	"seek/internal/views/dto"
 	"seek/internal/views/layouts"
 )
 

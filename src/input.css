@@ -17,9 +17,9 @@
   --color-base-200: oklch(14.5% 0.014 247);
   --color-base-300: oklch(28% 0.018 247);
   --color-base-content: oklch(97% 0.012 86);
-  --color-primary: var(--primary-4);
-  --color-primary-content: var(--primary-4-on);
-  --color-primary-muted: var(--primary-4-dim);
+  --color-primary: var(--primary-6);
+  --color-primary-content: var(--primary-6-on);
+  --color-primary-muted: var(--primary-6-dim);
   --color-secondary: oklch(70% 0.117 184);
   --color-secondary-content: oklch(15% 0.023 219);
   --color-accent: oklch(78% 0.145 82);

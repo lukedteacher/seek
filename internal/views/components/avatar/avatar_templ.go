@@ -112,7 +112,7 @@ func Avatar(props ...Props) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><style>\n\t\tdiv[data-slot=\"avatar\"] {\n\t\t\tposition: relative;\n\t\t\tdisplay: flex;\n\t\t\theight: 2.5rem;\n\t\t\twidth: 2.5rem;\n\t\t\tflex-shrink: 0;\n\t\t\toverflow: hidden;\n\t\t\tborder-radius: var(--border-circle);\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><style>\r\n\t\tdiv[data-slot=\"avatar\"] {\r\n\t\t\tposition: relative;\r\n\t\t\tdisplay: flex;\r\n\t\t\theight: 2.5rem;\r\n\t\t\twidth: 2.5rem;\r\n\t\t\tflex-shrink: 0;\r\n\t\t\toverflow: hidden;\r\n\t\t\tborder-radius: var(--border-circle);\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -232,7 +232,7 @@ func Image(props ...ImageProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "><style>\n\t\timg[data-slot=\"avatar-image\"] {\n\t\t\taspect-ratio: var(--aspect-ratio-square);\n\t\t\theight: 100%;\n\t\t\twidth: 100%;\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "><style>\r\n\t\timg[data-slot=\"avatar-image\"] {\r\n\t\t\taspect-ratio: var(--aspect-ratio-square);\r\n\t\t\theight: 100%;\r\n\t\t\twidth: 100%;\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -324,7 +324,7 @@ func Fallback(props ...FallbackProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span><style>\n\t\tspan[data-slot=\"avatar-fallback\"] {\n\t\t\tdisplay: flex;\n\t\t\theight: 100%;\n\t\t\twidth: 100%;\n\t\t\talign-items: center;\n\t\t\tjustify-content: center;\n\t\t\tborder-radius: var(--border-circle);\n\t\t\tbackground-color: red;\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span><style>\r\n\t\tspan[data-slot=\"avatar-fallback\"] {\r\n\t\t\tdisplay: flex;\r\n\t\t\theight: 100%;\r\n\t\t\twidth: 100%;\r\n\t\t\talign-items: center;\r\n\t\t\tjustify-content: center;\r\n\t\t\tborder-radius: var(--border-circle);\r\n\t\t\tbackground-color: red;\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

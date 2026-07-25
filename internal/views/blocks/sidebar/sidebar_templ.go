@@ -9,8 +9,8 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/views/components/icon"
 	"seek/internal/views/components/sidebar"
+	"seek/pkg/templui/components/icon"
 )
 
 type SidebarView struct {

@@ -20,8 +20,8 @@ const (
 	EducatorGivenNameField       = "given_name"
 	EducatorChosenNameField      = "chosen_name"
 	EducatorFamilyNameField      = "family_name"
-	EducatorRoleField            = "role"
 	EducatorEmailField           = "email"
+	EducatorRoleField            = "role"
 	EducatorCreatedEventIDField  = "educator_created_event_id"
 	EducatorCreatedAtField       = "created_at"
 	EducatorUpdatedEventIDField  = "educator_updated_event_id"
@@ -38,8 +38,8 @@ type EducatorCreatedEvent struct {
 	GivenName  string        `json:"given_name"`
 	ChosenName string        `json:"chosen_name"`
 	FamilyName string        `json:"family_name"`
-	Role       string        `json:"role"`
 	Email      string        `json:"email"`
+	Role       string        `json:"role"`
 	CreatedAt  string        `json:"created_at"`
 	Scope      EducatorScope `json:"scope"`
 }
@@ -49,8 +49,8 @@ type EducatorUpdatedEvent struct {
 	GivenName  string        `json:"given_name"`
 	ChosenName string        `json:"chosen_name"`
 	FamilyName string        `json:"family_name"`
-	Role       string        `json:"role"`
 	Email      string        `json:"email"`
+	Role       string        `json:"role"`
 	UpdatedAt  string        `json:"updated_at"`
 	Scope      EducatorScope `json:"scope"`
 }
@@ -76,8 +76,8 @@ func NewEducatorCreatedEvent(
 	givenName,
 	chosenName,
 	familyName,
-	role,
-	email string,
+	email,
+	role string,
 	createdAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
@@ -86,8 +86,8 @@ func NewEducatorCreatedEvent(
 		GivenName:  givenName,
 		ChosenName: chosenName,
 		FamilyName: familyName,
-		Role:       role,
 		Email:      email,
+		Role:       role,
 		CreatedAt:  createdAt.Format(time.RFC3339),
 		Scope:      educatorScope(educatorID),
 	}
@@ -105,8 +105,8 @@ func NewEducatorUpdatedEvent(
 	givenName,
 	chosenName,
 	familyName,
-	role,
-	email string,
+	email,
+	role string,
 	updatedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
@@ -115,8 +115,8 @@ func NewEducatorUpdatedEvent(
 		GivenName:  givenName,
 		ChosenName: chosenName,
 		FamilyName: familyName,
-		Role:       role,
 		Email:      email,
+		Role:       role,
 		UpdatedAt:  updatedAt.Format(time.RFC3339),
 		Scope:      educatorScope(educatorID),
 	}

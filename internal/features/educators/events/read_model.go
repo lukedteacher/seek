@@ -41,9 +41,9 @@ func (m *ReadModel) Get(ctx context.Context, educatorID string) (*models.Educato
 			GivenName:  row.GivenName,
 			ChosenName: row.ChosenName,
 			FamilyName: row.FamilyName,
+			Email:      row.Email,
 		},
-		Role:  row.Role,
-		Email: row.Email,
+		Role: row.Role,
 	}
 
 	return educator, nil
@@ -67,9 +67,9 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Educator, error) {
 				GivenName:  rows[i].GivenName,
 				ChosenName: rows[i].ChosenName,
 				FamilyName: rows[i].FamilyName,
+				Email:      rows[i].Email,
 			},
-			Role:  rows[i].Role,
-			Email: rows[i].Email,
+			Role: rows[i].Role,
 		}
 	}
 	return educators, nil
@@ -82,8 +82,8 @@ func (m *ReadModel) CreateEducator(ctx context.Context, event EducatorCreatedPro
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
-			Role:                     event.Role,
 			Email:                    event.Email,
+			Role:                     event.Role,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			CreatedAt:                appdb.SQLTime(event.CreatedAt),
@@ -97,8 +97,8 @@ func (m *ReadModel) UpdateEducator(ctx context.Context, event EducatorUpdatedPro
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
-			Role:                     event.Role,
 			Email:                    event.Email,
+			Role:                     event.Role,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),

@@ -8,6 +8,7 @@ type Period struct {
 	ID         string
 	Title      string
 	StartTime  string
+	EndTime    string
 	Duration   int64
 	Days       int64
 	StudentIDs []string
@@ -27,6 +28,7 @@ type PeriodSignals struct {
 func NewPeriod() *Period {
 	return &Period{
 		StartTime: "9:30",
+		EndTime:   "10:00",
 		Duration:  30,
 	}
 }
