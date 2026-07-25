@@ -172,7 +172,7 @@ templ Calendar(props ...Props) {
 							id={ p.ID + "-month-select" }
 							data-tui-calendar-month-select
 							class="absolute inset-0 opacity-0 cursor-pointer w-full bg-card"
-							aria-label="Choose the Month"
+							aria-label="choose the month"
 						>
 							for i := 0; i < 12; i++ {
 								<option value={ strconv.Itoa(i) } selected?={ i == currentMonth } data-tui-calendar-month-index={ strconv.Itoa(i) }>
@@ -192,7 +192,7 @@ templ Calendar(props ...Props) {
 							id={ p.ID + "-year-select" }
 							data-tui-calendar-year-select
 							class="absolute inset-0 opacity-0 cursor-pointer w-full bg-card"
-							aria-label="Choose the Year"
+							aria-label="choose the year"
 						>
 							for year := 2100; year >= 1900; year-- {
 								<option value={ strconv.Itoa(year) } selected?={ year == currentYear }>

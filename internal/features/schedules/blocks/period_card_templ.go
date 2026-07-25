@@ -151,7 +151,7 @@ func PeriodCardStyles() templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<style>\r\n\t\t.period-card {\r\n\t\t\twidth: 100%;\r\n\t\t\tdisplay: flex;\r\n\t\t\tflex-direction: column;\r\n\t\t\talign-items: center;\r\n\t\t\tjustify-content: center;\r\n\t\t\tbackground-color: var(--gruvbox-orange-neutral-0);\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-color: transparent;\r\n\t\t\tborder-radius: var(--bd-rd0);\r\n\t\t\tfont-size: var(--font-size--2);\r\n\r\n\t\t\t&:hover {\r\n\t\t\t\tbackground-color: var(--gruvbox-orange-neutral-1);\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<style>\n\t\t.period-card {\n\t\t\twidth: 100%;\n\t\t\tdisplay: flex;\n\t\t\tflex-direction: column;\n\t\t\talign-items: center;\n\t\t\tjustify-content: center;\n\t\t\tbackground-color: var(--gruvbox-orange-neutral-0);\n\t\t\tborder-style: solid;\n\t\t\tborder-color: transparent;\n\t\t\tborder-radius: var(--bd-rd0);\n\t\t\tfont-size: var(--font-size--2);\n\n\t\t\t&:hover {\n\t\t\t\tbackground-color: var(--gruvbox-orange-neutral-1);\n\t\t\t}\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

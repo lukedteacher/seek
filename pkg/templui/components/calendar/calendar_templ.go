@@ -398,7 +398,7 @@ func Calendar(props ...Props) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" data-tui-calendar-month-select class=\"absolute inset-0 opacity-0 cursor-pointer w-full bg-card\" aria-label=\"Choose the Month\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" data-tui-calendar-month-select class=\"absolute inset-0 opacity-0 cursor-pointer w-full bg-card\" aria-label=\"choose the month\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -504,7 +504,7 @@ func Calendar(props ...Props) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" data-tui-calendar-year-select class=\"absolute inset-0 opacity-0 cursor-pointer w-full bg-card\" aria-label=\"Choose the Year\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" data-tui-calendar-year-select class=\"absolute inset-0 opacity-0 cursor-pointer w-full bg-card\" aria-label=\"choose the year\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

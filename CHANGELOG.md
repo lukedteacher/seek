@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.3.5 (26.07.24) date picker component for IEP services
+
+- added date picker component on create IEP service form
+- figured out how to keep the button updated with the date
+- just need to add formatting
+
 ## v0.3.4 (26.07.24) first pass at cleaning up diff stuff, refactor folder structure
 
 - moved diff to shared models

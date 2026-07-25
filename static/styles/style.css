@@ -5459,6 +5459,9 @@
   .m-0 {
     margin: 0;
   }
+  .m-6 {
+    margin: calc(var(--spacing) * 6);
+  }
   .filter {
     @layer daisyui.l1.l2.l3 {
       display: flex;
@@ -8437,6 +8440,9 @@
   }
   .p-6 {
     padding: calc(var(--spacing) * 6);
+  }
+  .p-7 {
+    padding: calc(var(--spacing) * 7);
   }
   .p-\[3px\] {
     padding: 3px;

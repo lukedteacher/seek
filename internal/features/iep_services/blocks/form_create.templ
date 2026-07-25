@@ -7,6 +7,9 @@ import (
 	"seek/pkg/templui/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/pkg/templui/components/datepicker"
+	"seek/pkg/templui/components/label"
+	"time"
 )
 
 templ CreateServiceForm(view dto.IEPServiceFormView) {
@@ -72,10 +75,46 @@ templ CreateServiceForm(view dto.IEPServiceFormView) {
 				view.IEPService.Provider,
 			)
 		</section>
+		<section>
+			<div class="flex gap-3">
+				<div>
+					@label.Label(label.Props{
+						For:   "start-date-input",
+						Class: "mb-3",
+					}) {
+						start date
+					}
+					@datepicker.DatePicker(datepicker.Props{
+						ID:       "start-date-input",
+						Class:    "input",
+						DataBind: "iepservice.start_date",
+					})
+				</div>
+				<div>
+					@label.Label(label.Props{
+						For:   "start-date-input",
+						Class: "mb-3",
+					}) {
+						end date
+					}
+					{{ end, _ := time.Parse("2006-01-02", view.IEPService.EndDate) }}
+					@datepicker.DatePicker(datepicker.Props{
+						ID:       "end-date-input",
+						Class:    "input",
+						DataBind: "iepservice.end_date",
+						Value:    end,
+						Attributes: templ.Attributes{
+							"data-text": "$iepservice.end_date",
+						},
+					})
+				</div>
+			</div>
+		</section>
 		<footer>
 			@forms.CancelButton()
 			@forms.SaveButton()
 		</footer>
 	</form>
 	@selectbox.Script()
+	@datepicker.Script()
 }

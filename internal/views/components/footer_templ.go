@@ -62,7 +62,7 @@ func MainFooterStyle() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<style>\r\n\t\tbody > footer {\r\n\t\t\tdisplay: flex;\r\n\t\t\tjustify-content: start;\r\n\t\t\talign-items: center;\r\n\t\t\theight: 4rem;\r\n\t\t\twidth: 100%;\r\n\t\t\tpadding-left: var(--size-4);\r\n\t\t\tcolor: var(--primary-4-on);\r\n\t\t\tbackground-color: var(--primary-4);\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<style>\n\t\tbody > footer {\n\t\t\tdisplay: flex;\n\t\t\tjustify-content: start;\n\t\t\talign-items: center;\n\t\t\theight: 4rem;\n\t\t\twidth: 100%;\n\t\t\tpadding-left: var(--size-4);\n\t\t\tcolor: var(--primary-4-on);\n\t\t\tbackground-color: var(--primary-4);\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

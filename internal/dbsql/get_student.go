@@ -41,7 +41,7 @@ SELECT
 	updated_at,
 	archived_at
 FROM students
-WHERE deleted_at IS NULL
+WHERE archived_at IS NULL
 	AND id = ?1
     `
 

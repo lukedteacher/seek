@@ -11,7 +11,7 @@ SELECT
 	updated_at,
 	archived_at
 FROM students
-WHERE deleted_at IS NULL
+WHERE archived_at IS NULL
 	AND id = @id;
 
 -- name: ListStudents :many
@@ -27,7 +27,7 @@ SELECT
 	updated_at,
 	archived_at
 FROM students
-WHERE deleted_at IS NULL
+WHERE archived_at IS NULL
 ORDER BY family_name DESC, given_name DESC;
 
 -- name: CreateStudent :exec

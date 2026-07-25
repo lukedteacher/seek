@@ -13,8 +13,8 @@ type IEPServiceView struct {
 	FrequencyCount  int    `json:"frequency_count"`
 	FrequencyType   string `json:"frequency_type"`
 	Location        string `json:"location"`
-	StartDate       string `json:"start"`
-	EndDate         string `json:"end"`
+	StartDate       string `json:"start_date"`
+	EndDate         string `json:"end_date"`
 	Provider        string `json:"provider"`
 	StudentID       string `json:"student_id"`
 	StudentView     dto.StudentView
@@ -44,7 +44,7 @@ func NewModelFromView(v *IEPServiceView) models.IEPService {
 		return models.IEPService{}
 	}
 	return models.IEPService{
-		ID:    v.IEPServiceID,
+		ID:              v.IEPServiceID,
 		ServiceType:     v.ServiceType,
 		IndirectMinutes: v.IndirectMinutes,
 		DirectMinutes:   v.DirectMinutes,

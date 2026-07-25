@@ -3,6 +3,7 @@
 package datepicker
 
 import (
+	"fmt"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/calendar"
 	"seek/pkg/templui/components/card"
@@ -41,16 +42,17 @@ type Props struct {
 	Name           string
 	Value          time.Time
 	Form           string
-	Format         Format                 // Controls the display format using Intl dateStyle options.
-	LocaleTag      LocaleTag              // BCP 47 Locale Tag (e.g., "en-US", "es-ES"). Determines language and regional format defaults.
-	StartOfWeek    *calendar.Day          // Optional: 0-6 [Sun-Sat] (Default: 1).
+	Format         Format        // controls the display format using Intl dateStyle options.
+	LocaleTag      LocaleTag     // BCP 47 Locale Tag (e.g., "en-US", "es-ES"). Determines language and regional format defaults.
+	StartOfWeek    *calendar.Day // optional: 0-6 [Sun-Sat] (Default: 1).
 	Placeholder    string
 	Disabled       bool
 	HasError       bool
-	Mode           calendar.SelectionMode // Optional: "single" (default) or "range".
-	EndValue       time.Time              // Range end date (range mode only).
-	EndName        string                 // Hidden input name for EndValue. Defaults to Name + "-end".
-	EndPlaceholder string                 // Placeholder for the end date (range mode only).
+	Mode           calendar.SelectionMode // optional: "single" (default) or "range".
+	EndValue       time.Time              // range end date (range mode only).
+	EndName        string                 // hidden input name for EndValue. Defaults to Name + "-end".
+	EndPlaceholder string                 // placeholder for the end date (range mode only).
+	DataBind       string
 }
 
 templ DatePicker(props ...Props) {
@@ -66,7 +68,7 @@ templ DatePicker(props ...Props) {
 			p.Name = p.ID
 		}
 		if p.Placeholder == "" {
-			p.Placeholder = "Select a date"
+			p.Placeholder = "select a date"
 		}
 		if p.LocaleTag == "" {
 			p.LocaleTag = LocaleDefaultTag
@@ -111,6 +113,9 @@ templ DatePicker(props ...Props) {
 				if p.Form != "" {
 					form={ p.Form }
 				}
+				if p.DataBind != "" {
+					{ fmt.Sprintf("data-bind:%s", p.DataBind) }
+				}
 				data-tui-datepicker-hidden-input
 			/>
 			if isRange {
@@ -120,6 +125,9 @@ templ DatePicker(props ...Props) {
 					value={ initialEndISO }
 					if p.Form != "" {
 						form={ p.Form }
+					}
+					if p.DataBind != "" {
+						{ fmt.Sprintf("data-bind:%s", p.DataBind) }
 					}
 					data-tui-datepicker-hidden-end-input
 				/>
