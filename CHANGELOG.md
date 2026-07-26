@@ -2,6 +2,17 @@
 
 updates for SEEK
 
+## v0.3.7 (26.07.26) cleaning up periods
+
+- switched period model to time.Time for start and end time
+- accurately calculate end time for creation and db reads
+- formatting in 24h time when displaying a view
+- timepicker component for form with value (but not validation)
+- added service type sharedmodel for iep service and period comparison (and eventual filtering)
+- new path to shared or non-feature specific ui elements 'internal/ui/core'
+- added mainheader component (still needs to be added to pages)
+- added breadcrumbs component (included in mainheader component)
+
 ## v0.3.6 (26.07.25) more folder, model refactoring
 
 - moved central views/dto to features/{feature}/dto

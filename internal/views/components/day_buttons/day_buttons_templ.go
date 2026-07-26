@@ -11,6 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/templui/components/label"
 )
 
 func DayButtons(days sharedmodels.DaysSignals) templ.Component {
@@ -34,79 +35,107 @@ func DayButtons(days sharedmodels.DaysSignals) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"days-selector\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "days")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = label.Label(label.Props{
+			Class: "mb-3",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"days-selector\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for i := range sharedmodels.Days {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<label for=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(sharedmodels.Days[i].NameLower())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 11, Col: 48}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<label for=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(sharedmodels.Days[i].Short())
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sharedmodels.Days[i].NameLower())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 12, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 18, Col: 49}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " <input data-bind=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("period.days.%s", sharedmodels.Days[i].NameLower()))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sharedmodels.Days[i].Short())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 14, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 19, Col: 35}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" name=\"days\" type=\"checkbox\" id=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " <input data-bind=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(sharedmodels.Days[i].NameLower())
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("period.days.%s", sharedmodels.Days[i].NameLower()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 17, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 21, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" name=\"days\" type=\"checkbox\" id=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(sharedmodels.Days[i].NameLower())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/day_buttons/day_buttons.templ`, Line: 24, Col: 43}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if days.IsDaySet(sharedmodels.Days[i]) {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " checked")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "></label>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "></label>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -134,12 +163,12 @@ func DayButtonsStyle() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var6 == nil {
-			templ_7745c5c3_Var6 = templ.NopComponent
+		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var7 == nil {
+			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<style>\r\n\t\t.days-selector {\r\n\t\t\tdisplay: flex;\r\n\t\t\tflex-direction: row;\r\n\t\t\tgap: var(--size-0);\r\n\t\t\tjustify-content: center;\r\n\t\t\talign-items: center;\r\n\r\n\t\t\tlabel {\r\n\t\t\t\theight: var(--size-8);\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tjustify-content: center;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tfont-size: var(--font-size--2);\r\n\t\t\t\tcolor: var(--secondary-3-on);\r\n\t\t\t\tbackground-color: var(--secondary-3);\r\n\t\t\t\tborder-color: var(--secondary-4);\r\n\t\t\t\tborder-radius: var(--bd-rd0);\r\n\t\t\t\tborder-style: solid;\r\n\t\t\t\tborder-width: var(--border-width--0);\r\n\t\t\t\tflex: 1;\r\n\t\t\t\ttransition: all var(--anim-duration-fast) var(--anim-ease-standard);\r\n\r\n\t\t\t\t&:hover {\r\n\t\t\t\t\tcolor: var(--secondary-4-on);\r\n\t\t\t\t\tbackground-color: var(--secondary-4);\r\n\t\t\t\t\tborder-color: var(--secondary-5);\r\n\t\t\t\t\tcursor: pointer;\r\n\t\t\t\t\ttransform: scale(var(--anim-scale-up));\r\n\t\t\t\t}\r\n\r\n\t\t\t\tinput {\r\n\t\t\t\t\tdisplay: none;\r\n\t\t\t\t}\r\n\r\n\t\t\t\t&:has(input:checked) {\r\n\t\t\t\t\tcolor: var(--secondary-5-on);\r\n\t\t\t\t\tbackground-color: var(--secondary-5);\r\n\t\t\t\t\tborder-color: var(--secondary-6);\r\n\r\n\t\t\t\t\t&:hover {\r\n\t\t\t\t\t\tcolor: var(--secondary-6-on);\r\n\t\t\t\t\t\tbackground-color: var(--secondary-6);\r\n\t\t\t\t\t\tborder-color: var(--secondary-7);\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<style>\r\n\t\t.days-selector {\r\n\t\t\tdisplay: flex;\r\n\t\t\tflex-direction: row;\r\n\t\t\tgap: var(--size-0);\r\n\t\t\tjustify-content: center;\r\n\t\t\talign-items: center;\r\n\r\n\t\t\tlabel {\r\n\t\t\t\theight: var(--size-8);\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tjustify-content: center;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tfont-size: var(--font-size--2);\r\n\t\t\t\tcolor: var(--secondary-3-on);\r\n\t\t\t\tbackground-color: var(--secondary-3);\r\n\t\t\t\tborder-color: var(--secondary-4);\r\n\t\t\t\tborder-radius: var(--bd-rd0);\r\n\t\t\t\tborder-style: solid;\r\n\t\t\t\tborder-width: var(--border-width--0);\r\n\t\t\t\tflex: 1;\r\n\t\t\t\ttransition: all var(--anim-duration-fast) var(--anim-ease-standard);\r\n\r\n\t\t\t\t&:hover {\r\n\t\t\t\t\tcolor: var(--secondary-4-on);\r\n\t\t\t\t\tbackground-color: var(--secondary-4);\r\n\t\t\t\t\tborder-color: var(--secondary-5);\r\n\t\t\t\t\tcursor: pointer;\r\n\t\t\t\t\ttransform: scale(var(--anim-scale-up));\r\n\t\t\t\t}\r\n\r\n\t\t\t\tinput {\r\n\t\t\t\t\tdisplay: none;\r\n\t\t\t\t}\r\n\r\n\t\t\t\t&:has(input:checked) {\r\n\t\t\t\t\tcolor: var(--secondary-5-on);\r\n\t\t\t\t\tbackground-color: var(--secondary-5);\r\n\t\t\t\t\tborder-color: var(--secondary-6);\r\n\r\n\t\t\t\t\t&:hover {\r\n\t\t\t\t\t\tcolor: var(--secondary-6-on);\r\n\t\t\t\t\t\tbackground-color: var(--secondary-6);\r\n\t\t\t\t\t\tborder-color: var(--secondary-7);\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

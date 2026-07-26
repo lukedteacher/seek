@@ -9,12 +9,12 @@ import (
 
 // columns for the iep service table
 var IEPServiceColumns = []shareddto.ColumnView{
-	{Field: "ServiceType", Display: "type"},
+	{Field: "ServiceType", Display: "type", Renderer: "badge", Alignment: "center"},
 	{Field: "IndirectMinutes", Display: "indirect", Group: "minutes"},
 	{Field: "DirectMinutes", Display: "direct", Group: "minutes"},
 	{Field: "FrequencyCount", Display: "count", Group: "frequency"},
 	{Field: "FrequencyType", Display: "type", Group: "frequency"},
-	{Field: "Location", Display: "location", Renderer: "badge"},
+	{Field: "Location", Display: "location", Renderer: "badge", Alignment: "center"},
 	{Field: "Provider", Display: "provider"},
 	{Field: "StartDate", Display: "start", Group: "date"},
 	{Field: "EndDate", Display: "end", Group: "date"},
@@ -32,7 +32,7 @@ func extractIEPService(svc *models.IEPService, field string) string {
 	case "StudentID":
 		return svc.StudentID
 	case "ServiceType":
-		return svc.ServiceType
+		return svc.ServiceType.ShortString()
 	case "IndirectMinutes":
 		return strconv.Itoa(svc.IndirectMinutes)
 	case "DirectMinutes":

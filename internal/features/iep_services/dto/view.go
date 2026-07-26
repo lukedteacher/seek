@@ -1,22 +1,23 @@
 package dto
 
 import (
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iep_services/models"
 	sdto "seek/internal/features/students/dto"
 )
 
 type IEPServiceView struct {
 	IEPServiceID    string
-	ServiceType     string `json:"service_type"`
-	IndirectMinutes int    `json:"indirect_minutes"`
-	DirectMinutes   int    `json:"direct_minutes"`
-	FrequencyCount  int    `json:"frequency_count"`
-	FrequencyType   string `json:"frequency_type"`
-	Location        string `json:"location"`
-	StartDate       string `json:"start_date"`
-	EndDate         string `json:"end_date"`
-	Provider        string `json:"provider"`
-	StudentID       string `json:"student_id"`
+	ServiceType     sharedmodels.ServiceType `json:"service_type"`
+	IndirectMinutes int                      `json:"indirect_minutes"`
+	DirectMinutes   int                      `json:"direct_minutes"`
+	FrequencyCount  int                      `json:"frequency_count"`
+	FrequencyType   string                   `json:"frequency_type"`
+	Location        string                   `json:"location"`
+	StartDate       string                   `json:"start_date"`
+	EndDate         string                   `json:"end_date"`
+	Provider        string                   `json:"provider"`
+	StudentID       string                   `json:"student_id"`
 	StudentView     sdto.StudentView
 }
 

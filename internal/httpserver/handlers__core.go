@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"seek/internal/ui/core/corepages"
 	"seek/internal/views/blocks/sidebar"
 	"seek/internal/views/pages"
 	"seek/internal/viewstore"
@@ -86,7 +87,7 @@ func (s Server) postSidebarToggle(w http.ResponseWriter, r *http.Request) {
 func (s Server) components(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	_ = pages.Components(user).Render(ctx, w)
+	_ = corepages.Components(user).Render(ctx, w)
 }
 
 func (s Server) sort(w http.ResponseWriter, r *http.Request) {

@@ -4,7 +4,7 @@ import "seek/internal/features/_shared/sharedmodels"
 
 func CompareIEPServices(db, csv []*IEPService) []sharedmodels.Diff[IEPService] {
 	keyFn := func(s *IEPService) string {
-		return s.StudentID + "|" + s.ServiceType
+		return s.StudentID + "|" + s.ServiceType.String()
 	}
 
 	diffFields := func(a, b *IEPService) []string {

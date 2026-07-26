@@ -35,7 +35,8 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.Period, error) 
 	period := &models.Period{
 		ID:        row.Id,
 		Title:     row.Title,
-		StartTime: row.StartTime,
+		StartTime: parseDBTime(row.StartTime),
+		EndTime:   parseDBTime(row.StartTime).Add(time.Duration(row.Duration) * time.Minute),
 		Duration:  row.Duration,
 		Days:      row.Days,
 		CreatedAt: row.CreatedAt,
@@ -59,7 +60,8 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Period, error) {
 		periods = append(periods, models.Period{
 			ID:        row.Id,
 			Title:     row.Title,
-			StartTime: row.StartTime,
+			StartTime: parseDBTime(row.StartTime),
+			EndTime:   parseDBTime(row.StartTime).Add(time.Duration(row.Duration) * time.Minute),
 			Duration:  row.Duration,
 			Days:      row.Days,
 		})

@@ -11,7 +11,7 @@ import (
 
 type CreatePeriodCommand struct {
 	Title     string
-	StartTime string
+	StartTime time.Time
 	Duration  int64
 	Days      int64
 	Metadata  CommandMetadata
@@ -51,7 +51,7 @@ func CreatePeriodCommandHandler(
 type createPeriodContext struct {
 	id        string
 	title     string
-	startTime string
+	startTime time.Time
 	duration  int64
 	days      int64
 	query     eventstore.Query

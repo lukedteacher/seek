@@ -6,6 +6,7 @@ import (
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iep_services/models"
 
 	"zombiezen.com/go/sqlite"
@@ -35,9 +36,9 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.IEPService, err
 	}
 
 	service := &models.IEPService{
-		ID:    row.Id,
+		ID:              row.Id,
 		StudentID:       row.StudentId,
-		ServiceType:     row.ServiceType,
+		ServiceType:     sharedmodels.ServiceType(row.ServiceType),
 		IndirectMinutes: int(row.IndirectMinutes),
 		DirectMinutes:   int(row.DirectMinutes),
 		FrequencyCount:  int(row.FrequencyCount),
@@ -66,9 +67,9 @@ func (m *ReadModel) List(ctx context.Context) ([]models.IEPService, error) {
 	services := make([]models.IEPService, len(rows))
 	for i := range rows {
 		services[i] = models.IEPService{
-			ID:    rows[i].Id,
+			ID:              rows[i].Id,
 			StudentID:       rows[i].StudentId,
-			ServiceType:     rows[i].ServiceType,
+			ServiceType:     sharedmodels.ServiceType(rows[i].ServiceType),
 			IndirectMinutes: int(rows[i].IndirectMinutes),
 			DirectMinutes:   int(rows[i].DirectMinutes),
 			FrequencyCount:  int(rows[i].FrequencyCount),

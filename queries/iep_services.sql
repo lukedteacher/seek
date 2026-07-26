@@ -2,6 +2,7 @@
 SELECT 
 	id, 
 	student_id, 
+	service_name,
 	service_type, 
 	indirect_minutes,
 	direct_minutes,
@@ -20,6 +21,7 @@ WHERE archived_at IS NULL
 -- name: ListIEPServices :many
 SELECT id, 
 	student_id, 
+	service_name,
 	service_type, 
 	indirect_minutes,
 	direct_minutes,
@@ -38,6 +40,7 @@ ORDER BY student_id DESC, service_type DESC;
 -- name: ListIEPServicesForStudent :many
 SELECT id, 
 	student_id, 
+	service_name,
 	service_type, 
 	indirect_minutes,
 	direct_minutes,
@@ -58,6 +61,7 @@ ORDER BY service_type DESC;
 INSERT INTO iep_services (
 	id, 
 	student_id, 
+	service_name,
 	service_type, 
 	indirect_minutes,
 	direct_minutes,
@@ -73,6 +77,7 @@ INSERT INTO iep_services (
 VALUES (
 	@id, 
 	@student_id, 
+	@service_name,
 	@service_type, 
 	@indirect_minutes,
 	@direct_minutes,
@@ -91,6 +96,7 @@ ON CONFLICT (id) DO NOTHING;
 UPDATE iep_services
 SET
 	student_id = @student_id,
+	service_name = @service_name,
 	service_type = @service_type,
 	indirect_minutes = @indirect_minutes,
 	direct_minutes = @direct_minutes,

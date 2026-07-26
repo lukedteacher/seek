@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"net/http"
+	"time"
 
 	"seek/internal/features/_shared/sharedmodels"
 	pe "seek/internal/features/periods/events"
@@ -138,16 +139,16 @@ func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	periods := []pm.Period{
-		{Title: "SEL", StartTime: "08:00", Duration: 20, Days: 1},
-		{Title: "reading", StartTime: "08:55", Duration: 30, Days: 5},
-		{Title: "writing", StartTime: "09:50", Duration: 30, Days: 15},
-		{Title: "SEL", StartTime: "10:50", Duration: 20, Days: 8},
-		{Title: "ex fun", StartTime: "11:45", Duration: 15, Days: 19},
-		{Title: "OT", StartTime: "13:00", Duration: 30, Days: 18},
-		{Title: "speech", StartTime: "13:40", Duration: 20, Days: 22},
-		{Title: "speech", StartTime: "14:35", Duration: 20, Days: 29},
-		{Title: "math (push-in)", StartTime: "13:30", Duration: 60, Days: 10},
-		{Title: "reading", StartTime: "14:20", Duration: 30, Days: 17},
+		{Title: "SEL", StartTime: parseTimeOnly("08:00"), Duration: 20, Days: 1},
+		{Title: "reading", StartTime: parseTimeOnly("08:55"), Duration: 30, Days: 5},
+		{Title: "writing", StartTime: parseTimeOnly("09:50"), Duration: 30, Days: 15},
+		{Title: "SEL", StartTime: parseTimeOnly("10:50"), Duration: 20, Days: 8},
+		{Title: "ex fun", StartTime: parseTimeOnly("11:45"), Duration: 15, Days: 19},
+		{Title: "OT", StartTime: parseTimeOnly("13:00"), Duration: 30, Days: 18},
+		{Title: "speech", StartTime: parseTimeOnly("13:40"), Duration: 20, Days: 22},
+		{Title: "speech", StartTime: parseTimeOnly("14:35"), Duration: 20, Days: 29},
+		{Title: "math (push-in)", StartTime: parseTimeOnly("13:30"), Duration: 60, Days: 10},
+		{Title: "reading", StartTime: parseTimeOnly("14:20"), Duration: 30, Days: 17},
 	}
 
 	for _, period := range periods {
@@ -167,4 +168,9 @@ func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+func parseTimeOnly(s string) time.Time {
+	t, _ := time.Parse("15:04", s)
+	return t
 }

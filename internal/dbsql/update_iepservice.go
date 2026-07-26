@@ -9,6 +9,7 @@ import (
 
 type UpdateIepserviceParams struct {
 	StudentId       string `json:"student_id"`
+	ServiceName     string `json:"service_name"`
 	ServiceType     string `json:"service_type"`
 	IndirectMinutes int64  `json:"indirect_minutes"`
 	DirectMinutes   int64  `json:"direct_minutes"`
@@ -34,17 +35,18 @@ func UpdateIepservice(tx *sqlite.Conn) *UpdateIepserviceStmt {
 UPDATE iep_services
 SET
 	student_id = ?1,
-	service_type = ?2,
-	indirect_minutes = ?3,
-	direct_minutes = ?4,
-	frequency_count = ?5,
-	frequency_type = ?6,
-	location = ?7,
-	start_date = ?8,
-	end_date = ?9,
-	provider = ?10,
-	updated_at = ?11
-WHERE id = ?12
+	service_name = ?2,
+	service_type = ?3,
+	indirect_minutes = ?4,
+	direct_minutes = ?5,
+	frequency_count = ?6,
+	frequency_type = ?7,
+	location = ?8,
+	start_date = ?9,
+	end_date = ?10,
+	provider = ?11,
+	updated_at = ?12
+WHERE id = ?13
     `
 
 	ps := &UpdateIepserviceStmt{
@@ -82,6 +84,9 @@ func (ps *UpdateIepserviceStmt) Run(
 	bindIndex := 1
 	// Bind parameters
 	stmt.BindText(bindIndex, params.StudentId)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.ServiceName)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.ServiceType)

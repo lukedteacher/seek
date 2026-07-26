@@ -1,0 +1,54 @@
+package blocks
+
+import (
+	"time"
+
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/timepicker"
+)
+
+templ FormTimePickers(view PeriodCreateFormView) {
+	{{
+		// create min and max times for scool hours (8 AM to 4 PM)
+		now := time.Now()
+		minTime := time.Date(now.Year(), now.Month(), now.Day(), 8, 0, 0, 0, now.Location())
+		maxTime := time.Date(now.Year(), now.Month(), now.Day(), 16, 0, 0, 0, now.Location())
+	}}
+	<div class="flex-2 flex flex-col">
+		@label.Label(label.Props{
+			For:   "period-start-time-picker",
+			Class: "mb-3",
+		}) {
+			start
+		}
+		@timepicker.TimePicker(timepicker.Props{
+			ID:          "period-start-time-picker",
+			MinTime:     minTime,
+			MaxTime:     maxTime,
+			Step:        5,
+			Placeholder: "start time",
+			Class:       "input",
+			Value:       view.Period.StartTime,
+			DataBind:    "data-bind:period.start_time",
+		})
+	</div>
+	<div class="flex-2 flex flex-col">
+		@label.Label(label.Props{
+			For:   "period-end-time-picker",
+			Class: "mb-3",
+		}) {
+			end
+		}
+		@timepicker.TimePicker(timepicker.Props{
+			ID:          "period-end-time-picker",
+			MinTime:     minTime,
+			MaxTime:     maxTime,
+			Step:        5,
+			Placeholder: "end time",
+			Class:       "input",
+			Value:       view.Period.EndTime,
+			DataBind:    "data-bind:period.end_time",
+		})
+	</div>
+	@timepicker.Script()
+}

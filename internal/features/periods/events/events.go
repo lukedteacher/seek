@@ -34,7 +34,7 @@ const (
 type PeriodCreatedEvent struct {
 	EventID   string      `json:"period_created_event_id"`
 	Title     string      `json:"title"`
-	StartTime string      `json:"start_time"`
+	StartTime time.Time   `json:"start_time"`
 	Duration  int64       `json:"duration"`
 	Days      int64       `json:"days"`
 	CreatedAt string      `json:"created_at"`
@@ -44,7 +44,7 @@ type PeriodCreatedEvent struct {
 type PeriodUpdatedEvent struct {
 	EventID   string      `json:"period_updated_event_id"`
 	Title     string      `json:"title"`
-	StartTime string      `json:"start_time"`
+	StartTime time.Time   `json:"start_time"`
 	Duration  int64       `json:"duration"`
 	Days      int64       `json:"days"`
 	UpdatedAt string      `json:"updated_at"`
@@ -63,8 +63,8 @@ type PeriodScope struct {
 
 func NewPeriodCreatedEvent(
 	periodID,
-	title,
-	startTime string,
+	title string,
+	startTime time.Time,
 	duration,
 	days int64,
 	createdAt time.Time,
@@ -90,8 +90,8 @@ func NewPeriodCreatedEvent(
 func NewPeriodUpdatedEvent(
 	eventID,
 	periodID,
-	title,
-	startTime string,
+	title string,
+	startTime time.Time,
 	duration,
 	days int64,
 	updatedAt time.Time,

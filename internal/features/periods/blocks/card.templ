@@ -19,7 +19,7 @@ templ Card(view dto.PeriodView) {
 				{ view.Title }
 			}
 			@card.Description() {
-				{ view.StartTime }
+				{ view.StartTime.Format("15:04") }
 			}
 		}
 		@card.Content() {

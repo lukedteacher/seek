@@ -1,0 +1,11 @@
+package coreblocks
+
+import "seek/pkg/templui/components/separator"
+
+templ HeaderMain(title, path string) {
+	<header class="w-3/4 display flex flex-col gap-3">
+		@Breadcrumbs(path)
+		@separator.Separator()
+		<h2>{ title }</h2>
+	</header>
+}

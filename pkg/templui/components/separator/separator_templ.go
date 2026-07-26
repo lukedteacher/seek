@@ -118,7 +118,7 @@ func Separator(props ...Props) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 = []any{utils.TwMerge(
-				"absolute w-full border-t h-[1px]",
+				"absolute w-full border-t h-[1px] text-muted-foreground",
 				decorationClasses(p.Decoration),
 			),
 			}

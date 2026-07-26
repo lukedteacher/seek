@@ -113,7 +113,7 @@ templ EditForm(vm EditScheduleViewModel) {
 							}
 						>
 							{ period.Title }
-							{ period.StartTime }
+							{ period.StartTime.Format("15:04") }
 							{ period.Duration }
 						</option>
 					}

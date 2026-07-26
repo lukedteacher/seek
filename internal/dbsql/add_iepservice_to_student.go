@@ -10,6 +10,7 @@ import (
 type AddIepserviceToStudentParams struct {
 	Id              string `json:"id"`
 	StudentId       string `json:"student_id"`
+	ServiceName     string `json:"service_name"`
 	ServiceType     string `json:"service_type"`
 	IndirectMinutes int64  `json:"indirect_minutes"`
 	DirectMinutes   int64  `json:"direct_minutes"`
@@ -34,6 +35,7 @@ func AddIepserviceToStudent(tx *sqlite.Conn) *AddIepserviceToStudentStmt {
 INSERT INTO iep_services (
 	id, 
 	student_id, 
+	service_name,
 	service_type, 
 	indirect_minutes,
 	direct_minutes,
@@ -49,8 +51,8 @@ INSERT INTO iep_services (
 VALUES (
 	?1, 
 	?2, 
-	?3, 
-	?4,
+	?3,
+	?4, 
 	?5,
 	?6,
 	?7,
@@ -58,8 +60,9 @@ VALUES (
 	?9,
 	?10,
 	?11,
-	?12, 
-	?12
+	?12,
+	?13, 
+	?13
 )
 ON CONFLICT (id) DO NOTHING
     `
@@ -102,6 +105,9 @@ func (ps *AddIepserviceToStudentStmt) Run(
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.StudentId)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.ServiceName)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.ServiceType)

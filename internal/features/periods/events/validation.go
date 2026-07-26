@@ -20,7 +20,7 @@ func Validate(p *models.Period) map[string]Validation {
 	}
 	errors["title"] = ValidateTitle(p.Title)
 
-	if p.StartTime == "" {
+	if p.StartTime.IsZero() {
 		errors["startTime"] = Validation{Message: "required", State: "empty"}
 	} else {
 		errors["startTime"] = Validation{Message: "required", State: "valid"}

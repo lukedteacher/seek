@@ -27,7 +27,7 @@ templ EditServiceForm(view dto.IEPServiceFormView) {
 				"type",
 				view.URL+"/validate",
 				"iepservice.service_type",
-				view.IEPService.ServiceType,
+				view.IEPService.ServiceType.String(),
 			)
 			<div>
 				<p>minutes</p>

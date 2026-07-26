@@ -1,56 +1,67 @@
 package blocks
 
-import "seek/internal/views/components/popover"
+import (
+	"seek/internal/views/components/popover"
+	"seek/pkg/templui/components/label"
+)
 
 templ DurationSlider(value int) {
-	<input
-		id="duration-slider-trigger"
-		type="number"
-		class="input"
-		data-bind:period.duration
-		value={ value }
-		data-on:click="$foo.showPopover()"
-		data-on:focus="$foo.showPopover()"
-	/>
-	@popover.Content(popover.ContentProps{
-		ID:     "duration-slider-content",
-		Anchor: "duration-slider-trigger",
-		Attributes: templ.Attributes{
-			"data-ref": "foo",
-		},
-	}) {
+	<div class="flex-1 flex flex-col">
+		@label.Label(label.Props{
+			For:   "period-duration-slider-trigger",
+			Class: "mb-3",
+		}) {
+			duration
+		}
 		<input
-			type="range"
-			min="5"
-			max="45"
-			step="5"
-			id="duration-range-input"
-			style="width: 100%; padding: 0; margin: 0; cursor: pointer;"
+			id="period-duration-slider-trigger"
+			type="number"
+			class="input"
 			data-bind:period.duration
+			value={ value }
+			data-on:click="$foo.showPopover()"
+			data-on:focus="$foo.showPopover()"
 		/>
-		<div
-			class="duration-slider-marks"
-			style="display: flex; justify-content: space-between; font-size: var(--font-size--2);"
-		>
-			<span>•</span>
-			<span>‧</span>
-			<span>•</span>
-			<span>‧</span>
-			<span>•</span>
-			<span>‧</span>
-			<span>•</span>
-			<span>‧</span>
-			<span>•</span>
-		</div>
-	}
+		@popover.Content(popover.ContentProps{
+			ID:     "period-duration-slider-content",
+			Anchor: "period-duration-slider-trigger",
+			Attributes: templ.Attributes{
+				"data-ref": "foo",
+			},
+		}) {
+			<input
+				type="range"
+				min="5"
+				max="45"
+				step="5"
+				id="period-duration-range-input"
+				style="width: 100%; padding: 0; margin: 0; cursor: pointer;"
+				data-bind:period.duration
+			/>
+			<div
+				class="period-duration-slider-marks"
+				style="display: flex; justify-content: space-between; font-size: var(--font-size--2);"
+			>
+				<span>•</span>
+				<span>‧</span>
+				<span>•</span>
+				<span>‧</span>
+				<span>•</span>
+				<span>‧</span>
+				<span>•</span>
+				<span>‧</span>
+				<span>•</span>
+			</div>
+		}
+	</div>
 	@DurationSliderStyles()
 }
 
 templ DurationSliderStyles() {
 	<style>
-		input#duration-slider-trigger {
+		input#period-duration-slider-trigger {
 			width: 3rem;
-			anchor-name: --duration-slider-trigger;
+			anchor-name: --period-duration-slider-trigger;
 			font-size: var(--font-size-1);
 			text-align: center;
 			justify-content: center;
@@ -62,11 +73,11 @@ templ DurationSliderStyles() {
 			}
 		}
 
-		div#duration-slider-content {
+		div#period-duration-slider-content {
 			width: 20rem;
 		}
 
-		div.duration-slider-marks {
+		div.period-duration-slider-marks {
 			display: flex;
 			justify-content: space-between;
 			font-size: var(--font-size--2);

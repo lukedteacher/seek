@@ -10,6 +10,7 @@ import (
 type GetIepserviceRes struct {
 	Id              string `json:"id"`
 	StudentId       string `json:"student_id"`
+	ServiceName     string `json:"service_name"`
 	ServiceType     string `json:"service_type"`
 	IndirectMinutes int64  `json:"indirect_minutes"`
 	DirectMinutes   int64  `json:"direct_minutes"`
@@ -35,6 +36,7 @@ func GetIepservice(tx *sqlite.Conn) *GetIepserviceStmt {
 SELECT 
 	id, 
 	student_id, 
+	service_name,
 	service_type, 
 	indirect_minutes,
 	direct_minutes,
@@ -97,17 +99,18 @@ func (ps *GetIepserviceStmt) Run(
 		row := GetIepserviceRes{}
 		row.Id = stmt.ColumnText(0)
 		row.StudentId = stmt.ColumnText(1)
-		row.ServiceType = stmt.ColumnText(2)
-		row.IndirectMinutes = stmt.ColumnInt64(3)
-		row.DirectMinutes = stmt.ColumnInt64(4)
-		row.FrequencyCount = stmt.ColumnInt64(5)
-		row.FrequencyType = stmt.ColumnText(6)
-		row.Location = stmt.ColumnText(7)
-		row.StartDate = stmt.ColumnText(8)
-		row.EndDate = stmt.ColumnText(9)
-		row.Provider = stmt.ColumnText(10)
-		row.CreatedAt = stmt.ColumnText(11)
-		row.UpdatedAt = stmt.ColumnText(12)
+		row.ServiceName = stmt.ColumnText(2)
+		row.ServiceType = stmt.ColumnText(3)
+		row.IndirectMinutes = stmt.ColumnInt64(4)
+		row.DirectMinutes = stmt.ColumnInt64(5)
+		row.FrequencyCount = stmt.ColumnInt64(6)
+		row.FrequencyType = stmt.ColumnText(7)
+		row.Location = stmt.ColumnText(8)
+		row.StartDate = stmt.ColumnText(9)
+		row.EndDate = stmt.ColumnText(10)
+		row.Provider = stmt.ColumnText(11)
+		row.CreatedAt = stmt.ColumnText(12)
+		row.UpdatedAt = stmt.ColumnText(13)
 		res = &row
 	}
 

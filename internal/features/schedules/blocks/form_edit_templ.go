@@ -302,9 +302,9 @@ func EditForm(vm EditScheduleViewModel) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var14 string
-					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(period.StartTime)
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(period.StartTime.Format("15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_edit.templ`, Line: 116, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/form_edit.templ`, Line: 116, Col: 41}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {

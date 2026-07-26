@@ -495,7 +495,7 @@ func CompareServices(dbServices, csvServices []*models.IEPService) []ServiceDiff
 	// Map DB by composite key (StudentID + ServiceType)
 	dbMap := make(map[string]*models.IEPService)
 	for _, s := range dbServices {
-		key := s.StudentID + "|" + s.ServiceType
+		key := s.StudentID + "|" + s.ServiceType.String()
 		dbMap[key] = s
 	}
 
@@ -505,7 +505,7 @@ func CompareServices(dbServices, csvServices []*models.IEPService) []ServiceDiff
 
 	// 1. check CSV entries (added or updated)
 	for _, csvSvc := range csvServices {
-		key := csvSvc.StudentID + "|" + csvSvc.ServiceType
+		key := csvSvc.StudentID + "|" + csvSvc.ServiceType.String()
 		csvKeys[key] = true
 		if dbSvc, exists := dbMap[key]; exists {
 			// check if any business fields differ (ignore timestamps, ID)
@@ -580,7 +580,7 @@ func extractValue(svc *models.IEPService, field string) string {
 	case "StudentID":
 		return svc.StudentID
 	case "ServiceType":
-		return svc.ServiceType
+		return svc.ServiceType.String()
 	case "IndirectMinutes":
 		return strconv.Itoa(svc.IndirectMinutes)
 	case "DirectMinutes":

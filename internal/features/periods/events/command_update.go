@@ -11,7 +11,7 @@ import (
 type UpdatePeriodCommand struct {
 	UserRegisteredID string
 	Id               string
-	StartTime        string
+	StartTime        time.Time
 	Duration         int64
 	Days             int64
 	Title            string
@@ -48,7 +48,7 @@ type updatePeriodContext struct {
 	exists    bool
 	deleted   bool
 	title     string
-	startTime string
+	startTime time.Time
 	duration  int64
 	days      int64
 	position  eventstore.Position
@@ -85,12 +85,12 @@ func (m *updatePeriodContext) handle(resolved eventstore.ResolvedEvent) {
 		m.exists = true
 		m.deleted = false
 		m.title, _ = data[PeriodTitleField].(string)
-		m.startTime, _ = data[PeriodStartTimeField].(string)
+		m.startTime = parseDBTime(data[PeriodStartTimeField].(string))
 		m.duration = int64(data[PeriodDurationField].(float64))
 		m.days = int64(data[PeriodDaysField].(float64))
 	case PeriodUpdated:
 		m.title, _ = data[PeriodTitleField].(string)
-		m.startTime, _ = data[PeriodStartTimeField].(string)
+		m.startTime = parseDBTime(data[PeriodStartTimeField].(string))
 		m.duration = int64(data[PeriodDurationField].(float64))
 		m.days = int64(data[PeriodDaysField].(float64))
 	case PeriodDeleted:

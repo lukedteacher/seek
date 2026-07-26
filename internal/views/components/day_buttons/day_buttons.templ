@@ -3,24 +3,32 @@ package day_buttons
 import (
 	"fmt"
 	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/templui/components/label"
 )
 
 templ DayButtons(days sharedmodels.DaysSignals) {
-	<div class="days-selector">
-		for i := range sharedmodels.Days {
-			<label for={ sharedmodels.Days[i].NameLower() }>
-				{ sharedmodels.Days[i].Short() }
-				<input
-					data-bind={ fmt.Sprintf("period.days.%s", sharedmodels.Days[i].NameLower()) }
-					name="days"
-					type="checkbox"
-					id={ sharedmodels.Days[i].NameLower() }
-					if days.IsDaySet(sharedmodels.Days[i]) {
-						checked
-					}
-				/>
-			</label>
+	<div class="flex flex-col">
+		@label.Label(label.Props{
+			Class: "mb-3",
+		}) {
+			days
 		}
+		<div class="days-selector">
+			for i := range sharedmodels.Days {
+				<label for={ sharedmodels.Days[i].NameLower() }>
+					{ sharedmodels.Days[i].Short() }
+					<input
+						data-bind={ fmt.Sprintf("period.days.%s", sharedmodels.Days[i].NameLower()) }
+						name="days"
+						type="checkbox"
+						id={ sharedmodels.Days[i].NameLower() }
+						if days.IsDaySet(sharedmodels.Days[i]) {
+							checked
+						}
+					/>
+				</label>
+			}
+		</div>
 	</div>
 	@DayButtonsStyle()
 }

@@ -7,9 +7,6 @@ import (
 	sblocks "seek/internal/features/students/blocks"
 	smodels "seek/internal/features/students/models"
 	"seek/internal/views/blocks/forms"
-	"seek/internal/views/components/day_buttons"
-	"seek/internal/views/components/input"
-	"seek/internal/views/components/label"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
@@ -41,55 +38,7 @@ templ CreateForm(view PeriodCreateFormView) {
 			<h2>CREATE A PERIOD</h2>
 			<p>create a new period.</p>
 		</hgroup>
-		<section>
-			@forms.TextInputWithLabel(
-				"title",
-				"title",
-				"/periods/create/validate",
-				"period.title",
-				view.Period.Title,
-			)
-			<div style="display: flex; justify-content: space-between; gap: var(--size-1);">
-				@label.Label(label.Props{
-					ID:                "start-time-label",
-					For:               "start-time",
-					Label:             "start time",
-					ValidationState:   view.Validation["start_time"].State,
-					ValidationMessage: view.Validation["start_time"].Message,
-				}) {
-					@input.Input(input.Props{
-						ID:       "start-time",
-						Name:     "start-time",
-						DataBind: "period.start_time",
-						DataOn:   "/periods/create/validate",
-						HasError: view.Validation["start_time"].State == "error",
-						IsValid:  view.Validation["start_time"].State == "valid",
-						Value:    view.Period.StartTime,
-					})
-				}
-				@label.Label(label.Props{
-					ID:                "end-time-label",
-					For:               "end-time",
-					Label:             "end time",
-					ValidationState:   view.Validation["end_time"].State,
-					ValidationMessage: view.Validation["end_time"].Message,
-				}) {
-					@input.Input(input.Props{
-						ID:       "end-time",
-						Name:     "end-time",
-						DataBind: "period.end_time",
-						DataOn:   "/periods/create/validate",
-						HasError: view.Validation["end_time"].State == "error",
-						IsValid:  view.Validation["end_time"].State == "valid",
-						Value:    view.Period.EndTime,
-					})
-				}
-			</div>
-			<label for="duration">duration</label>
-			@DurationSlider(30)
-			@day_buttons.DayButtons(view.Period.Days)
-			@sblocks.StudentMultiselect(view.StudentList)
-		</section>
+		@FormSections(view)
 		<footer>
 			@forms.CancelButton()
 			@forms.SaveButton()

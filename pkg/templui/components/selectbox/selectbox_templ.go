@@ -674,9 +674,9 @@ func Trigger(props ...TriggerProps) templ.Component {
 				Type:    "button",
 				Variant: button.VariantOutline,
 				Class: utils.TwMerge(
-					// Required class for JavaScript
+					// required class for JavaScript
 					"select-trigger",
-					// Base styles matching input
+					// base styles matching input
 					"w-full h-9 px-3 py-1 text-base md:text-sm",
 					"flex items-center justify-between",
 					"rounded-md border border-input bg-transparent shadow-xs transition-[color,box-shadow] outline-none",

@@ -8,28 +8,30 @@ import (
 
 var PeriodColumns = []shareddto.ColumnView{
 	{Field: "Title", Display: "title"},
-	{Field: "StartTime", Display: "start", Group: "time"},
-	{Field: "EndTime", Display: "end", Group: "time"},
-	{Field: "Duration", Display: "duration (min)"},
-	{Field: "Days", Display: "days"},
+	{Field: "StartTime", Display: "start", Group: "time", Alignment: "center"},
+	{Field: "EndTime", Display: "end", Group: "time", Alignment: "center"},
+	{Field: "Duration", Display: "duration (min)", Alignment: "center"},
+	{Field: "Days", Display: "days", Alignment: "center"},
 	// id omitted from display (auto‑stored in RowView.ID)
 }
 
-func extractPeriod(s *models.Period, field string) string {
-	if s == nil {
+func extractPeriod(p *models.Period, field string) string {
+	if p == nil {
 		return ""
 	}
 	switch field {
 	case "ID":
-		return s.ID
+		return p.ID
 	case "Title":
-		return s.Title
+		return p.Title
 	case "StartTime":
-		return s.StartTime
+		return p.StartTime.Format("15:04")
+	case "EndTime":
+		return p.EndTime.Format("15:04")
 	case "Duration":
-		return strconv.FormatInt(s.Duration, 10)
+		return strconv.FormatInt(p.Duration, 10)
 	case "Days":
-		return strconv.FormatInt(s.Days, 10)
+		return strconv.FormatInt(p.Days, 10)
 	default:
 		return ""
 	}

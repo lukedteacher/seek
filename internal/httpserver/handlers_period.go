@@ -97,11 +97,10 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET request to /periods/create
-// TODO figure out if there's a way to have this use the same form as edit?
 func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	empty := models.NewPeriod()
+	empty, _ := models.NewPeriod()
 	students, err := s.Students.List(ctx)
 	if err != nil {
 		println(err.Error())

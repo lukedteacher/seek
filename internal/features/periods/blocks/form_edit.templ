@@ -79,7 +79,7 @@ templ EditPeriodForm(view PeriodEditFormView) {
 						DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
 						HasError: view.Validation["start_time"].State == "error",
 						IsValid:  view.Validation["start_time"].State == "valid",
-						Value:    view.Period.StartTime,
+						Value:    view.Period.StartTime.Format("15:04"),
 					})
 				}
 				@label.Label(label.Props{
@@ -96,7 +96,7 @@ templ EditPeriodForm(view PeriodEditFormView) {
 						DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
 						HasError: view.Validation["end_time"].State == "error",
 						IsValid:  view.Validation["end_time"].State == "valid",
-						Value:    view.Period.EndTime,
+						Value:    view.Period.EndTime.String(),
 					})
 				}
 			</div>

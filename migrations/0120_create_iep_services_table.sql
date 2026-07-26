@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS iep_services (
 	id TEXT PRIMARY KEY,
 	student_id TEXT NOT NULL,
+	service_name TEXT NOT NULL,
 	service_type TEXT NOT NULL,
 	indirect_minutes INTEGER NOT NULL,
 	direct_minutes INTEGER NOT NULL,

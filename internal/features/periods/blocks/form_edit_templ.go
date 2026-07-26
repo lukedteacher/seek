@@ -141,7 +141,7 @@ func EditPeriodForm(view PeriodEditFormView) templ.Component {
 				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
 				HasError: view.Validation["start_time"].State == "error",
 				IsValid:  view.Validation["start_time"].State == "valid",
-				Value:    view.Period.StartTime,
+				Value:    view.Period.StartTime.Format("15:04"),
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -177,7 +177,7 @@ func EditPeriodForm(view PeriodEditFormView) templ.Component {
 				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
 				HasError: view.Validation["end_time"].State == "error",
 				IsValid:  view.Validation["end_time"].State == "valid",
-				Value:    view.Period.EndTime,
+				Value:    view.Period.EndTime.String(),
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

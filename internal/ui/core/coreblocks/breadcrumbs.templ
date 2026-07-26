@@ -1,0 +1,52 @@
+package coreblocks
+
+import (
+	"strings"
+
+	"seek/pkg/templui/components/breadcrumb"
+	"seek/pkg/templui/components/icon"
+)
+
+type BreadcrumbItem struct {
+	Name string
+	Href string
+}
+
+templ Breadcrumbs(path string) {
+	@breadcrumb.Breadcrumb() {
+		@breadcrumb.List(breadcrumb.ListProps{Class: "text-xs"}) {
+			@breadcrumb.Item() {
+				@breadcrumb.Link(breadcrumb.LinkProps{Href: "/"}) {
+					@icon.House(icon.Props{Size: "16"})
+				}
+			}
+			{{ items := breadcrumbItems(path) }}
+			for i, item := range items {
+				@breadcrumb.Item() {
+					@breadcrumb.Separator()
+					if i == len(items)-1 {
+						<span class="underline underline-offset-3">{ item.Name }</span>
+					} else {
+						@breadcrumb.Link(breadcrumb.LinkProps{Href: item.Href}) {
+							{ item.Name }
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func breadcrumbItems(path string) []BreadcrumbItem {
+	parts := strings.Split(strings.Trim(path, "/"), "/")
+	items := make([]BreadcrumbItem, len(parts))
+	cum := ""
+	for i, p := range parts {
+		cum += "/" + p
+		items[i] = BreadcrumbItem{
+			Name: p,
+			Href: cum,
+		}
+	}
+	return items
+}

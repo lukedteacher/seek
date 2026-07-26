@@ -1,7 +1,7 @@
 # for sqlc-gen-zombiezen to generate go code for queries
 # erases and exports to internal/dbsql directory
 
-version: "2"
+version: '2'
 
 plugins:
   - name: zz
