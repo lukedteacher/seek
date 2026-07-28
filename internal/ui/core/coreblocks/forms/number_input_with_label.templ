@@ -1,0 +1,27 @@
+package forms
+
+import (
+	"fmt"
+
+	"seek/pkg/templui/components/input"
+	"seek/pkg/templui/components/label"
+)
+
+templ NumberInputWithLabel(id, labelText, url, bind string, value int) {
+	@label.Label(label.Props{
+		ID:  "label" + id,
+		For: "input" + id,
+	}) {
+		{ labelText }
+	}
+	@input.Input(input.Props{
+		ID:          "input" + id,
+		Name:        id,
+		Type:        input.TypeNumber,
+		ValueNumber: value,
+		Attributes: templ.Attributes{
+			"data-bind":     bind,
+			"data-on:click": fmt.Sprintf("@post('%s')", url),
+		},
+	})
+}

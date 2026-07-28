@@ -6,13 +6,13 @@ import (
 	"seek/internal/features/iep_services/blocks"
 	"seek/internal/features/iep_services/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ View(user models.User, view dto.IEPServiceView) {
-	@layouts.Base("SEEK: IEP service", user) {
-		<main id="main" data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/stream", view.IEPServiceID)) }>
+	@corelayouts.LayoutBase("SEEK: IEP service", user) {
+		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/periods/%s/stream", view.IEPServiceID)) }>
 			<section>
 				@blocks.Card(view)
 			</section>

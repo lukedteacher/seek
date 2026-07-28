@@ -27,13 +27,13 @@ templ List(teachers []models.Teacher) {
 							</button>
 						</a>
 					</td>
-					<td>{ teachers[i].FirstName }</td>
+					<td>{ teachers[i].GivenName }</td>
 					<td>
 						if teachers[i].ChosenName != nil {
 							{ *teachers[i].ChosenName }
 						}
 					</td>
-					<td>{ teachers[i].LastName }</td>
+					<td>{ teachers[i].FamilyName }</td>
 				</tr>
 			}
 		</tbody>

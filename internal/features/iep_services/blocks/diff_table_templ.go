@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
-	"seek/internal/views/components/table"
 	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/table"
 )
 
 // helper functions need to be in the same package (or imported)

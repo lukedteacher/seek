@@ -1,0 +1,87 @@
+package forms
+
+import (
+	"fmt"
+	"seek/internal/features/_shared/shareddto"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/templui/components/label"
+)
+
+templ DayButtons(days shareddto.DaysFormView) {
+	<div class="flex flex-col">
+		@label.Label(label.Props{
+			Class: "mb-3",
+		}) {
+			days
+		}
+		<div class="days-selector">
+			for i := range sharedmodels.Days {
+				<label for={ sharedmodels.Days[i].NameLower() }>
+					{ sharedmodels.Days[i].Short() }
+					<input
+						data-bind={ fmt.Sprintf("period.days.%s", sharedmodels.Days[i].NameLower()) }
+						name="days"
+						type="checkbox"
+						id={ sharedmodels.Days[i].NameLower() }
+						if days.IsDaySet(sharedmodels.Days[i]) {
+							checked
+						}
+					/>
+				</label>
+			}
+		</div>
+	</div>
+	@DayButtonsStyle()
+}
+
+templ DayButtonsStyle() {
+	<style>
+		.days-selector {
+			display: flex;
+			flex-direction: row;
+			gap: var(--size-0);
+			justify-content: center;
+			align-items: center;
+
+			label {
+				height: var(--size-8);
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				font-size: var(--font-size--2);
+				color: var(--secondary-3-on);
+				background-color: var(--secondary-3);
+				border-color: var(--secondary-4);
+				border-radius: var(--bd-rd0);
+				border-style: solid;
+				border-width: var(--border-width--0);
+				flex: 1;
+				transition: all var(--anim-duration-fast) var(--anim-ease-standard);
+
+				&:hover {
+					color: var(--secondary-4-on);
+					background-color: var(--secondary-4);
+					border-color: var(--secondary-5);
+					cursor: pointer;
+					transform: scale(var(--anim-scale-up));
+				}
+
+				input {
+					display: none;
+				}
+
+				&:has(input:checked) {
+					color: var(--secondary-5-on);
+					background-color: var(--secondary-5);
+					border-color: var(--secondary-6);
+
+					&:hover {
+						color: var(--secondary-6-on);
+						background-color: var(--secondary-6);
+						border-color: var(--secondary-7);
+					}
+				}
+			}
+		}
+	</style>
+}

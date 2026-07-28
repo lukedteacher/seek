@@ -1,0 +1,34 @@
+package corelayouts
+
+import (
+	"seek/internal/features/users/models"
+	"seek/internal/resources"
+	"seek/internal/ui/core/coreblocks"
+	"seek/pkg/sse"
+)
+
+templ LayoutBase(title string, user models.User) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ title }</title>
+			<script type="module" src={ resources.StaticPath("scripts/datastar.js") }></script>
+			<script type="module" src={ resources.StaticPath("scripts/datastar-inspector.js") }></script>
+			<link rel="stylesheet" href={ resources.StaticPath("styles/style.css") }/>
+			<link rel="stylesheet" href={ resources.StaticPath("styles/stellar.css") }/>
+			<link rel="stylesheet" href={ resources.StaticPath("styles/global.css") }/>
+			<script src="/static/scripts/morpheus-bundle.js" defer></script>
+		</head>
+		<body
+			if sse.IsDevelopment() {
+				data-init={ sse.HotReloadSSE() }
+			}
+		>
+			@coreblocks.HeaderBody(user)
+			{ children... }
+			@coreblocks.FooterBody()
+		</body>
+	</html>
+}

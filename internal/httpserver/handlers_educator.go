@@ -170,14 +170,12 @@ func (s Server) postEducatorCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_, err := events.CreateEducatorCommandHandler(ctx, events.CreateEducatorCommand{
-		Person: sharedmodels.Person{
-			GivenName:  signals.Educator.GivenName,
-			ChosenName: signals.Educator.ChosenName,
-			FamilyName: signals.Educator.FamilyName,
-			Email:      signals.Educator.Email,
-		},
-		Role:     signals.Educator.Role,
-		Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+		GivenName:  signals.Educator.GivenName,
+		ChosenName: signals.Educator.ChosenName,
+		FamilyName: signals.Educator.FamilyName,
+		Email:      signals.Educator.Email,
+		Role:       signals.Educator.Role,
+		Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "failed to create educator", "error", err)

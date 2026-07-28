@@ -8,9 +8,9 @@ import (
 )
 
 type UpdateTeacherParams struct {
-	FirstName                string  `json:"first_name"`
+	GivenName                string  `json:"given_name"`
 	ChosenName               *string `json:"chosen_name"`
-	LastName                 string  `json:"last_name"`
+	FamilyName               string  `json:"family_name"`
 	UpdatedAt                string  `json:"updated_at"`
 	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
 	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
@@ -27,9 +27,9 @@ type UpdateTeacherStmt struct {
 func UpdateTeacher(tx *sqlite.Conn) *UpdateTeacherStmt {
 	const querySQL = `
 UPDATE teachers
-SET first_name = ?1,
+SET given_name = ?1,
 	chosen_name = ?2,
-	last_name = ?3,
+	family_name = ?3,
 	updated_at = ?4,
 	last_event_commit_position = ?5,
 	last_event_prepare_position = ?6
@@ -70,7 +70,7 @@ func (ps *UpdateTeacherStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, params.FirstName)
+	stmt.BindText(bindIndex, params.GivenName)
 
 	bindIndex++
 	if params.ChosenName == nil {
@@ -80,7 +80,7 @@ func (ps *UpdateTeacherStmt) Run(
 
 	}
 	bindIndex++
-	stmt.BindText(bindIndex, params.LastName)
+	stmt.BindText(bindIndex, params.FamilyName)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.UpdatedAt)

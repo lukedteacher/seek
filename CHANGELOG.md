@@ -2,7 +2,15 @@
 
 updates for SEEK
 
-## v0.3.6 (26.27.27) continued period work
+## v0.3.9 (26.07.28) finished moving views folder to ui/core
+
+- moved all components in views to ui/core
+- data table styling cleanup
+- student data tweaks
+- removed person from educator (for now?)
+- swapped period popover for neo-popover to maintain state on morph
+
+## v0.3.8 (26.27.27) continued period work
 
 - changed types to built in shared models
 - refactored days to be more usable

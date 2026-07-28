@@ -13,8 +13,8 @@ import (
 	"seek/internal/features/students/blocks"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 func Edit(user models.User, s dto.StudentFormView) templ.Component {
@@ -55,9 +55,9 @@ func Edit(user models.User, s dto.StudentFormView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE(fmt.Sprintf("/students/%s/edit/stream", s.Student.ID)))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("/students/%s/edit/stream", s.Student.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/edit.templ`, Line: 14, Col: 98}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/edit.templ`, Line: 14, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -77,7 +77,7 @@ func Edit(user models.User, s dto.StudentFormView) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("SEEK: edit student", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: edit student", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

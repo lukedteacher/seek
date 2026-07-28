@@ -14,8 +14,8 @@ import (
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 func View(user models.User, view dto.EducatorView) templ.Component {
@@ -56,9 +56,9 @@ func View(user models.User, view dto.EducatorView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE(fmt.Sprintf("/educators/%s/stream", view.ID)))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("/educators/%s/stream", view.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/view.templ`, Line: 15, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/view.templ`, Line: 15, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -78,7 +78,7 @@ func View(user models.User, view dto.EducatorView) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("SEEK: educator", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: educator", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

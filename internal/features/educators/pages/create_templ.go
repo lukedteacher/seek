@@ -12,8 +12,8 @@ import (
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 func Create(user models.User, url string, view dto.EducatorView) templ.Component {
@@ -54,9 +54,9 @@ func Create(user models.User, url string, view dto.EducatorView) templ.Component
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/educators/create/stream"))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE("/educators/create/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/create.templ`, Line: 13, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/create.templ`, Line: 13, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -76,7 +76,7 @@ func Create(user models.User, url string, view dto.EducatorView) templ.Component
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("SEEK: create educator", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: create educator", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

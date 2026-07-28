@@ -1,26 +1,25 @@
 package blocks
 
-import (
-	"fmt"
-	"github.com/starfederation/datastar-go/datastar"
-	"seek/internal/features/periods/dto"
-)
+import "seek/internal/features/periods/dto"
 
+// "fmt"
+
+// "github.com/starfederation/datastar-go/datastar"
 templ PeriodCards(scheduleID string, view dto.PeriodView) {
-	for i := range view.Columns {
-		@PeriodCard(scheduleID, view, view.Columns[i])
-	}
+	// for i := range view.Columns {
+	// 	@PeriodCard(scheduleID, view, view.Columns[i])
+	// }
 }
 
 templ PeriodCard(scheduleID string, view dto.PeriodView, column int) {
-	<button
-		id={ fmt.Sprintf("period-schedule-%s-card", view.ID) }
-		data-on:click={ datastar.GetSSE(fmt.Sprintf("/schedules/%s/periods/%s", scheduleID, view.ID)) }
-		class="period-card"
-		style={ fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, view.Row, view.Duration) }
-	>
-		<h4>{ view.Title }</h4>
-	</button>
+	// <button
+	// 	id={ fmt.Sprintf("period-schedule-%s-card", view.ID) }
+	// 	data-on:click={ datastar.GetSSE(fmt.Sprintf("/schedules/%s/periods/%s", scheduleID, view.ID)) }
+	// 	class="period-card"
+	// 	style={ fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, view.Row, view.Duration) }
+	// >
+	// 	<h4>{ view.Title }</h4>
+	// </button>
 	@PeriodCardStyles()
 }
 

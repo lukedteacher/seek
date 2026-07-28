@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/features/users/models"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
 )
 
 func NotFound(user models.User) templ.Component {
@@ -52,7 +52,7 @@ func NotFound(user models.User) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("SEEK: period not found", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: period not found", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

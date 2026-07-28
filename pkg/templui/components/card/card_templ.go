@@ -264,7 +264,7 @@ func Title(props ...TitleProps) templ.Component {
 			p = props[0]
 		}
 		var templ_7745c5c3_Var10 = []any{utils.TwMerge(
-			"text-lg font-semibold leading-none tracking-tight",
+			"leading-none tracking-tight flex items-center gap-2",
 			p.Class,
 		),
 		}

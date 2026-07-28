@@ -5,13 +5,13 @@ import (
 
 	"seek/internal/features/teachers/models"
 	um "seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ View(user um.User, teacher *models.Teacher) {
-	@layouts.Base("SEEK: teachers", user) {
-		<main data-init={ views.LongRunningGetSSE("/teachers/stream") }>
+	@corelayouts.LayoutBase("SEEK: teachers", user) {
+		<main data-init={ sse.LongRunningGetSSE("/teachers/stream") }>
 			<section>
 				<h2>{ teacher.FirstLast() }</h2>
 				<footer>

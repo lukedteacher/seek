@@ -116,17 +116,17 @@ templ Button(props ...Props) {
 func (b Props) variantClasses() string {
 	switch b.Variant {
 	case VariantDestructive:
-		return "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
+		return "bg-destructive text-white shadow-xs hover:bg-destructive/90 active:bg-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
 	case VariantOutline:
-		return "border bg-background shadow-xs hover:bg-primary hover:text-primary-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
+		return "border bg-background shadow-xs hover:bg-primary/90 active:bg-primary hover:text-primary-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
 	case VariantSecondary:
-		return "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80"
+		return "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 active:bg-secondary/90"
 	case VariantGhost:
-		return "hover:bg-primary hover:text-primary-foreground dark:hover:bg-primary/50"
+		return "hover:bg-primary/90 active:bg-primary hover:text-primary-foreground dark:hover:bg-primary/50"
 	case VariantLink:
 		return "text-primary underline-offset-4 hover:underline"
 	default:
-		return "bg-neutral text-neutral-foreground shadow-xs hover:bg-primary/80"
+		return "bg-neutral-bright text-neutral-foreground shadow-xs hover:bg-primary/80 active:bg-primary/90"
 	}
 }
 

@@ -42,6 +42,7 @@ type Props struct {
 	FileAccept       string
 	HasError         bool
 	NoTogglePassword bool
+	ValueNumber      int
 }
 
 templ Input(props ...Props) {
@@ -67,6 +68,9 @@ templ Input(props ...Props) {
 			}
 			if p.Value != "" {
 				value={ p.Value }
+			}
+			if p.Type == TypeNumber {
+				value={ p.ValueNumber }
 			}
 			if p.Type == TypeFile && p.FileAccept != "" {
 				accept={ p.FileAccept }
@@ -101,6 +105,7 @@ templ Input(props ...Props) {
 					utils.If(p.HasError, "border-destructive ring-destructive/20 dark:ring-destructive/40"),
 					utils.If(p.Type == TypePassword && !p.NoTogglePassword, "pr-8"),
 					p.Class,
+					"input",
 				),
 			}
 			{ p.Attributes... }

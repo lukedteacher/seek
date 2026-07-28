@@ -36,9 +36,9 @@ func (m *ReadModel) Get(ctx context.Context, teacherID string) (*models.Teacher,
 
 	teacher := &models.Teacher{
 		ID:         row.Id,
-		FirstName:  row.FirstName,
+		GivenName:  row.GivenName,
 		ChosenName: row.ChosenName,
-		LastName:   row.LastName,
+		FamilyName: row.FamilyName,
 	}
 
 	return teacher, nil
@@ -57,9 +57,9 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Teacher, error) {
 	for _, row := range rows {
 		teachers = append(teachers, models.Teacher{
 			ID:         row.Id,
-			FirstName:  row.FirstName,
+			GivenName:  row.GivenName,
 			ChosenName: row.ChosenName,
-			LastName:   row.LastName,
+			FamilyName: row.FamilyName,
 		})
 	}
 	return teachers, nil
@@ -69,9 +69,9 @@ func (m *ReadModel) CreateTeacher(ctx context.Context, event TeacherCreatedProje
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceCreateTeacher(conn, dbsql.CreateTeacherParams{
 			Id:                       event.TeacherID,
-			FirstName:                event.FirstName,
+			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
-			LastName:                 event.LastName,
+			FamilyName:               event.FamilyName,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			CreatedAt:                appdb.SQLTime(event.CreatedAt),
@@ -82,9 +82,9 @@ func (m *ReadModel) CreateTeacher(ctx context.Context, event TeacherCreatedProje
 func (m *ReadModel) UpdateTeacher(ctx context.Context, event TeacherUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateTeacher(conn, dbsql.UpdateTeacherParams{
-			FirstName:                event.FirstName,
+			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
-			LastName:                 event.LastName,
+			FamilyName:               event.FamilyName,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),

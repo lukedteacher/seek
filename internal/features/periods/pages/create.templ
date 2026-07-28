@@ -5,13 +5,13 @@ import (
 	"seek/internal/features/periods/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ Create(user models.User, view dto.PeriodFormView) {
-	@layouts.Base("SEEK: create period", user) {
-		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
+	@corelayouts.LayoutBase("SEEK: create period", user) {
+		<main data-init={ sse.LongRunningGetSSE("/periods/create/stream") }>
 			@coreblocks.HeaderMain("create period", "/periods/create")
 			<section>
 				@blocks.CreateForm(view)

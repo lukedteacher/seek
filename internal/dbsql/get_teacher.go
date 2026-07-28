@@ -9,9 +9,9 @@ import (
 
 type GetTeacherRes struct {
 	Id         string  `json:"id"`
-	FirstName  string  `json:"first_name"`
+	GivenName  string  `json:"given_name"`
 	ChosenName *string `json:"chosen_name"`
-	LastName   string  `json:"last_name"`
+	FamilyName string  `json:"family_name"`
 	CreatedAt  string  `json:"created_at"`
 	UpdatedAt  string  `json:"updated_at"`
 }
@@ -25,7 +25,7 @@ type GetTeacherStmt struct {
 
 func GetTeacher(tx *sqlite.Conn) *GetTeacherStmt {
 	const querySQL = `
-SELECT id, first_name, chosen_name, last_name, created_at, updated_at
+SELECT id, given_name, chosen_name, family_name, created_at, updated_at
 FROM teachers
 WHERE deleted_at IS NULL
 	AND id = ?1
@@ -76,13 +76,13 @@ func (ps *GetTeacherStmt) Run(
 	} else if hasRow {
 		row := GetTeacherRes{}
 		row.Id = stmt.ColumnText(0)
-		row.FirstName = stmt.ColumnText(1)
+		row.GivenName = stmt.ColumnText(1)
 		isNullChosenName := stmt.ColumnIsNull(2)
 		if !isNullChosenName {
 			tmp := stmt.ColumnText(2)
 			row.ChosenName = &tmp
 		}
-		row.LastName = stmt.ColumnText(3)
+		row.FamilyName = stmt.ColumnText(3)
 		row.CreatedAt = stmt.ColumnText(4)
 		row.UpdatedAt = stmt.ColumnText(5)
 		res = &row

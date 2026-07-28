@@ -14,22 +14,23 @@ import (
 )
 
 type Props struct {
-	ID          string
-	Class       string
-	Attributes  templ.Attributes
-	Name        string
-	Form        string
-	Value       time.Time
-	MinTime     time.Time
-	MaxTime     time.Time
-	Step        int
-	Use12Hours  bool
-	AMLabel     string
-	PMLabel     string
-	Placeholder string
-	Disabled    bool
-	HasError    bool
-	DataBind    string
+	ID           string
+	Class        string
+	Attributes   templ.Attributes
+	Name         string
+	Form         string
+	Value        time.Time
+	MinTime      time.Time
+	MaxTime      time.Time
+	Step         int
+	Use12Hours   bool
+	AMLabel      string
+	PMLabel      string
+	Placeholder  string
+	Disabled     bool
+	HasError     bool
+	DataBind     string
+	DataOnChange string
 }
 
 templ TimePicker(props ...Props) {
@@ -81,7 +82,10 @@ templ TimePicker(props ...Props) {
 				}
 				data-tui-timepicker-hidden-input="true"
 				if p.DataBind != "" {
-					{ p.DataBind }
+					data-bind={ p.DataBind }
+				}
+				if p.DataOnChange != "" {
+					data-on:input={ p.DataOnChange }
 				}
 			/>
 			@popover.Trigger() {
@@ -89,17 +93,17 @@ templ TimePicker(props ...Props) {
 					ID:      p.ID,
 					Variant: button.VariantOutline,
 					Class: utils.TwMerge(
-						// Base styles matching input
+						// base styles matching input
 						"w-full h-9 px-3 py-1 text-base md:text-sm",
 						"flex items-center justify-between",
 						"rounded-md border border-input bg-transparent shadow-xs transition-[color,box-shadow] outline-none",
-						// Dark mode background
+						// dark mode background
 						"dark:bg-input/30",
-						// Selection styles
+						// selection styles
 						"selection:bg-primary selection:text-primary-foreground",
-						// Focus styles
+						// focus styles
 						"focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-						// Error/Invalid styles
+						// error/invalid styles
 						"aria-invalid:ring-destructive/20 aria-invalid:border-destructive dark:aria-invalid:ring-destructive/40",
 						utils.If(p.HasError, "border-destructive ring-destructive/20 dark:ring-destructive/40"),
 						p.Class,

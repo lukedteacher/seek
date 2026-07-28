@@ -12,8 +12,8 @@ import (
 	"fmt"
 
 	"seek/internal/features/students/dto"
-	"seek/internal/views/components/button"
-	"seek/internal/views/components/card"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
 )
 
@@ -293,10 +293,6 @@ func Card(view dto.StudentView) templ.Component {
 			ID:    fmt.Sprintf("student-%s-card", view.ID),
 			Class: "student-card",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = card.CardStyles().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -6,13 +6,13 @@ import (
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ Edit(user models.User, view dto.PeriodFormView) {
-	@layouts.Base("SEEK: edit period", user) {
-		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/edit/stream", view.ID)) }>
+	@corelayouts.LayoutBase("SEEK: edit period", user) {
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/periods/%s/edit/stream", view.ID)) }>
 			<section>
 				@blocks.EditPeriodForm(view)
 			</section>

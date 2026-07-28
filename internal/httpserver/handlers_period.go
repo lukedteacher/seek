@@ -25,6 +25,7 @@ func (s Server) periodRoutes(r chi.Router) {
 	r.Get("/periods/create", s.getPeriodCreate)
 	r.Get("/periods/create/stream", s.getPeriodCreateStream)
 	r.Post("/periods/create/validate", s.postPeriodCreateValidate)
+	r.Post("/periods/create/validate/{field}", s.postPeriodCreateValidateField)
 	r.Post("/periods/create", s.postPeriodCreate)
 	r.Get("/periods/{id}/view", s.getPeriodView)
 	r.Get("/periods/{id}/view/stream", s.getPeriodViewStream)
@@ -39,15 +40,6 @@ func (s Server) periodRoutes(r chi.Router) {
 func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	type Signals struct {
-		View int `json:"view"`
-	}
-	signals := &Signals{}
-	datastar.ReadSignals(r, signals)
-	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("signal read error: ", err.Error())
-		return
-	}
 	periods, err := s.Periods.List(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -55,7 +47,7 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 	}
 	view := dto.NewPeriodTableView(periods)
 
-	_ = pages.List(user, signals.View, view).Render(ctx, w)
+	_ = pages.List(user, view).Render(ctx, w)
 }
 
 // GET request to /periods/stream
@@ -89,7 +81,7 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 			}
 			view := dto.NewPeriodTableView(periods)
 
-			sse.PatchElementTempl(pages.List(user, 0, view))
+			sse.PatchElementTempl(pages.List(user, view))
 		}
 	}
 }
@@ -137,18 +129,15 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			model := &models.Period{}
-			if err := entry.JSON(model); err != nil {
+			signals := &struct {
+				Period dto.PeriodFormView `json:"period"`
+			}{}
+			if err := entry.JSON(signals); err != nil {
 				println(err.Error())
 				return
 			}
-			students, err := s.Students.List(ctx)
-			if err != nil {
-				println(err.Error())
-			}
-			view := dto.NewPeriodFormView(model, students)
-			view.URL = "/periods/create"
-			sse.PatchElementTempl(pages.Create(user, view))
+			signals.Period.URL = "/periods/create"
+			sse.PatchElementTempl(pages.Create(user, signals.Period))
 		}
 	}
 }
@@ -160,13 +149,31 @@ func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request)
 		Period dto.PeriodFormView `json:"period"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
+		s.Logger.Error("pcv signal read", "err", err.Error())
+		return
+	}
+	// saves the state to a view store so that the SSE can update
+	// TODO look into a better name for the channel
+	if err := viewstore.PutState(ctx, s.ViewStore, "new", signals); err != nil {
+		println("view store error ", err.Error())
+	}
+}
+
+// POST request to /periods/create/validate
+func (s Server) postPeriodCreateValidateField(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	signals := &struct {
+		Period dto.PeriodFormView `json:"period"`
+	}{}
+	if err := datastar.ReadSignals(r, signals); err != nil {
 		println("pcv signal read: ", err.Error())
 		return
 	}
-	model := signals.Period.ToPeriod()
+	field := chi.URLParam(r, "field")
+	println(field)
 	// saves the state to a view store so that the SSE can update
 	// TODO look into a better name for the channel
-	if err := viewstore.PutState(ctx, s.ViewStore, "new", model); err != nil {
+	if err := viewstore.PutState(ctx, s.ViewStore, "new", signals); err != nil {
 		println("view store error ", err.Error())
 	}
 }
@@ -325,11 +332,6 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	model.StudentIDs = strings.Join(selected, ",")
 	view := dto.NewPeriodFormView(model, all)
 	view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
-	println("vdm: ", view.Days.Monday)
-	println("vdm: ", view.Days.Tuesday)
-	println("vdm: ", view.Days.Wednesday)
-	println("vdm: ", view.Days.Thursday)
-	println("vdm: ", view.Days.Friday)
 	_ = pages.Edit(user, view).Render(ctx, w)
 }
 

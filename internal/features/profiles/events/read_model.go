@@ -65,9 +65,9 @@ func (m *ReadModel) UpsertRegisteredUser(ctx context.Context, resolved eventstor
 	}
 	username := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "username")
 	emailAddress := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "email")
-	firstName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "first_name")
-	lastName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "lastName")
-	name := strings.TrimSpace(firstName + " " + lastName)
+	givenName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "given_name")
+	familyName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "familyName")
+	name := strings.TrimSpace(givenName + " " + familyName)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpsertRegisteredProfileUser(conn, dbsql.UpsertRegisteredProfileUserParams{
 			UserId:                   userRegisteredID,

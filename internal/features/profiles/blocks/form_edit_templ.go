@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/features/users/models"
-	"seek/internal/views/blocks/forms"
+	"seek/internal/ui/core/coreblocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
 	"seek/pkg/templui/components/label"

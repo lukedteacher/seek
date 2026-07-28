@@ -5,84 +5,51 @@ import (
 
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/students/dto"
-	"seek/internal/views/blocks/forms"
-	"seek/internal/views/components/input"
-	"seek/internal/views/components/label"
+	"seek/internal/ui/core/coreblocks/forms"
+	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
 templ StudentEditForm(view dto.StudentFormView) {
+	{{ url := fmt.Sprintf("/students/%s/edit", view.Student.ID) }}
 	<form
 		id="student-edit-form"
 		class="seek-form"
-		data-on:submit={ datastar.PostSSE("/students/%s/edit", view.Student.ID) }
+		data-on:submit={ datastar.PostSSE(url) }
 	>
 		<hgroup>
 			<h2>edit student</h2>
 			<p>edit the data of an existing student.</p>
 		</hgroup>
 		<section>
-			@label.Label(label.Props{
-				ID:                "first-name-label",
-				For:               "first-name",
-				Label:             "first name",
-				ValidationState:   view.Validation["first_name"].State,
-				ValidationMessage: view.Validation["first_name"].Message,
-			}) {
-				@input.Input(input.Props{
-					ID:       "first-name",
-					Name:     "first-name",
-					DataBind: "student.first_name",
-					DataOn:   fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
-					HasError: view.Validation["first_name"].State == "error",
-					IsValid:  view.Validation["first_name"].State == "valid",
-					Value:    view.Student.GivenName,
-				})
-			}
-			@label.Label(label.Props{
-				ID:                "chosen-name-label",
-				For:               "chosen-name",
-				Label:             "chosen name",
-				ValidationState:   view.Validation["chosen_name"].State,
-				ValidationMessage: view.Validation["chosen_name"].Message,
-			}) {
-				@input.Input(input.Props{
-					ID:       "chosen-name",
-					Name:     "chosen-name",
-					DataBind: "student.chosen_name",
-					DataOn:   fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
-					HasError: view.Validation["chosen_name"].State == "error",
-					IsValid:  view.Validation["chosen_name"].State == "valid",
-					Value:    view.Student.ChosenName,
-				})
-			}
-			@label.Label(label.Props{
-				ID:                "last-name-label",
-				For:               "last-name",
-				Label:             "last name",
-				ValidationState:   view.Validation["last_name"].State,
-				ValidationMessage: view.Validation["last_name"].Message,
-			}) {
-				@input.Input(input.Props{
-					ID:       "last-name",
-					Name:     "last-name",
-					DataBind: "student.last_name",
-					DataOn:   fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
-					HasError: view.Validation["last_name"].State == "error",
-					IsValid:  view.Validation["last_name"].State == "valid",
-					Value:    view.Student.FamilyName,
-				})
-			}
+			@forms.TextInputWithLabel(
+				"given-name-label",
+				"given name",
+				url+"/validate",
+				"student.given_name",
+				view.Student.GivenName,
+			)
+			@forms.TextInputWithLabel(
+				"chosen-name-label",
+				"chosen name",
+				url+"/validate",
+				"student.chosen_name",
+				view.Student.ChosenName,
+			)
+			@forms.TextInputWithLabel(
+				"family-name-label",
+				"family name",
+				url+"/validate",
+				"student.family_name",
+				view.Student.FamilyName,
+			)
 		</section>
 		<section>
 			@label.Label(label.Props{
-				ID:                "student-grade-label",
-				For:               "student-grade-select",
-				Label:             "grade",
-				ValidationState:   view.Validation["grade"].State,
-				ValidationMessage: view.Validation["grade"].Message,
+				ID:  "student-grade-label",
+				For: "student-grade-select",
 			}) {
 				@selectbox.SelectBox() {
 					@selectbox.Trigger(selectbox.TriggerProps{
@@ -110,40 +77,20 @@ templ StudentEditForm(view dto.StudentFormView) {
 			@selectbox.Script()
 		</section>
 		<section>
-			@label.Label(label.Props{
-				ID:                "homeroom-label",
-				For:               "homeroom",
-				Label:             "homeroom",
-				ValidationState:   view.Validation["homeroom"].State,
-				ValidationMessage: view.Validation["homeroom"].Message,
-			}) {
-				@input.Input(input.Props{
-					ID:       "homeroom",
-					Name:     "homeroom",
-					DataBind: "student.homeroom",
-					DataOn:   fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
-					HasError: view.Validation["homeroom"].State == "error",
-					IsValid:  view.Validation["homeroom"].State == "valid",
-					Value:    view.Student.Homeroom,
-				})
-			}
-			@label.Label(label.Props{
-				ID:                "case-manager-label",
-				For:               "case-manager",
-				Label:             "case manager",
-				ValidationState:   view.Validation["case_manager"].State,
-				ValidationMessage: view.Validation["case_manager"].Message,
-			}) {
-				@input.Input(input.Props{
-					ID:       "case-manager",
-					Name:     "case-manager",
-					DataBind: "student.case_manager",
-					DataOn:   fmt.Sprintf("/students/%s/edit/validate", view.Student.ID),
-					HasError: view.Validation["case_manager"].State == "error",
-					IsValid:  view.Validation["case_manager"].State == "valid",
-					Value:    view.Student.CaseManager,
-				})
-			}
+			@forms.TextInputWithLabel(
+				"homeroom-label",
+				"homeroom",
+				url+"/validate",
+				"student.homeroom",
+				view.Student.Homeroom,
+			)
+			@forms.TextInputWithLabel(
+				"case-manager-label",
+				"case manager",
+				url+"/validate",
+				"student.case_manager",
+				view.Student.CaseManager,
+			)
 		</section>
 		<footer>
 			@forms.CancelButton()

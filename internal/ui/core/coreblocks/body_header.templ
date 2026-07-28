@@ -1,0 +1,66 @@
+package coreblocks
+
+import (
+	"seek/internal/features/users/blocks"
+	"seek/internal/features/users/models"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+)
+
+templ HeaderBody(user models.User) {
+	<!DOCTYPE html>
+	<header>
+		<hgroup>
+			<h1>SEEK</h1>
+			<p>shared educational environment knowledge</p>
+		</hgroup>
+		@Nav()
+		{ children... }
+		if user.UserRegisteredID != "" {
+			@blocks.UserHeader(user)
+		} else {
+			@button.Button(button.Props{
+				Href: "/login",
+			}) {
+				@icon.LogIn(icon.Props{
+					Size: "16",
+				})
+				<span>login</span>
+			}
+		}
+	</header>
+	@HeaderBodyStyles()
+}
+
+templ HeaderBodyStyles() {
+	<style>
+		body {
+			&> header {
+				color: var(--clr-p5o);
+				background-color: var(--clr-p5);
+				width: 100%;
+				height: 4rem;
+				align-items: center;
+				display: flex;
+				flex-direction: row;
+				padding: 0 var(--size-4);
+
+				hgroup {
+					h1 {
+						color: var(--clr-p4o);
+					}
+					p {
+						font-weight: var(--font-weight-thin);
+						font-size: var(--fnt-xsm);
+						color: var(--primary-5-on);
+						letter-spacing: var(--font-letter-spacing--2);
+					}
+				}
+
+				nav {
+					margin-right: auto;
+				}
+			}
+		}
+	</style>
+}

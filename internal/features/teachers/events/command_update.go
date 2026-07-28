@@ -11,9 +11,9 @@ import (
 type UpdateTeacherCommand struct {
 	UserRegisteredID string
 	TeacherID        string
-	FirstName        string
+	GivenName        string
 	ChosenName       string
-	LastName         string
+	FamilyName       string
 	Metadata         CommandMetadata
 }
 
@@ -30,12 +30,12 @@ func UpdateTeacherCommandHandler(ctx context.Context, command UpdateTeacherComma
 	if err := model.requireActive(); err != nil {
 		return UpdateTeacherResult{}, err
 	}
-	if model.firstName == command.FirstName && model.chosenName == command.ChosenName && model.lastName == command.LastName {
+	if model.givenName == command.GivenName && model.chosenName == command.ChosenName && model.familyName == command.FamilyName {
 		return UpdateTeacherResult{Skipped: true}, nil
 	}
 
 	eventID := uuidv7.NewString()
-	event := NewTeacherUpdatedEvent(eventID, command.TeacherID, command.FirstName, command.ChosenName, command.LastName, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewTeacherUpdatedEvent(eventID, command.TeacherID, command.GivenName, command.ChosenName, command.FamilyName, time.Now(), metadataWithQuery(command.Metadata, model.query))
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return UpdateTeacherResult{}, err
@@ -46,9 +46,9 @@ func UpdateTeacherCommandHandler(ctx context.Context, command UpdateTeacherComma
 type updateTeacherContext struct {
 	exists     bool
 	deleted    bool
-	firstName  string
+	givenName  string
 	chosenName string
-	lastName   string
+	familyName string
 	position   eventstore.Position
 	events     []eventstore.ResolvedEvent
 	query      eventstore.Query
@@ -82,13 +82,13 @@ func (m *updateTeacherContext) handle(resolved eventstore.ResolvedEvent) {
 	case TeacherCreated:
 		m.exists = true
 		m.deleted = false
-		m.firstName, _ = data[TeacherFirstNameField].(string)
+		m.givenName, _ = data[TeacherGivenNameField].(string)
 		m.chosenName, _ = data[TeacherChosenNameField].(string)
-		m.lastName, _ = data[TeacherLastNameField].(string)
+		m.familyName, _ = data[TeacherFamilyNameField].(string)
 	case TeacherUpdated:
-		m.firstName, _ = data[TeacherFirstNameField].(string)
+		m.givenName, _ = data[TeacherGivenNameField].(string)
 		m.chosenName, _ = data[TeacherChosenNameField].(string)
-		m.lastName, _ = data[TeacherLastNameField].(string)
+		m.familyName, _ = data[TeacherFamilyNameField].(string)
 	case TeacherDeleted:
 		m.deleted = true
 	}

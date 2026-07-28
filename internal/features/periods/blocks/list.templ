@@ -2,9 +2,9 @@ package blocks
 
 import (
 	"seek/internal/features/_shared/shareddto"
-	"seek/internal/views/blocks/data_table"
+	"seek/internal/ui/core/coreblocks"
 )
 
 templ List(view shareddto.TableView) {
-	@datatable.DataTable(view)
+	@coreblocks.DataTable(view)
 }

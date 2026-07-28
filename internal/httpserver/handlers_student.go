@@ -125,7 +125,7 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var model *models.Student
+			model := &models.Student{}
 			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
@@ -167,7 +167,7 @@ func (s Server) postStudentCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var grade int64 = -1
+	var grade int = -1
 
 	_, err := events.CreateStudentCommandHandler(ctx, events.CreateStudentCommand{
 		GivenName:   signals.Student.GivenName,
@@ -254,7 +254,7 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var model *models.Student
+			model := &models.Student{}
 			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
@@ -332,7 +332,7 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var model *models.Student
+			model := &models.Student{}
 			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
@@ -373,15 +373,15 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gradeInt64 := int64(signals.Student.Grade)
+	gradeInt := int(signals.Student.Grade)
 
 	studentID := chi.URLParam(r, "id")
 	result, err := events.UpdateStudentCommandHandler(ctx, events.UpdateStudentCommand{
-		Id:          studentID,
+		StudentID:   studentID,
 		GivenName:   signals.Student.GivenName,
 		ChosenName:  signals.Student.ChosenName,
 		FamilyName:  signals.Student.FamilyName,
-		Grade:       gradeInt64,
+		Grade:       gradeInt,
 		Homeroom:    signals.Student.Homeroom,
 		CaseManager: signals.Student.CaseManager,
 		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),

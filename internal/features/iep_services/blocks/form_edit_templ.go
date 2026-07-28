@@ -11,7 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"seek/internal/features/iep_services/dto"
 	"seek/internal/features/students/blocks"
-	"seek/internal/views/blocks/forms"
+	"seek/internal/ui/core/coreblocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
 )

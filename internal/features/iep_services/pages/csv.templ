@@ -4,11 +4,11 @@ import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/iep_services/blocks"
 	"seek/internal/features/users/models"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
 )
 
 templ CSV(user models.User, view shareddto.DiffTableView) {
-	@layouts.Base("SEEK: IEP services", user) {
+	@corelayouts.LayoutBase("SEEK: IEP services", user) {
 		<main>
 			<section>
 				<h2>IEP services from a CSV file</h2>

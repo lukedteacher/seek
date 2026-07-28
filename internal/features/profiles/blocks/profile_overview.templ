@@ -2,10 +2,10 @@ package blocks
 
 import (
 	"seek/internal/features/users/models"
-	"seek/internal/views/components/button"
-	"seek/internal/views/components/card"
 	"seek/pkg/templui/components/avatar"
 	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
 )
 
@@ -82,7 +82,6 @@ templ InfoCard(title string, iconComponent templ.Component) {
 			</div>
 		}
 	}
-	@card.CardStyles()
 }
 
 templ InfoItem(label, value string) {

@@ -17,8 +17,8 @@ type RegisterUserCommand struct {
 	Username    string
 	Email       string
 	Password    string
-	FirstName   string
-	LastName    string
+	GivenName   string
+	FamilyName  string
 	YearOfBirth int
 	Metadata    eventstore.CommandMetadata // changed this from orisun
 }
@@ -27,8 +27,8 @@ type RegisterUserResult struct {
 	UserRegisteredID string
 	Username         string
 	Email            string
-	FirstName        string
-	LastName         string
+	GivenName        string
+	FamilyName       string
 	PasswordHash     string
 }
 
@@ -68,8 +68,8 @@ func RegisterUserCommandHandler(
 		model.userRegisteredID,
 		model.username,
 		model.email,
-		model.firstName,
-		model.lastName,
+		model.givenName,
+		model.familyName,
 		command.YearOfBirth,
 		string(passwordHash),
 		subjectKey,
@@ -90,8 +90,8 @@ func RegisterUserCommandHandler(
 		UserRegisteredID: model.userRegisteredID,
 		Username:         model.username,
 		Email:            model.email,
-		FirstName:        model.firstName,
-		LastName:         model.lastName,
+		GivenName:        model.givenName,
+		FamilyName:       model.familyName,
 		PasswordHash:     string(passwordHash),
 	}, nil
 }
@@ -104,8 +104,8 @@ type registerUserContext struct {
 	usernameHash     string
 	email            string
 	emailHash        string
-	firstName        string
-	lastName         string
+	givenName        string
+	familyName       string
 	position         eventstore.Position
 	events           []eventstore.ResolvedEvent
 	query            eventstore.Query
@@ -134,8 +134,8 @@ func loadRegisterUserContext(ctx context.Context, command RegisterUserCommand, r
 		usernameHash:     usernameHash,
 		email:            email,
 		emailHash:        emailHash,
-		firstName:        strings.TrimSpace(command.FirstName),
-		lastName:         strings.TrimSpace(command.LastName),
+		givenName:        strings.TrimSpace(command.GivenName),
+		familyName:       strings.TrimSpace(command.FamilyName),
 		position:         latest.ContextPosition,
 		events:           events,
 		query:            query,

@@ -9,9 +9,9 @@ import (
 
 type CreateTeacherParams struct {
 	Id                       string  `json:"id"`
-	FirstName                string  `json:"first_name"`
+	GivenName                string  `json:"given_name"`
 	ChosenName               *string `json:"chosen_name"`
-	LastName                 string  `json:"last_name"`
+	FamilyName               string  `json:"family_name"`
 	CreatedAt                string  `json:"created_at"`
 	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
 	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
@@ -26,7 +26,7 @@ type CreateTeacherStmt struct {
 
 func CreateTeacher(tx *sqlite.Conn) *CreateTeacherStmt {
 	const querySQL = `
-INSERT INTO teachers (id, first_name, chosen_name, last_name, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
+INSERT INTO teachers (id, given_name, chosen_name, family_name, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
 VALUES (?1, ?2, ?3, ?4, ?5, ?5, ?6, ?7)
 ON CONFLICT (id) DO NOTHING
     `
@@ -68,7 +68,7 @@ func (ps *CreateTeacherStmt) Run(
 	stmt.BindText(bindIndex, params.Id)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.FirstName)
+	stmt.BindText(bindIndex, params.GivenName)
 
 	bindIndex++
 	if params.ChosenName == nil {
@@ -78,7 +78,7 @@ func (ps *CreateTeacherStmt) Run(
 
 	}
 	bindIndex++
-	stmt.BindText(bindIndex, params.LastName)
+	stmt.BindText(bindIndex, params.FamilyName)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.CreatedAt)

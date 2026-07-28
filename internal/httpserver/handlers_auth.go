@@ -5,29 +5,29 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/starfederation/datastar-go/datastar"
-
 	"seek/internal/auth"
 	"seek/internal/eventstore"
 	"seek/internal/features/users/models"
-	"seek/internal/views/pages"
+	"seek/internal/ui/core/corepages"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 func (s Server) authRoutes(r chi.Router) {
-	r.With(noCache).Get("/register", render(pages.Register(models.User{}, nil)))
+	r.With(noCache).Get("/register", render(corepages.Register(models.User{}, nil)))
 	r.With(noCache, signupRateLimit).Post("/register", s.register)
-	r.With(noCache).Get("/login", render(pages.Login(models.User{}, nil)))
+	r.With(noCache).Get("/login", render(corepages.Login(models.User{}, nil)))
 	r.With(noCache, loginRateLimit).Post("/login", s.login)
 	r.Post("/logout", s.logout)
-	r.With(noCache).Get("/forgot-password", render(pages.ForgotPassword(models.User{}, nil)))
+	r.With(noCache).Get("/forgot-password", render(corepages.ForgotPassword(models.User{}, nil)))
 	r.With(noCache, forgotPasswordRateLimit).Post("/forgot-password", s.forgotPassword)
 	r.With(noCache).Get("/reset-password/{token}", func(w http.ResponseWriter, r *http.Request) {
-		_ = pages.ResetPassword(models.User{}, chi.URLParam(r, "token"), nil).Render(r.Context(), w)
+		_ = corepages.ResetPassword(models.User{}, chi.URLParam(r, "token"), nil).Render(r.Context(), w)
 	})
 	r.With(noCache, resetPasswordRateLimit).Post("/reset-password/{token}", s.resetPassword)
 	r.With(noCache).Get("/register/{userID}/validate-email", func(w http.ResponseWriter, r *http.Request) {
-		_ = pages.ValidateEmail(models.User{}, chi.URLParam(r, "userID"), nil).Render(r.Context(), w)
+		_ = corepages.ValidateEmail(models.User{}, chi.URLParam(r, "userID"), nil).Render(r.Context(), w)
 	})
 	r.With(noCache, otpValidateRateLimit).Post("/register/{userID}/validate-email", s.validateEmail)
 	r.With(noCache, otpResendRateLimit).Post("/register/{userID}/send-email-validation-otp", s.sendOTP)
@@ -43,11 +43,11 @@ func (s Server) register(w http.ResponseWriter, r *http.Request) {
 	year, _ := strconv.Atoi(r.FormValue("yearOfBirth"))
 	registered, err := auth.RegisterUserCommandHandler(ctx, auth.RegisterUserCommand{
 		Username: r.FormValue("username"), Email: r.FormValue("email"), Password: r.FormValue("password"),
-		FirstName: r.FormValue("firstName"), LastName: r.FormValue("lastName"), YearOfBirth: year,
+		GivenName: r.FormValue("givenName"), FamilyName: r.FormValue("familyName"), YearOfBirth: year,
 		Metadata: eventstore.HTTPCommandMetadata(r, ""),
 	}, s.EventSaver, s.EventRetriever, s.PIIKeys)
 	if err != nil {
-		patchTempl(w, r, pages.RegisterForm(map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
+		patchTempl(w, r, corepages.RegisterForm(map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
 		return
 	}
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
@@ -75,7 +75,7 @@ func (s Server) login(w http.ResponseWriter, r *http.Request) {
 		Metadata:            eventstore.HTTPCommandMetadata(r, userRegisteredID),
 	}, s.EventSaver)
 	if err != nil {
-		patchTempl(w, r, pages.LoginForm(map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
+		patchTempl(w, r, corepages.LoginForm(map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
 		return
 	}
 	s.Sessions.SetSessionCookie(w, token)
@@ -114,7 +114,7 @@ func (s Server) resetPassword(w http.ResponseWriter, r *http.Request) {
 		Password: r.FormValue("password"),
 		Metadata: eventstore.HTTPCommandMetadata(r, ""),
 	}, s.Verifications, s.AuthUsers, s.EventSaver, s.EventRetriever); err != nil {
-		patchTempl(w, r, pages.ResetPasswordForm(token, map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
+		patchTempl(w, r, corepages.ResetPasswordForm(token, map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
 		return
 	}
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return sse.Redirect("/login") })
@@ -133,7 +133,7 @@ func (s Server) validateEmail(w http.ResponseWriter, r *http.Request) {
 		s.EventSaver,
 		s.EventRetriever,
 	); err != nil {
-		patchTempl(w, r, pages.ValidateEmailForm(userID, map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
+		patchTempl(w, r, corepages.ValidateEmailForm(userID, map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
 		return
 	}
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return sse.Redirect("/login") })

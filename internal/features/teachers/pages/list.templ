@@ -4,14 +4,14 @@ import (
 	"seek/internal/features/teachers/blocks"
 	"seek/internal/features/teachers/models"
 	um "seek/internal/features/users/models"
-	sse "seek/internal/views"
-	"seek/internal/views/components/button"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	sse "seek/pkg/sse"
+	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 )
 
 templ List(user um.User, view int64, views []models.Teacher) {
-	@layouts.Base("SEEK: teachers", user) {
+	@corelayouts.LayoutBase("SEEK: teachers", user) {
 		<main data-signals:view={ view } data-init={ sse.LongRunningGetSSE("/teachers/stream") }>
 			<section>
 				<h2>TEACHERS</h2>

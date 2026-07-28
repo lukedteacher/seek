@@ -10,9 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/blocks/forms"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/coreblocks/forms"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 func Create(user models.User) templ.Component {
@@ -53,15 +53,15 @@ func Create(user models.User) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE("/teachers/create/stream"))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE("/teachers/create/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/pages/create.templ`, Line: 12, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/teachers/pages/create.templ`, Line: 12, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><section><h2>CREATE A TEACHER</h2><p>create a new teacher</p><form data-on:submit=\"@post('/teachers/create')\"><label for=\"first_name\">first</label> <input id=\"first_name\" name=\"first_name\" data-bind:first_name> <label for=\"chosen_name\">chosen</label> <input id=\"chosen_name\" name=\"chosen_name\" data-bind:chosen_name> <label for=\"last_name\">last</label> <input id=\"last_name\" name=\"last_name\" data-bind:last_name>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><section><h2>CREATE A TEACHER</h2><p>create a new teacher</p><form data-on:submit=\"@post('/teachers/create')\"><label for=\"given_name\">first</label> <input id=\"given_name\" name=\"given_name\" data-bind:given_name> <label for=\"chosen_name\">chosen</label> <input id=\"chosen_name\" name=\"chosen_name\" data-bind:chosen_name> <label for=\"family_name\">last</label> <input id=\"family_name\" name=\"family_name\" data-bind:family_name>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -75,7 +75,7 @@ func Create(user models.User) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("SEEK: create teacher", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: create teacher", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

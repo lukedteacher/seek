@@ -6,7 +6,7 @@ templ Cards(teachers []models.Teacher) {
 	<div class="card-grid">
 		for _, teacher := range teachers {
 			<div class="card">
-				<p>{ teacher.DisplayName() } { teacher.LastName }</p>
+				<p>{ teacher.DisplayName() } { teacher.FamilyName }</p>
 			</div>
 		}
 	</div>

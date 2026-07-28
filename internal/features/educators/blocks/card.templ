@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"seek/internal/features/educators/dto"
-	"seek/internal/views/components/button"
-	"seek/internal/views/components/card"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
 )
 
@@ -34,5 +34,4 @@ templ Card(view dto.EducatorView) {
 			}
 		}
 	}
-	@card.CardStyles()
 }

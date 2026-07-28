@@ -2,24 +2,24 @@ package pages
 
 import (
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/blocks/forms"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/coreblocks/forms"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ Create(user models.User) {
-	@layouts.Base("SEEK: create teacher", user) {
-		<main data-init={ views.LongRunningGetSSE("/teachers/create/stream") }>
+	@corelayouts.LayoutBase("SEEK: create teacher", user) {
+		<main data-init={ sse.LongRunningGetSSE("/teachers/create/stream") }>
 			<section>
 				<h2>CREATE A TEACHER</h2>
 				<p>create a new teacher</p>
 				<form data-on:submit="@post('/teachers/create')">
-					<label for="first_name">first</label>
-					<input id="first_name" name="first_name" data-bind:first_name/>
+					<label for="given_name">first</label>
+					<input id="given_name" name="given_name" data-bind:given_name/>
 					<label for="chosen_name">chosen</label>
 					<input id="chosen_name" name="chosen_name" data-bind:chosen_name/>
-					<label for="last_name">last</label>
-					<input id="last_name" name="last_name" data-bind:last_name/>
+					<label for="family_name">last</label>
+					<input id="family_name" name="family_name" data-bind:family_name/>
 					@forms.SaveButton()
 				</form>
 			</section>

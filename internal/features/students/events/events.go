@@ -6,7 +6,7 @@ import (
 	"seek/internal/eventstore"
 )
 
-// EVENT NAMES
+// student event types
 const (
 	StudentCreated  = "StudentCreated"
 	StudentUpdated  = "StudentUpdated"
@@ -14,30 +14,35 @@ const (
 	StudentDeleted  = "StudentDeleted"
 )
 
-// EVENT FIELDS
+const (
+	StudentCreatedIDField  = "student_created_event_id"
+	StudentUpdatedIDField  = "student_updated_event_id"
+	StudentArchivedIDField = "student_archived_event_id"
+	StudentDeletedIDField  = "student_deleted_event_id"
+)
+
+// student event fields
 const (
 	StudentIDField          = "student_id"
-	StudentGivenNameField   = "first_name"
+	StudentGivenNameField   = "given_name"
 	StudentChosenNameField  = "chosen_name"
-	StudentFamilyNameField  = "last_name"
+	StudentFamilyNameField  = "family_name"
 	StudentGradeField       = "grade"
 	StudentHomeroomField    = "homeroom"
 	StudentCaseManagerField = "case_manager"
-	StudentCreatedIDField   = "student_created_event_id"
 	StudentCreatedAtField   = "created_at"
-	StudentUpdatedIDField   = "student_updated_event_id"
 	StudentUpdatedAtField   = "updated_at"
-	StudentDeletedIDField   = "student_deleted_event_id"
+	StudentArchivedAtField  = "archived_at"
 	StudentDeletedAtField   = "deleted_at"
 	StudentScopeIDField     = "scope.student_id"
 )
 
 type StudentCreatedEvent struct {
 	EventID     string       `json:"student_created_event_id"`
-	GivenName   string       `json:"first_name"`
+	GivenName   string       `json:"given_name"`
 	ChosenName  string       `json:"chosen_name"`
-	FamilyName  string       `json:"last_name"`
-	Grade       int64        `json:"grade"`
+	FamilyName  string       `json:"family_name"`
+	Grade       int          `json:"grade"`
 	Homeroom    string       `json:"homeroom"`
 	CaseManager string       `json:"case_manager"`
 	CreatedAt   string       `json:"created_at"`
@@ -46,14 +51,20 @@ type StudentCreatedEvent struct {
 
 type StudentUpdatedEvent struct {
 	EventID     string       `json:"student_updated_event_id"`
-	GivenName   string       `json:"first_name"`
+	GivenName   string       `json:"given_name"`
 	ChosenName  string       `json:"chosen_name"`
-	FamilyName  string       `json:"last_name"`
-	Grade       int64        `json:"grade"`
+	FamilyName  string       `json:"family_name"`
+	Grade       int          `json:"grade"`
 	Homeroom    string       `json:"homeroom"`
 	CaseManager string       `json:"case_manager"`
 	UpdatedAt   string       `json:"updated_at"`
 	Scope       StudentScope `json:"scope"`
+}
+
+type StudentArchivedEvent struct {
+	EventID    string       `json:"student_archived_event_id"`
+	ArchivedAt string       `json:"archived_at"`
+	Scope      StudentScope `json:"scope"`
 }
 
 type StudentDeletedEvent struct {
@@ -67,29 +78,29 @@ type StudentScope struct {
 }
 
 func NewStudentCreatedEvent(
-	studentID,
-	firstName,
+	eventID,
+	givenName,
 	chosenName,
-	lastName string,
-	grade int64,
+	familyName string,
+	grade int,
 	homeroom,
 	caseManager string,
 	createdAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := StudentCreatedEvent{
-		EventID:     studentID,
-		GivenName:   firstName,
+		EventID:     eventID,
+		GivenName:   givenName,
 		ChosenName:  chosenName,
-		FamilyName:  lastName,
+		FamilyName:  familyName,
 		Grade:       grade,
 		Homeroom:    homeroom,
 		CaseManager: caseManager,
 		CreatedAt:   createdAt.Format(time.RFC3339),
-		Scope:       studentScope(studentID),
+		Scope:       studentScope(eventID),
 	}
 	return eventstore.DomainEvent{
-		EventID:   studentID,
+		EventID:   eventID,
 		EventType: StudentCreated,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
@@ -99,10 +110,10 @@ func NewStudentCreatedEvent(
 func NewStudentUpdatedEvent(
 	eventID,
 	studentID,
-	firstName,
+	givenName,
 	chosenName,
-	lastName string,
-	grade int64,
+	familyName string,
+	grade int,
 	homeroom,
 	caseManager string,
 	updatedAt time.Time,
@@ -110,9 +121,9 @@ func NewStudentUpdatedEvent(
 ) eventstore.DomainEvent {
 	event := StudentUpdatedEvent{
 		EventID:     eventID,
-		GivenName:   firstName,
+		GivenName:   givenName,
 		ChosenName:  chosenName,
-		FamilyName:  lastName,
+		FamilyName:  familyName,
 		Grade:       grade,
 		Homeroom:    homeroom,
 		CaseManager: caseManager,
@@ -122,6 +133,25 @@ func NewStudentUpdatedEvent(
 	return eventstore.DomainEvent{
 		EventID:   eventID,
 		EventType: StudentUpdated,
+		Data:      eventstore.MustData(event),
+		Metadata:  metadata,
+	}
+}
+
+func NewStudentArchivedEvent(
+	eventID,
+	studentID string,
+	archivedAt time.Time,
+	metadata map[string]any,
+) eventstore.DomainEvent {
+	event := StudentArchivedEvent{
+		EventID:    eventID,
+		ArchivedAt: archivedAt.Format(time.RFC3339),
+		Scope:      studentScope(studentID),
+	}
+	return eventstore.DomainEvent{
+		EventID:   eventID,
+		EventType: StudentArchived,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}

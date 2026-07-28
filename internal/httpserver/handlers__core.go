@@ -1,12 +1,9 @@
 package httpserver
 
 import (
-	"log"
 	"net/http"
 
 	"seek/internal/ui/core/corepages"
-	"seek/internal/views/blocks/sidebar"
-	"seek/internal/views/pages"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -16,7 +13,6 @@ import (
 func (s Server) coreRoutes(r chi.Router) {
 	r.Get("/", s.index)
 	r.Get("/stream", s.getIndexSSE)
-	r.Post("/sidebar", s.postSidebarToggle)
 	r.Get("/components", s.components)
 	r.Post("/sort", s.sort)
 	r.Get("/seed", s.seedData)
@@ -25,14 +21,7 @@ func (s Server) coreRoutes(r chi.Router) {
 func (s Server) index(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	view, ok, err := viewstore.GetState[sidebar.SidebarView](ctx, s.ViewStore, user.ID+".view")
-	if err != nil {
-		println(err.Error())
-	}
-	if !ok {
-		log.Println("no user view value found")
-	}
-	_ = pages.Index(user, view).Render(r.Context(), w)
+	_ = corepages.Index(user).Render(ctx, w)
 }
 
 func (s Server) getIndexSSE(w http.ResponseWriter, r *http.Request) {
@@ -57,30 +46,12 @@ func (s Server) getIndexSSE(w http.ResponseWriter, r *http.Request) {
 		select {
 		case <-ctx.Done():
 			return
-		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
+		case _, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
 			if !ok {
 				return
 			}
-			view := &sidebar.SidebarView{}
-			if err := entry.JSON(&view); err != nil {
-				println(err.Error())
-				return
-			}
-			sse.PatchElementTempl(pages.Index(user, *view))
+			sse.PatchElementTempl(corepages.Index(user))
 		}
-	}
-}
-
-// TODO make this saved?
-func (s Server) postSidebarToggle(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	signals := &sidebar.SidebarView{}
-	_ = datastar.ReadSignals(r, signals)
-	user := currentUser(r)
-
-	err := viewstore.PutState(ctx, s.ViewStore, user.ID+".view", signals)
-	if err != nil {
-		println(err.Error())
 	}
 }
 
@@ -98,9 +69,9 @@ func (s Server) sort(w http.ResponseWriter, r *http.Request) {
 }
 
 type Table struct {
-	FirstName   bool `json:"first_name"`
+	GivenName   bool `json:"given_name"`
 	ChosenName  bool `json:"chosen_name"`
-	LastName    bool `json:"last_name"`
+	FamilyName  bool `json:"family_name"`
 	Grade       bool `json:"grade"`
 	Homeroom    bool `json:"homeroom"`
 	CaseManager bool `json:"case_manager"`

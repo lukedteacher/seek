@@ -30,8 +30,8 @@ const (
 	UserRegisteredUsernameHashField           = "username_hash"
 	UserRegisteredEmailField                  = "email"
 	UserRegisteredEmailHashField              = "email_hash"
-	UserRegisteredFirstNameField              = "first_name"
-	UserRegisteredLastNameField               = "last_name"
+	UserRegisteredGivenNameField              = "given_name"
+	UserRegisteredFamilyNameField             = "family_name"
 	UserRegisteredYearOfBirthField            = "year_of_birth"
 	UserRegisteredPasswordHashField           = "password_hash"
 	UserNameChangedIDField                    = "user_name_changed_event_id"
@@ -78,8 +78,8 @@ type UserRegisteredEvent struct {
 	UsernameHash     string             `json:"username_hash"`
 	Email            protectedpii.Value `json:"email"`
 	EmailHash        string             `json:"email_hash"`
-	FirstName        protectedpii.Value `json:"first_name"`
-	LastName         protectedpii.Value `json:"last_name"`
+	GivenName        protectedpii.Value `json:"given_name"`
+	FamilyName       protectedpii.Value `json:"family_name"`
 	YearOfBirth      int                `json:"year_of_birth"`
 	PasswordHash     string             `json:"password_hash"`
 	Scope            map[string]any     `json:"scope"`
@@ -199,8 +199,8 @@ func NewUserRegisteredEvent(
 	userRegisteredID,
 	username,
 	emailAddress,
-	firstName,
-	lastName string,
+	givenName,
+	familyName string,
 	yearOfBirth int,
 	passwordHash string,
 	subjectKey protectedpii.SubjectDataKey,
@@ -216,8 +216,8 @@ func NewUserRegisteredEvent(
 			UsernameHash:     protector.BlindIndex(UserRegisteredUsernameField, username),
 			Email:            protector.MustProtectWithDataKey(emailAddress, UserRegisteredEmailField, subjectKey),
 			EmailHash:        protector.BlindIndex(UserRegisteredEmailField, emailAddress),
-			FirstName:        protector.MustProtectWithDataKey(firstName, UserRegisteredFirstNameField, subjectKey),
-			LastName:         protector.MustProtectWithDataKey(lastName, UserRegisteredLastNameField, subjectKey),
+			GivenName:        protector.MustProtectWithDataKey(givenName, UserRegisteredGivenNameField, subjectKey),
+			FamilyName:       protector.MustProtectWithDataKey(familyName, UserRegisteredFamilyNameField, subjectKey),
 			YearOfBirth:      yearOfBirth,
 			PasswordHash:     passwordHash,
 			Scope:            map[string]any{},

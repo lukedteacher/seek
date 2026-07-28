@@ -4,12 +4,12 @@ import (
 	"seek/internal/features/students/blocks"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/users/models"
-	sse "seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	sse "seek/pkg/sse"
 )
 
 templ Create(user models.User, view dto.StudentFormView) {
-	@layouts.Base("SEEK: create student", user) {
+	@corelayouts.LayoutBase("SEEK: create student", user) {
 		<main data-init={ sse.LongRunningGetSSE("/students/create/stream") }>
 			<section>
 				@blocks.StudentCreateForm(view)

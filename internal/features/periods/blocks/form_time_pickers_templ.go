@@ -11,6 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"time"
 
+	"fmt"
 	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/timepicker"
@@ -71,14 +72,15 @@ func FormTimePickers(view dto.PeriodFormView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = timepicker.TimePicker(timepicker.Props{
-			ID:          "period-start-time-picker",
-			MinTime:     minTime,
-			MaxTime:     maxTime,
-			Step:        5,
-			Placeholder: "start time",
-			Class:       "input",
-			Value:       view.StartTime.Time(),
-			DataBind:    "data-bind:period.start_time",
+			ID:           "period-start-time-picker",
+			MinTime:      minTime,
+			MaxTime:      maxTime,
+			Step:         5,
+			Placeholder:  "start time",
+			Class:        "input",
+			Value:        view.StartTime.Time(),
+			DataBind:     "period.start_time",
+			DataOnChange: fmt.Sprintf("@post('%s/validate/starttime')", view.URL),
 			Attributes: templ.Attributes{
 				"data-text": "$period.start_time",
 			},
@@ -116,14 +118,15 @@ func FormTimePickers(view dto.PeriodFormView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = timepicker.TimePicker(timepicker.Props{
-			ID:          "period-end-time-picker",
-			MinTime:     minTime,
-			MaxTime:     maxTime,
-			Step:        5,
-			Placeholder: "end time",
-			Class:       "input",
-			Value:       view.EndTime.Time(),
-			DataBind:    "data-bind:period.end_time",
+			ID:           "period-end-time-picker",
+			MinTime:      minTime,
+			MaxTime:      maxTime,
+			Step:         5,
+			Placeholder:  "end time",
+			Class:        "input",
+			Value:        view.EndTime.Time(),
+			DataBind:     "period.end_time",
+			DataOnChange: fmt.Sprintf("@post('%s/validate/endtime')", view.URL),
 			Attributes: templ.Attributes{
 				"data-text": "$period.end_time",
 			},

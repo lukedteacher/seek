@@ -67,9 +67,9 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	type Signals struct {
-		FirstName  string `json:"first_name"`
+		GivenName  string `json:"given_name"`
 		ChosenName string `json:"chosen_name"`
-		LastName   string `json:"last_name"`
+		FamilyName string `json:"family_name"`
 	}
 
 	signals := &Signals{}
@@ -80,9 +80,9 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_, err := events.CreateTeacherCommandHandler(ctx, events.CreateTeacherCommand{
-		FirstName:  signals.FirstName,
+		GivenName:  signals.GivenName,
 		ChosenName: signals.ChosenName,
-		LastName:   signals.LastName,
+		FamilyName: signals.FamilyName,
 		Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver)
 	if err != nil {
@@ -111,9 +111,9 @@ func (s Server) getEditTeacher(w http.ResponseWriter, r *http.Request) {
 
 	teacherSignals := models.TeacherSignals{
 		ID:         teacherRes.ID,
-		FirstName:  teacherRes.FirstName,
+		GivenName:  teacherRes.GivenName,
 		ChosenName: *teacherRes.ChosenName,
-		LastName:   teacherRes.LastName,
+		FamilyName: teacherRes.FamilyName,
 	}
 
 	validation := events.Validate(teacherRes)
@@ -135,9 +135,9 @@ func (s Server) postValidateEditTeacher(w http.ResponseWriter, r *http.Request) 
 
 	model := models.Teacher{
 		ID:         teacherID,
-		FirstName:  signals.Teacher.FirstName,
+		GivenName:  signals.Teacher.GivenName,
 		ChosenName: &signals.Teacher.ChosenName,
-		LastName:   signals.Teacher.LastName,
+		FamilyName: signals.Teacher.FamilyName,
 	}
 
 	validation := events.Validate(&model)
@@ -159,9 +159,9 @@ func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
 
 	model := models.Teacher{
 		ID:         signals.Teacher.ID,
-		FirstName:  signals.Teacher.FirstName,
+		GivenName:  signals.Teacher.GivenName,
 		ChosenName: &signals.Teacher.ChosenName,
-		LastName:   signals.Teacher.LastName,
+		FamilyName: signals.Teacher.FamilyName,
 	}
 
 	// TODO add actual validation
@@ -172,9 +172,9 @@ func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
 
 	command := events.UpdateTeacherCommand{
 		TeacherID:  signals.Teacher.ID,
-		FirstName:  signals.Teacher.FirstName,
+		GivenName:  signals.Teacher.GivenName,
 		ChosenName: signals.Teacher.ChosenName,
-		LastName:   signals.Teacher.LastName,
+		FamilyName: signals.Teacher.FamilyName,
 		Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
 	result, err := events.UpdateTeacherCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)

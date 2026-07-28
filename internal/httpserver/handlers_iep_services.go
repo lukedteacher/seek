@@ -136,13 +136,13 @@ func (s Server) getIEPServiceCreateStream(w http.ResponseWriter, r *http.Request
 			if !ok {
 				return
 			}
-			var model models.IEPService
-			if err := entry.JSON(&model); err != nil {
+			model := &models.IEPService{}
+			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
 			}
 			students, _ := s.Students.List(ctx)
-			view := dto.NewIEPServiceFormView(&model, students)
+			view := dto.NewIEPServiceFormView(model, students)
 			view.URL = "/iepservices/create"
 			sse.PatchElementTempl(pages.Create(user, view))
 		}
@@ -275,12 +275,12 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 			if !ok {
 				return
 			}
-			var model models.IEPService
-			if err := entry.JSON(&model); err != nil {
+			model := &models.IEPService{}
+			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
 			}
-			view := dto.NewIEPServiceView(&model)
+			view := dto.NewIEPServiceView(model)
 			sse.PatchElementTempl(pages.View(user, view))
 		}
 	}
@@ -350,13 +350,13 @@ func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) 
 			if !ok {
 				return
 			}
-			var model models.IEPService
-			if err := entry.JSON(&model); err != nil {
+			model := &models.IEPService{}
+			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
 			}
 			students, _ := s.Students.List(ctx)
-			view := dto.NewIEPServiceFormView(&model, students)
+			view := dto.NewIEPServiceFormView(model, students)
 			view.URL = fmt.Sprintf("/iepservices/%s/edit", iepServiceID)
 			sse.PatchElementTempl(pages.Edit(user, view))
 		}

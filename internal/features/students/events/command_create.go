@@ -13,50 +13,64 @@ type CreateStudentCommand struct {
 	GivenName   string
 	ChosenName  string
 	FamilyName  string
-	Grade       int64
+	Grade       int
 	Homeroom    string
 	CaseManager string
 	Metadata    CommandMetadata
 }
 
 type CreateStudentResult struct {
-	Id string
+	StudentID string
 }
 
-func CreateStudentCommandHandler(ctx context.Context, command CreateStudentCommand, saver eventstore.Saver) (CreateStudentResult, error) {
-	model, err := newCreateStudentContext(command)
+func CreateStudentCommandHandler(
+	ctx context.Context,
+	command CreateStudentCommand,
+	saver eventstore.Saver,
+) (
+	CreateStudentResult,
+	error,
+) {
+	eventID := uuidv7.NewString()
+	model, err := newCreateStudentContext(command, eventID)
 	if err != nil {
 		return CreateStudentResult{}, err
 	}
-
-	event := NewStudentCreatedEvent(model.id, model.firstName, model.chosenName, model.lastName, model.grade, model.homeroom, model.caseManager, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewStudentCreatedEvent(
+		eventID,
+		model.givenName,
+		model.chosenName,
+		model.familyName,
+		model.grade,
+		model.homeroom,
+		model.caseManager,
+		time.Now(),
+		metadataWithQuery(command.Metadata, model.query),
+	)
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, model.query); err != nil {
 		return CreateStudentResult{}, err
 	}
-	return CreateStudentResult{Id: model.id}, nil
+	return CreateStudentResult{StudentID: eventID}, nil
 }
 
 type createStudentContext struct {
-	id          string
-	firstName   string
+	givenName   string
 	chosenName  string
-	lastName    string
-	grade       int64
+	familyName  string
+	grade       int
 	homeroom    string
 	caseManager string
 	query       eventstore.Query
 }
 
-func newCreateStudentContext(command CreateStudentCommand) (*createStudentContext, error) {
-	id := uuidv7.NewString()
+func newCreateStudentContext(command CreateStudentCommand, eventID string) (*createStudentContext, error) {
 	return &createStudentContext{
-		id:          id,
-		firstName:   command.GivenName,
+		givenName:   command.GivenName,
 		chosenName:  command.ChosenName,
-		lastName:    command.FamilyName,
+		familyName:  command.FamilyName,
 		grade:       command.Grade,
 		homeroom:    command.Homeroom,
 		caseManager: command.CaseManager,
-		query:       StreamQuery(id),
+		query:       StreamQuery(eventID),
 	}, nil
 }

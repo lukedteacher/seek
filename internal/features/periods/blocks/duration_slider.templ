@@ -1,60 +1,51 @@
 package blocks
 
 import (
-	"seek/internal/views/components/popover"
+	"fmt"
+
+	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/slider"
 )
 
-templ DurationSlider(value int) {
+templ DurationSlider(view dto.PeriodFormView) {
 	<div class="flex-1 flex flex-col">
 		@label.Label(label.Props{
 			For:   "period-duration-slider-trigger",
-			Class: "mb-3",
+			Class: "mb-3 text-xs",
 		}) {
-			duration
+			minutes
 		}
-		<input
-			id="period-duration-slider-trigger"
-			type="number"
-			class="input"
-			data-bind:period.duration
-			value={ value }
-			data-on:click="$foo.showPopover()"
-			data-on:focus="$foo.showPopover()"
-		/>
-		@popover.Content(popover.ContentProps{
-			ID:     "period-duration-slider-content",
-			Anchor: "period-duration-slider-trigger",
-			Attributes: templ.Attributes{
-				"data-ref": "foo",
-			},
-		}) {
+		<neo-popover placement="bottom-start">
 			<input
-				type="range"
-				min="5"
-				max="45"
-				step="5"
-				id="period-duration-range-input"
-				style="width: 100%; padding: 0; margin: 0; cursor: pointer;"
+				data-neo-popover-trigger
+				id="period-duration-slider-trigger"
+				type="number"
+				inputmode="numeric"
+				pattern="[0-9]*"
+				class="input text-lg text-center"
+				style="width: 3rem;"
 				data-bind:period.duration
+				value={ view.Duration }
 			/>
-			<div
-				class="period-duration-slider-marks"
-				style="display: flex; justify-content: space-between; font-size: var(--font-size--2);"
-			>
-				<span>•</span>
-				<span>‧</span>
-				<span>•</span>
-				<span>‧</span>
-				<span>•</span>
-				<span>‧</span>
-				<span>•</span>
-				<span>‧</span>
-				<span>•</span>
+			<div data-neo-popover-content class="flex flex-col gap-2 p-3 pt-6 h-full w-full">
+				@slider.Slider(slider.Props{
+					ID:          "period-duration-range-input",
+					Min:         5,
+					Max:         45,
+					Step:        5,
+					Class:       "w-full px-[0.1rem]",
+					Value:       view.Duration,
+					DataBind:    "period.duration",
+					DataOnInput: fmt.Sprintf("@post('%s/validate/duration')", view.URL),
+				})
+				<div class="period-duration-slider-marks w-full flex justify-between font-xs">
+					<span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span>
+				</div>
 			</div>
-		}
+		</neo-popover>
+		@slider.Script()
 	</div>
-	@DurationSliderStyles()
 }
 
 templ DurationSliderStyles() {

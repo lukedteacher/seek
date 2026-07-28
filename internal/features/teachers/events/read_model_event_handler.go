@@ -26,18 +26,18 @@ type TeacherReadModelWriter interface {
 type TeacherCreatedProjection struct {
 	Position   eventstore.Position
 	TeacherID  string
-	FirstName  string
+	GivenName  string
 	ChosenName *string
-	LastName   string
+	FamilyName string
 	CreatedAt  time.Time
 }
 
 type TeacherUpdatedProjection struct {
 	Position   eventstore.Position
 	TeacherID  string
-	FirstName  string
+	GivenName  string
 	ChosenName *string
-	LastName   string
+	FamilyName string
 	UpdatedAt  time.Time
 }
 
@@ -109,29 +109,29 @@ func (h *TeacherReadModelEventHandler) handle(ctx context.Context, resolved even
 	teacherID, _ := scope[TeacherIDField].(string)
 	switch resolved.Event.EventType {
 	case TeacherCreated:
-		firstName, _ := data[TeacherFirstNameField].(string)
+		givenName, _ := data[TeacherGivenNameField].(string)
 		chosenName, _ := data[TeacherChosenNameField].(string)
-		lastName, _ := data[TeacherLastNameField].(string)
+		familyName, _ := data[TeacherFamilyNameField].(string)
 		if err := h.readModel.CreateTeacher(ctx, TeacherCreatedProjection{
 			Position:   resolved.Position,
 			TeacherID:  teacherID,
-			FirstName:  firstName,
+			GivenName:  givenName,
 			ChosenName: stringPtr(chosenName),
-			LastName:   lastName,
+			FamilyName: familyName,
 			CreatedAt:  parseTime(data[TeacherCreatedAtField]),
 		}); err != nil {
 			return err
 		}
 	case TeacherUpdated:
-		firstName, _ := data[TeacherFirstNameField].(string)
+		givenName, _ := data[TeacherGivenNameField].(string)
 		chosenName, _ := data[TeacherChosenNameField].(string)
-		lastName, _ := data[TeacherLastNameField].(string)
+		familyName, _ := data[TeacherFamilyNameField].(string)
 		if err := h.readModel.UpdateTeacher(ctx, TeacherUpdatedProjection{
 			Position:   resolved.Position,
 			TeacherID:  teacherID,
-			FirstName:  firstName,
+			GivenName:  givenName,
 			ChosenName: stringPtr(chosenName),
-			LastName:   lastName,
+			FamilyName: familyName,
 			UpdatedAt:  parseTime(data[TeacherUpdatedAtField]),
 		}); err != nil {
 			return err

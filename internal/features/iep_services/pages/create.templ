@@ -4,13 +4,13 @@ import (
 	"seek/internal/features/iep_services/blocks"
 	"seek/internal/features/iep_services/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ Create(user models.User, view dto.IEPServiceFormView) {
-	@layouts.Base("SEEK: create service", user) {
-		<main data-init={ views.LongRunningGetSSE("/iepservices/create/stream") }>
+	@corelayouts.LayoutBase("SEEK: create service", user) {
+		<main data-init={ sse.LongRunningGetSSE("/iepservices/create/stream") }>
 			<section>
 				@blocks.CreateServiceForm(view)
 			</section>

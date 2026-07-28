@@ -5,13 +5,13 @@ import (
 	"seek/internal/features/teachers/events"
 	"seek/internal/features/teachers/models"
 	um "seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ Edit(user um.User, teacher models.TeacherSignals, validation map[string]events.Validation) {
-	@layouts.Base("SEEK: edit student", user) {
-		<main data-init={ views.LongRunningGetSSE("/teachers/edit/stream") }>
+	@corelayouts.LayoutBase("SEEK: edit student", user) {
+		<main data-init={ sse.LongRunningGetSSE("/teachers/edit/stream") }>
 			<section>
 				@blocks.EditForm(teacher, validation)
 			</section>

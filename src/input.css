@@ -27,6 +27,9 @@
   --color-neutral: var(--neutral-4);
   --color-neutral-content: var(--neutral-4-on);
   --color-neutral-muted: var(--neutral-4-dim);
+  --color-neutral-bright: var(--neutral-5);
+  --color-neutral-bright-content: var(--neutral-5-on);
+  --color-neutral-bright-muted: var(--neutral-5-dim);
   --color-info: oklch(72% 0.126 232);
   --color-info-content: oklch(17% 0.028 242);
   --color-success: oklch(72% 0.145 157);
@@ -35,6 +38,7 @@
   --color-warning-content: oklch(19% 0.034 68);
   --color-error: oklch(66% 0.181 18);
   --color-error-content: oklch(99% 0.012 16);
+  --color-muted: var(--neutral-4-dim);
   --color-muted-foreground: var(--neutral-8);
   --radius-selector: 0.5rem;
   --radius-field: 0.5rem;
@@ -81,8 +85,18 @@
   --noise: 0;
 }
 
-.text-muted-foreground {
-  color: var(--color-muted-foreground);
+@layer base {
+  .text-muted-foreground {
+    color: var(--color-muted-foreground);
+  }
+
+  .border-muted {
+    border-color: var(--color-muted);
+  }
+
+  .bg-neutral-bright {
+    background-color: var(--color-neutral-bright);
+  }
 }
 
 html {

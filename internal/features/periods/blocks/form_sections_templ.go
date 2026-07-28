@@ -12,8 +12,7 @@ import (
 	iepsblocks "seek/internal/features/iep_services/blocks"
 	"seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/students/blocks"
-	"seek/internal/views/blocks/forms"
-	"seek/internal/views/components/day_buttons"
+	"seek/internal/ui/core/coreblocks/forms"
 )
 
 func FormSections(view dto.PeriodFormView) templ.Component {
@@ -63,7 +62,7 @@ func FormSections(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = DurationSlider(30).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = DurationSlider(view).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -71,7 +70,7 @@ func FormSections(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = day_buttons.DayButtons(view.Days).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = forms.DayButtons(view.Days).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -3,14 +3,14 @@ package corepages
 import (
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 )
 
 templ Components(user models.User) {
-	@layouts.Base("SEEK: components", user) {
+	@corelayouts.LayoutBase("SEEK: components", user) {
 		<main style="display: flex; flex-direction: column; gap: 1rem;">
 			@coreblocks.HeaderMain("components", "/components")
 			<section>

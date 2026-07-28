@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/features/_shared/shareddto"
-	"seek/internal/views/blocks/data_table"
+	"seek/internal/ui/core/coreblocks"
 )
 
 func List(view shareddto.TableView) templ.Component {
@@ -34,7 +34,7 @@ func List(view shareddto.TableView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = datatable.DataTable(view).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = coreblocks.DataTable(view).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -4,13 +4,13 @@ import (
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ Create(user models.User, url string, view dto.EducatorView) {
-	@layouts.Base("SEEK: create educator", user) {
-		<main data-init={ views.LongRunningGetSSE("/educators/create/stream") }>
+	@corelayouts.LayoutBase("SEEK: create educator", user) {
+		<main data-init={ sse.LongRunningGetSSE("/educators/create/stream") }>
 			<section>
 				@blocks.EducatorCreateForm(url, view)
 			</section>

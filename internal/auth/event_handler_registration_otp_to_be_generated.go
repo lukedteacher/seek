@@ -58,13 +58,13 @@ func (h *RegistrationOTPToBeGeneratedEventHandler) handle(ctx context.Context, r
 	}
 	userRegisteredID, _ := resolved.Event.Data[UserRegisteredIDField].(string)
 	emailAddress, _ := resolved.Event.Data[UserRegisteredEmailField].(string)
-	firstName, _ := resolved.Event.Data[UserRegisteredFirstNameField].(string)
-	lastName, _ := resolved.Event.Data[UserRegisteredLastNameField].(string)
+	givenName, _ := resolved.Event.Data[UserRegisteredGivenNameField].(string)
+	familyName, _ := resolved.Event.Data[UserRegisteredFamilyNameField].(string)
 	username, _ := resolved.Event.Data[UserRegisteredUsernameField].(string)
 
 	user := models.User{
 		UserRegisteredID: userRegisteredID,
-		Name:             strings.TrimSpace(firstName + " " + lastName),
+		Name:             strings.TrimSpace(givenName + " " + familyName),
 		Username:         username,
 		Email:            emailAddress,
 	}

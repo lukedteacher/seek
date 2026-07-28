@@ -57,6 +57,7 @@ type ContentProps struct {
 	HoverDelay       int
 	HoverOutDelay    int
 	Exclusive        bool
+	Open             bool
 }
 
 templ Root(props ...RootProps) {
@@ -118,7 +119,11 @@ templ Content(props ...ContentProps) {
 		}
 		popover="manual"
 		data-tui-popover-content
-		data-tui-popover-open="false"
+		if p.Open {
+			data-tui-popover-open="true"
+		} else {
+			data-tui-popover-open="false"
+		}
 		data-tui-popover-placement={ string(p.Placement) }
 		data-tui-popover-offset={ strconv.Itoa(p.Offset) }
 		data-tui-popover-disable-clickaway={ strconv.FormatBool(p.DisableClickAway) }

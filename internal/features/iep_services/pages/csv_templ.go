@@ -12,7 +12,7 @@ import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/iep_services/blocks"
 	"seek/internal/features/users/models"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
 )
 
 func CSV(user models.User, view shareddto.DiffTableView) templ.Component {
@@ -62,7 +62,7 @@ func CSV(user models.User, view shareddto.DiffTableView) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("SEEK: IEP services", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: IEP services", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

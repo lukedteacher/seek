@@ -6,13 +6,13 @@ import (
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ View(user models.User, view dto.EducatorView) {
-	@layouts.Base("SEEK: educator", user) {
-		<main id="main" data-init={ views.LongRunningGetSSE(fmt.Sprintf("/educators/%s/stream", view.ID)) }>
+	@corelayouts.LayoutBase("SEEK: educator", user) {
+		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/educators/%s/stream", view.ID)) }>
 			<section style="width: 100%;">
 				@blocks.Card(view)
 			</section>

@@ -16,7 +16,7 @@ tasks:
   build:
     deps: [sqlc, templ, css]
     cmds:
-      - go build ./cmd/server
+      - go build -o .tmp/bin/main.exe ./cmd/server
 
   test:
     deps: [sqlc, templ]
@@ -42,9 +42,9 @@ tasks:
 
   templ:
     sources:
-      - "**/*.templ"
+      - '**/*.templ'
     generates:
-      - "**/*_templ.go"
+      - '**/*_templ.go'
     cmds:
       - go tool templ generate
 
@@ -62,7 +62,7 @@ tasks:
     cmds:
       - GOBIN="{{.ROOT_DIR}}/.bin" go install github.com/delaneyj/toolbelt/sqlc-gen-zombiezen
       - PATH="{{.ROOT_DIR}}/.bin:$PATH" sqlc generate
-  
+
   css:
     sources:
       - src/**/*.css

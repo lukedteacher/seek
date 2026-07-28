@@ -117,18 +117,18 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	studentID, _ := scope[StudentIDField].(string)
 	switch resolved.Event.EventType {
 	case StudentCreated:
-		firstName, _ := data[StudentGivenNameField].(string)
+		givenName, _ := data[StudentGivenNameField].(string)
 		chosenName, _ := data[StudentChosenNameField].(string)
-		lastName, _ := data[StudentFamilyNameField].(string)
+		familyName, _ := data[StudentFamilyNameField].(string)
 		grade := int(data[StudentGradeField].(float64))
 		homeroom, _ := data[StudentHomeroomField].(string)
 		caseManager, _ := data[StudentCaseManagerField].(string)
 		if err := h.readModel.CreateStudent(ctx, StudentCreatedProjection{
 			Position:    resolved.Position,
 			StudentID:   studentID,
-			GivenName:   firstName,
+			GivenName:   givenName,
 			ChosenName:  chosenName,
-			FamilyName:  lastName,
+			FamilyName:  familyName,
 			Grade:       grade,
 			Homeroom:    homeroom,
 			CaseManager: caseManager,
@@ -137,18 +137,18 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 			return err
 		}
 	case StudentUpdated:
-		firstName, _ := data[StudentGivenNameField].(string)
+		givenName, _ := data[StudentGivenNameField].(string)
 		chosenName, _ := data[StudentChosenNameField].(string)
-		lastName, _ := data[StudentFamilyNameField].(string)
+		familyName, _ := data[StudentFamilyNameField].(string)
 		grade := int(data[StudentGradeField].(float64))
 		homeroom, _ := data[StudentHomeroomField].(string)
 		caseManager, _ := data[StudentCaseManagerField].(string)
 		if err := h.readModel.UpdateStudent(ctx, StudentUpdatedProjection{
 			Position:    resolved.Position,
 			StudentID:   studentID,
-			GivenName:   firstName,
+			GivenName:   givenName,
 			ChosenName:  chosenName,
-			FamilyName:  lastName,
+			FamilyName:  familyName,
 			Grade:       grade,
 			Homeroom:    homeroom,
 			CaseManager: caseManager,

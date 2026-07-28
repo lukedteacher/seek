@@ -6,13 +6,13 @@ import (
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ View(user models.User, period dto.PeriodView) {
-	@layouts.Base("SEEK: period", user) {
-		<main id="main" data-init={ views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/view/stream", period.ID)) }>
+	@corelayouts.LayoutBase("SEEK: period", user) {
+		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/periods/%s/view/stream", period.ID)) }>
 			<section>
 				@blocks.Card(period)
 			</section>

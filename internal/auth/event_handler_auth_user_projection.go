@@ -94,14 +94,14 @@ func (h *AuthUserProjectionEventHandler) handleUserRegistered(ctx context.Contex
 	if !ok {
 		return eventstore.ErrNotFound
 	}
-	firstName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredFirstNameField)
-	lastName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredLastNameField)
+	givenName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredGivenNameField)
+	familyName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredFamilyNameField)
 	return h.writer.CreateRegisteredUserAccount(ctx, RegisterUserResult{
 		UserRegisteredID: userRegisteredID,
 		Username:         protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredUsernameField),
 		Email:            protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredEmailField),
-		FirstName:        firstName,
-		LastName:         lastName,
+		GivenName:        givenName,
+		FamilyName:       familyName,
 		PasswordHash:     stringValue(resolved.Event.Data[UserRegisteredPasswordHashField]),
 	})
 }

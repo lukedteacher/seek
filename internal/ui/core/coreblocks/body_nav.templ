@@ -1,0 +1,44 @@
+package coreblocks
+
+import "seek/pkg/templui/components/icon"
+
+templ Nav() {
+	<nav>
+		<ul>
+			<li><a href="/">home</a></li>
+			<li>
+				<a href="/components">
+					@icon.Component(icon.Props{
+						Size: "20",
+					})
+					<span>components</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+	@NavStyles()
+}
+
+templ NavStyles() {
+	<style>
+		body > header nav {
+			ul {
+				display: flex;
+				flex-direction: row;
+				gap: var(--size-4);
+
+				li a {
+					display: flex;
+					gap: var(--size--2);
+					font-size: var(--fnt-sm);
+					align-items: center;
+					padding: var(--size--1) var(--size-1);
+					border-radius: var(--bd-rd1);
+					&:hover {
+						background-color: var(--secondary-5);
+					}
+				}
+			}
+		}
+	</style>
+}

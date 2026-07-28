@@ -4,12 +4,12 @@ import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/iep_services/blocks"
 	"seek/internal/features/users/models"
-	sse "seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	sse "seek/pkg/sse"
 )
 
 templ List(user models.User, view shareddto.TableView) {
-	@layouts.Base("SEEK: IEP services", user) {
+	@corelayouts.LayoutBase("SEEK: IEP services", user) {
 		<main data-signals:view={ view } data-init={ sse.LongRunningGetSSE("/iepservices/list/stream") }>
 			<section>
 				<h2>IEP SERVICES</h2>

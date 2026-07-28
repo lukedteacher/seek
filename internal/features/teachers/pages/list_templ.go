@@ -12,9 +12,9 @@ import (
 	"seek/internal/features/teachers/blocks"
 	"seek/internal/features/teachers/models"
 	um "seek/internal/features/users/models"
-	sse "seek/internal/views"
-	"seek/internal/views/components/button"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	sse "seek/pkg/sse"
+	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 )
 
@@ -166,7 +166,7 @@ func List(user um.User, view int64, views []models.Teacher) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("SEEK: teachers", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: teachers", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

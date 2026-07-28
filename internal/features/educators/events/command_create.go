@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/models"
 	"seek/pkg/uuidv7"
 
@@ -13,9 +12,12 @@ import (
 )
 
 type CreateEducatorCommand struct {
-	Person   sharedmodels.Person
-	Role     string
-	Metadata CommandMetadata
+	GivenName  string
+	ChosenName string
+	FamilyName string
+	Email      string
+	Role       string
+	Metadata   CommandMetadata
 }
 
 type CreateEducatorResult struct {
@@ -71,10 +73,10 @@ func newCreateEducatorContext(command CreateEducatorCommand) (*createEducatorCon
 
 	educator, err := models.NewEducator(
 		id,
-		command.Person.GivenName,
-		command.Person.ChosenName,
-		command.Person.FamilyName,
-		command.Person.Email,
+		command.GivenName,
+		command.ChosenName,
+		command.FamilyName,
+		command.Email,
 		command.Role,
 	)
 	if err != nil {

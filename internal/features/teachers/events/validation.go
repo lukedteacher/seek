@@ -19,20 +19,20 @@ func Validate(teacher *models.Teacher) map[string]Validation {
 		println("why does this fial?")
 	}
 	println("test")
-	errors["first_name"] = ValidateFirstName(teacher.FirstName)
+	errors["given_name"] = ValidateGivenName(teacher.GivenName)
 	println("test2")
 	errors["chosen_name"] = ValidateChosenName(*teacher.ChosenName)
 	println("test3")
-	errors["last_name"] = ValidateLastName(teacher.LastName)
+	errors["family_name"] = ValidateFamilyName(teacher.FamilyName)
 	println("test4")
 
 	return errors
 }
 
-func ValidateFirstName(firstName string) Validation {
-	if firstName == "" {
+func ValidateGivenName(givenName string) Validation {
+	if givenName == "" {
 		return Validation{Message: "required", State: "empty"}
-	} else if utils.ValidateAlphanumeric(firstName) {
+	} else if utils.ValidateAlphanumeric(givenName) {
 		return Validation{Message: "required", State: "valid"}
 	} else {
 		return Validation{Message: "required", State: "error"}
@@ -50,10 +50,10 @@ func ValidateChosenName(chosenName string) Validation {
 	}
 }
 
-func ValidateLastName(lastName string) Validation {
-	if lastName == "" {
+func ValidateFamilyName(familyName string) Validation {
+	if familyName == "" {
 		return Validation{Message: "required", State: "empty"}
-	} else if utils.ValidateAlphanumeric(lastName) {
+	} else if utils.ValidateAlphanumeric(familyName) {
 		return Validation{Message: "required", State: "valid"}
 	} else {
 		return Validation{Message: "required", State: "error"}

@@ -123,7 +123,7 @@ func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 			GivenName:   student.GivenName,
 			ChosenName:  student.ChosenName,
 			FamilyName:  student.FamilyName,
-			Grade:       int64(student.Grade),
+			Grade:       int(student.Grade),
 			Homeroom:    student.Homeroom,
 			CaseManager: student.CaseManager,
 		}

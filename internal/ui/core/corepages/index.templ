@@ -1,0 +1,436 @@
+package corepages
+
+import (
+	"seek/internal/features/users/models"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/card"
+	"seek/pkg/templui/components/icon"
+)
+
+templ Index(user models.User) {
+	@corelayouts.LayoutBase("SEEK", user) {
+		<div style="display: flex; width: 100%; overflow-y:auto;" data-init={ sse.LongRunningGetSSE("/stream") }>
+			<main>
+				<section style="margin-bottom: var(--size-2)">
+					<p>welcome to SEEK (aka shared educational environment knowledge)</p>
+					<p>there many features to come</p>
+					<p>below are some of the current ones</p>
+				</section>
+				<section style="display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); width: 100%;">
+					@card.Card(card.Props{
+						Class: "flex flex-col",
+					}) {
+						@card.Header() {
+							@card.Title() {
+								@icon.CalendarRange(icon.Props{
+									Size: "16",
+								})
+								schedules
+							}
+							@card.Description() {
+								view, create, and manage schedules
+							}
+						}
+						@card.Content(card.ContentProps{
+							Class: "text-sm",
+						}) {
+							<p>features (coming soon)</p>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>notifications on change</li>
+								<li>plan for actual calendar dates</li>
+								<li>printable version for student visual schedule</li>
+								<li>collaborative schedule creation</li>
+							</ul>
+						}
+						@card.Footer(card.FooterProps{
+							Class: "justify-end gap-4 mt-auto",
+						}) {
+							@button.Button(button.Props{
+								Href: "/schedules/list",
+							}) {
+								@icon.List(icon.Props{
+									Size: "16",
+								})
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/schedules/create",
+							}) {
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
+								<span>create</span>
+							}
+						}
+					}
+					@card.Card(card.Props{
+						Class: "flex flex-col",
+					}) {
+						@card.Header() {
+							@card.Title() {
+								@icon.Clock(icon.Props{
+									Size: "20",
+								})
+								periods
+							}
+							@card.Description() {
+								periods make up schedules.
+							}
+						}
+						@card.Content(card.ContentProps{
+							Class: "text-sm",
+						}) {
+							<p>features (coming soon)</p>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>notifications on change</li>
+								<li>assign students with relevant goals</li>
+								<li>take attendance</li>
+								<li>lesson plans</li>
+							</ul>
+						}
+						@card.Footer(card.FooterProps{
+							Class: "justify-end gap-4 mt-auto",
+						}) {
+							@button.Button(button.Props{
+								Href: "/periods/list",
+							}) {
+								@icon.List(icon.Props{
+									Size: "16",
+								})
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/periods/create",
+							}) {
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
+								<span>create</span>
+							}
+						}
+					}
+					@card.Card(card.Props{
+						Class: "flex flex-col",
+					}) {
+						@card.Header() {
+							@card.Title() {
+								@icon.GraduationCap(icon.Props{
+									Size: "20",
+								})
+								students
+							}
+							@card.Description() {
+								can't live with them, can't live without their funding.
+							}
+						}
+						@card.Content(card.ContentProps{
+							Class: "text-sm",
+						}) {
+							<p>features (coming soon)</p>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>pictures?</li>
+								<li>SPED data</li>
+								<li>schedule view</li>
+							</ul>
+						}
+						@card.Footer(card.FooterProps{
+							Class: "justify-end gap-4 mt-auto",
+						}) {
+							@button.Button(button.Props{
+								Href: "/students/list",
+							}) {
+								@icon.List(icon.Props{
+									Size: "16",
+								})
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/students/create",
+							}) {
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
+								<span>create</span>
+							}
+						}
+					}
+					@card.Card(card.Props{
+						Class: "flex flex-col",
+					}) {
+						@card.Header() {
+							@card.Title() {
+								@icon.BookCopy(icon.Props{
+									Size: "20",
+								})
+								services
+							}
+							@card.Description() {
+								service minutes indicated by a student's IEP.
+							}
+						}
+						@card.Content(card.ContentProps{
+							Class: "text-sm",
+						}) {
+							<p>features (coming soon)</p>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>charts</li>
+								<li>schedule integration</li>
+								<li>audits</li>
+							</ul>
+						}
+						@card.Footer(card.FooterProps{
+							Class: "justify-end gap-4 mt-auto",
+						}) {
+							@button.Button(button.Props{
+								Href: "/iepservices/list",
+							}) {
+								@icon.List(icon.Props{
+									Size: "16",
+								})
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/iepservices/create",
+							}) {
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
+								<span>create</span>
+							}
+						}
+					}
+					@card.Card(card.Props{
+						Class: "flex flex-col",
+					}) {
+						@card.Header() {
+							@card.Title() {
+								@icon.Apple(icon.Props{
+									Size: "20",
+								})
+								educators
+							}
+							@card.Description() {
+								they do the work of learning the students.
+							}
+						}
+						@card.Content(card.ContentProps{
+							Class: "text-sm",
+						}) {
+							<p>features (coming soon)</p>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>profiles!</li>
+								<li>view their schedule</li>
+								<li>caseloads</li>
+								<li>idk</li>
+							</ul>
+						}
+						@card.Footer(card.FooterProps{
+							Class: "justify-end gap-4 mt-auto",
+						}) {
+							@button.Button(button.Props{
+								Href: "/educators/list",
+							}) {
+								@icon.List(icon.Props{
+									Size: "16",
+								})
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/educators/create",
+							}) {
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
+								<span>create</span>
+							}
+						}
+					}
+					@card.Card(card.Props{
+						Class: "flex flex-col",
+					}) {
+						@card.Header() {
+							@card.Title() {
+								@icon.Goal(icon.Props{
+									Size: "20",
+								})
+								goals
+							}
+							@card.Description() {
+								students have goals.
+							}
+						}
+						@card.Content(card.ContentProps{
+							Class: "text-sm",
+						}) {
+							<p>features (coming soon)</p>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>goal bank</li>
+								<li>goal builder</li>
+								<li>progress tracking</li>
+								<li>charts?</li>
+							</ul>
+						}
+						@card.Footer(card.FooterProps{
+							Class: "justify-end gap-4 mt-auto",
+						}) {
+							@button.Button(button.Props{
+								Href: "/goals/list",
+							}) {
+								@icon.List(icon.Props{
+									Size: "16",
+								})
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/goals/create",
+							}) {
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
+								<span>create</span>
+							}
+						}
+					}
+					@card.Card(card.Props{
+						Class: "flex flex-col",
+					}) {
+						@card.Header() {
+							@card.Title() {
+								@icon.ChartSpline(icon.Props{
+									Size: "20",
+								})
+								interventions
+							}
+							@card.Description() {
+								plan interventions, track data, and view progress.
+							}
+						}
+						@card.Content(card.ContentProps{
+							Class: "text-sm",
+						}) {
+							<p>features (coming soon)</p>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>easy progress monitoring</li>
+								<li>automatic progress report creation</li>
+								<li>links to resources</li>
+								<li>charts!</li>
+							</ul>
+						}
+						@card.Footer(card.FooterProps{
+							Class: "justify-end gap-4 mt-auto",
+						}) {
+							@button.Button(button.Props{
+								Href: "/interventions/list",
+							}) {
+								@icon.List(icon.Props{
+									Size: "16",
+								})
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/interventions/create",
+							}) {
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
+								<span>create</span>
+							}
+						}
+					}
+					@card.Card(card.Props{
+						Class: "flex flex-col",
+					}) {
+						@card.Header() {
+							@card.Title() {
+								@icon.HandHeart(icon.Props{
+									Size: "20",
+								})
+								caregivers
+							}
+							@card.Description() {
+								caregiver info up to date and easy to access.
+							}
+						}
+						@card.Content(card.ContentProps{
+							Class: "text-sm",
+						}) {
+							<p>features (coming soon)</p>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>email templates & sending?</li>
+								<li>portals for their own access to data</li>
+								<li>resources for learning about disabilities?</li>
+							</ul>
+						}
+						@card.Footer(card.FooterProps{
+							Class: "justify-end gap-4 mt-auto",
+						}) {
+							@button.Button(button.Props{
+								Href: "/caregivers/list",
+							}) {
+								@icon.List(icon.Props{
+									Size: "16",
+								})
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/caregivers/create",
+							}) {
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
+								<span>create</span>
+							}
+						}
+					}
+					@card.Card(card.Props{
+						Class: "flex flex-col",
+					}) {
+						@card.Header() {
+							@card.Title() {
+								@icon.HouseHeart(icon.Props{
+									Size: "20",
+								})
+								homerooms
+							}
+							@card.Description() {
+								general education teachers will also have their own access.
+							}
+						}
+						@card.Content(card.ContentProps{
+							Class: "text-sm",
+						}) {
+							<p>features (coming maybe?)</p>
+							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+								<li>gen ed student data?</li>
+								<li>interventions, goals, schedules, etc.</li>
+								<li>idk</li>
+							</ul>
+						}
+						@card.Footer(card.FooterProps{
+							Class: "justify-end gap-4 mt-auto",
+						}) {
+							@button.Button(button.Props{
+								Href: "/homerooms/list",
+							}) {
+								@icon.List(icon.Props{
+									Size: "16",
+								})
+								<span>list</span>
+							}
+							@button.Button(button.Props{
+								Href: "/homerooms/create",
+							}) {
+								@icon.Plus(icon.Props{
+									Size: "16",
+								})
+								<span>create</span>
+							}
+						}
+					}
+				</section>
+			</main>
+		</div>
+	}
+}

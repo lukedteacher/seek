@@ -11,7 +11,7 @@ var PeriodColumns = []shareddto.ColumnView{
 	{Field: "ServiceType", Display: "type", Renderer: "badge", Alignment: "center"},
 	{Field: "StartTime", Display: "start", Group: "time", Alignment: "center"},
 	{Field: "EndTime", Display: "end", Group: "time", Alignment: "center"},
-	{Field: "Duration", Display: "duration (min)", Alignment: "center"},
+	{Field: "Duration", Display: "duration", Alignment: "center"},
 	{Field: "Days", Display: "days", Alignment: "center"},
 	// id omitted from display (auto‑stored in RowView.ID)
 }

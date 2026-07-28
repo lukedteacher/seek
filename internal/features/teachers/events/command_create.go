@@ -10,9 +10,9 @@ import (
 )
 
 type CreateTeacherCommand struct {
-	FirstName  string
+	GivenName  string
 	ChosenName string
-	LastName   string
+	FamilyName string
 	Metadata   CommandMetadata
 }
 
@@ -26,7 +26,7 @@ func CreateTeacherCommandHandler(ctx context.Context, command CreateTeacherComma
 		return CreateTeacherResult{}, err
 	}
 
-	event := NewTeacherCreatedEvent(model.id, model.firstName, model.chosenName, model.lastName, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewTeacherCreatedEvent(model.id, model.givenName, model.chosenName, model.familyName, time.Now(), metadataWithQuery(command.Metadata, model.query))
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, model.query); err != nil {
 		return CreateTeacherResult{}, err
 	}
@@ -35,9 +35,9 @@ func CreateTeacherCommandHandler(ctx context.Context, command CreateTeacherComma
 
 type createTeacherContext struct {
 	id         string
-	firstName  string
+	givenName  string
 	chosenName string
-	lastName   string
+	familyName string
 	query      eventstore.Query
 }
 
@@ -45,9 +45,9 @@ func newCreateTeacherContext(command CreateTeacherCommand) (*createTeacherContex
 	id := uuidv7.NewString()
 	return &createTeacherContext{
 		id:         id,
-		firstName:  command.FirstName,
+		givenName:  command.GivenName,
 		chosenName: command.ChosenName,
-		lastName:   command.LastName,
+		familyName: command.FamilyName,
 		query:      streamQuery(id),
 	}, nil
 }

@@ -6,9 +6,9 @@ import (
 
 type StudentListView struct {
 	ID          string `json:"id"`
-	FirstName   string `json:"first_name"`
+	GivenName   string `json:"given_name"`
 	ChosenName  string `json:"chosen_name"`
-	LastName    string `json:"last_name"`
+	FamilyName  string `json:"family_name"`
 	Grade       string `json:"grade"`
 	Homeroom    string `json:"homeroom"`
 	CaseManager string `json:"case_manager"`
@@ -17,9 +17,9 @@ type StudentListView struct {
 func NewStudentListView(s *models.Student) *StudentListView {
 	return &StudentListView{
 		ID:          s.ID,
-		FirstName:   s.GivenName,
+		GivenName:   s.GivenName,
 		ChosenName:  s.ChosenName,
-		LastName:    s.FamilyName,
+		FamilyName:  s.FamilyName,
 		Grade:       s.Grade.Ordinal(),
 		Homeroom:    s.Homeroom,
 		CaseManager: s.CaseManager,

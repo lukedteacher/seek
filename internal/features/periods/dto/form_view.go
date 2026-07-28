@@ -20,7 +20,7 @@ type PeriodFormView struct {
 	Duration    int                      `json:"duration"`
 	Days        shareddto.DaysFormView   `json:"days"`
 	StudentIDs  string                   `json:"student_ids"`
-	URL         string
+	URL         string                   `json:"url"`
 	Validation  map[string]events.Validation
 	StudentList []sdto.StudentSelectBoxView
 }

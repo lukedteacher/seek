@@ -16,9 +16,9 @@ const (
 // EVENT FIELDS
 const (
 	TeacherIDField         = "teacher_id"
-	TeacherFirstNameField  = "first_name"
+	TeacherGivenNameField  = "given_name"
 	TeacherChosenNameField = "chosen_name"
-	TeacherLastNameField   = "last_name"
+	TeacherFamilyNameField = "family_name"
 	TeacherCreatedIDField  = "teacher_created_event_id"
 	TeacherCreatedAtField  = "created_at"
 	TeacherUpdatedIDField  = "teacher_updated_event_id"
@@ -30,18 +30,18 @@ const (
 
 type TeacherCreatedEvent struct {
 	EventID    string       `json:"teacher_created_event_id"`
-	FirstName  string       `json:"first_name"`
+	GivenName  string       `json:"given_name"`
 	ChosenName string       `json:"chosen_name"`
-	LastName   string       `json:"last_name"`
+	FamilyName string       `json:"family_name"`
 	CreatedAt  string       `json:"created_at"`
 	Scope      TeacherScope `json:"scope"`
 }
 
 type TeacherUpdatedEvent struct {
 	EventID    string       `json:"teacher_updated_event_id"`
-	FirstName  string       `json:"first_name"`
+	GivenName  string       `json:"given_name"`
 	ChosenName string       `json:"chosen_name"`
-	LastName   string       `json:"last_name"`
+	FamilyName string       `json:"family_name"`
 	UpdatedAt  string       `json:"updated_at"`
 	Scope      TeacherScope `json:"scope"`
 }
@@ -58,17 +58,17 @@ type TeacherScope struct {
 
 func NewTeacherCreatedEvent(
 	teacherID,
-	firstName,
+	givenName,
 	chosenName,
-	lastName string,
+	familyName string,
 	createdAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := TeacherCreatedEvent{
 		EventID:    teacherID,
-		FirstName:  firstName,
+		GivenName:  givenName,
 		ChosenName: chosenName,
-		LastName:   lastName,
+		FamilyName: familyName,
 		CreatedAt:  createdAt.Format(time.RFC3339),
 		Scope:      teacherScope(teacherID),
 	}
@@ -83,17 +83,17 @@ func NewTeacherCreatedEvent(
 func NewTeacherUpdatedEvent(
 	eventID,
 	teacherID,
-	firstName,
+	givenName,
 	chosenName,
-	lastName string,
+	familyName string,
 	updatedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := TeacherUpdatedEvent{
 		EventID:    eventID,
-		FirstName:  firstName,
+		GivenName:  givenName,
 		ChosenName: chosenName,
-		LastName:   lastName,
+		FamilyName: familyName,
 		UpdatedAt:  updatedAt.Format(time.RFC3339),
 		Scope:      teacherScope(teacherID),
 	}

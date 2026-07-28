@@ -1,0 +1,90 @@
+package corepages
+
+import (
+	"seek/internal/features/users/models"
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+)
+
+templ Login(user models.User, errors map[string]string) {
+	@corelayouts.LayoutBase("SEEK: login", user) {
+		@LoginForm(errors)
+	}
+}
+
+templ LoginForm(errors map[string]string) {
+	@coreblocks.AuthForm("/login", "login", []coreblocks.Field{
+		{Name: "email", Type: "email", Label: "email"},
+		{Name: "password", Type: "password", Label: "password"},
+	}, errors) {
+		<a href="/register">create account</a>
+		<a href="/forgot-password">forgot password?</a>
+	}
+}
+
+templ Register(user models.User, errors map[string]string) {
+	@corelayouts.LayoutBase("SEEK: register", user) {
+		@RegisterForm(errors)
+	}
+}
+
+templ RegisterForm(errors map[string]string) {
+	@coreblocks.AuthForm("/register", "create account", []coreblocks.Field{
+		{Name: "username", Type: "text", Label: "username"},
+		{Name: "email", Type: "email", Label: "email"},
+		{Name: "password", Type: "password", Label: "password"},
+		{Name: "givenName", Type: "text", Label: "first name"},
+		{Name: "familyName", Type: "text", Label: "last name"},
+		{Name: "yearOfBirth", Type: "number", Label: "year of birth"},
+	}, errors) {
+		<a href="/login">sign in</a>
+	}
+}
+
+templ ForgotPassword(user models.User, errors map[string]string) {
+	@corelayouts.LayoutBase("SEEK: forgot password", user) {
+		@ForgotPasswordForm(errors)
+	}
+}
+
+templ ForgotPasswordForm(errors map[string]string) {
+	@coreblocks.AuthForm("/forgot-password", "forgot password", []coreblocks.Field{
+		{Name: "email", Type: "email", Label: "email"},
+	}, errors) {
+		<a href="/login">back to login</a>
+	}
+}
+
+templ ResetPassword(user models.User, token string, errors map[string]string) {
+	@corelayouts.LayoutBase("SEEK: reset password", user) {
+		@ResetPasswordForm(token, errors)
+	}
+}
+
+templ ResetPasswordForm(token string, errors map[string]string) {
+	@coreblocks.AuthForm("/reset-password/"+token, "reset password", []coreblocks.Field{
+		{Name: "password", Type: "password", Label: "new password"},
+	}, errors) {
+	}
+}
+
+templ ValidateEmail(user models.User, userID string, errors map[string]string) {
+	@corelayouts.LayoutBase("SEEK: validate email", user) {
+		@ValidateEmailForm(userID, errors)
+	}
+}
+
+templ ValidateEmailForm(userID string, errors map[string]string) {
+	@coreblocks.AuthForm("/register/"+userID+"/validate-email", "validate email", []coreblocks.Field{
+		{Name: "otp", Type: "text", Label: "verification code"},
+	}, errors) {
+		<form class="w-full" data-on:submit={ sendValidationOTPSSE(userID) }>
+			<button class="btn btn-outline w-full" type="submit">send new code</button>
+		</form>
+	}
+}
+
+func sendValidationOTPSSE(userID string) string {
+	return sse.PostFormSSE("/register/" + userID + "/send-email-validation-otp")
+}

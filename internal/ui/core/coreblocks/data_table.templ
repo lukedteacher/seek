@@ -1,0 +1,122 @@
+package coreblocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/shareddto"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/table"
+)
+
+templ DataTable(view shareddto.TableView) {
+	<section data-slot="data-table">
+		@Table(view)
+	</section>
+	<style>
+		section[data-slot="data-table"] {
+			width: 100%;
+			max-width: 72rem;
+			margin-left: auto;
+			margin-right: auto;
+
+			& >:not(:last-child) {
+				margin-block-end: 1rem;
+			}
+		}
+	</style>
+}
+
+templ Table(view shareddto.TableView) {
+	@table.Table(table.Props{
+		Class: "data-table",
+	}) {
+		@table.Header() {
+			@table.Row() {
+				for i := range view.Columns {
+					@table.Head(table.HeadProps{
+						Class: "not-first:border-l border-dashed border-muted",
+					}) {
+						<div
+							class="w-full flex gap-6 items-center"
+							{ "data-signals:table." + view.Columns[i].JSON + "=false" }
+						>
+							<span>
+								{ view.Columns[i].Display }
+							</span>
+							@SortButton(view.Columns[i].JSON)
+						</div>
+					}
+				}
+				@table.Head(table.HeadProps{
+					Class: "text-center border-l border-dashed border-muted",
+				}) {
+					actions 
+				}
+			}
+		}
+		@table.Body() {
+			for i := range view.Rows {
+				@Row(view.Name, view.Columns, view.Rows[i])
+			}
+		}
+	}
+}
+
+templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) {
+	@table.Row(table.RowProps{
+		Class: "hover:bg-primary/20 border-1 border-muted",
+	}) {
+		for i := range row.Cells {
+			@table.Cell(table.CellProps{
+				Class: fmt.Sprintf("not-first:border-l border-dashed border-muted text-%s", columns[i].Alignment),
+			}) {
+				if columns[i].Renderer == "badge" && row.Cells[i] != "" {
+					@badge.Badge() {
+						{ row.Cells[i] }
+					}
+				} else {
+					{ row.Cells[i] }
+				}
+			}
+		}
+		@table.Cell(table.CellProps{
+			Class: "border-l border-dashed border-muted",
+		}) {
+			@button.Button(button.Props{
+				Size:    button.SizeIcon,
+				Variant: button.VariantGhost,
+				Href:    fmt.Sprintf("/%s/%s/view", target, row.ID),
+			}) {
+				@icon.Eye(icon.Props{
+					Size: "16",
+				})
+			}
+			@button.Button(button.Props{
+				Size:    button.SizeIcon,
+				Variant: button.VariantGhost,
+				Href:    fmt.Sprintf("/%s/%s/edit", target, row.ID),
+			}) {
+				@icon.Pencil(icon.Props{
+					Size: "16",
+				})
+			}
+		}
+	}
+}
+
+templ SortButton(column string) {
+	@button.Button(button.Props{
+		Size:    button.SizeIcon,
+		Variant: button.VariantGhost,
+		Attributes: templ.Attributes{
+			"data-on:click": "$table." + column + "=!$table." + column + "; @post('/sort')",
+			"style":         "margin-left: auto;",
+		},
+	}) {
+		@icon.ArrowUpDown(icon.Props{
+			Size: "16",
+		})
+	}
+}

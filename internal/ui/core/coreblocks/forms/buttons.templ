@@ -1,0 +1,69 @@
+package forms
+
+import (
+	"fmt"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+)
+
+templ CancelButton() {
+	@button.Button(button.Props{
+		Type:  "button",
+		Class: "btn-warning",
+		Attributes: templ.Attributes{
+			"style": "flex: 1;",
+		},
+	}) {
+		@icon.X(icon.Props{
+			Size: "16",
+		})
+		<span>cancel</span>
+	}
+}
+
+templ SaveButton() {
+	@button.Button(button.Props{
+		Type:  "submit",
+		Class: "btn-success",
+		Attributes: templ.Attributes{
+			"style": "flex: 1;",
+		},
+	}) {
+		@icon.Save(icon.Props{
+			Size: "16",
+		})
+		<span>save</span>
+	}
+}
+
+templ ArchiveButton(object, id string) {
+	@button.Button(button.Props{
+		Type:  "button",
+		Class: "btn-info",
+		Attributes: templ.Attributes{
+			"data-on:click": fmt.Sprintf("@post('/%s/%s/archive'", object, id),
+			"style":         "flex: 1;",
+		},
+	}) {
+		@icon.Archive(icon.Props{
+			Size: "16",
+		})
+		<span>archive</span>
+	}
+}
+
+templ DeleteButton(object, id string) {
+	@button.Button(button.Props{
+		Type:  "button",
+		Class: "btn-destructive",
+		Attributes: templ.Attributes{
+			"data-on:click": fmt.Sprintf("@post('/%s/%s/delete'", object, id),
+			"style":         "flex: 1;",
+		},
+	}) {
+		@icon.Trash(icon.Props{
+			Size: "16",
+		})
+		<span>delete</span>
+	}
+}

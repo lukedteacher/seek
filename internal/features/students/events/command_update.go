@@ -9,15 +9,14 @@ import (
 )
 
 type UpdateStudentCommand struct {
-	UserRegisteredID string
-	Id               string
-	GivenName        string
-	ChosenName       string
-	FamilyName       string
-	Grade            int64
-	Homeroom         string
-	CaseManager      string
-	Metadata         CommandMetadata
+	StudentID   string
+	GivenName   string
+	ChosenName  string
+	FamilyName  string
+	Grade       int
+	Homeroom    string
+	CaseManager string
+	Metadata    CommandMetadata
 }
 
 type UpdateStudentResult struct {
@@ -26,19 +25,18 @@ type UpdateStudentResult struct {
 }
 
 func UpdateStudentCommandHandler(ctx context.Context, command UpdateStudentCommand, saver eventstore.Saver, retriever eventstore.Retriever) (UpdateStudentResult, error) {
-	model, err := loadUpdateStudentContext(ctx, retriever, command.Id)
+	model, err := loadUpdateStudentContext(ctx, retriever, command.StudentID)
 	if err != nil {
 		return UpdateStudentResult{}, err
 	}
-	if err := model.requireActive(); err != nil {
+	if err := model.isActive(); err != nil {
 		return UpdateStudentResult{}, err
 	}
-	if model.firstName == command.GivenName && model.chosenName == command.ChosenName && model.lastName == command.FamilyName && model.grade == command.Grade && model.homeroom == command.Homeroom && model.caseManager == command.CaseManager {
+	if model.givenName == command.GivenName && model.chosenName == command.ChosenName && model.familyName == command.FamilyName && model.grade == command.Grade && model.homeroom == command.Homeroom && model.caseManager == command.CaseManager {
 		return UpdateStudentResult{Skipped: true}, nil
 	}
-
 	eventID := uuidv7.NewString()
-	event := NewStudentUpdatedEvent(eventID, command.Id, command.GivenName, command.ChosenName, command.FamilyName, command.Grade, command.Homeroom, command.CaseManager, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewStudentUpdatedEvent(eventID, command.StudentID, command.GivenName, command.ChosenName, command.FamilyName, command.Grade, command.Homeroom, command.CaseManager, time.Now(), metadataWithQuery(command.Metadata, model.query))
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return UpdateStudentResult{}, err
@@ -47,12 +45,13 @@ func UpdateStudentCommandHandler(ctx context.Context, command UpdateStudentComma
 }
 
 type updateStudentContext struct {
-	exists      bool
+	created     bool
+	archived    bool
 	deleted     bool
-	firstName   string
+	givenName   string
 	chosenName  string
-	lastName    string
-	grade       int64
+	familyName  string
+	grade       int
 	homeroom    string
 	caseManager string
 	position    eventstore.Position
@@ -60,8 +59,8 @@ type updateStudentContext struct {
 	query       eventstore.Query
 }
 
-func loadUpdateStudentContext(ctx context.Context, retriever eventstore.Retriever, id string) (*updateStudentContext, error) {
-	query := StreamQuery(id)
+func loadUpdateStudentContext(ctx context.Context, retriever eventstore.Retriever, studentID string) (*updateStudentContext, error) {
+	query := StreamQuery(studentID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err
@@ -75,8 +74,8 @@ func loadUpdateStudentContext(ctx context.Context, retriever eventstore.Retrieve
 	return model, nil
 }
 
-func (m *updateStudentContext) requireActive() error {
-	if !m.exists || m.deleted {
+func (m *updateStudentContext) isActive() error {
+	if !m.created || m.archived || m.deleted {
 		return eventstore.ErrNotFound
 	}
 	return nil
@@ -86,21 +85,24 @@ func (m *updateStudentContext) handle(resolved eventstore.ResolvedEvent) {
 	data := resolved.Event.Data
 	switch resolved.Event.EventType {
 	case StudentCreated:
-		m.exists = true
+		m.created = true
+		m.archived = false
 		m.deleted = false
-		m.firstName, _ = data[StudentGivenNameField].(string)
+		m.givenName, _ = data[StudentGivenNameField].(string)
 		m.chosenName, _ = data[StudentChosenNameField].(string)
-		m.lastName, _ = data[StudentFamilyNameField].(string)
-		m.grade = int64(data[StudentGradeField].(float64))
+		m.familyName, _ = data[StudentFamilyNameField].(string)
+		m.grade = int(data[StudentGradeField].(float64))
 		m.homeroom, _ = data[StudentHomeroomField].(string)
 		m.caseManager, _ = data[StudentCaseManagerField].(string)
 	case StudentUpdated:
-		m.firstName, _ = data[StudentGivenNameField].(string)
+		m.givenName, _ = data[StudentGivenNameField].(string)
 		m.chosenName, _ = data[StudentChosenNameField].(string)
-		m.lastName, _ = data[StudentFamilyNameField].(string)
-		m.grade = int64(data[StudentGradeField].(float64))
+		m.familyName, _ = data[StudentFamilyNameField].(string)
+		m.grade = int(data[StudentGradeField].(float64))
 		m.homeroom, _ = data[StudentHomeroomField].(string)
 		m.caseManager, _ = data[StudentCaseManagerField].(string)
+	case StudentArchived:
+		m.archived = true
 	case StudentDeleted:
 		m.deleted = true
 	}

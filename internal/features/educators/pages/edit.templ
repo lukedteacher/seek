@@ -6,13 +6,13 @@ import (
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
 	"seek/internal/features/users/models"
-	"seek/internal/views"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ Edit(user models.User, url string, view dto.EducatorView) {
-	@layouts.Base("SEEK: edit educator", user) {
-		<main data-init={ views.LongRunningGetSSE(fmt.Sprintf("/educators/%s/edit/stream", view.ID)) }>
+	@corelayouts.LayoutBase("SEEK: edit educator", user) {
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/educators/%s/edit/stream", view.ID)) }>
 			<section>
 				@blocks.EducatorEditForm(url, view)
 			</section>

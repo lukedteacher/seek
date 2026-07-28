@@ -2,11 +2,11 @@ package pages
 
 import (
 	"seek/internal/features/users/models"
-	"seek/internal/views/layouts"
+	"seek/internal/ui/core/corelayouts"
 )
 
 templ NotFound(user models.User) {
-	@layouts.Base("SEEK: student not found", user) {
+	@corelayouts.LayoutBase("SEEK: student not found", user) {
 		<main id="main">
 			<section>
 				<h3>not found</h3>

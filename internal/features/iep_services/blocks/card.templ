@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"seek/internal/features/iep_services/dto"
-	"seek/internal/views/components/button"
-	"seek/internal/views/components/card"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
 )
 
@@ -46,5 +46,4 @@ templ Card(view dto.IEPServiceView) {
 			}
 		}
 	}
-	@card.CardStyles()
 }
