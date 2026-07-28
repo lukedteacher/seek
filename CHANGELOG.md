@@ -2,6 +2,11 @@
 
 updates for SEEK
 
+## v0.3.10 (26.07.28) first run of validate/{field} for period
+
+- implemented UpdateField functions for period models
+- patch new values to form via SSE
+
 ## v0.3.9 (26.07.28) finished moving views folder to ui/core
 
 - moved all components in views to ui/core

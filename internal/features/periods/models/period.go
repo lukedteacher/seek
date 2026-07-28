@@ -33,3 +33,43 @@ func NewPeriod() (*Period, error) {
 		Duration:  30,
 	}, nil
 }
+
+// updates the start time and recalculates the end time
+// based on the current duration.
+func (p *Period) UpdateStartTime(newStart sharedmodels.TimeOnly) {
+	p.StartTime = newStart
+	p.EndTime = sharedmodels.TimeOnly(
+		time.Time(newStart).Add(time.Duration(p.Duration) * time.Minute),
+	)
+}
+
+// updates the end time and recalculates the duration
+// based on the current start time.
+func (p *Period) UpdateEndTime(newEnd sharedmodels.TimeOnly) {
+	// Calculate difference between new end and current start
+	diff := time.Time(newEnd).Sub(time.Time(p.StartTime))
+	if diff >= 0 {
+		// Normal case: end is after start – update duration
+		p.Duration = int(diff.Minutes())
+		p.EndTime = newEnd
+	} else {
+		// End moved earlier than start – shift the whole period earlier
+		// Keep duration constant, compute new start = newEnd - duration
+		newStart := time.Time(newEnd).Add(-time.Duration(p.Duration) * time.Minute)
+		p.StartTime = sharedmodels.TimeOnly(newStart)
+		p.EndTime = newEnd
+		// Duration stays the same
+	}
+}
+
+// updates the duration and recalculates the end time
+// based on the current start time.
+func (p *Period) UpdateDuration(newDuration int) {
+	if newDuration < 0 {
+		newDuration = 0
+	}
+	p.Duration = newDuration
+	p.EndTime = sharedmodels.TimeOnly(
+		time.Time(p.StartTime).Add(time.Duration(newDuration) * time.Minute),
+	)
+}

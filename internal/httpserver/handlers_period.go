@@ -159,22 +159,56 @@ func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// POST request to /periods/create/validate
+// POST request to /periods/create/validate/{field}
 func (s Server) postPeriodCreateValidateField(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	signals := &struct {
 		Period dto.PeriodFormView `json:"period"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("pcv signal read: ", err.Error())
+		s.Logger.ErrorContext(ctx, "pcv signal read", "error", err)
 		return
 	}
+
 	field := chi.URLParam(r, "field")
-	println(field)
-	// saves the state to a view store so that the SSE can update
-	// TODO look into a better name for the channel
+	s.Logger.DebugContext(ctx, "validating field", "field", field)
+
+	// Convert the form view to a temporary Period for business logic
+	temp := signals.Period.ToPeriod()
+
+	switch field {
+	case "starttime":
+		// Update start time → recalculate end time using current duration
+		temp.UpdateStartTime(signals.Period.StartTime)
+		// Copy back the recalculated end time (duration unchanged)
+		signals.Period.EndTime = temp.EndTime
+		s.Logger.DebugContext(ctx, "start time updated", "start", temp.StartTime, "end", temp.EndTime, "duration", temp.Duration)
+
+	case "endtime":
+		// Update end time → recalculate duration using current start time
+		temp.UpdateEndTime(signals.Period.EndTime)
+		// Copy back the new duration (end time already set)
+		signals.Period.Duration = temp.Duration
+		signals.Period.StartTime = temp.StartTime
+		s.Logger.DebugContext(ctx, "end time updated", "start", temp.StartTime, "end", temp.EndTime, "duration", temp.Duration)
+
+	case "duration":
+		// Update duration → recalculate end time using current start time
+		temp.UpdateDuration(signals.Period.Duration)
+		// Copy back the recalculated end time
+		signals.Period.EndTime = temp.EndTime
+		s.Logger.DebugContext(ctx, "duration updated", "start", temp.StartTime, "end", temp.EndTime, "duration", temp.Duration)
+
+	default:
+		s.Logger.WarnContext(ctx, "unknown validation field", "field", field)
+		http.Error(w, "unknown field", http.StatusBadRequest)
+		return
+	}
+
+	// Save the updated signals to the view store so the SSE can refresh the form
 	if err := viewstore.PutState(ctx, s.ViewStore, "new", signals); err != nil {
-		println("view store error ", err.Error())
+		s.Logger.ErrorContext(ctx, "view store error", "error", err)
+		// Don't return an error to the client – the view will still update via SSE
 	}
 }
 
