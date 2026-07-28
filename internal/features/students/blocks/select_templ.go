@@ -9,11 +9,12 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"seek/internal/features/students/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-func StudentSelect(views []StudentMultiselectView) templ.Component {
+func StudentSelect(views []dto.StudentSelectBoxView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -134,9 +135,9 @@ func StudentSelect(views []StudentMultiselectView) templ.Component {
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var7 string
-						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(views[i].DisplayName)
+						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(views[i].Student.Name())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select.templ`, Line: 34, Col: 27}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select.templ`, Line: 35, Col: 30}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -145,7 +146,7 @@ func StudentSelect(views []StudentMultiselectView) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-						Value:    views[i].StudentID,
+						Value:    views[i].Student.ID,
 						Selected: views[i].Selected,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {

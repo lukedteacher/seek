@@ -10,9 +10,10 @@ import (
 type CreatePeriodParams struct {
 	Id                       string `json:"id"`
 	Title                    string `json:"title"`
+	ServiceType              string `json:"service_type"`
 	StartTime                string `json:"start_time"`
 	Duration                 int64  `json:"duration"`
-	Days                     int64  `json:"days"`
+	DaysBitmask              int64  `json:"days_bitmask"`
 	CreatedAt                string `json:"created_at"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
@@ -27,8 +28,30 @@ type CreatePeriodStmt struct {
 
 func CreatePeriod(tx *sqlite.Conn) *CreatePeriodStmt {
 	const querySQL = `
-INSERT INTO periods (id, title, start_time, duration, days, created_at, updated_at, last_event_commit_position, last_event_prepare_position)
-VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6, ?7, ?8)
+INSERT INTO periods (
+	id, 
+	title, 
+	service_type,
+	start_time, 
+	duration, 
+	days_bitmask, 
+	created_at, 
+	updated_at, 
+	last_event_commit_position, 
+	last_event_prepare_position
+)
+VALUES (
+	?1, 
+	?2, 
+	?3,
+	?4, 
+	?5, 
+	?6, 
+	?7, 
+	?7, 
+	?8, 
+	?9
+)
 ON CONFLICT (id) DO NOTHING
     `
 
@@ -72,13 +95,16 @@ func (ps *CreatePeriodStmt) Run(
 	stmt.BindText(bindIndex, params.Title)
 
 	bindIndex++
+	stmt.BindText(bindIndex, params.ServiceType)
+
+	bindIndex++
 	stmt.BindText(bindIndex, params.StartTime)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.Duration)
 
 	bindIndex++
-	stmt.BindInt64(bindIndex, params.Days)
+	stmt.BindInt64(bindIndex, params.DaysBitmask)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.CreatedAt)

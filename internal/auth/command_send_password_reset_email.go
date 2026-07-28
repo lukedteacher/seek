@@ -10,7 +10,7 @@ import (
 	"seek/internal/email"
 	"seek/internal/eventstore"
 	"seek/internal/protectedpii"
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
 )
 
 type SendPasswordResetEmailCommand struct {

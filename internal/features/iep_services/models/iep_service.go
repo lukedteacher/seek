@@ -3,25 +3,26 @@ package models
 import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/pkg/templui/components/icon"
+	"time"
 
 	"github.com/a-h/templ"
 )
 
 type IEPService struct {
-	ID              string                   `display:"ID"`
-	StudentID       string                   `display:"student ID" csv:"MARSS ID"`
-	ServiceType     sharedmodels.ServiceType `display:"type" csv:"Service"`
-	IndirectMinutes int                      `display:"indirect (min)" csv:"Indirect minutes"`
-	DirectMinutes   int                      `display:"direct (min)" csv:"Direct minutes"`
-	FrequencyCount  int                      `display:"freq count" csv:"Frequency count"`
-	FrequencyType   string                   `display:"freq type" csv:"Frequency"`
-	Location        string                   `display:"location"`
-	StartDate       string                   `display:"start date" csv:"Start date"`
-	EndDate         string                   `display:"end date" csv:"End date"`
-	Provider        string                   `display:"provider" csv:"Provider"`
-	CreatedAt       string
-	UpdatedAt       string
-	ArchivedAt      string
+	ID              string                   `json:"id"`
+	StudentID       string                   `json:"student_id" csv:"MARSS ID"`
+	ServiceName     string                   `json:"service_name" csv:"Service"`
+	ServiceType     sharedmodels.ServiceType `json:"service_type"`
+	IndirectMinutes int                      `json:"indirect_minutes" csv:"Indirect minutes"`
+	DirectMinutes   int                      `json:"direct_minutes" csv:"Direct minutes"`
+	FrequencyCount  int                      `json:"frequency_count" csv:"Frequency count"`
+	FrequencyType   string                   `json:"frequency_type" csv:"Frequency"`
+	Location        string                   `json:"location"`
+	StartDate       time.Time                `json:"start_date" csv:"Start date"`
+	EndDate         time.Time                `json:"end_date" csv:"End date"`
+	Provider        string                   `json:"provider" csv:"Provider"`
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 }
 
 func NewIEPService() *IEPService {

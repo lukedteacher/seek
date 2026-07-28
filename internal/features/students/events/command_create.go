@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
 
 	"seek/internal/eventstore"
 )

@@ -9,9 +9,10 @@ import (
 
 type UpdatePeriodParams struct {
 	Title                    string `json:"title"`
+	ServiceType              string `json:"service_type"`
 	StartTime                string `json:"start_time"`
 	Duration                 int64  `json:"duration"`
-	Days                     int64  `json:"days"`
+	DaysBitmask              int64  `json:"days_bitmask"`
 	UpdatedAt                string `json:"updated_at"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
@@ -28,14 +29,16 @@ type UpdatePeriodStmt struct {
 func UpdatePeriod(tx *sqlite.Conn) *UpdatePeriodStmt {
 	const querySQL = `
 UPDATE periods
-SET title = ?1,
-	start_time = ?2,
-	duration = ?3,
-	days = ?4,
-	updated_at = ?5,
-	last_event_commit_position = ?6,
-	last_event_prepare_position = ?7
-WHERE id = ?8
+SET
+	title = ?1,
+	service_type = ?2,
+	start_time = ?3,
+	duration = ?4,
+	days_bitmask = ?5,
+	updated_at = ?6,
+	last_event_commit_position = ?7,
+	last_event_prepare_position = ?8
+WHERE id = ?9
     `
 
 	ps := &UpdatePeriodStmt{
@@ -75,13 +78,16 @@ func (ps *UpdatePeriodStmt) Run(
 	stmt.BindText(bindIndex, params.Title)
 
 	bindIndex++
+	stmt.BindText(bindIndex, params.ServiceType)
+
+	bindIndex++
 	stmt.BindText(bindIndex, params.StartTime)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.Duration)
 
 	bindIndex++
-	stmt.BindInt64(bindIndex, params.Days)
+	stmt.BindInt64(bindIndex, params.DaysBitmask)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.UpdatedAt)

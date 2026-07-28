@@ -17,7 +17,7 @@ func streamQuery(periodID string) eventstore.Query {
 		criteria = append(criteria, eventstore.Criterion{
 			Tags: []eventstore.Tag{
 				{Key: "eventType", Value: eventType},
-				{Key: PeriodScopeIDField, Value: periodID},
+				{Key: FieldPeriodScopeID, Value: periodID},
 			},
 		})
 	}

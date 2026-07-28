@@ -6,25 +6,16 @@ import (
 )
 
 type Period struct {
-	ID          string
-	Title       string
-	ServiceType string
-	StartTime   time.Time
-	EndTime     time.Time
-	Duration    int64
-	Days        int64
-	StudentIDs  []string
+	ID          string                   `json:"id"`
+	Title       string                   `json:"title"`
+	ServiceType sharedmodels.ServiceType `json:"service_type"`
+	StartTime   sharedmodels.TimeOnly    `json:"start_time"`
+	EndTime     sharedmodels.TimeOnly    `json:"end_time"`
+	Duration    int                      `json:"duration"`
+	DaysBitmask sharedmodels.DaysBitmask `json:"days_bitmask"`
+	StudentIDs  string                   `json:"student_ids"`
 	CreatedAt   string
 	UpdatedAt   string
-	DeletedAt   string
-}
-
-type PeriodSignals struct {
-	ID        string                   `json:"id"`
-	Title     string                   `json:"title"`
-	StartTime time.Time                `json:"start_time"`
-	Duration  int                      `json:"duration"`
-	Days      sharedmodels.DaysSignals `json:"days"`
 }
 
 func NewPeriod() (*Period, error) {
@@ -37,12 +28,8 @@ func NewPeriod() (*Period, error) {
 		return nil, err
 	}
 	return &Period{
-		StartTime: start,
-		EndTime:   end,
+		StartTime: sharedmodels.TimeOnly(start),
+		EndTime:   sharedmodels.TimeOnly(end),
 		Duration:  30,
 	}, nil
-}
-
-func (p Period) StudentCount() int {
-	return len(p.StudentIDs)
 }

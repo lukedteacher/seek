@@ -5,17 +5,18 @@ import (
 	"time"
 
 	"seek/internal/eventstore"
-	"seek/internal/uuidv7"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/uuidv7"
 )
 
 type UpdatePeriodCommand struct {
-	UserRegisteredID string
-	Id               string
-	StartTime        time.Time
-	Duration         int64
-	Days             int64
-	Title            string
-	Metadata         CommandMetadata
+	ID          string
+	Title       string
+	ServiceType sharedmodels.ServiceType
+	StartTime   sharedmodels.TimeOnly
+	Duration    int
+	DaysBitmask sharedmodels.DaysBitmask
+	Metadata    CommandMetadata
 }
 
 type UpdatePeriodResult struct {
@@ -23,21 +24,37 @@ type UpdatePeriodResult struct {
 	Skipped         bool
 }
 
-func UpdatePeriodCommandHandler(ctx context.Context, command UpdatePeriodCommand, saver eventstore.Saver, retriever eventstore.Retriever) (UpdatePeriodResult, error) {
-	model, err := loadUpdatePeriodContext(ctx, retriever, command.Id)
+func UpdatePeriodCommandHandler(
+	ctx context.Context,
+	command UpdatePeriodCommand,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+) (
+	UpdatePeriodResult,
+	error,
+) {
+	model, err := loadUpdatePeriodContext(ctx, retriever, command.ID)
 	if err != nil {
 		return UpdatePeriodResult{}, err
 	}
-	if err := model.requireActive(); err != nil {
+	if err := model.isActive(); err != nil {
 		return UpdatePeriodResult{}, err
 	}
-	if model.title == command.Title && model.startTime == command.StartTime && model.duration == command.Duration && model.days == command.Days {
+	if model.isSame(command) {
 		return UpdatePeriodResult{Skipped: true}, nil
 	}
-
 	eventID := uuidv7.NewString()
-	event := NewPeriodUpdatedEvent(eventID, command.Id, command.Title, command.StartTime, command.Duration, command.Days, time.Now(), metadataWithQuery(command.Metadata, model.query))
-
+	event := NewPeriodUpdatedEvent(
+		eventID,
+		command.ID,
+		command.Title,
+		command.ServiceType,
+		command.StartTime,
+		command.Duration,
+		command.DaysBitmask,
+		time.Now(),
+		metadataWithQuery(command.Metadata, model.query),
+	)
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return UpdatePeriodResult{}, err
 	}
@@ -45,15 +62,17 @@ func UpdatePeriodCommandHandler(ctx context.Context, command UpdatePeriodCommand
 }
 
 type updatePeriodContext struct {
-	exists    bool
-	deleted   bool
-	title     string
-	startTime time.Time
-	duration  int64
-	days      int64
-	position  eventstore.Position
-	events    []eventstore.ResolvedEvent
-	query     eventstore.Query
+	exists      bool
+	archived    bool
+	deleted     bool
+	title       string
+	serviceType sharedmodels.ServiceType
+	startTime   sharedmodels.TimeOnly
+	duration    int
+	daysBitmask sharedmodels.DaysBitmask
+	position    eventstore.Position
+	events      []eventstore.ResolvedEvent
+	query       eventstore.Query
 }
 
 func loadUpdatePeriodContext(ctx context.Context, retriever eventstore.Retriever, id string) (*updatePeriodContext, error) {
@@ -71,11 +90,19 @@ func loadUpdatePeriodContext(ctx context.Context, retriever eventstore.Retriever
 	return model, nil
 }
 
-func (m *updatePeriodContext) requireActive() error {
-	if !m.exists || m.deleted {
+func (m *updatePeriodContext) isActive() error {
+	if !m.exists || m.archived || m.deleted {
 		return eventstore.ErrNotFound
 	}
 	return nil
+}
+
+func (m *updatePeriodContext) isSame(cmd UpdatePeriodCommand) bool {
+	return m.title == cmd.Title &&
+		m.serviceType == cmd.ServiceType &&
+		m.startTime == cmd.StartTime &&
+		m.duration == cmd.Duration &&
+		m.daysBitmask == cmd.DaysBitmask
 }
 
 func (m *updatePeriodContext) handle(resolved eventstore.ResolvedEvent) {
@@ -83,16 +110,21 @@ func (m *updatePeriodContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case PeriodCreated:
 		m.exists = true
+		m.archived = false
 		m.deleted = false
-		m.title, _ = data[PeriodTitleField].(string)
-		m.startTime = parseDBTime(data[PeriodStartTimeField].(string))
-		m.duration = int64(data[PeriodDurationField].(float64))
-		m.days = int64(data[PeriodDaysField].(float64))
+		m.title, _ = data[FieldPeriodTitle].(string)
+		m.serviceType = sharedmodels.ServiceType(data[FieldPeriodServiceType].(string))
+		m.startTime = parseDBTimeOnly(data[FieldPeriodStartTime].(string))
+		m.duration = int(data[FieldPeriodDuration].(float64))
+		m.daysBitmask = sharedmodels.DaysBitmask(int(data[FieldPeriodDaysBitmask].(float64)))
 	case PeriodUpdated:
-		m.title, _ = data[PeriodTitleField].(string)
-		m.startTime = parseDBTime(data[PeriodStartTimeField].(string))
-		m.duration = int64(data[PeriodDurationField].(float64))
-		m.days = int64(data[PeriodDaysField].(float64))
+		m.title, _ = data[FieldPeriodTitle].(string)
+		m.serviceType = sharedmodels.ServiceType(data[FieldPeriodServiceType].(string))
+		m.startTime = parseDBTimeOnly(data[FieldPeriodStartTime].(string))
+		m.duration = int(data[FieldPeriodDuration].(float64))
+		m.daysBitmask = sharedmodels.DaysBitmask(int(data[FieldPeriodDaysBitmask].(float64)))
+	case PeriodArchived:
+		m.archived = true
 	case PeriodDeleted:
 		m.deleted = true
 	}

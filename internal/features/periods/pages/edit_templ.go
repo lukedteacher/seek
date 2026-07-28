@@ -12,12 +12,13 @@ import (
 	"fmt"
 
 	"seek/internal/features/periods/blocks"
+	"seek/internal/features/periods/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 )
 
-func Edit(user models.User, view blocks.PeriodEditFormView) templ.Component {
+func Edit(user models.User, view dto.PeriodFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -55,9 +56,9 @@ func Edit(user models.User, view blocks.PeriodEditFormView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/edit/stream", view.Period.ID)))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(views.LongRunningGetSSE(fmt.Sprintf("/periods/%s/edit/stream", view.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/edit.templ`, Line: 14, Col: 99}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/edit.templ`, Line: 15, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {

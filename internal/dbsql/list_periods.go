@@ -8,11 +8,14 @@ import (
 )
 
 type ListPeriodsRes struct {
-	Id        string `json:"id"`
-	Title     string `json:"title"`
-	StartTime string `json:"start_time"`
-	Duration  int64  `json:"duration"`
-	Days      int64  `json:"days"`
+	Id          string `json:"id"`
+	Title       string `json:"title"`
+	ServiceType string `json:"service_type"`
+	StartTime   string `json:"start_time"`
+	Duration    int64  `json:"duration"`
+	DaysBitmask int64  `json:"days_bitmask"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
 }
 
 type ListPeriodsStmt struct {
@@ -24,10 +27,18 @@ type ListPeriodsStmt struct {
 
 func ListPeriods(tx *sqlite.Conn) *ListPeriodsStmt {
 	const querySQL = `
-SELECT id, title, start_time, duration, days
+SELECT
+	id, 
+	title, 
+	service_type,
+	start_time, 
+	duration, 
+	days_bitmask, 
+	created_at, 
+	updated_at
 FROM periods
-WHERE deleted_at IS NULL
-ORDER BY title DESC, id DESC
+WHERE archived_at IS NULL
+ORDER BY service_type DESC, title DESC
     `
 
 	ps := &ListPeriodsStmt{
@@ -72,9 +83,12 @@ func (ps *ListPeriodsStmt) Run() (
 		row := ListPeriodsRes{}
 		row.Id = stmt.ColumnText(0)
 		row.Title = stmt.ColumnText(1)
-		row.StartTime = stmt.ColumnText(2)
-		row.Duration = stmt.ColumnInt64(3)
-		row.Days = stmt.ColumnInt64(4)
+		row.ServiceType = stmt.ColumnText(2)
+		row.StartTime = stmt.ColumnText(3)
+		row.Duration = stmt.ColumnInt64(4)
+		row.DaysBitmask = stmt.ColumnInt64(5)
+		row.CreatedAt = stmt.ColumnText(6)
+		row.UpdatedAt = stmt.ColumnText(7)
 		res = append(res, row)
 	}
 

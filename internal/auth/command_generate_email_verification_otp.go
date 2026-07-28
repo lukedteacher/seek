@@ -8,7 +8,7 @@ import (
 	"seek/internal/commandlimits"
 	"seek/internal/eventstore"
 	"seek/internal/features/users/models"
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
 )
 
 type GenerateEmailVerificationOTPCommand struct {

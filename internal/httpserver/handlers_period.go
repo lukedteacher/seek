@@ -7,8 +7,6 @@ import (
 	"strings"
 
 	"seek/internal/eventstore"
-	"seek/internal/features/_shared/sharedmodels"
-	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
@@ -105,8 +103,8 @@ func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		println(err.Error())
 	}
-	selected := []string{}
-	view := blocks.NewPeriodCreateFormView(empty, students, selected)
+	view := dto.NewPeriodFormView(empty, students)
+	view.URL = "/periods/create"
 	_ = pages.Create(user, view).Render(ctx, w)
 }
 
@@ -136,12 +134,11 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 		case <-ctx.Done():
 			return
 		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
-			println("watcher update")
 			if !ok {
 				return
 			}
-			var model models.Period
-			if err := entry.JSON(&model); err != nil {
+			model := &models.Period{}
+			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
 			}
@@ -149,7 +146,8 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				println(err.Error())
 			}
-			view := blocks.NewPeriodCreateFormView(&model, students, model.StudentIDs)
+			view := dto.NewPeriodFormView(model, students)
+			view.URL = "/periods/create"
 			sse.PatchElementTempl(pages.Create(user, view))
 		}
 	}
@@ -165,7 +163,7 @@ func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request)
 		println("pcv signal read: ", err.Error())
 		return
 	}
-	model := dto.NewPeriodFromFormView(&signals.Period)
+	model := signals.Period.ToPeriod()
 	// saves the state to a view store so that the SSE can update
 	// TODO look into a better name for the channel
 	if err := viewstore.PutState(ctx, s.ViewStore, "new", model); err != nil {
@@ -184,21 +182,9 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 		println("pc signal read: ", err.Error())
 		return
 	}
-	model := dto.NewPeriodFromFormView(&signals.Period)
-	validation := events.Validate(&model)
-	if validation == nil {
-		println("some error")
-		return
-		// TODO actually validate
-	}
-	createPeriodCommand := events.CreatePeriodCommand{
-		Title:     model.Title,
-		StartTime: model.StartTime,
-		Duration:  model.Duration,
-		Days:      model.Days,
-		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-	}
-	result, err := events.CreatePeriodCommandHandler(ctx, createPeriodCommand, s.EventSaver)
+	metadata := eventstore.HTTPCommandMetadata(r, user.UserRegisteredID)
+	command := signals.Period.ToCreateCommand(metadata)
+	result, err := events.CreatePeriodCommandHandler(ctx, command, s.EventSaver)
 	if err != nil {
 		println("ph cpch error: ", err.Error())
 		return
@@ -239,16 +225,12 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 		_ = pages.NotFound(user).Render(ctx, w)
 		return
 	}
-	view, err := dto.NewViewFromPeriod(model)
-	if err != nil {
-		println("error: ", err.Error())
-		return
-	}
+	view := dto.NewPeriodView(model)
 	studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 	for i := range studentIDs {
 		student, _ := s.Students.Get(ctx, studentIDs[i])
-		studentView := sdto.NewStudentViewFromModel(*student)
-		view.Students = append(view.Students, *studentView)
+		studentView := sdto.NewStudentView(student)
+		view.Students = append(view.Students, studentView)
 	}
 	_ = pages.View(user, view).Render(ctx, w)
 }
@@ -307,20 +289,17 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var model models.Period
-			if err := entry.JSON(&model); err != nil {
-				println(err.Error())
+			model := &models.Period{}
+			if err := entry.JSON(model); err != nil {
+				println("e: ", err.Error())
 				return
 			}
-			view, err := dto.NewViewFromPeriod(&model)
-			if err != nil {
-				println("error: ", err.Error())
-			}
+			view := dto.NewPeriodView(model)
 			studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 			for i := range studentIDs {
 				student, _ := s.Students.Get(ctx, studentIDs[i])
-				studentView := sdto.NewStudentViewFromModel(*student)
-				view.Students = append(view.Students, *studentView)
+				studentView := sdto.NewStudentView(student)
+				view.Students = append(view.Students, studentView)
 			}
 			sse.PatchElementTempl(pages.View(user, view))
 		}
@@ -343,7 +322,14 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	selected, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
-	view := blocks.NewPeriodEditFormView(model, all, selected)
+	model.StudentIDs = strings.Join(selected, ",")
+	view := dto.NewPeriodFormView(model, all)
+	view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
+	println("vdm: ", view.Days.Monday)
+	println("vdm: ", view.Days.Tuesday)
+	println("vdm: ", view.Days.Wednesday)
+	println("vdm: ", view.Days.Thursday)
+	println("vdm: ", view.Days.Friday)
 	_ = pages.Edit(user, view).Render(ctx, w)
 }
 
@@ -395,8 +381,8 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var model models.Period
-			if err := entry.JSON(&model); err != nil {
+			model := &models.Period{}
+			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
 			}
@@ -405,7 +391,9 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 				println(err.Error())
 			}
 			selected, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
-			view := blocks.NewPeriodEditFormView(&model, all, selected)
+			model.StudentIDs = strings.Join(selected, ",")
+			view := dto.NewPeriodFormView(model, all)
+			view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
 			sse.PatchElementTempl(pages.Edit(user, view))
 		}
 	}
@@ -423,7 +411,7 @@ func (s Server) postPeriodEditValidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	signals.Period.ID = periodID
-	model := dto.NewPeriodFromFormView(&signals.Period)
+	model := signals.Period.ToPeriod()
 	viewstore.PutState(ctx, s.ViewStore, periodID, model)
 }
 
@@ -440,12 +428,13 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	periodID := chi.URLParam(r, "id")
 	updatePeriodCommand := events.UpdatePeriodCommand{
-		Id:        periodID,
-		Title:     signals.Period.Title,
-		StartTime: signals.Period.StartTime,
-		Duration:  int64(signals.Period.Duration),
-		Days:      sharedmodels.DaysSignalsToDaysBitmask(signals.Period.Days),
-		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+		ID:          periodID,
+		Title:       signals.Period.Title,
+		ServiceType: signals.Period.ServiceType,
+		StartTime:   signals.Period.StartTime,
+		Duration:    signals.Period.Duration,
+		DaysBitmask: signals.Period.Days.ToBitmask(),
+		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
 	result, err := events.UpdatePeriodCommandHandler(ctx, updatePeriodCommand, s.EventSaver, s.EventRetriever)
 	if err != nil {
@@ -457,7 +446,6 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	current, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, periodID)
 	proposed := strings.Split(signals.Period.StudentIDs, ",")
-	println("p: ", len(proposed))
 	if len(current) != 0 || len(proposed) != 0 {
 		// build maps for O(1) lookups
 		currentMap := make(map[string]bool)
@@ -537,30 +525,4 @@ func (s Server) refreshPeriodEditState(ctx context.Context, periodID string) err
 		return err
 	}
 	return viewstore.PutState(ctx, s.ViewStore, period.ID+".edit", period)
-}
-
-func (s Server) periodToSignals(period *models.Period) models.PeriodSignals {
-	if period == nil {
-		return models.PeriodSignals{}
-	}
-	return models.PeriodSignals{
-		ID:        period.ID,
-		Title:     period.Title,
-		StartTime: period.StartTime,
-		Duration:  int(period.Duration),
-		Days:      sharedmodels.DaysBitmaskToDaysSignals(period.Days),
-	}
-}
-
-func (s Server) periodSignalsToModel(period *models.PeriodSignals) models.Period {
-	if period == nil {
-		return models.Period{}
-	}
-	return models.Period{
-		ID:        period.ID,
-		Title:     period.Title,
-		StartTime: period.StartTime,
-		Duration:  int64(period.Duration),
-		Days:      sharedmodels.DaysSignalsToDaysBitmask(period.Days),
-	}
 }

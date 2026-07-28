@@ -13,13 +13,13 @@ func streamQuery(periodID, studentID string) eventstore.Query {
 		{
 			Tags: []eventstore.Tag{
 				{Key: "eventType", Value: pe.PeriodCreated},
-				{Key: pe.PeriodCreatedIDField, Value: periodID},
+				{Key: pe.FieldPeriodCreatedEventID, Value: periodID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
 				{Key: "eventType", Value: pe.PeriodDeleted},
-				{Key: pe.PeriodDeletedIDField, Value: periodID},
+				{Key: pe.FieldPeriodDeletedEventID, Value: periodID},
 			},
 		},
 		{
@@ -37,14 +37,14 @@ func streamQuery(periodID, studentID string) eventstore.Query {
 		{
 			Tags: []eventstore.Tag{
 				{Key: "eventType", Value: PeriodStudentAdded},
-				{Key: pe.PeriodScopeIDField, Value: periodID},
+				{Key: pe.FieldPeriodScopeID, Value: periodID},
 				{Key: se.StudentScopeIDField, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
 				{Key: "eventType", Value: PeriodStudentRemoved},
-				{Key: pe.PeriodScopeIDField, Value: periodID},
+				{Key: pe.FieldPeriodScopeID, Value: periodID},
 				{Key: se.StudentScopeIDField, Value: studentID},
 			},
 		},

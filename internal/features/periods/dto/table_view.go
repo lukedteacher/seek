@@ -8,6 +8,7 @@ import (
 
 var PeriodColumns = []shareddto.ColumnView{
 	{Field: "Title", Display: "title"},
+	{Field: "ServiceType", Display: "type", Renderer: "badge", Alignment: "center"},
 	{Field: "StartTime", Display: "start", Group: "time", Alignment: "center"},
 	{Field: "EndTime", Display: "end", Group: "time", Alignment: "center"},
 	{Field: "Duration", Display: "duration (min)", Alignment: "center"},
@@ -24,14 +25,16 @@ func extractPeriod(p *models.Period, field string) string {
 		return p.ID
 	case "Title":
 		return p.Title
+	case "ServiceType":
+		return p.ServiceType.String()
 	case "StartTime":
 		return p.StartTime.Format("15:04")
 	case "EndTime":
 		return p.EndTime.Format("15:04")
 	case "Duration":
-		return strconv.FormatInt(p.Duration, 10)
+		return strconv.Itoa(p.Duration)
 	case "Days":
-		return strconv.FormatInt(p.Days, 10)
+		return p.DaysBitmask.String()
 	default:
 		return ""
 	}

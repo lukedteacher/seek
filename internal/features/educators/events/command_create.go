@@ -7,7 +7,7 @@ import (
 
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/models"
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
 
 	"seek/internal/eventstore"
 )

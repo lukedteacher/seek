@@ -91,8 +91,8 @@ func (s Server) getStudentCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	empty := models.NewStudent()
-	view := dto.NewStudentFormViewFromModel(*empty)
-	_ = pages.Create(user, *view).Render(ctx, w)
+	view := dto.NewStudentFormView(empty)
+	_ = pages.Create(user, view).Render(ctx, w)
 }
 
 // GET request to /students/create/stream
@@ -125,14 +125,14 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var model models.Student
-			if err := entry.JSON(&model); err != nil {
+			var model *models.Student
+			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
 			}
 			println(model.Grade)
-			view := dto.NewStudentFormViewFromModel(model)
-			sse.PatchElementTempl(pages.Create(user, *view))
+			view := dto.NewStudentFormView(model)
+			sse.PatchElementTempl(pages.Create(user, view))
 		}
 	}
 }
@@ -196,8 +196,8 @@ func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	view := dto.NewStudentViewFromModel(*student)
-	_ = pages.View(user, *view).Render(ctx, w)
+	view := dto.NewStudentView(student)
+	_ = pages.View(user, view).Render(ctx, w)
 }
 
 // GET request to /students/{id}/stream
@@ -254,13 +254,13 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var model models.Student
-			if err := entry.JSON(&model); err != nil {
+			var model *models.Student
+			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
 			}
-			view := dto.NewStudentViewFromModel(model)
-			sse.PatchElementTempl(pages.View(user, *view))
+			view := dto.NewStudentView(model)
+			sse.PatchElementTempl(pages.View(user, view))
 		}
 	}
 }
@@ -280,8 +280,8 @@ func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	view := dto.NewStudentFormViewFromModel(*model)
-	_ = pages.Edit(user, *view).Render(ctx, w)
+	view := dto.NewStudentFormView(model)
+	_ = pages.Edit(user, view).Render(ctx, w)
 }
 
 // GET request to /student/{id}/stream
@@ -332,13 +332,13 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var model models.Student
-			if err := entry.JSON(&model); err != nil {
+			var model *models.Student
+			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
 			}
-			view := dto.NewStudentFormViewFromModel(model)
-			sse.PatchElementTempl(pages.Edit(user, *view))
+			view := dto.NewStudentFormView(model)
+			sse.PatchElementTempl(pages.Edit(user, view))
 		}
 	}
 }
@@ -356,8 +356,8 @@ func (s Server) postStudentEditValidate(w http.ResponseWriter, r *http.Request) 
 	}
 	model := dto.NewStudentModelFromView(&signals.Student)
 	model.ID = chi.URLParam(r, "id")
-	view := dto.NewStudentFormViewFromModel(*model)
-	_ = pages.Edit(user, *view).Render(ctx, w)
+	view := dto.NewStudentFormView(&model)
+	_ = pages.Edit(user, view).Render(ctx, w)
 }
 
 // POST request to /students/{id}/edit

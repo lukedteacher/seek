@@ -2,13 +2,14 @@ package pages
 
 import (
 	"seek/internal/features/periods/blocks"
+	"seek/internal/features/periods/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/views"
 	"seek/internal/views/layouts"
 )
 
-templ Create(user models.User, view blocks.PeriodCreateFormView) {
+templ Create(user models.User, view dto.PeriodFormView) {
 	@layouts.Base("SEEK: create period", user) {
 		<main data-init={ views.LongRunningGetSSE("/periods/create/stream") }>
 			@coreblocks.HeaderMain("create period", "/periods/create")

@@ -6,10 +6,8 @@ import (
 	"net/http"
 	"os"
 	"reflect"
-	"strconv"
 
 	"seek/internal/eventstore"
-	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iep_services/dto"
 	"seek/internal/features/iep_services/events"
 	"seek/internal/features/iep_services/models"
@@ -428,25 +426,49 @@ func (s Server) ReadCSV(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 
-	file, _ := os.OpenFile("iep_services.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+	file, err := os.OpenFile("iep_services.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 	defer file.Close()
 
-	csvServices := []*models.IEPService{}
-	gocsv.UnmarshalFile(file, &csvServices)
-	n := 0
-	for _, service := range csvServices {
-		if service.ServiceType != "Shared paraprofessional" {
-			csvServices[n] = service
-			n++
+	csvServices := []*models.CSVIEPService{}
+	if err := gocsv.UnmarshalFile(file, &csvServices); err != nil {
+		http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// filter out unwanted services
+	filtered := make([]*models.CSVIEPService, 0, len(csvServices))
+	for _, svc := range csvServices {
+		if svc.ServiceName != "Shared paraprofessional" {
+			filtered = append(filtered, svc)
 		}
 	}
-	csvServices = csvServices[:n]
-	dbServices, _ := s.IEPServices.List(ctx)
+
+	// convert CSV models to domain models
+	converted := make([]*models.IEPService, len(filtered))
+	for i, csvSvc := range filtered {
+		domain := csvSvc.ToIEPService()
+		converted[i] = &domain
+	}
+
+	// fetch existing DB services
+	dbServices, err := s.IEPServices.List(ctx)
+	if err != nil {
+		http.Error(w, "failed to list existing services: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 	dbPtrs := make([]*models.IEPService, len(dbServices))
 	for i := range dbServices {
 		dbPtrs[i] = &dbServices[i]
 	}
-	diffs := models.CompareIEPServices(dbPtrs, csvServices)
+
+	// compute diff
+	diffs := models.CompareIEPServices(dbPtrs, converted)
+
+	// render view
 	view := dto.NewIEPServiceDiffTableView(diffs)
 	pages.CSV(user, view).Render(ctx, w)
 }
@@ -455,9 +477,6 @@ func (s Server) refreshIEPServiceViewState(ctx context.Context, iepServiceID str
 	iepService, err := s.IEPServices.Get(ctx, iepServiceID)
 	if err != nil {
 		return err
-	}
-	if iepService.ArchivedAt != "" {
-		println("this iep service was archived")
 	}
 	return viewstore.PutState(ctx, s.ViewStore, iepService.ID+".view", iepService)
 }
@@ -480,118 +499,5 @@ func CopyFields(dst, src interface{}) {
 		if dstF := dstV.FieldByName(srcV.Type().Field(i).Name); dstF.IsValid() && dstF.Type() == f.Type() {
 			dstF.Set(f)
 		}
-	}
-}
-
-type ServiceDiff struct {
-	Key           string // unique identifier
-	Status        sharedmodels.DiffStatus
-	Old           *models.IEPService // nil for added
-	New           *models.IEPService // nil for deleted
-	ChangedFields []string           // optional: list of changed field names
-}
-
-func CompareServices(dbServices, csvServices []*models.IEPService) []ServiceDiff {
-	// Map DB by composite key (StudentID + ServiceType)
-	dbMap := make(map[string]*models.IEPService)
-	for _, s := range dbServices {
-		key := s.StudentID + "|" + s.ServiceType.String()
-		dbMap[key] = s
-	}
-
-	// track which keys are in CSV
-	csvKeys := make(map[string]bool)
-	var diffs []ServiceDiff
-
-	// 1. check CSV entries (added or updated)
-	for _, csvSvc := range csvServices {
-		key := csvSvc.StudentID + "|" + csvSvc.ServiceType.String()
-		csvKeys[key] = true
-		if dbSvc, exists := dbMap[key]; exists {
-			// check if any business fields differ (ignore timestamps, ID)
-			if fieldsChanged := compareFields(dbSvc, csvSvc); len(fieldsChanged) > 0 {
-				diffs = append(diffs, ServiceDiff{
-					Key:           key,
-					Status:        sharedmodels.DiffUpdated,
-					Old:           dbSvc,
-					New:           csvSvc,
-					ChangedFields: fieldsChanged,
-				})
-			} else {
-				diffs = append(diffs, ServiceDiff{Key: key, Status: sharedmodels.DiffSame, New: csvSvc})
-			}
-		} else {
-			diffs = append(diffs, ServiceDiff{
-				Key:    key,
-				Status: sharedmodels.DiffAdded,
-				New:    csvSvc,
-			})
-		}
-	}
-
-	// 2. check DB entries not in CSV (deleted)
-	for key, dbSvc := range dbMap {
-		if !csvKeys[key] {
-			diffs = append(diffs, ServiceDiff{
-				Key:    key,
-				Status: sharedmodels.DiffRemoved,
-				Old:    dbSvc,
-			})
-		}
-	}
-	return diffs
-}
-
-// helper to compare business fields (skip ID, timestamps)
-func compareFields(a, b *models.IEPService) []string {
-	changed := []string{}
-	// compare each relevant field
-	if a.IndirectMinutes != b.IndirectMinutes {
-		changed = append(changed, "IndirectMinutes")
-	}
-	if a.DirectMinutes != b.DirectMinutes {
-		changed = append(changed, "DirectMinutes")
-	}
-	if a.FrequencyCount != b.FrequencyCount {
-		changed = append(changed, "FrequencyCount")
-	}
-	if a.FrequencyType != b.FrequencyType {
-		changed = append(changed, "FrequencyType")
-	}
-	if a.Provider != b.Provider {
-		changed = append(changed, "FrequencyCount")
-	}
-	return changed
-}
-
-func extractValues(svc *models.IEPService, fields []string) []string {
-	if svc == nil {
-		return make([]string, len(fields)) // empty strings
-	}
-	vals := make([]string, len(fields))
-	for i, f := range fields {
-		vals[i] = extractValue(svc, f)
-	}
-	return vals
-}
-
-func extractValue(svc *models.IEPService, field string) string {
-	switch field {
-	case "StudentID":
-		return svc.StudentID
-	case "ServiceType":
-		return svc.ServiceType.String()
-	case "IndirectMinutes":
-		return strconv.Itoa(svc.IndirectMinutes)
-	case "DirectMinutes":
-		return strconv.Itoa(svc.DirectMinutes)
-	case "FrequencyCount":
-		return strconv.Itoa(svc.FrequencyCount)
-	case "FrequencyType":
-		return svc.FrequencyType
-	case "Provider":
-		return svc.Provider
-	default:
-		return ""
 	}
 }

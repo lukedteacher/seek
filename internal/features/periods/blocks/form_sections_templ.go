@@ -10,12 +10,13 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	iepsblocks "seek/internal/features/iep_services/blocks"
+	"seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/students/blocks"
 	"seek/internal/views/blocks/forms"
 	"seek/internal/views/components/day_buttons"
 )
 
-func FormSections(view PeriodCreateFormView) templ.Component {
+func FormSections(view dto.PeriodFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -43,14 +44,14 @@ func FormSections(view PeriodCreateFormView) templ.Component {
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
 			"title",
 			"title",
-			"/periods/create/validate",
+			view.URL+"/validate",
 			"period.title",
-			view.Period.Title,
+			view.Title,
 		).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = iepsblocks.SelectboxServiceType(view.Period.ServiceType).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = iepsblocks.SelectboxServiceType(view.ServiceType.String()).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -70,7 +71,7 @@ func FormSections(view PeriodCreateFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = day_buttons.DayButtons(view.Period.Days).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = day_buttons.DayButtons(view.Days).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

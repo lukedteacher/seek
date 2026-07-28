@@ -1,112 +1,25 @@
 package blocks
 
 import (
-	"fmt"
 	"seek/internal/features/periods/dto"
-	period "seek/internal/features/periods/events"
-	"seek/internal/features/periods/models"
-	sblocks "seek/internal/features/students/blocks"
-	smodels "seek/internal/features/students/models"
-	"seek/internal/views/components/day_buttons"
-	"seek/internal/views/components/input"
-	"seek/internal/views/components/label"
+	"seek/internal/views/blocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
-	"seek/internal/views/blocks/forms"
 )
 
-type PeriodEditFormView struct {
-	Period      dto.PeriodFormView
-	Validation  map[string]period.Validation
-	StudentList []sblocks.StudentMultiselectView
-}
-
-func NewPeriodEditFormView(p *models.Period, all []smodels.Student, selected []string) PeriodEditFormView {
-	if p == nil {
-		return PeriodEditFormView{}
-	}
-	view, err := dto.NewFormViewFromPeriod(p)
-	if err != nil {
-		println("new form edit view error: ", err.Error())
-	}
-	return PeriodEditFormView{
-		Period:      view,
-		StudentList: sblocks.NewStudentMultiselectView(all, selected),
-		Validation:  period.Validate(p),
-	}
-}
-
-templ EditPeriodForm(view PeriodEditFormView) {
+templ EditPeriodForm(view dto.PeriodFormView) {
 	<form
 		id="edit-period-form"
 		class="seek-form"
-		data-on:submit={ datastar.PostSSE("/periods/%s/edit", view.Period.ID) }
+		data-on:submit={ datastar.PostSSE(view.URL) }
 	>
 		<hgroup>
-			<h2>EDIT A PERIOD</h2>
+			<h2>edit period</h2>
 			<p>edit the data of an existing period.</p>
 		</hgroup>
-		<section>
-			@label.Label(label.Props{
-				ID:                "title-label",
-				For:               "title",
-				Label:             "title",
-				ValidationState:   view.Validation["title"].State,
-				ValidationMessage: view.Validation["title"].Message,
-			}) {
-				@input.Input(input.Props{
-					ID:       "title",
-					Name:     "title",
-					DataBind: "period.title",
-					DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
-					HasError: view.Validation["title"].State == "error",
-					IsValid:  view.Validation["title"].State == "valid",
-					Value:    view.Period.Title,
-				})
-			}
-			<div style="display: flex; justify-content: space-between; gap: var(--size-1);">
-				@label.Label(label.Props{
-					ID:                "start-time-label",
-					For:               "start-time",
-					Label:             "start time",
-					ValidationState:   view.Validation["start_time"].State,
-					ValidationMessage: view.Validation["start_time"].Message,
-				}) {
-					@input.Input(input.Props{
-						ID:       "start-time",
-						Name:     "start-time",
-						DataBind: "period.start_time",
-						DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
-						HasError: view.Validation["start_time"].State == "error",
-						IsValid:  view.Validation["start_time"].State == "valid",
-						Value:    view.Period.StartTime.Format("15:04"),
-					})
-				}
-				@label.Label(label.Props{
-					ID:                "end-time-label",
-					For:               "end-time",
-					Label:             "end time",
-					ValidationState:   view.Validation["end_time"].State,
-					ValidationMessage: view.Validation["end_time"].Message,
-				}) {
-					@input.Input(input.Props{
-						ID:       "end-time",
-						Name:     "end-time",
-						DataBind: "period.end_time",
-						DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
-						HasError: view.Validation["end_time"].State == "error",
-						IsValid:  view.Validation["end_time"].State == "valid",
-						Value:    view.Period.EndTime.String(),
-					})
-				}
-			</div>
-			<label for="duration">duration</label>
-			@DurationSlider(view.Period.Duration)
-			@day_buttons.DayButtons(view.Period.Days)
-			@sblocks.StudentMultiselect(view.StudentList)
-		</section>
+		@FormSections(view)
 		<footer>
-			@forms.ArchiveButton("periods", view.Period.ID)
+			@forms.ArchiveButton("periods", view.ID)
 			@forms.CancelButton()
 			@forms.SaveButton()
 		</footer>

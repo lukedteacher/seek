@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"seek/internal/eventstore"
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
 )
 
 type DeleteStudentCommand struct {

@@ -2,26 +2,27 @@ package blocks
 
 import (
 	iepsblocks "seek/internal/features/iep_services/blocks"
+	"seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/students/blocks"
 	"seek/internal/views/blocks/forms"
 	"seek/internal/views/components/day_buttons"
 )
 
-templ FormSections(view PeriodCreateFormView) {
+templ FormSections(view dto.PeriodFormView) {
 	<section>
 		@forms.TextInputWithLabel(
 			"title",
 			"title",
-			"/periods/create/validate",
+			view.URL+"/validate",
 			"period.title",
-			view.Period.Title,
+			view.Title,
 		)
-		@iepsblocks.SelectboxServiceType(view.Period.ServiceType)
+		@iepsblocks.SelectboxServiceType(view.ServiceType.String())
 		<div style="display: flex; gap: var(--size-1);">
 			@FormTimePickers(view)
 			@DurationSlider(30)
 		</div>
-		@day_buttons.DayButtons(view.Period.Days)
+		@day_buttons.DayButtons(view.Days)
 		@sblocks.StudentMultiselect(view.StudentList)
 	</section>
 }

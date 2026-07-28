@@ -76,7 +76,7 @@ func ScheduleReadModelEventHandlerQuery() eventstore.Query {
 func (h *PeriodStudentReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	periodID, _ := scope[period.PeriodIDField].(string)
+	periodID, _ := scope[period.FieldPeriodID].(string)
 	if periodID == "" {
 		return fmt.Errorf("no period id provided for read model event")
 	}

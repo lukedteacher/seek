@@ -1,34 +1,12 @@
 package blocks
 
 import (
-	"seek/internal/features/students/models"
+	"seek/internal/features/students/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-type StudentMultiselectView struct {
-	StudentID   string
-	DisplayName string
-	Selected    bool
-}
-
-func NewStudentMultiselectView(all []models.Student, selected []string) []StudentMultiselectView {
-	view := make([]StudentMultiselectView, len(all))
-	selectedMap := make(map[string]bool, len(selected))
-	for i := range selected {
-		selectedMap[selected[i]] = true
-	}
-	for i := range all {
-		view[i] = StudentMultiselectView{
-			StudentID:   all[i].ID,
-			DisplayName: all[i].FullName(),
-			Selected:    selectedMap[all[i].ID],
-		}
-	}
-	return view
-}
-
-templ StudentMultiselect(views []StudentMultiselectView) {
+templ StudentMultiselect(views []dto.StudentSelectBoxView) {
 	@selectbox.SelectBox(selectbox.Props{
 		ID: "student-multiselect-container",
 	}) {
@@ -52,10 +30,10 @@ templ StudentMultiselect(views []StudentMultiselectView) {
 		@selectbox.Content() {
 			for i := range views {
 				@selectbox.Item(selectbox.ItemProps{
-					Value:    views[i].StudentID,
+					Value:    views[i].Student.ID,
 					Selected: views[i].Selected,
 				}) {
-					{ views[i].DisplayName }
+					{ views[i].Student.NameInitial() }
 				}
 			}
 		}

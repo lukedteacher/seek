@@ -6,7 +6,7 @@ import (
 
 	"seek/internal/eventstore"
 	se "seek/internal/features/students/events"
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
 )
 
 type UpdateIEPServiceCommand struct {

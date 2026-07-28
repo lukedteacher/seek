@@ -3,14 +3,14 @@ package dto
 import (
 	"seek/internal/features/iep_services/events"
 	"seek/internal/features/iep_services/models"
-	sb "seek/internal/features/students/blocks"
+	dto "seek/internal/features/students/dto"
 	sm "seek/internal/features/students/models"
 )
 
 type IEPServiceFormView struct {
 	IEPService IEPServiceView
 	Validation map[string]events.Validation
-	Students   []sb.StudentMultiselectView
+	Students   []dto.StudentSelectBoxView
 	URL        string
 }
 
@@ -18,7 +18,7 @@ func NewIEPServiceFormView(model *models.IEPService, students []sm.Student) IEPS
 	if model == nil {
 		return IEPServiceFormView{}
 	}
-	studentViews := sb.NewStudentMultiselectView(students, []string{model.StudentID})
+	studentViews := dto.NewStudentSelectBoxViews(students, []string{model.StudentID})
 	view := NewIEPServiceView(model)
 	return IEPServiceFormView{
 		IEPService: view,

@@ -10,10 +10,8 @@ import (
 	educatorEvents "seek/internal/features/educators/events"
 	iepServiceEvents "seek/internal/features/iep_services/events"
 	periodEvents "seek/internal/features/periods/events"
-	periodScheduleEvents "seek/internal/features/periods_schedules/events"
 	periodStudentEvents "seek/internal/features/periods_students/events"
 	profileEvents "seek/internal/features/profiles/events"
-	scheduleEvents "seek/internal/features/schedules/events"
 	studentEvents "seek/internal/features/students/events"
 	teacherEvents "seek/internal/features/teachers/events"
 	"seek/internal/natsbus"
@@ -130,18 +128,6 @@ func eventHandlerFactories(
 			},
 		},
 		{
-			name: "schedule read model",
-			create: func() (eventHandler, error) {
-				return scheduleEvents.NewScheduleReadModelEventHandler(
-					store,
-					components.checkpointer,
-					components.scheduleReadModel,
-					bus,
-					logger,
-				)
-			},
-		},
-		{
 			name: "student read model",
 			create: func() (eventHandler, error) {
 				return studentEvents.NewStudentReadModelEventHandler(
@@ -172,18 +158,6 @@ func eventHandlerFactories(
 					store,
 					components.checkpointer,
 					components.iepServiceReadModel,
-					bus,
-					logger,
-				)
-			},
-		},
-		{
-			name: "period schedule read model",
-			create: func() (eventHandler, error) {
-				return periodScheduleEvents.NewPeriodScheduleReadModelEventHandler(
-					store,
-					components.checkpointer,
-					components.periodScheduleReadModel,
 					bus,
 					logger,
 				)

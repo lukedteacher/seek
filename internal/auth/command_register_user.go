@@ -8,7 +8,7 @@ import (
 	"seek/internal/commandlimits"
 	"seek/internal/eventstore"
 	"seek/internal/protectedpii"
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
 
 	"golang.org/x/crypto/bcrypt"
 )

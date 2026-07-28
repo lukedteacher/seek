@@ -9,34 +9,12 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/features/students/models"
+	"seek/internal/features/students/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-type StudentMultiselectView struct {
-	StudentID   string
-	DisplayName string
-	Selected    bool
-}
-
-func NewStudentMultiselectView(all []models.Student, selected []string) []StudentMultiselectView {
-	view := make([]StudentMultiselectView, len(all))
-	selectedMap := make(map[string]bool, len(selected))
-	for i := range selected {
-		selectedMap[selected[i]] = true
-	}
-	for i := range all {
-		view[i] = StudentMultiselectView{
-			StudentID:   all[i].ID,
-			DisplayName: all[i].FullName(),
-			Selected:    selectedMap[all[i].ID],
-		}
-	}
-	return view
-}
-
-func StudentMultiselect(views []StudentMultiselectView) templ.Component {
+func StudentMultiselect(views []dto.StudentSelectBoxView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -158,9 +136,9 @@ func StudentMultiselect(views []StudentMultiselectView) templ.Component {
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var7 string
-						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(views[i].DisplayName)
+						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(views[i].Student.NameInitial())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/multiselect.templ`, Line: 58, Col: 27}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/multiselect.templ`, Line: 36, Col: 37}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -169,7 +147,7 @@ func StudentMultiselect(views []StudentMultiselectView) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-						Value:    views[i].StudentID,
+						Value:    views[i].Student.ID,
 						Selected: views[i].Selected,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {

@@ -7,7 +7,7 @@ import (
 	"seek/internal/eventstore"
 	pe "seek/internal/features/periods/events"
 	se "seek/internal/features/students/events"
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
 )
 
 type PeriodStudentAddCommand struct {

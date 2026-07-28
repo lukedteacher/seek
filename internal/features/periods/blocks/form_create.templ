@@ -2,40 +2,15 @@ package blocks
 
 import (
 	"seek/internal/features/periods/dto"
-	period "seek/internal/features/periods/events"
-	"seek/internal/features/periods/models"
-	sblocks "seek/internal/features/students/blocks"
-	smodels "seek/internal/features/students/models"
 	"seek/internal/views/blocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-type PeriodCreateFormView struct {
-	Period      dto.PeriodFormView
-	StudentList []sblocks.StudentMultiselectView
-	Validation  map[string]period.Validation
-}
-
-func NewPeriodCreateFormView(p *models.Period, all []smodels.Student, selected []string) PeriodCreateFormView {
-	if p == nil {
-		return PeriodCreateFormView{}
-	}
-	view, err := dto.NewFormViewFromPeriod(p)
-	if err != nil {
-		println("form view from period error: ", err.Error())
-	}
-	return PeriodCreateFormView{
-		Period:      view,
-		StudentList: sblocks.NewStudentMultiselectView(all, selected),
-		Validation:  period.Validate(p),
-	}
-}
-
-templ CreateForm(view PeriodCreateFormView) {
-	<form id="create-period-form" class="seek-form" data-on:submit={ datastar.PostSSE("/periods/create") }>
+templ CreateForm(view dto.PeriodFormView) {
+	<form id="create-period-form" class="seek-form" data-on:submit={ datastar.PostSSE(view.URL) }>
 		<hgroup>
-			<h2>CREATE A PERIOD</h2>
+			<h2>create period</h2>
 			<p>create a new period.</p>
 		</hgroup>
 		@FormSections(view)

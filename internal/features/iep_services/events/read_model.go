@@ -44,11 +44,11 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.IEPService, err
 		FrequencyCount:  int(row.FrequencyCount),
 		FrequencyType:   row.FrequencyType,
 		Location:        row.Location,
-		StartDate:       row.StartDate,
-		EndDate:         row.EndDate,
+		StartDate:       parseDBTime(row.StartDate),
+		EndDate:         parseDBTime(row.EndDate),
 		Provider:        row.Provider,
-		CreatedAt:       row.CreatedAt,
-		UpdatedAt:       row.UpdatedAt,
+		CreatedAt:       parseDBTime(row.CreatedAt),
+		UpdatedAt:       parseDBTime(row.UpdatedAt),
 	}
 
 	return service, nil
@@ -75,11 +75,11 @@ func (m *ReadModel) List(ctx context.Context) ([]models.IEPService, error) {
 			FrequencyCount:  int(rows[i].FrequencyCount),
 			FrequencyType:   rows[i].FrequencyType,
 			Location:        rows[i].Location,
-			StartDate:       rows[i].StartDate,
-			EndDate:         rows[i].EndDate,
+			StartDate:       parseDBTime(rows[i].StartDate),
+			EndDate:         parseDBTime(rows[i].EndDate),
 			Provider:        rows[i].Provider,
-			CreatedAt:       rows[i].CreatedAt,
-			UpdatedAt:       rows[i].UpdatedAt,
+			CreatedAt:       parseDBTime(rows[i].CreatedAt),
+			UpdatedAt:       parseDBTime(rows[i].UpdatedAt),
 		}
 	}
 	return services, nil

@@ -3,11 +3,12 @@ package blocks
 import (
 	"time"
 
+	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/timepicker"
 )
 
-templ FormTimePickers(view PeriodCreateFormView) {
+templ FormTimePickers(view dto.PeriodFormView) {
 	{{
 		// create min and max times for scool hours (8 AM to 4 PM)
 		now := time.Now()
@@ -28,8 +29,11 @@ templ FormTimePickers(view PeriodCreateFormView) {
 			Step:        5,
 			Placeholder: "start time",
 			Class:       "input",
-			Value:       view.Period.StartTime,
+			Value:       view.StartTime.Time(),
 			DataBind:    "data-bind:period.start_time",
+			Attributes: templ.Attributes{
+				"data-text": "$period.start_time",
+			},
 		})
 	</div>
 	<div class="flex-2 flex flex-col">
@@ -46,8 +50,11 @@ templ FormTimePickers(view PeriodCreateFormView) {
 			Step:        5,
 			Placeholder: "end time",
 			Class:       "input",
-			Value:       view.Period.EndTime,
+			Value:       view.EndTime.Time(),
 			DataBind:    "data-bind:period.end_time",
+			Attributes: templ.Attributes{
+				"data-text": "$period.end_time",
+			},
 		})
 	</div>
 	@timepicker.Script()

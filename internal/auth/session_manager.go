@@ -11,7 +11,7 @@ import (
 	"seek/internal/commandlimits"
 	"seek/internal/dbsql"
 	"seek/internal/features/users/models"
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
 
 	"golang.org/x/crypto/bcrypt"
 	"zombiezen.com/go/sqlite"

@@ -11,7 +11,7 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/users/models"
 	"seek/internal/protectedpii"
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
 )
 
 type UpdateProfileBioCommand struct {

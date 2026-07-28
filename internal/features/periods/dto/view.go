@@ -1,59 +1,51 @@
 package dto
 
 import (
-	"fmt"
-	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/models"
-	sdto "seek/internal/features/students/dto"
+	"seek/internal/features/students/dto"
 	"strconv"
 	"time"
 )
 
 type PeriodView struct {
-	ID        string             `json:"id"`
-	Title     string             `json:"title"`
-	StartTime time.Time          `json:"start_time"`
-	EndTime   time.Time          `json:"end_time"`
-	Duration  int                `json:"duration"`
-	Days      string             `json:"days"`
-	Students  []sdto.StudentView `json:"students"`
-	Row       string             `json:"row"`
-	Columns   []int              `json:"columns"`
+	ID          string                   `json:"id"`
+	Title       string                   `json:"title"`
+	ServiceType sharedmodels.ServiceType `json:"service_type"`
+	StartTime   sharedmodels.TimeOnly    `json:"start_time"`
+	EndTime     sharedmodels.TimeOnly    `json:"end_time"`
+	Duration    int                      `json:"duration"`
+	DaysBitmask sharedmodels.DaysBitmask `json:"days_bitmask"`
+	Students    []dto.StudentView
 }
 
-func NewViewFromPeriod(p *models.Period) (PeriodView, error) {
+func NewPeriodView(p *models.Period) PeriodView {
 	if p == nil {
-		return PeriodView{}, nil
-	}
-	if p.StartTime.IsZero() {
-		return PeriodView{}, fmt.Errorf("start time not initialized in period")
-	}
-	if p.Duration == 0 {
-		println("duration not initialized in period")
+		return PeriodView{}
 	}
 	return PeriodView{
-		ID:        p.ID,
-		Title:     p.Title,
-		StartTime: p.StartTime,
-		EndTime:   p.StartTime.Add(time.Duration(p.Duration) * time.Minute),
-		Duration:  int(p.Duration),
-		Days:      shareddto.BitmaskToInitial(p.Days),
-		Columns:   sharedmodels.DaysBitmaskToColumnNumbers(p.Days),
-		Row:       timeToRow(p.StartTime, 479),
-	}, nil
+		ID:          p.ID,
+		Title:       p.Title,
+		ServiceType: p.ServiceType,
+		StartTime:   p.StartTime,
+		EndTime:     p.StartTime.Add(p.Duration),
+		Duration:    p.Duration,
+		DaysBitmask: p.DaysBitmask,
+	}
 }
 
-func NewPeriodFromView(pv *PeriodView) models.Period {
+func NewPeriodModelFromView(pv *PeriodView) models.Period {
 	if pv == nil {
 		return models.Period{}
 	}
 	return models.Period{
-		ID:        pv.ID,
-		Title:     pv.Title,
-		StartTime: pv.StartTime,
-		Duration:  int64(pv.Duration),
-		Days:      0,
+		ID:          pv.ID,
+		Title:       pv.Title,
+		ServiceType: pv.ServiceType,
+		StartTime:   pv.StartTime,
+		EndTime:     pv.EndTime,
+		Duration:    pv.Duration,
+		DaysBitmask: pv.DaysBitmask,
 	}
 }
 

@@ -9,42 +9,13 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"fmt"
 	"seek/internal/features/periods/dto"
-	period "seek/internal/features/periods/events"
-	"seek/internal/features/periods/models"
-	sblocks "seek/internal/features/students/blocks"
-	smodels "seek/internal/features/students/models"
-	"seek/internal/views/components/day_buttons"
-	"seek/internal/views/components/input"
-	"seek/internal/views/components/label"
+	"seek/internal/views/blocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
-	"seek/internal/views/blocks/forms"
 )
 
-type PeriodEditFormView struct {
-	Period      dto.PeriodFormView
-	Validation  map[string]period.Validation
-	StudentList []sblocks.StudentMultiselectView
-}
-
-func NewPeriodEditFormView(p *models.Period, all []smodels.Student, selected []string) PeriodEditFormView {
-	if p == nil {
-		return PeriodEditFormView{}
-	}
-	view, err := dto.NewFormViewFromPeriod(p)
-	if err != nil {
-		println("new form edit view error: ", err.Error())
-	}
-	return PeriodEditFormView{
-		Period:      view,
-		StudentList: sblocks.NewStudentMultiselectView(all, selected),
-		Validation:  period.Validate(p),
-	}
-}
-
-func EditPeriodForm(view PeriodEditFormView) templ.Component {
+func EditPeriodForm(view dto.PeriodFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -70,151 +41,27 @@ func EditPeriodForm(view PeriodEditFormView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("/periods/%s/edit", view.Period.ID))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE(view.URL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_edit.templ`, Line: 43, Col: 71}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_edit.templ`, Line: 14, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><hgroup><h2>EDIT A PERIOD</h2><p>edit the data of an existing period.</p></hgroup><section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><hgroup><h2>edit period</h2><p>edit the data of an existing period.</p></hgroup>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var3 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = input.Input(input.Props{
-				ID:       "title",
-				Name:     "title",
-				DataBind: "period.title",
-				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
-				HasError: view.Validation["title"].State == "error",
-				IsValid:  view.Validation["title"].State == "valid",
-				Value:    view.Period.Title,
-			}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = label.Label(label.Props{
-			ID:                "title-label",
-			For:               "title",
-			Label:             "title",
-			ValidationState:   view.Validation["title"].State,
-			ValidationMessage: view.Validation["title"].Message,
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = FormSections(view).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"display: flex; justify-content: space-between; gap: var(--size-1);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<footer>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var4 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = input.Input(input.Props{
-				ID:       "start-time",
-				Name:     "start-time",
-				DataBind: "period.start_time",
-				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
-				HasError: view.Validation["start_time"].State == "error",
-				IsValid:  view.Validation["start_time"].State == "valid",
-				Value:    view.Period.StartTime.Format("15:04"),
-			}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = label.Label(label.Props{
-			ID:                "start-time-label",
-			For:               "start-time",
-			Label:             "start time",
-			ValidationState:   view.Validation["start_time"].State,
-			ValidationMessage: view.Validation["start_time"].Message,
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = input.Input(input.Props{
-				ID:       "end-time",
-				Name:     "end-time",
-				DataBind: "period.end_time",
-				DataOn:   fmt.Sprintf("/periods/%s/edit/validate", view.Period.ID),
-				HasError: view.Validation["end_time"].State == "error",
-				IsValid:  view.Validation["end_time"].State == "valid",
-				Value:    view.Period.EndTime.String(),
-			}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = label.Label(label.Props{
-			ID:                "end-time-label",
-			For:               "end-time",
-			Label:             "end time",
-			ValidationState:   view.Validation["end_time"].State,
-			ValidationMessage: view.Validation["end_time"].Message,
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><label for=\"duration\">duration</label>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = DurationSlider(view.Period.Duration).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = day_buttons.DayButtons(view.Period.Days).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = sblocks.StudentMultiselect(view.StudentList).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><footer>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = forms.ArchiveButton("periods", view.Period.ID).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = forms.ArchiveButton("periods", view.ID).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -226,7 +73,7 @@ func EditPeriodForm(view PeriodEditFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</footer></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</footer></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -5,7 +5,8 @@ import (
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
-	"seek/internal/uuidv7"
+	"seek/pkg/uuidv7"
+
 	"zombiezen.com/go/sqlite"
 )
 

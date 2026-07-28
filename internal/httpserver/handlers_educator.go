@@ -3,7 +3,6 @@ package httpserver
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"seek/internal/eventstore"
@@ -58,7 +57,7 @@ func (s Server) getEducatorsListStream(w http.ResponseWriter, r *http.Request) {
 		notifier.Notify()
 	})
 	if err != nil {
-		println("educators list stream error: ", err.Error())
+		s.Logger.ErrorContext(ctx, "educators list stream subscribe error", "error", err)
 		return
 	}
 	defer sub.Close()
@@ -98,8 +97,6 @@ func (s Server) getEducatorCreateStream(w http.ResponseWriter, r *http.Request) 
 	user := currentUser(r)
 	sse := newSSE(w, r)
 
-	// watches the key value stream for ephemeral changes
-	// lasts 5m
 	watcher, err := s.ViewStore.Watch(
 		ctx,
 		"neweducator",
@@ -108,7 +105,7 @@ func (s Server) getEducatorCreateStream(w http.ResponseWriter, r *http.Request) 
 		},
 	)
 	if err != nil {
-		println("watcher error in educator create stream: ", err.Error())
+		s.Logger.ErrorContext(ctx, "watcher error in educator create stream", "error", err)
 		return
 	}
 	defer watcher.Stop()
@@ -117,17 +114,17 @@ func (s Server) getEducatorCreateStream(w http.ResponseWriter, r *http.Request) 
 		select {
 		case <-ctx.Done():
 			return
-		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
-			println("educator watcher update")
+		case entry, ok := <-watcher.Updates():
 			if !ok {
+				s.Logger.WarnContext(ctx, "educator watcher updates channel closed")
 				return
 			}
-			var model models.Educator
-			if err := entry.JSON(&model); err != nil {
-				println(err.Error())
+			model := &models.Educator{}
+			if err := entry.JSON(model); err != nil {
+				s.Logger.ErrorContext(ctx, "failed to unmarshal educator from view store", "error", err)
 				return
 			}
-			view := dto.NewEducatorView(&model)
+			view := dto.NewEducatorView(model)
 			url := "/educators/create"
 			sse.PatchElementTempl(pages.Create(user, url, *view))
 		}
@@ -169,7 +166,7 @@ func (s Server) postEducatorCreate(w http.ResponseWriter, r *http.Request) {
 		Educator dto.EducatorView `json:"educator"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "failed to read educator create signals", "error", err)
 		return
 	}
 	_, err := events.CreateEducatorCommandHandler(ctx, events.CreateEducatorCommand{
@@ -183,9 +180,11 @@ func (s Server) postEducatorCreate(w http.ResponseWriter, r *http.Request) {
 		Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver)
 	if err != nil {
-		log.Println(err.Error())
+		s.Logger.ErrorContext(ctx, "failed to create educator", "error", err)
 		return
 	}
+
+	s.Logger.InfoContext(ctx, "educator created successfully", "given_name", signals.Educator.GivenName)
 }
 
 // GET request to /educators/{id}
@@ -256,12 +255,12 @@ func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var model models.Educator
-			if err := entry.JSON(&model); err != nil {
+			model := &models.Educator{}
+			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
 			}
-			view := dto.NewEducatorView(&model)
+			view := dto.NewEducatorView(model)
 			sse.PatchElementTempl(pages.View(user, *view))
 		}
 	}
@@ -335,12 +334,12 @@ func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			var model models.Educator
-			if err := entry.JSON(&model); err != nil {
+			model := &models.Educator{}
+			if err := entry.JSON(model); err != nil {
 				println(err.Error())
 				return
 			}
-			view := dto.NewEducatorView(&model)
+			view := dto.NewEducatorView(model)
 			url := fmt.Sprintf("/educators/%s/edit", educatorID)
 			sse.PatchElementTempl(pages.Edit(user, url, *view))
 		}

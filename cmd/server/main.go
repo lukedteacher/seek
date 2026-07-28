@@ -21,10 +21,8 @@ import (
 	educatorEvents "seek/internal/features/educators/events"
 	iepService "seek/internal/features/iep_services/events"
 	period "seek/internal/features/periods/events"
-	periodSchedule "seek/internal/features/periods_schedules/events"
 	periodStudent "seek/internal/features/periods_students/events"
 	profile "seek/internal/features/profiles/events"
-	schedule "seek/internal/features/schedules/events"
 	student "seek/internal/features/students/events"
 	teacher "seek/internal/features/teachers/events"
 	"seek/internal/httpserver"
@@ -43,23 +41,21 @@ type runOptions struct {
 }
 
 type appComponents struct {
-	sessionManager          *auth.SessionManager
-	authUsers               *auth.AuthUserStore
-	verifications           *auth.VerificationStore
-	educatorReadModel       *educatorEvents.ReadModel
-	iepServiceReadModel     *iepService.ReadModel
-	periodReadModel         *period.ReadModel
-	profileReadModel        *profile.ReadModel
-	scheduleReadModel       *schedule.ReadModel
-	studentReadModel        *student.ReadModel
-	teacherReadModel        *teacher.ReadModel
-	periodScheduleReadModel *periodSchedule.ReadModel
-	periodStudentReadModel  *periodStudent.ReadModel
-	checkpointer            eventstore.Checkpointer
-	emailSender             email.Sender
-	profileStorage          profile.ObjectStore
-	piiKeys                 *auth.SubjectPiiKeyStore
-	accountDeletion         *auth.AccountDataDeletionStore
+	sessionManager         *auth.SessionManager
+	authUsers              *auth.AuthUserStore
+	verifications          *auth.VerificationStore
+	educatorReadModel      *educatorEvents.ReadModel
+	iepServiceReadModel    *iepService.ReadModel
+	periodReadModel        *period.ReadModel
+	profileReadModel       *profile.ReadModel
+	studentReadModel       *student.ReadModel
+	teacherReadModel       *teacher.ReadModel
+	periodStudentReadModel *periodStudent.ReadModel
+	checkpointer           eventstore.Checkpointer
+	emailSender            email.Sender
+	profileStorage         profile.ObjectStore
+	piiKeys                *auth.SubjectPiiKeyStore
+	accountDeletion        *auth.AccountDataDeletionStore
 }
 
 func main() {
@@ -67,7 +63,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logger := slog.New(coloredHandler{w: os.Stderr})
 	if err := run(ctx, stop, config.Load(), opts, logger); err != nil {
 		logger.Error("run app", "err", err)
 		os.Exit(1)
@@ -135,10 +131,8 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		IEPServices:         components.iepServiceReadModel,
 		Profiles:            components.profileReadModel,
 		Periods:             components.periodReadModel,
-		Schedules:           components.scheduleReadModel,
 		Students:            components.studentReadModel,
 		Teachers:            components.teacherReadModel,
-		PeriodsSchedules:    components.periodScheduleReadModel,
 		PeriodsStudents:     components.periodStudentReadModel,
 		EventSaver:          orisunStore,
 		EventRetriever:      orisunStore,
@@ -177,16 +171,10 @@ func resetReadModels(ctx context.Context, db *appdb.DB) error {
 		if err := dbsql.OnceResetReadModelPeriods(conn); err != nil {
 			return err
 		}
-		if err := dbsql.OnceResetReadModelSchedules(conn); err != nil {
-			return err
-		}
 		if err := dbsql.OnceResetReadModelStudents(conn); err != nil {
 			return err
 		}
 		if err := dbsql.OnceResetReadModelTeachers(conn); err != nil {
-			return err
-		}
-		if err := dbsql.OnceResetReadModelPeriodsSchedules(conn); err != nil {
 			return err
 		}
 		if err := dbsql.OnceResetReadModelPeriodsStudents(conn); err != nil {
@@ -233,33 +221,29 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 	iepServiceReadModel := iepService.NewReadModel(db)
 	profileReadModel := profile.NewReadModel(db)
 	periodReadModel := period.NewReadModel(db)
-	scheduleReadModel := schedule.NewReadModel(db)
 	studentReadModel := student.NewReadModel(db)
 	teacherReadModel := teacher.NewReadModel(db)
-	periodScheduleReadModel := periodSchedule.NewReadModel(db)
 	periodStudentReadModel := periodStudent.NewReadModel(db)
 	profileStorage := storage.NewLocalProvider(cfg.UploadDir, cfg.UploadBaseURL)
 	piiKeys := auth.NewSubjectPiiKeyStore(db, protectedpii.FromEnv())
 	accountDeletion := auth.NewAccountDataDeletionStore(db, profileStorage)
 
 	return appComponents{
-		sessionManager:          sessionManager,
-		authUsers:               authUsers,
-		verifications:           verifications,
-		educatorReadModel:       educatorReadModel,
-		iepServiceReadModel:     iepServiceReadModel,
-		profileReadModel:        profileReadModel,
-		periodReadModel:         periodReadModel,
-		scheduleReadModel:       scheduleReadModel,
-		studentReadModel:        studentReadModel,
-		teacherReadModel:        teacherReadModel,
-		periodScheduleReadModel: periodScheduleReadModel,
-		periodStudentReadModel:  periodStudentReadModel,
-		checkpointer:            eventstore.NewSQLiteCheckpointer(db),
-		emailSender:             email.LogSender{Logger: logger},
-		profileStorage:          profileStorage,
-		piiKeys:                 piiKeys,
-		accountDeletion:         accountDeletion,
+		sessionManager:         sessionManager,
+		authUsers:              authUsers,
+		verifications:          verifications,
+		educatorReadModel:      educatorReadModel,
+		iepServiceReadModel:    iepServiceReadModel,
+		profileReadModel:       profileReadModel,
+		periodReadModel:        periodReadModel,
+		studentReadModel:       studentReadModel,
+		teacherReadModel:       teacherReadModel,
+		periodStudentReadModel: periodStudentReadModel,
+		checkpointer:           eventstore.NewSQLiteCheckpointer(db),
+		emailSender:            email.LogSender{Logger: logger},
+		profileStorage:         profileStorage,
+		piiKeys:                piiKeys,
+		accountDeletion:        accountDeletion,
 	}
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 templ UserHeader(user models.User) {
-	<div class="flex items-center space-x-4 text-muted-foreground">
+	<div class="flex items-center space-x-4">
 		@button.Button(button.Props{
 			Variant: button.VariantGhost,
 			Size:    button.SizeIcon,
@@ -60,7 +60,7 @@ templ UserHeaderDropdown(user models.User) {
 						{ models.UserInitials(user) }
 					}
 				}
-				@icon.ChevronDown(icon.Props{Class: "size-4 text-muted-foreground"})
+				@icon.ChevronDown(icon.Props{Class: "size-4"})
 			}
 		}
 		@dropdown.Content(dropdown.ContentProps{
@@ -94,7 +94,7 @@ templ UserHeaderDropdown(user models.User) {
 					Class: "px-4 py-2",
 					Href:  "/",
 				}) {
-					<div class="flex items-center space-x-3 text-muted-foreground">
+					<div class="flex items-center space-x-3">
 						@icon.LayoutDashboard(icon.Props{Class: "size-4"})
 						<span class="text-sm">dashboard</span>
 					</div>
@@ -103,7 +103,7 @@ templ UserHeaderDropdown(user models.User) {
 					Class: "px-4 py-2",
 					Href:  "/profile",
 				}) {
-					<div class="flex items-center space-x-3 text-muted-foreground">
+					<div class="flex items-center space-x-3">
 						@icon.User(icon.Props{Class: "size-4"})
 						<span class="text-sm">view profile</span>
 					</div>
@@ -111,7 +111,7 @@ templ UserHeaderDropdown(user models.User) {
 				@dropdown.Item(dropdown.ItemProps{
 					Class: "px-4 py-2",
 				}) {
-					<div class="flex items-center space-x-3 text-muted-foreground">
+					<div class="flex items-center space-x-3">
 						@icon.Settings(icon.Props{Class: "size-4"})
 						<span class="text-sm">account settings</span>
 					</div>
@@ -122,7 +122,7 @@ templ UserHeaderDropdown(user models.User) {
 				@dropdown.Item(dropdown.ItemProps{
 					Class: "px-4 py-2",
 				}) {
-					<div class="flex items-center space-x-3 text-muted-foreground">
+					<div class="flex items-center space-x-3">
 						@icon.CircleQuestionMark(icon.Props{Class: "size-4"})
 						<span class="text-sm">help & support</span>
 					</div>
@@ -130,7 +130,7 @@ templ UserHeaderDropdown(user models.User) {
 				@dropdown.Item(dropdown.ItemProps{
 					Class: "px-4 py-2 hover:text-accent-foreground",
 				}) {
-					<div class="flex items-center space-x-3 text-muted-foreground">
+					<div class="flex items-center space-x-3">
 						@icon.LogOut(icon.Props{Class: "size-4 text-destructive"})
 						<span class="text-sm text-destructive">sign out</span>
 					</div>

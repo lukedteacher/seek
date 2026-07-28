@@ -11,11 +11,12 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"time"
 
+	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/timepicker"
 )
 
-func FormTimePickers(view PeriodCreateFormView) templ.Component {
+func FormTimePickers(view dto.PeriodFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -76,8 +77,11 @@ func FormTimePickers(view PeriodCreateFormView) templ.Component {
 			Step:        5,
 			Placeholder: "start time",
 			Class:       "input",
-			Value:       view.Period.StartTime,
+			Value:       view.StartTime.Time(),
 			DataBind:    "data-bind:period.start_time",
+			Attributes: templ.Attributes{
+				"data-text": "$period.start_time",
+			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -118,8 +122,11 @@ func FormTimePickers(view PeriodCreateFormView) templ.Component {
 			Step:        5,
 			Placeholder: "end time",
 			Class:       "input",
-			Value:       view.Period.EndTime,
+			Value:       view.EndTime.Time(),
 			DataBind:    "data-bind:period.end_time",
+			Attributes: templ.Attributes{
+				"data-text": "$period.end_time",
+			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

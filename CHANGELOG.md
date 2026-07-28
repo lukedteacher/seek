@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.3.6 (26.27.27) continued period work
+
+- changed types to built in shared models
+- refactored days to be more usable
+- added a colored logger
+- deleted lots of schedule stuff
+
 ## v0.3.7 (26.07.26) cleaning up periods
 
 - switched period model to time.Time for start and end time

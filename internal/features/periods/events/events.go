@@ -4,51 +4,70 @@ import (
 	"time"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
 )
 
-// EVENT NAMES
+// event types
 const (
-	PeriodCreated = "PeriodCreated"
-	PeriodUpdated = "PeriodUpdated"
-	PeriodDeleted = "PeriodDeleted"
+	PeriodCreated  = "PeriodCreated"
+	PeriodUpdated  = "PeriodUpdated"
+	PeriodArchived = "PeriodArchived"
+	PeriodDeleted  = "PeriodDeleted"
 )
 
-// EVENT FIELDS
+// event ID fields
 const (
-	PeriodIDField        = "period_id"
-	PeriodTitleField     = "title"
-	PeriodStartTimeField = "start_time"
-	PeriodDurationField  = "duration"
-	PeriodDaysField      = "days"
-	PeriodCreatedIDField = "period_created_event_id"
-	PeriodCreatedAtField = "created_at"
-	PeriodUpdatedIDField = "period_updated_event_id"
-	PeriodUpdatedAtField = "updated_at"
-	PeriodDeletedIDField = "period_deleted_event_id"
-	PeriodDeletedAtField = "deleted_at"
-	PeriodScopeIDField   = "scope.period_id"
+	FieldPeriodCreatedEventID  = "period_created_event_id"
+	FieldPeriodUpdatedEventID  = "period_updated_event_id"
+	FieldPeriodArchivedEventID = "period_archived_event_id"
+	FieldPeriodDeletedEventID  = "period_deleted_event_id"
 )
 
-// includes period scope which may be redundant
-// since event ID is the same as the period for created
+// event data fields
+const (
+	FieldPeriodID          = "period_id"
+	FieldPeriodTitle       = "title"
+	FieldPeriodServiceType = "service_type"
+	FieldPeriodStartTime   = "start_time"
+	FieldPeriodDuration    = "duration"
+	FieldPeriodDaysBitmask = "days_bitmask"
+	FieldPeriodCreatedAt   = "created_at"
+	FieldPeriodUpdatedAt   = "updated_at"
+	FieldPeriodArchivedAt  = "archived_at"
+	FieldPeriodDeletedAt   = "deleted_at"
+)
+
+// event scope fields
+const (
+	FieldPeriodScopeID = "scope.period_id"
+)
+
 type PeriodCreatedEvent struct {
-	EventID   string      `json:"period_created_event_id"`
-	Title     string      `json:"title"`
-	StartTime time.Time   `json:"start_time"`
-	Duration  int64       `json:"duration"`
-	Days      int64       `json:"days"`
-	CreatedAt string      `json:"created_at"`
-	Scope     PeriodScope `json:"scope"`
+	EventID     string                   `json:"period_created_event_id"`
+	Title       string                   `json:"title"`
+	ServiceType sharedmodels.ServiceType `json:"service_type"`
+	StartTime   sharedmodels.TimeOnly    `json:"start_time"`
+	Duration    int                      `json:"duration"`
+	DaysBitmask sharedmodels.DaysBitmask `json:"days_bitmask"`
+	CreatedAt   string                   `json:"created_at"`
+	Scope       PeriodScope              `json:"scope"`
 }
 
 type PeriodUpdatedEvent struct {
-	EventID   string      `json:"period_updated_event_id"`
-	Title     string      `json:"title"`
-	StartTime time.Time   `json:"start_time"`
-	Duration  int64       `json:"duration"`
-	Days      int64       `json:"days"`
-	UpdatedAt string      `json:"updated_at"`
-	Scope     PeriodScope `json:"scope"`
+	EventID     string                   `json:"period_updated_event_id"`
+	Title       string                   `json:"title"`
+	ServiceType sharedmodels.ServiceType `json:"service_type"`
+	StartTime   sharedmodels.TimeOnly    `json:"start_time"`
+	Duration    int                      `json:"duration"`
+	DaysBitmask sharedmodels.DaysBitmask `json:"days_bitmask"`
+	UpdatedAt   string                   `json:"updated_at"`
+	Scope       PeriodScope              `json:"scope"`
+}
+
+type PeriodArchivedEvent struct {
+	EventID    string      `json:"period_archived_event_id"`
+	ArchivedAt string      `json:"archived_at"`
+	Scope      PeriodScope `json:"scope"`
 }
 
 type PeriodDeletedEvent struct {
@@ -62,25 +81,27 @@ type PeriodScope struct {
 }
 
 func NewPeriodCreatedEvent(
-	periodID,
+	eventID,
 	title string,
-	startTime time.Time,
-	duration,
-	days int64,
+	serviceType sharedmodels.ServiceType,
+	startTime sharedmodels.TimeOnly,
+	duration int,
+	daysBitmask sharedmodels.DaysBitmask,
 	createdAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := PeriodCreatedEvent{
-		EventID:   periodID,
-		Title:     title,
-		StartTime: startTime,
-		Duration:  duration,
-		Days:      days,
-		CreatedAt: createdAt.Format(time.RFC3339),
-		Scope:     periodScope(periodID),
+		EventID:     eventID,
+		Title:       title,
+		ServiceType: serviceType,
+		StartTime:   startTime,
+		Duration:    duration,
+		DaysBitmask: daysBitmask,
+		CreatedAt:   createdAt.Format(time.RFC3339),
+		Scope:       periodScope(eventID),
 	}
 	return eventstore.DomainEvent{
-		EventID:   periodID,
+		EventID:   eventID,
 		EventType: PeriodCreated,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
@@ -91,24 +112,45 @@ func NewPeriodUpdatedEvent(
 	eventID,
 	periodID,
 	title string,
-	startTime time.Time,
-	duration,
-	days int64,
+	serviceType sharedmodels.ServiceType,
+	startTime sharedmodels.TimeOnly,
+	duration int,
+	daysBitmask sharedmodels.DaysBitmask,
 	updatedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := PeriodUpdatedEvent{
-		EventID:   eventID,
-		Title:     title,
-		StartTime: startTime,
-		Duration:  duration,
-		Days:      days,
-		UpdatedAt: updatedAt.Format(time.RFC3339),
-		Scope:     periodScope(periodID),
+		EventID:     eventID,
+		Title:       title,
+		ServiceType: serviceType,
+		StartTime:   startTime,
+		Duration:    duration,
+		DaysBitmask: daysBitmask,
+		UpdatedAt:   updatedAt.Format(time.RFC3339),
+		Scope:       periodScope(periodID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
 		EventType: PeriodUpdated,
+		Data:      eventstore.MustData(event),
+		Metadata:  metadata,
+	}
+}
+
+func NewPeriodArchivedEvent(
+	eventID,
+	periodID string,
+	archivedAt time.Time,
+	metadata map[string]any,
+) eventstore.DomainEvent {
+	event := PeriodArchivedEvent{
+		EventID:    eventID,
+		ArchivedAt: archivedAt.Format(time.RFC3339),
+		Scope:      periodScope(periodID),
+	}
+	return eventstore.DomainEvent{
+		EventID:   eventID,
+		EventType: PeriodArchived,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}

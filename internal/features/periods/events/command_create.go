@@ -4,17 +4,19 @@ import (
 	"context"
 	"time"
 
-	"seek/internal/uuidv7"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/uuidv7"
 
 	"seek/internal/eventstore"
 )
 
 type CreatePeriodCommand struct {
-	Title     string
-	StartTime time.Time
-	Duration  int64
-	Days      int64
-	Metadata  CommandMetadata
+	Title       string
+	ServiceType sharedmodels.ServiceType
+	StartTime   sharedmodels.TimeOnly
+	Duration    int
+	DaysBitmask sharedmodels.DaysBitmask
+	Metadata    CommandMetadata
 }
 
 type CreatePeriodResult struct {
@@ -36,9 +38,10 @@ func CreatePeriodCommandHandler(
 	event := NewPeriodCreatedEvent(
 		context.id,
 		context.title,
+		context.serviceType,
 		context.startTime,
 		context.duration,
-		context.days,
+		context.daysBitmask,
 		time.Now(),
 		metadataWithQuery(command.Metadata, context.query),
 	)
@@ -49,22 +52,23 @@ func CreatePeriodCommandHandler(
 }
 
 type createPeriodContext struct {
-	id        string
-	title     string
-	startTime time.Time
-	duration  int64
-	days      int64
-	query     eventstore.Query
+	id          string
+	title       string
+	serviceType sharedmodels.ServiceType
+	startTime   sharedmodels.TimeOnly
+	duration    int
+	daysBitmask sharedmodels.DaysBitmask
+	query       eventstore.Query
 }
 
 func newCreatePeriodContext(command CreatePeriodCommand) (*createPeriodContext, error) {
 	periodID := uuidv7.NewString()
 	return &createPeriodContext{
-		id:        periodID,
-		title:     command.Title,
-		startTime: command.StartTime,
-		duration:  command.Duration,
-		days:      command.Days,
-		query:     streamQuery(periodID),
+		id:          periodID,
+		title:       command.Title,
+		startTime:   command.StartTime,
+		duration:    command.Duration,
+		daysBitmask: command.DaysBitmask,
+		query:       streamQuery(periodID),
 	}, nil
 }

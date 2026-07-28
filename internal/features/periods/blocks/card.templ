@@ -25,13 +25,7 @@ templ Card(view dto.PeriodView) {
 		@card.Content() {
 			<p>teacher: ...</p>
 			<p>location: ...</p>
-			<p>days: { view.Days }</p>
-			<p>
-				students:
-				for i := range view.Students {
-					{ view.Students[i].GivenName + ", " }
-				}
-			</p>
+			<p>days: { view.DaysBitmask.String() }</p>
 		}
 		@card.Footer() {
 			@button.Button(button.Props{

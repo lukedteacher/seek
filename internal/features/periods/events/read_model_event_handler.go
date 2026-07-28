@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/models"
 )
 
@@ -20,27 +21,36 @@ type PeriodReadModelReader interface {
 type PeriodReadModelWriter interface {
 	CreatePeriod(ctx context.Context, event PeriodCreatedProjection) error
 	UpdatePeriod(ctx context.Context, event PeriodUpdatedProjection) error
+	ArchivePeriod(ctx context.Context, event PeriodArchivedProjection) error
 	DeletePeriod(ctx context.Context, event PeriodDeletedProjection) error
 }
 
 type PeriodCreatedProjection struct {
-	Position  eventstore.Position
-	Id        string
-	Title     string
-	StartTime string
-	Duration  int64
-	Days      int64
-	CreatedAt time.Time
+	Position    eventstore.Position
+	PeriodID    string
+	Title       string
+	ServiceType sharedmodels.ServiceType
+	StartTime   sharedmodels.TimeOnly
+	Duration    int
+	DaysBitmask sharedmodels.DaysBitmask
+	CreatedAt   time.Time
 }
 
 type PeriodUpdatedProjection struct {
-	Position  eventstore.Position
-	Id        string
-	Title     string
-	StartTime string
-	Duration  int64
-	Days      int64
-	UpdatedAt time.Time
+	Position    eventstore.Position
+	PeriodID    string
+	Title       string
+	ServiceType sharedmodels.ServiceType
+	StartTime   sharedmodels.TimeOnly
+	Duration    int
+	DaysBitmask sharedmodels.DaysBitmask
+	UpdatedAt   time.Time
+}
+
+type PeriodArchivedProjection struct {
+	Position   eventstore.Position
+	PeriodID   string
+	ArchivedAt time.Time
 }
 
 type PeriodDeletedProjection struct {
@@ -55,7 +65,16 @@ type PeriodReadModelEventHandler struct {
 	publisher eventstore.Publisher
 }
 
-func NewPeriodReadModelEventHandler(subscriber eventstore.Subscriber, checkpointer eventstore.Checkpointer, readModel PeriodReadModelWriter, publisher eventstore.Publisher, logger *slog.Logger) (*PeriodReadModelEventHandler, error) {
+func NewPeriodReadModelEventHandler(
+	subscriber eventstore.Subscriber,
+	checkpointer eventstore.Checkpointer,
+	readModel PeriodReadModelWriter,
+	publisher eventstore.Publisher,
+	logger *slog.Logger,
+) (
+	*PeriodReadModelEventHandler,
+	error,
+) {
 	handler := &PeriodReadModelEventHandler{readModel: readModel, publisher: publisher}
 	global, err := eventstore.NewGlobalEventHandler(eventstore.GlobalEventHandlerConfig{
 		Subscriber:      subscriber,
@@ -85,6 +104,7 @@ func PeriodReadModelEventHandlerQuery() eventstore.Query {
 	eventTypes := []string{
 		PeriodCreated,
 		PeriodUpdated,
+		PeriodArchived,
 		PeriodDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
@@ -99,7 +119,7 @@ func PeriodReadModelEventHandlerQuery() eventstore.Query {
 func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	periodID, _ := scope[PeriodIDField].(string)
+	periodID, _ := scope[FieldPeriodID].(string)
 	// this is to prevent errors where the period ID isn't present or read correctly
 	if periodID == "" {
 		return fmt.Errorf("no id provided for period read model event")
@@ -108,33 +128,44 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 	switch resolved.Event.EventType {
 	case PeriodCreated:
 		periodCreated := PeriodCreatedProjection{
-			Id:        periodID,
-			Title:     data[PeriodTitleField].(string),
-			StartTime: data[PeriodStartTimeField].(string),
-			Duration:  int64(data[PeriodDurationField].(float64)),
-			Days:      int64(data[PeriodDaysField].(float64)),
-			CreatedAt: parseTime(data[PeriodCreatedAtField]),
+			PeriodID:    periodID,
+			Title:       data[FieldPeriodTitle].(string),
+			ServiceType: sharedmodels.ServiceType(data[FieldPeriodServiceType].(string)),
+			StartTime:   parseDBTimeOnly(data[FieldPeriodStartTime].(string)),
+			Duration:    int(data[FieldPeriodDuration].(float64)),
+			DaysBitmask: sharedmodels.DaysBitmask(data[FieldPeriodDaysBitmask].(float64)),
+			CreatedAt:   parseDBTime(data[FieldPeriodCreatedAt].(string)),
 		}
 		if err := h.readModel.CreatePeriod(ctx, periodCreated); err != nil {
 			return err
 		}
 	case PeriodUpdated:
 		periodUpdated := PeriodUpdatedProjection{
-			Id:        periodID,
-			Title:     data[PeriodTitleField].(string),
-			StartTime: data[PeriodStartTimeField].(string),
-			Duration:  int64(data[PeriodDurationField].(float64)),
-			Days:      int64(data[PeriodDaysField].(float64)),
-			UpdatedAt: parseTime(data[PeriodUpdatedAtField]),
+			PeriodID:    periodID,
+			Title:       data[FieldPeriodTitle].(string),
+			ServiceType: sharedmodels.ServiceType(data[FieldPeriodServiceType].(string)),
+			StartTime:   parseDBTimeOnly(data[FieldPeriodStartTime].(string)),
+			Duration:    int(data[FieldPeriodDuration].(float64)),
+			DaysBitmask: sharedmodels.DaysBitmask(data[FieldPeriodDaysBitmask].(float64)),
+			UpdatedAt:   parseDBTime(data[FieldPeriodUpdatedAt].(string)),
 		}
 		if err := h.readModel.UpdatePeriod(ctx, periodUpdated); err != nil {
+			return err
+		}
+	case PeriodArchived:
+		periodArchived := PeriodArchivedProjection{
+			Position:   resolved.Position,
+			PeriodID:   periodID,
+			ArchivedAt: parseDBTime(data[FieldPeriodArchivedAt].(string)),
+		}
+		if err := h.readModel.ArchivePeriod(ctx, periodArchived); err != nil {
 			return err
 		}
 	case PeriodDeleted:
 		periodDeleted := PeriodDeletedProjection{
 			Position:  resolved.Position,
 			PeriodID:  periodID,
-			DeletedAt: parseTime(data[PeriodDeletedAtField]),
+			DeletedAt: parseTime(data[FieldPeriodDeletedAt]),
 		}
 		if err := h.readModel.DeletePeriod(ctx, periodDeleted); err != nil {
 			return err

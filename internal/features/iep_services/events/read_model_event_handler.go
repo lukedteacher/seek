@@ -118,7 +118,6 @@ func (h *IEPServiceReadModelEventHandler) handle(ctx context.Context, resolved e
 	if iepServiceID == "" {
 		return fmt.Errorf("no id provided for student service read model event")
 	}
-
 	switch resolved.Event.EventType {
 	case EventTypeIEPServiceAddedToStudent:
 		projection := IEPServiceAddedToStudentProjection{
@@ -138,7 +137,6 @@ func (h *IEPServiceReadModelEventHandler) handle(ctx context.Context, resolved e
 		if err := h.readModel.AddIEPServiceToStudent(ctx, projection); err != nil {
 			return err
 		}
-
 	case EventTypeIEPServiceUpdated:
 		projection := IEPServiceUpdatedProjection{
 			IEPServiceID:    iepServiceID,
@@ -157,7 +155,6 @@ func (h *IEPServiceReadModelEventHandler) handle(ctx context.Context, resolved e
 		if err := h.readModel.UpdateIEPService(ctx, projection); err != nil {
 			return err
 		}
-
 	case EventTypeIEPServiceDeleted:
 		projection := IEPServiceDeletedProjection{
 			Position:     resolved.Position,

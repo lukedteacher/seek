@@ -1,5 +1,10 @@
 package sharedmodels
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type ServiceType string
 
 const (
@@ -14,6 +19,19 @@ const (
 	ServiceTypeSocialWork           ServiceType = "SW"
 )
 
+// knownServiceTypes is used for validation in UnmarshalJSON
+var knownServiceTypes = []ServiceType{
+	ServiceTypeUnassigned,
+	ServiceTypeExecutiveFunctioning,
+	ServiceTypeSEL,
+	ServiceTypeReading,
+	ServiceTypeWriting,
+	ServiceTypeMath,
+	ServiceTypeOccupationalTherapy,
+	ServiceTypeSpeech,
+	ServiceTypeSocialWork,
+}
+
 var ServiceTypeList = []ServiceType{
 	ServiceTypeExecutiveFunctioning,
 	ServiceTypeSEL,
@@ -25,10 +43,10 @@ var ServiceTypeList = []ServiceType{
 	ServiceTypeSocialWork,
 }
 
-// String returns the short form (abbreviation) of the service type.
+// returns a simple string of the service type
 func (st ServiceType) String() string { return string(st) }
 
-// String returns the short form (abbreviation) of the service type.
+// returns the short form (abbreviation) of the service type
 func (st ServiceType) ShortString() string {
 	return map[ServiceType]string{
 		ServiceTypeUnassigned:           "unassigned",
@@ -43,7 +61,7 @@ func (st ServiceType) ShortString() string {
 	}[st]
 }
 
-// LongString returns the full descriptive name.
+// returns the full descriptive name of the service type
 func (st ServiceType) LongString() string {
 	return map[ServiceType]string{
 		ServiceTypeUnassigned:           "unassigned",
@@ -75,4 +93,28 @@ func (st ServiceType) IconName() string {
 		return name
 	}
 	return "help-circle" // fallback for unknown/custom types
+}
+
+// MarshalJSON implements json.Marshaler.
+func (s ServiceType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(string(s))
+}
+
+// MarshalJSON implements json.Marshaler.
+func (s *ServiceType) UnmarshalJSON(b []byte) error {
+	var str string
+	if err := json.Unmarshal(b, &str); err != nil {
+		return err
+	}
+	if str == "" {
+		*s = ServiceTypeUnassigned
+		return nil
+	}
+	for _, valid := range knownServiceTypes {
+		if str == string(valid) {
+			*s = ServiceType(str)
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid ServiceType: %q", str)
 }

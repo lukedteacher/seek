@@ -17,7 +17,6 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 	"seek/pkg/templui/components/datepicker"
 	"seek/pkg/templui/components/label"
-	"time"
 )
 
 func CreateServiceForm(view dto.IEPServiceFormView) templ.Component {
@@ -48,7 +47,7 @@ func CreateServiceForm(view dto.IEPServiceFormView) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE(view.URL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/blocks/form_create.templ`, Line: 19, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/blocks/form_create.templ`, Line: 18, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -173,6 +172,10 @@ func CreateServiceForm(view dto.IEPServiceFormView) templ.Component {
 			ID:       "start-date-input",
 			Class:    "input",
 			DataBind: "iepservice.start_date",
+			Value:    view.IEPService.StartDate,
+			Attributes: templ.Attributes{
+				"data-text": "$iepservice.start_date",
+			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -206,12 +209,11 @@ func CreateServiceForm(view dto.IEPServiceFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		end, _ := time.Parse("2006-01-02", view.IEPService.EndDate)
 		templ_7745c5c3_Err = datepicker.DatePicker(datepicker.Props{
 			ID:       "end-date-input",
 			Class:    "input",
 			DataBind: "iepservice.end_date",
-			Value:    end,
+			Value:    view.IEPService.EndDate,
 			Attributes: templ.Attributes{
 				"data-text": "$iepservice.end_date",
 			},

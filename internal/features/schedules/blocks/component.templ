@@ -1,9 +1,6 @@
 package blocks
 
-import (
-	"fmt"
-	"seek/internal/features/schedules/dto"
-)
+import "fmt"
 
 templ ScheduleStyle() {
 	<style>
@@ -57,16 +54,16 @@ templ ScheduleStyle() {
 	</style>
 }
 
-templ ScheduleComponent(v dto.ScheduleView) {
+templ ScheduleComponent() {
 	<div id="schedule-component">
 		@DayHeaders()
 		@TimeColumn()
 		@GridContainer() {
 			@TimeGrid(30, 480)
 			@DayGrid()
-			for i := range v.Periods {
-				@PeriodCards(v.ID, v.Periods[i])
-			}
+			// for i := range v.Periods {
+			// 	@PeriodCards(v.ID, v.Periods[i])
+			// }
 		}
 		@ScheduleStyle()
 	</div>

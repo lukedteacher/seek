@@ -8,14 +8,14 @@ import (
 )
 
 type GetPeriodRes struct {
-	Id        string  `json:"id"`
-	Title     string  `json:"title"`
-	StartTime string  `json:"start_time"`
-	Duration  int64   `json:"duration"`
-	Days      int64   `json:"days"`
-	CreatedAt string  `json:"created_at"`
-	UpdatedAt string  `json:"updated_at"`
-	DeletedAt *string `json:"deleted_at"`
+	Id          string `json:"id"`
+	Title       string `json:"title"`
+	ServiceType string `json:"service_type"`
+	StartTime   string `json:"start_time"`
+	Duration    int64  `json:"duration"`
+	DaysBitmask int64  `json:"days_bitmask"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
 }
 
 type GetPeriodStmt struct {
@@ -27,9 +27,17 @@ type GetPeriodStmt struct {
 
 func GetPeriod(tx *sqlite.Conn) *GetPeriodStmt {
 	const querySQL = `
-SELECT id, title, start_time, duration, days, created_at, updated_at, deleted_at
+SELECT
+	id, 
+	title, 
+	service_type,
+	start_time, 
+	duration, 
+	days_bitmask, 
+	created_at, 
+	updated_at
 FROM periods
-WHERE deleted_at IS NULL
+WHERE archived_at IS NULL
 	AND id = ?1
     `
 
@@ -79,16 +87,12 @@ func (ps *GetPeriodStmt) Run(
 		row := GetPeriodRes{}
 		row.Id = stmt.ColumnText(0)
 		row.Title = stmt.ColumnText(1)
-		row.StartTime = stmt.ColumnText(2)
-		row.Duration = stmt.ColumnInt64(3)
-		row.Days = stmt.ColumnInt64(4)
-		row.CreatedAt = stmt.ColumnText(5)
-		row.UpdatedAt = stmt.ColumnText(6)
-		isNullDeletedAt := stmt.ColumnIsNull(7)
-		if !isNullDeletedAt {
-			tmp := stmt.ColumnText(7)
-			row.DeletedAt = &tmp
-		}
+		row.ServiceType = stmt.ColumnText(2)
+		row.StartTime = stmt.ColumnText(3)
+		row.Duration = stmt.ColumnInt64(4)
+		row.DaysBitmask = stmt.ColumnInt64(5)
+		row.CreatedAt = stmt.ColumnText(6)
+		row.UpdatedAt = stmt.ColumnText(7)
 		res = &row
 	}
 
