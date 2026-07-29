@@ -24,23 +24,23 @@ import (
 )
 
 type Props struct {
-	ID           string
-	Class        string
-	Attributes   templ.Attributes
-	Name         string
-	Form         string
-	Value        time.Time
-	MinTime      time.Time
-	MaxTime      time.Time
-	Step         int
-	Use12Hours   bool
-	AMLabel      string
-	PMLabel      string
-	Placeholder  string
-	Disabled     bool
-	HasError     bool
-	DataBind     string
-	DataOnChange string
+	ID          string
+	Class       string
+	Attributes  templ.Attributes
+	Name        string
+	Form        string
+	Value       time.Time
+	MinTime     time.Time
+	MaxTime     time.Time
+	Step        int
+	Use12Hours  bool
+	AMLabel     string
+	PMLabel     string
+	Placeholder string
+	Disabled    bool
+	HasError    bool
+	DataBind    string
+	DataOnInput string
 }
 
 func TimePicker(props ...Props) templ.Component {
@@ -187,15 +187,15 @@ func TimePicker(props ...Props) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			if p.DataOnChange != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " data-on:input=\"")
+			if p.DataOnInput != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " data-on:input__debounce.200ms=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
-				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.DataOnChange)
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.DataOnInput)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/templui/components/timepicker/timepicker.templ`, Line: 88, Col: 35}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pkg/templui/components/timepicker/timepicker.templ`, Line: 88, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 				if templ_7745c5c3_Err != nil {

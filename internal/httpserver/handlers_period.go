@@ -97,7 +97,8 @@ func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	view := dto.NewPeriodFormView(empty, students)
 	view.URL = "/periods/create"
-	_ = pages.Create(user, view).Render(ctx, w)
+	psvs := []dto.PeriodScheduleView{}
+	_ = pages.Create(user, view, psvs).Render(ctx, w)
 }
 
 // GET request to /periods/create/stream
@@ -133,11 +134,18 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 				Period dto.PeriodFormView `json:"period"`
 			}{}
 			if err := entry.JSON(signals); err != nil {
-				println(err.Error())
+				s.Logger.Error("period create SSE watcher update", "err", err)
 				return
 			}
-			signals.Period.URL = "/periods/create"
-			sse.PatchElementTempl(pages.Create(user, signals.Period))
+			model := signals.Period.ToPeriod()
+			psvs := dto.NewPeriodScheduleViews(&model)
+			students, err := s.Students.ListStudentsByIEPServiceType(ctx, string(model.ServiceType))
+			if err != nil {
+				println(err.Error())
+			}
+			view := dto.NewPeriodFormView(&model, students)
+			view.URL = "/periods/create"
+			sse.PatchElementTempl(pages.Create(user, view, psvs))
 		}
 	}
 }
@@ -149,7 +157,7 @@ func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request)
 		Period dto.PeriodFormView `json:"period"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		s.Logger.Error("pcv signal read", "err", err.Error())
+		s.Logger.ErrorContext(ctx, "pcv signal read", "err", err.Error())
 		return
 	}
 	// saves the state to a view store so that the SSE can update
@@ -166,36 +174,35 @@ func (s Server) postPeriodCreateValidateField(w http.ResponseWriter, r *http.Req
 		Period dto.PeriodFormView `json:"period"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		s.Logger.ErrorContext(ctx, "pcv signal read", "error", err)
+		s.Logger.ErrorContext(ctx, "pcvf signal read", "error", err)
 		return
 	}
-
 	field := chi.URLParam(r, "field")
-	s.Logger.DebugContext(ctx, "validating field", "field", field)
+	s.Logger.DebugContext(ctx, "validating field", "field", field, "st", signals.Period.ServiceType)
 
-	// Convert the form view to a temporary Period for business logic
+	// convert the form view to a temporary Period for business logic
 	temp := signals.Period.ToPeriod()
 
 	switch field {
 	case "starttime":
-		// Update start time → recalculate end time using current duration
+		// update start time → recalculate end time using current duration
 		temp.UpdateStartTime(signals.Period.StartTime)
-		// Copy back the recalculated end time (duration unchanged)
+		// copy back the recalculated end time (duration unchanged)
 		signals.Period.EndTime = temp.EndTime
 		s.Logger.DebugContext(ctx, "start time updated", "start", temp.StartTime, "end", temp.EndTime, "duration", temp.Duration)
 
 	case "endtime":
-		// Update end time → recalculate duration using current start time
+		// update end time → recalculate duration using current start time
 		temp.UpdateEndTime(signals.Period.EndTime)
-		// Copy back the new duration (end time already set)
+		// copy back the new duration (end time already set)
 		signals.Period.Duration = temp.Duration
 		signals.Period.StartTime = temp.StartTime
 		s.Logger.DebugContext(ctx, "end time updated", "start", temp.StartTime, "end", temp.EndTime, "duration", temp.Duration)
 
 	case "duration":
-		// Update duration → recalculate end time using current start time
+		// update duration → recalculate end time using current start time
 		temp.UpdateDuration(signals.Period.Duration)
-		// Copy back the recalculated end time
+		// copy back the recalculated end time
 		signals.Period.EndTime = temp.EndTime
 		s.Logger.DebugContext(ctx, "duration updated", "start", temp.StartTime, "end", temp.EndTime, "duration", temp.Duration)
 
@@ -205,10 +212,9 @@ func (s Server) postPeriodCreateValidateField(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// Save the updated signals to the view store so the SSE can refresh the form
+	// save the updated signals to the view store so the SSE can refresh the form
 	if err := viewstore.PutState(ctx, s.ViewStore, "new", signals); err != nil {
 		s.Logger.ErrorContext(ctx, "view store error", "error", err)
-		// Don't return an error to the client – the view will still update via SSE
 	}
 }
 

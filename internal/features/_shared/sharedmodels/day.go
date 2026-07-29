@@ -31,6 +31,17 @@ func (d Day) Initial() string {
 	return string(time.Weekday(d).String()[0])
 }
 
+func (d Day) Column() int {
+	columns := map[time.Weekday]int{
+		time.Monday:    1,
+		time.Tuesday:   2,
+		time.Wednesday: 3,
+		time.Thursday:  4,
+		time.Friday:    5,
+	}
+	return columns[time.Weekday(d)]
+}
+
 func (d Day) Bit() int {
 	bits := map[time.Weekday]int{
 		time.Monday:    BitMonday,

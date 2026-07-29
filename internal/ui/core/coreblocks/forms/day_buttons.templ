@@ -2,12 +2,12 @@ package forms
 
 import (
 	"fmt"
-	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/label"
 )
 
-templ DayButtons(days shareddto.DaysFormView) {
+templ DayButtons(view dto.PeriodFormView) {
 	<div class="flex flex-col">
 		@label.Label(label.Props{
 			Class: "mb-3",
@@ -23,9 +23,10 @@ templ DayButtons(days shareddto.DaysFormView) {
 						name="days"
 						type="checkbox"
 						id={ sharedmodels.Days[i].NameLower() }
-						if days.IsDaySet(sharedmodels.Days[i]) {
+						if view.Days.IsDaySet(sharedmodels.Days[i]) {
 							checked
 						}
+						data-on:change={ fmt.Sprintf("@post('%s/validate')", view.URL) }
 					/>
 				</label>
 			}

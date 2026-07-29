@@ -3,18 +3,20 @@ package pages
 import (
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
+	sblocks "seek/internal/features/schedules/blocks"
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-templ Create(user models.User, view dto.PeriodFormView) {
+templ Create(user models.User, view dto.PeriodFormView, psvs []dto.PeriodScheduleView) {
 	@corelayouts.LayoutBase("SEEK: create period", user) {
 		<main data-init={ sse.LongRunningGetSSE("/periods/create/stream") }>
 			@coreblocks.HeaderMain("create period", "/periods/create")
-			<section>
+			<section class="flex justify-start h-full">
 				@blocks.CreateForm(view)
+				@sblocks.ScheduleComponent(psvs)
 			</section>
 		</main>
 	}

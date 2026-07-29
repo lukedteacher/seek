@@ -49,9 +49,9 @@ func extractIEPService(svc *models.IEPService, field string) string {
 	case "Provider":
 		return svc.Provider
 	case "StartDate":
-		return svc.StartDate.Format("02 Jan, 2006")
+		return svc.StartDate.String()
 	case "EndDate":
-		return svc.EndDate.Format("02 Jan, 2006")
+		return svc.EndDate.String()
 	case "CreatedAt":
 		return svc.CreatedAt.Format("02 Jan, 2006")
 	case "UpdatedAt":

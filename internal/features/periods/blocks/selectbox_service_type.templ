@@ -1,13 +1,16 @@
 package blocks
 
 import (
+	"fmt"
+
 	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ SelectboxServiceType(selected string) {
+templ SelectboxServiceType(view dto.PeriodFormView) {
 	@selectbox.SelectBox() {
 		@label.Label(label.Props{
 			Class: "mb-3",
@@ -15,9 +18,8 @@ templ SelectboxServiceType(selected string) {
 			service type
 		}
 		@selectbox.Trigger(selectbox.TriggerProps{
-			Attributes: templ.Attributes{
-				"data-bind:period.service_type": "",
-			},
+			DataBind:     "period.service_type",
+			DataOnChange: fmt.Sprintf("@post('%s/validate')", view.URL),
 		}) {
 			@selectbox.Value(selectbox.ValueProps{
 				Placeholder: "select a service type",
@@ -27,7 +29,7 @@ templ SelectboxServiceType(selected string) {
 			for i := range sharedmodels.ServiceTypeList {
 				@selectbox.Item(selectbox.ItemProps{
 					Value:    sharedmodels.ServiceTypeList[i].String(),
-					Selected: sharedmodels.ServiceTypeList[i].String() == selected,
+					Selected: sharedmodels.ServiceTypeList[i] == view.ServiceType,
 				}) {
 					@icon.Icon(sharedmodels.ServiceTypeList[i].IconName())(icon.Props{
 						Class: "inline-block mr-2 align-middle",

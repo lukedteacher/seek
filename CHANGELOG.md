@@ -2,10 +2,18 @@
 
 updates for SEEK
 
+## v0.3.11 (26.07.28) fixed validate field bugs, student list filter for service type
+
+- tweaked validate so that it successfully fires and updates appropriate fields
+- show period on blank schedule component view
+- added DateOnly type for IEP service start and end date
+- student list in create period filters based on selected service type
+
 ## v0.3.10 (26.07.28) first run of validate/{field} for period
 
 - implemented UpdateField functions for period models
 - patch new values to form via SSE
+- re-implemented schedule view for period creation
 
 ## v0.3.9 (26.07.28) finished moving views folder to ui/core
 

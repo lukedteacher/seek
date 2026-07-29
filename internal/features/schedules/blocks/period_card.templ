@@ -1,45 +1,40 @@
 package blocks
 
-import "seek/internal/features/periods/dto"
+import (
+	"fmt"
 
-// "fmt"
+	"seek/internal/features/periods/dto"
+	"seek/pkg/templui/components/icon"
+)
 
-// "github.com/starfederation/datastar-go/datastar"
-templ PeriodCards(scheduleID string, view dto.PeriodView) {
-	// for i := range view.Columns {
-	// 	@PeriodCard(scheduleID, view, view.Columns[i])
-	// }
-}
-
-templ PeriodCard(scheduleID string, view dto.PeriodView, column int) {
-	// <button
-	// 	id={ fmt.Sprintf("period-schedule-%s-card", view.ID) }
-	// 	data-on:click={ datastar.GetSSE(fmt.Sprintf("/schedules/%s/periods/%s", scheduleID, view.ID)) }
-	// 	class="period-card"
-	// 	style={ fmt.Sprintf("grid-column: %d; grid-row: %s / span %d;", column, view.Row, view.Duration) }
-	// >
-	// 	<h4>{ view.Title }</h4>
-	// </button>
+templ PeriodCard(view dto.PeriodScheduleView) {
+	<div
+		class="w-full h-full p-[2px] text-xs"
+		style={ fmt.Sprintf("grid-column: %d; grid-row: %d / span %d;", view.Column, view.Row, view.Duration) }
+	>
+		<button
+			id={ fmt.Sprintf("period-schedule-%s-card", view.ID) }
+			class="period-card w-full h-full flex flex-col items-center justify-center rounded-md border-solid border-transparent bg-neutral"
+		>
+			<p class="flex items-center gap-1">
+				@icon.Icon(view.ServiceType.IconName())(icon.Props{
+					Size: "12",
+				})
+				<span>{ view.ServiceType.ShortString() }</span>
+			</p>
+		</button>
+	</div>
 	@PeriodCardStyles()
 }
 
 templ PeriodCardStyles() {
 	<style>
 		.period-card {
-			width: 100%;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
 			background-color: var(--gruvbox-orange-neutral-0);
 			border-style: solid;
 			border-color: transparent;
 			border-radius: var(--bd-rd0);
 			font-size: var(--font-size--2);
-
-			&:hover {
-				background-color: var(--gruvbox-orange-neutral-1);
-			}
 		}
 	</style>
 }

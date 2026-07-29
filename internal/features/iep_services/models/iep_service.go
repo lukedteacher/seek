@@ -1,11 +1,9 @@
 package models
 
 import (
-	"seek/internal/features/_shared/sharedmodels"
-	"seek/pkg/templui/components/icon"
 	"time"
 
-	"github.com/a-h/templ"
+	"seek/internal/features/_shared/sharedmodels"
 )
 
 type IEPService struct {
@@ -18,8 +16,8 @@ type IEPService struct {
 	FrequencyCount  int                      `json:"frequency_count" csv:"Frequency count"`
 	FrequencyType   string                   `json:"frequency_type" csv:"Frequency"`
 	Location        string                   `json:"location"`
-	StartDate       time.Time                `json:"start_date" csv:"Start date"`
-	EndDate         time.Time                `json:"end_date" csv:"End date"`
+	StartDate       sharedmodels.DateOnly    `json:"start_date" csv:"Start date"`
+	EndDate         sharedmodels.DateOnly    `json:"end_date" csv:"End date"`
 	Provider        string                   `json:"provider" csv:"Provider"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
@@ -27,8 +25,4 @@ type IEPService struct {
 
 func NewIEPService() *IEPService {
 	return &IEPService{}
-}
-
-func (s IEPService) Icon() templ.Component {
-	return icon.Icon(s.ServiceType.IconName())(icon.Props{Size: "16"})
 }

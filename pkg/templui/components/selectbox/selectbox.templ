@@ -29,6 +29,8 @@ type TriggerProps struct {
 	Multiple          bool
 	ShowPills         bool
 	SelectedCountText string
+	DataBind          string // binds to the hidden input
+	DataOnChange      string // calls when the hidden input fires an change action
 }
 
 type ValueProps struct {
@@ -220,6 +222,12 @@ templ Trigger(props ...TriggerProps) {
 				}
 				data-tui-selectbox-hidden-input
 				{ p.Attributes... }
+				if p.DataBind != "" {
+					data-bind={ p.DataBind }
+				}
+				if p.DataOnChange != "" {
+					data-on:change__debounce.200ms={ p.DataOnChange }
+				}
 			/>
 			{ children... }
 			<span

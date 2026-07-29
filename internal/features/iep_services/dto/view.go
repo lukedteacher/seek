@@ -4,7 +4,6 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iep_services/models"
 	sdto "seek/internal/features/students/dto"
-	"time"
 )
 
 type IEPServiceView struct {
@@ -15,8 +14,8 @@ type IEPServiceView struct {
 	FrequencyCount  int                      `json:"frequency_count"`
 	FrequencyType   string                   `json:"frequency_type"`
 	Location        string                   `json:"location"`
-	StartDate       time.Time                `json:"start_date"`
-	EndDate         time.Time                `json:"end_date"`
+	StartDate       sharedmodels.DateOnly    `json:"start_date"`
+	EndDate         sharedmodels.DateOnly    `json:"end_date"`
 	Provider        string                   `json:"provider"`
 	StudentID       string                   `json:"student_id"`
 	StudentView     sdto.StudentView

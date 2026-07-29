@@ -8,7 +8,7 @@ import (
 )
 
 templ CreateForm(view dto.PeriodFormView) {
-	<form id="create-period-form" class="seek-form" data-on:submit={ datastar.PostSSE(view.URL) }>
+	<form id="create-period-form" class="seek-form h-min" data-on:submit={ datastar.PostSSE(view.URL) }>
 		<hgroup>
 			<h2>create period</h2>
 			<p>create a new period.</p>

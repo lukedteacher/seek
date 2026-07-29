@@ -6799,6 +6799,9 @@
   .h-full {
     height: 100%;
   }
+  .h-min {
+    height: min-content;
+  }
   .h-px {
     height: 1px;
   }
@@ -7858,6 +7861,10 @@
     --tw-border-style: dotted;
     border-style: dotted;
   }
+  .border-solid {
+    --tw-border-style: solid;
+    border-style: solid;
+  }
   .badge-ghost {
     @layer daisyui.l1.l2 {
       border-color: var(--color-base-200);
@@ -8114,6 +8121,9 @@
   }
   .bg-green-500 {
     background-color: var(--color-green-500);
+  }
+  .bg-neutral {
+    background-color: var(--color-neutral);
   }
   .bg-primary {
     background-color: var(--color-primary);
@@ -8447,6 +8457,9 @@
   }
   .p-6 {
     padding: calc(var(--spacing) * 6);
+  }
+  .p-\[2px\] {
+    padding: 2px;
   }
   .p-\[3px\] {
     padding: 3px;

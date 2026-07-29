@@ -73,7 +73,7 @@ func TextInputWithLabel(id, labelText, url, bind, value string) templ.Component 
 			Value: value,
 			Attributes: templ.Attributes{
 				"data-bind":     bind,
-				"data-on:click": fmt.Sprintf("@post('%s')", url),
+				"data-on:input": fmt.Sprintf("@post('%s')", url),
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

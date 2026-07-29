@@ -15,6 +15,7 @@ const StudentReadModelEventHandlerName = "student_read_model_event_handler"
 type StudentReadModelReader interface {
 	Get(ctx context.Context, studentID string) (*models.Student, error)
 	List(ctx context.Context) ([]models.Student, error)
+	ListStudentsByIEPServiceType(ctx context.Context, s string) ([]models.Student, error)
 }
 
 type StudentReadModelWriter interface {

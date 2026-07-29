@@ -75,3 +75,23 @@ WHERE id = @id;
 -- name: DeleteStudent :exec
 DELETE FROM students
 WHERE id = @id;
+
+-- name: ListStudentsByIEPServiceType :many
+SELECT 
+    s.id, 
+    s.given_name, 
+    s.chosen_name, 
+    s.family_name, 
+    s.grade, 
+    s.homeroom, 
+    s.case_manager, 
+    s.created_at, 
+    s.updated_at,
+    s.archived_at
+FROM students s
+WHERE EXISTS (
+    SELECT 1 FROM iep_services ieps
+    WHERE ieps.student_id = s.id
+      AND ieps.service_type = sqlc.arg('service_type')
+      AND ieps.archived_at IS NULL
+);

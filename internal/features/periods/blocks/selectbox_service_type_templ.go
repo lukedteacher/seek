@@ -9,13 +9,16 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"fmt"
+
 	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-func SelectboxServiceType(selected string) templ.Component {
+func SelectboxServiceType(view dto.PeriodFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -97,9 +100,8 @@ func SelectboxServiceType(selected string) templ.Component {
 				return nil
 			})
 			templ_7745c5c3_Err = selectbox.Trigger(selectbox.TriggerProps{
-				Attributes: templ.Attributes{
-					"data-bind:period.service_type": "",
-				},
+				DataBind:     "period.service_type",
+				DataOnChange: fmt.Sprintf("@post('%s/validate')", view.URL),
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -147,7 +149,7 @@ func SelectboxServiceType(selected string) templ.Component {
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(sharedmodels.ServiceTypeList[i].LongString())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iep_services/blocks/selectbox_service_type.templ`, Line: 36, Col: 78}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/selectbox_service_type.templ`, Line: 38, Col: 78}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -161,7 +163,7 @@ func SelectboxServiceType(selected string) templ.Component {
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
 						Value:    sharedmodels.ServiceTypeList[i].String(),
-						Selected: sharedmodels.ServiceTypeList[i].String() == selected,
+						Selected: sharedmodels.ServiceTypeList[i] == view.ServiceType,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

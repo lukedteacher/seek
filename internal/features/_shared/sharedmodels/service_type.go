@@ -80,15 +80,15 @@ func (st ServiceType) LongString() string {
 // use: @icon.Icon(service.ServiceType.IconName())(icon.Props{Size: "16"})
 func (st ServiceType) IconName() string {
 	if name, ok := map[ServiceType]string{
-		ServiceTypeUnassigned:           "help-circle",
-		ServiceTypeExecutiveFunctioning: "brain",
+		ServiceTypeUnassigned:           "circle-question-mark",
+		ServiceTypeExecutiveFunctioning: "brain-cog",
 		ServiceTypeSEL:                  "heart-handshake",
 		ServiceTypeReading:              "book-open",
-		ServiceTypeWriting:              "pen-tool",
-		ServiceTypeMath:                 "sigma",
-		ServiceTypeOccupationalTherapy:  "hand",
-		ServiceTypeSpeech:               "messages-square",
-		ServiceTypeSocialWork:           "users",
+		ServiceTypeWriting:              "notebook-pen",
+		ServiceTypeMath:                 "calculator",
+		ServiceTypeOccupationalTherapy:  "pencil",
+		ServiceTypeSpeech:               "speech",
+		ServiceTypeSocialWork:           "message-circle-heart",
 	}[st]; ok {
 		return name
 	}

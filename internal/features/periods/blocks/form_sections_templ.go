@@ -9,7 +9,6 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	iepsblocks "seek/internal/features/iep_services/blocks"
 	"seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/students/blocks"
 	"seek/internal/ui/core/coreblocks/forms"
@@ -50,7 +49,7 @@ func FormSections(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = iepsblocks.SelectboxServiceType(view.ServiceType.String()).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = SelectboxServiceType(view).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -70,7 +69,7 @@ func FormSections(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = forms.DayButtons(view.Days).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = forms.DayButtons(view).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

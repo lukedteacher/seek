@@ -14,23 +14,23 @@ import (
 )
 
 type Props struct {
-	ID           string
-	Class        string
-	Attributes   templ.Attributes
-	Name         string
-	Form         string
-	Value        time.Time
-	MinTime      time.Time
-	MaxTime      time.Time
-	Step         int
-	Use12Hours   bool
-	AMLabel      string
-	PMLabel      string
-	Placeholder  string
-	Disabled     bool
-	HasError     bool
-	DataBind     string
-	DataOnChange string
+	ID          string
+	Class       string
+	Attributes  templ.Attributes
+	Name        string
+	Form        string
+	Value       time.Time
+	MinTime     time.Time
+	MaxTime     time.Time
+	Step        int
+	Use12Hours  bool
+	AMLabel     string
+	PMLabel     string
+	Placeholder string
+	Disabled    bool
+	HasError    bool
+	DataBind    string
+	DataOnInput string
 }
 
 templ TimePicker(props ...Props) {
@@ -84,8 +84,8 @@ templ TimePicker(props ...Props) {
 				if p.DataBind != "" {
 					data-bind={ p.DataBind }
 				}
-				if p.DataOnChange != "" {
-					data-on:input={ p.DataOnChange }
+				if p.DataOnInput != "" {
+					data-on:input__debounce.200ms={ p.DataOnInput }
 				}
 			/>
 			@popover.Trigger() {

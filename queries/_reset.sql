@@ -19,14 +19,8 @@ DELETE FROM iep_services;
 -- name: ResetReadModelPeriods :exec
 DELETE FROM periods;
 
--- name: ResetReadModelSchedules :exec
-DELETE FROM schedules;
-
 -- name: ResetReadModelStudents :exec
 DELETE FROM students;
-
--- name: ResetReadModelPeriodsSchedules :exec
-DELETE FROM periods_schedules;
 
 -- name: ResetReadModelPeriodsStudents :exec
 DELETE FROM periods_students;

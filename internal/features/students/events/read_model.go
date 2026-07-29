@@ -77,6 +77,33 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 	return students, nil
 }
 
+func (m *ReadModel) ListStudentsByIEPServiceType(ctx context.Context, serviceType string) ([]models.Student, error) {
+	var rows []dbsql.ListStudentsByIepserviceTypeRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceListStudentsByIepserviceType(conn, serviceType)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	students := make([]models.Student, len(rows))
+	for i := range rows {
+		students[i] = models.Student{
+			ID: rows[i].Id,
+			Person: sharedmodels.Person{
+				GivenName:  rows[i].GivenName,
+				ChosenName: rows[i].ChosenName,
+				FamilyName: rows[i].FamilyName,
+			},
+			Grade:       sharedmodels.Grade(rows[i].Grade),
+			Homeroom:    rows[i].Homeroom,
+			CaseManager: rows[i].CaseManager,
+		}
+	}
+	return students, nil
+}
+
 func (m *ReadModel) CreateStudent(ctx context.Context, event StudentCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceCreateStudent(conn, dbsql.CreateStudentParams{

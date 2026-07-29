@@ -55,7 +55,6 @@ func (s Server) getIEPServicesList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view := dto.NewIEPServiceTableView(services)
-
 	_ = pages.List(user, view).Render(ctx, w)
 }
 
@@ -122,7 +121,7 @@ func (s Server) getIEPServiceCreateStream(w http.ResponseWriter, r *http.Request
 		},
 	)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "iep create stream watcher init", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -132,13 +131,12 @@ func (s Server) getIEPServiceCreateStream(w http.ResponseWriter, r *http.Request
 		case <-ctx.Done():
 			return
 		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
-			println("watcher update")
 			if !ok {
 				return
 			}
 			model := &models.IEPService{}
 			if err := entry.JSON(model); err != nil {
-				println(err.Error())
+				s.Logger.ErrorContext(ctx, "iep create stream watcher update", "err", err)
 				return
 			}
 			students, _ := s.Students.List(ctx)
@@ -156,7 +154,7 @@ func (s Server) postIEPServiceCreateValidate(w http.ResponseWriter, r *http.Requ
 		View dto.IEPServiceView `json:"iepservice"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("pcv signal read: ", err.Error())
+		s.Logger.ErrorContext(ctx, "iep create validate signals read", "err", err)
 		return
 	}
 	model := dto.NewModelFromView(&signals.View)
@@ -183,14 +181,18 @@ func (s Server) postIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	model := dto.NewModelFromView(&signals.View)
-	validation := events.Validate(&model)
-	if validation == nil {
-		println("some error")
-		return
-		// TODO actually validate
+	command := events.AddIEPServiceToStudentCommand{
+		StudentID:       model.StudentID,
+		ServiceType:     string(model.ServiceType),
+		IndirectMinutes: model.IndirectMinutes,
+		DirectMinutes:   model.DirectMinutes,
+		FrequencyCount:  model.FrequencyCount,
+		FrequencyType:   model.FrequencyType,
+		Location:        model.Location,
+		Provider:        model.Provider,
+		StartDate:       model.StartDate.String(),
+		EndDate:         model.EndDate.String(),
 	}
-	var command events.AddIEPServiceToStudentCommand
-	CopyFields(&command, &model)
 	command.Metadata = eventstore.HTTPCommandMetadata(r, user.UserRegisteredID)
 	_, err := events.AddIEPServiceToStudentCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
 	if err != nil {

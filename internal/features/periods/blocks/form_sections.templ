@@ -1,7 +1,6 @@
 package blocks
 
 import (
-	iepsblocks "seek/internal/features/iep_services/blocks"
 	"seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/students/blocks"
 	"seek/internal/ui/core/coreblocks/forms"
@@ -16,12 +15,12 @@ templ FormSections(view dto.PeriodFormView) {
 			"period.title",
 			view.Title,
 		)
-		@iepsblocks.SelectboxServiceType(view.ServiceType.String())
+		@SelectboxServiceType(view)
 		<div style="display: flex; gap: var(--size-1);">
 			@FormTimePickers(view)
 			@DurationSlider(view)
 		</div>
-		@forms.DayButtons(view.Days)
+		@forms.DayButtons(view)
 		@sblocks.StudentMultiselect(view.StudentList)
 	</section>
 }

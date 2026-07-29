@@ -172,7 +172,7 @@ func CreateServiceForm(view dto.IEPServiceFormView) templ.Component {
 			ID:       "start-date-input",
 			Class:    "input",
 			DataBind: "iepservice.start_date",
-			Value:    view.IEPService.StartDate,
+			Value:    view.IEPService.StartDate.Time(),
 			Attributes: templ.Attributes{
 				"data-text": "$iepservice.start_date",
 			},
@@ -213,7 +213,7 @@ func CreateServiceForm(view dto.IEPServiceFormView) templ.Component {
 			ID:       "end-date-input",
 			Class:    "input",
 			DataBind: "iepservice.end_date",
-			Value:    view.IEPService.EndDate,
+			Value:    view.IEPService.EndDate.Time(),
 			Attributes: templ.Attributes{
 				"data-text": "$iepservice.end_date",
 			},

@@ -4,8 +4,6 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/models"
 	"seek/internal/features/students/dto"
-	"strconv"
-	"time"
 )
 
 type PeriodView struct {
@@ -47,9 +45,4 @@ func NewPeriodModelFromView(pv *PeriodView) models.Period {
 		Duration:    pv.Duration,
 		DaysBitmask: pv.DaysBitmask,
 	}
-}
-
-func timeToRow(t time.Time, offset int) string {
-	totalMinutes := t.Hour()*60 + t.Minute()
-	return strconv.Itoa(totalMinutes - offset)
 }
