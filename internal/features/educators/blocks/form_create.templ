@@ -7,17 +7,17 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ EducatorCreateForm(url string, view dto.EducatorView) {
+templ EducatorCreateForm(view dto.EducatorView) {
 	<form
 		id="educator-create-form"
 		class="seek-form"
-		data-on:submit={ datastar.PostSSE(url) }
+		data-on:submit={ datastar.PostSSE(view.URL) }
 	>
 		<hgroup>
 			<h2>create educator</h2>
 			<p>create a new educator.</p>
 		</hgroup>
-		@FormSections(url, view)
+		@FormSections(view)
 		<footer>
 			@forms.CancelButton()
 			@forms.SaveButton()

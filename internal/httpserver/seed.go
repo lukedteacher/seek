@@ -133,7 +133,7 @@ func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 			s.EventSaver,
 		)
 		if err != nil {
-			println("error in seed data")
+			s.Logger.Error("seed data student", "err", err)
 			return
 		}
 	}
@@ -164,7 +164,7 @@ func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 			s.EventSaver,
 		)
 		if err != nil {
-			println("error in seed data")
+			s.Logger.Error("seed data period", "err", err)
 			return
 		}
 	}

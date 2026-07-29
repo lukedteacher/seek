@@ -20,15 +20,15 @@ import (
 )
 
 func (s Server) periodRoutes(r chi.Router) {
-	r.Get("/periods/list", s.getPeriodsList)
-	r.Get("/periods/list/stream", s.getPeriodsListStream)
+	r.Get("/periods", s.getPeriodsList)
+	r.Get("/periods/stream", s.getPeriodsListStream)
 	r.Get("/periods/create", s.getPeriodCreate)
 	r.Get("/periods/create/stream", s.getPeriodCreateStream)
 	r.Post("/periods/create/validate", s.postPeriodCreateValidate)
 	r.Post("/periods/create/validate/{field}", s.postPeriodCreateValidateField)
 	r.Post("/periods/create", s.postPeriodCreate)
-	r.Get("/periods/{id}/view", s.getPeriodView)
-	r.Get("/periods/{id}/view/stream", s.getPeriodViewStream)
+	r.Get("/periods/{id}", s.getPeriodView)
+	r.Get("/periods/{id}/stream", s.getPeriodViewStream)
 	r.Get("/periods/{id}/edit", s.getPeriodEdit)
 	r.Get("/periods/{id}/edit/stream", s.getPeriodEditStream)
 	r.Post("/periods/{id}/edit/validate", s.postPeriodEditValidate)
@@ -46,7 +46,7 @@ func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view := dto.NewPeriodTableView(periods)
-
+	view.URL = "/periods"
 	_ = pages.List(user, view).Render(ctx, w)
 }
 
@@ -62,7 +62,7 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 		notifier.Notify()
 	})
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "periods list stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
@@ -76,11 +76,11 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 			// consider adding a view store for the list
 			periods, err := s.Periods.List(ctx)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				s.Logger.ErrorContext(ctx, "periods list stream db list", "err", err)
 				return
 			}
 			view := dto.NewPeriodTableView(periods)
-
+			view.URL = "/periods"
 			sse.PatchElementTempl(pages.List(user, view))
 		}
 	}
@@ -93,7 +93,7 @@ func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	empty, _ := models.NewPeriod()
 	students, err := s.Students.List(ctx)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "get period create db list students", "err", err)
 	}
 	view := dto.NewPeriodFormView(empty, students)
 	view.URL = "/periods/create"
@@ -117,7 +117,7 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "get period create stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -134,14 +134,14 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 				Period dto.PeriodFormView `json:"period"`
 			}{}
 			if err := entry.JSON(signals); err != nil {
-				s.Logger.Error("period create SSE watcher update", "err", err)
+				s.Logger.Error("get period create json", "err", err)
 				return
 			}
 			model := signals.Period.ToPeriod()
 			psvs := dto.NewPeriodScheduleViews(&model)
 			students, err := s.Students.ListStudentsByIEPServiceType(ctx, string(model.ServiceType))
 			if err != nil {
-				println(err.Error())
+				s.Logger.ErrorContext(ctx, "get period create stream db list students by iep service", "err", err)
 			}
 			view := dto.NewPeriodFormView(&model, students)
 			view.URL = "/periods/create"
@@ -163,7 +163,7 @@ func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request)
 	// saves the state to a view store so that the SSE can update
 	// TODO look into a better name for the channel
 	if err := viewstore.PutState(ctx, s.ViewStore, "new", signals); err != nil {
-		println("view store error ", err.Error())
+		s.Logger.ErrorContext(ctx, "post period create validate viewstore", "err", err)
 	}
 }
 
@@ -226,20 +226,20 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 		Period dto.PeriodFormView `json:"period"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("pc signal read: ", err.Error())
+		s.Logger.ErrorContext(ctx, "post period create signals", "err", err)
 		return
 	}
 	metadata := eventstore.HTTPCommandMetadata(r, user.UserRegisteredID)
 	command := signals.Period.ToCreateCommand(metadata)
 	result, err := events.CreatePeriodCommandHandler(ctx, command, s.EventSaver)
 	if err != nil {
-		println("ph cpch error: ", err.Error())
+		s.Logger.ErrorContext(ctx, "post period create command handler", "err", err)
 		return
 	}
 	studentIDs := strings.Split(signals.Period.StudentIDs, ",")
 	for _, studentID := range studentIDs {
 		periodStudentAddCommand := psevents.PeriodStudentAddCommand{
-			PeriodID:  result.PeriodID,
+			PeriodID:  result.EventID,
 			StudentID: studentID,
 			Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
@@ -250,12 +250,11 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 			s.EventRetriever,
 		)
 		if err != nil {
-			println(err.Error())
+			s.Logger.ErrorContext(ctx, "post period create command handler", "err", err)
 		}
 	}
-	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-		return clearSignals(&dto.PeriodView{}, sse)
-	})
+	sse := newSSE(w, r)
+	sse.Redirect(fmt.Sprintf("/periods/%s", result.EventID))
 }
 
 // GET request to /periods/{id}
@@ -273,6 +272,7 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view := dto.NewPeriodView(model)
+	view.URL = fmt.Sprintf("/periods/%s", periodID)
 	studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 	for i := range studentIDs {
 		student, _ := s.Students.Get(ctx, studentIDs[i])
@@ -295,13 +295,13 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 		notifier.Notify()
 	})
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "get period view stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
 
 	if err := s.refreshPeriodViewState(ctx, periodID); err != nil {
-		println("pvs first refresh: ", err.Error())
+		s.Logger.ErrorContext(ctx, "get period view stream refresh", "err", err)
 		return
 	}
 
@@ -315,7 +315,7 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "get period view stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -326,10 +326,10 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 			return
 		case <-notifier.Signal(): // triggers when the read model publishes
 			if err := s.refreshPeriodViewState(ctx, periodID); err != nil {
-				println("pvs second refresh: ", err.Error())
 				if err.Error() == "period not found" {
 					sse.PatchElementTempl(pages.NotFound(user))
 				}
+				s.Logger.ErrorContext(ctx, "get period view stream refresh in select", "err", err)
 				return
 			}
 		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
@@ -338,10 +338,11 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 			}
 			model := &models.Period{}
 			if err := entry.JSON(model); err != nil {
-				println("e: ", err.Error())
+				s.Logger.ErrorContext(ctx, "get period view stream json", "err", err)
 				return
 			}
 			view := dto.NewPeriodView(model)
+			view.URL = fmt.Sprintf("/periods/%s", periodID)
 			studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 			for i := range studentIDs {
 				student, _ := s.Students.Get(ctx, studentIDs[i])
@@ -388,7 +389,7 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 		notifier.Notify()
 	})
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "get period edit stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
@@ -402,7 +403,7 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "get edit view stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -413,10 +414,10 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			return
 		case <-notifier.Signal():
 			if err := s.refreshPeriodEditState(ctx, periodID); err != nil {
-				println(err.Error())
 				if err.Error() == "period not found" {
 					sse.PatchElementTempl(pages.NotFound(user))
 				}
+				s.Logger.ErrorContext(ctx, "get period edit stream refresh in select", "err", err)
 				return
 			}
 		case entry, ok := <-watcher.Updates():
@@ -425,12 +426,12 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			model := &models.Period{}
 			if err := entry.JSON(model); err != nil {
-				println(err.Error())
+				s.Logger.ErrorContext(ctx, "get edit view stream json", "err", err)
 				return
 			}
 			all, err := s.Students.List(ctx)
 			if err != nil {
-				println(err.Error())
+				s.Logger.ErrorContext(ctx, "get edit view stream db list students", "err", err)
 			}
 			selected, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 			model.StudentIDs = strings.Join(selected, ",")
@@ -449,7 +450,7 @@ func (s Server) postPeriodEditValidate(w http.ResponseWriter, r *http.Request) {
 		Period dto.PeriodFormView `json:"period"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("vep signals: ", err.Error())
+		s.Logger.ErrorContext(ctx, "period edit validate", "err", err)
 		return
 	}
 	signals.Period.ID = periodID
@@ -465,7 +466,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		Period dto.PeriodFormView `json:"period"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("ep signals: ", err.Error())
+		s.Logger.ErrorContext(ctx, "post period edit signals", "err", err)
 		return
 	}
 	periodID := chi.URLParam(r, "id")
@@ -480,11 +481,11 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	result, err := events.UpdatePeriodCommandHandler(ctx, updatePeriodCommand, s.EventSaver, s.EventRetriever)
 	if err != nil {
-		println(fmt.Errorf("upch error: %w", err))
+		s.Logger.ErrorContext(ctx, "post period edit command handler", "err", err)
 		return
 	}
 	if result.Skipped == true {
-		println("period update skipped")
+		s.Logger.InfoContext(ctx, "post period edit command handler", "skipped", result.Skipped)
 	}
 	current, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, periodID)
 	proposed := strings.Split(signals.Period.StudentIDs, ",")
@@ -509,10 +510,10 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 					Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 				}, s.EventSaver, s.EventRetriever)
 				if result != nil {
-					println("reid: ", result.EventID)
+					s.Logger.InfoContext(ctx, "post period edit delete student command handler", "result", result.EventID)
 				}
 				if err != nil {
-					println("re: ", err.Error())
+					s.Logger.ErrorContext(ctx, "post period edit delete student command handler", "err", err)
 				}
 			}
 		}
@@ -526,10 +527,10 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 					Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 				}, s.EventSaver, s.EventRetriever)
 				if result != nil {
-					println("aeid: ", result.EventID)
+					s.Logger.InfoContext(ctx, "post period edit add student command handler", "result", result.EventID)
 				}
 				if err != nil {
-					println("ae: ", err.Error())
+					s.Logger.ErrorContext(ctx, "post period edit add student command handler", "err", err)
 				}
 			}
 		}
@@ -546,11 +547,11 @@ func (s Server) deletePeriod(w http.ResponseWriter, r *http.Request) {
 		Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "delete period command handler", "err", err)
 		return
 	}
 	sse := newSSE(w, r)
-	sse.Redirect("/periods/list")
+	sse.Redirect("/periods")
 }
 
 func (s Server) refreshPeriodViewState(ctx context.Context, periodID string) error {

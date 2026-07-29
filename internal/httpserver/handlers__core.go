@@ -38,7 +38,7 @@ func (s Server) getIndexSSE(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "get index sse watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()

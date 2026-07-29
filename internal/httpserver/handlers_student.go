@@ -2,9 +2,11 @@ package httpserver
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"seek/internal/eventstore"
+	idto "seek/internal/features/iepservices/dto"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/students/events"
 	"seek/internal/features/students/models"
@@ -16,14 +18,14 @@ import (
 )
 
 func (s Server) studentRoutes(r chi.Router) {
-	r.Get("/students/list", s.getStudentsList)
-	r.Get("/students/list/stream", s.getStudentsListStream)
+	r.Get("/students", s.getStudentsList)
+	r.Get("/students/stream", s.getStudentsListStream)
 	r.Get("/students/create", s.getStudentCreate)
 	r.Get("/students/create/stream", s.getStudentCreateStream)
 	r.Post("/students/create/validate", s.postStudentCreateValidate)
 	r.Post("/students/create", s.postStudentCreate)
-	r.Get("/students/{id}/view", s.getStudentView)
-	r.Get("/students/{id}/view/stream", s.getStudentViewStream)
+	r.Get("/students/{id}", s.getStudentView)
+	r.Get("/students/{id}/stream", s.getStudentViewStream)
 	r.Get("/students/{id}/edit", s.getStudentEdit)
 	r.Get("/students/{id}/edit/stream", s.getStudentEditStream)
 	r.Post("/students/{id}/edit/validate", s.postStudentEditValidate)
@@ -35,23 +37,17 @@ func (s Server) studentRoutes(r chi.Router) {
 func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	signals := &struct {
-		View int `json:"view"`
-	}{}
-	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("signal read error: ", err.Error())
-		return
-	}
 	students, err := s.Students.List(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Logger.ErrorContext(ctx, "students list db list", "err", err)
 		return
 	}
 	view := dto.NewStudentTableView(students)
+	view.URL = "/students"
 	_ = pages.List(user, view).Render(ctx, w)
 }
 
-// GET request to /students/list/stream
+// GET request to /students/stream
 func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
@@ -62,7 +58,7 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 		notifier.Notify()
 	})
 	if err != nil {
-		println("students list stream error: ", err.Error())
+		s.Logger.ErrorContext(ctx, "students list stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
@@ -80,7 +76,7 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			view := dto.NewStudentTableView(students)
-
+			view.URL = "/students"
 			sse.PatchElementTempl(pages.List(user, view))
 		}
 	}
@@ -92,6 +88,7 @@ func (s Server) getStudentCreate(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	empty := models.NewStudent()
 	view := dto.NewStudentFormView(empty)
+	view.URL = "/students/create"
 	_ = pages.Create(user, view).Render(ctx, w)
 }
 
@@ -111,7 +108,7 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		println("watcher error in student create stream: ", err.Error())
+		s.Logger.ErrorContext(ctx, "student create stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -121,17 +118,16 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 		case <-ctx.Done():
 			return
 		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
-			println("student watcher update")
 			if !ok {
 				return
 			}
 			model := &models.Student{}
 			if err := entry.JSON(model); err != nil {
-				println(err.Error())
+				s.Logger.ErrorContext(ctx, "student create stream json", "err", err)
 				return
 			}
-			println(model.Grade)
 			view := dto.NewStudentFormView(model)
+			view.URL = "/students/create"
 			sse.PatchElementTempl(pages.Create(user, view))
 		}
 	}
@@ -144,14 +140,13 @@ func (s Server) postStudentCreateValidate(w http.ResponseWriter, r *http.Request
 		Student dto.StudentView `json:"student"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("pcv signal read: ", err.Error())
+		s.Logger.ErrorContext(ctx, "student create validate signal read", "err", err)
 		return
 	}
 	model := dto.NewStudentModelFromView(&signals.Student)
-	// saves the state to a view store so that the SSE can update
-	// TODO look into a better name for the channel
 	if err := viewstore.PutState(ctx, s.ViewStore, "newstudent", model); err != nil {
-		println("view store error ", err.Error())
+		s.Logger.ErrorContext(ctx, "student create validate put state", "err", err)
+		return
 	}
 }
 
@@ -163,27 +158,26 @@ func (s Server) postStudentCreate(w http.ResponseWriter, r *http.Request) {
 		Student dto.StudentView `json:"student"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "student create signal read", "err", err)
 		return
 	}
 
-	var grade int = -1
-
-	_, err := events.CreateStudentCommandHandler(ctx, events.CreateStudentCommand{
+	result, err := events.CreateStudentCommandHandler(ctx, events.CreateStudentCommand{
 		GivenName:   signals.Student.GivenName,
 		ChosenName:  signals.Student.ChosenName,
 		FamilyName:  signals.Student.FamilyName,
-		Grade:       grade,
+		Grade:       int(signals.Student.Grade),
 		Homeroom:    signals.Student.Homeroom,
 		CaseManager: signals.Student.CaseManager,
 		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver)
 	if err != nil {
-		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-			return flashError(sse, err.Error())
-		})
+		s.Logger.ErrorContext(ctx, "student create create command handler", "err", err)
 		return
 	}
+
+	sse := newSSE(w, r)
+	sse.Redirect(fmt.Sprintf("/students/%s", result.EventID))
 }
 
 // GET request to /students/{id}
@@ -197,7 +191,16 @@ func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view := dto.NewStudentView(student)
-	_ = pages.View(user, view).Render(ctx, w)
+	view.URL = fmt.Sprintf("/students/%s", studentID)
+	services, err := s.IEPServices.ListIEPServicesForStudent(ctx, studentID)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "get student view db list services", "err", err)
+	}
+	serviceViews := make([]idto.IEPServiceView, len(services))
+	for i, service := range services {
+		serviceViews[i] = idto.NewIEPServiceView(&service)
+	}
+	_ = pages.View(user, view, serviceViews).Render(ctx, w)
 }
 
 // GET request to /students/{id}/stream
@@ -213,13 +216,13 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 		notifier.Notify()
 	})
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "student view stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
 
 	if err := s.refreshStudentViewState(ctx, studentID); err != nil {
-		println("svs first refresh: ", err.Error())
+		s.Logger.ErrorContext(ctx, "student view stream refresh", "err", err)
 		return
 	}
 
@@ -233,7 +236,7 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "student view stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -244,7 +247,7 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 			return
 		case <-notifier.Signal(): // triggers when the read model publishes
 			if err := s.refreshStudentViewState(ctx, studentID); err != nil {
-				println("svs second refresh: ", err.Error())
+				s.Logger.ErrorContext(ctx, "student view stream refresh in select", "err", err)
 				if err.Error() == "student not found" {
 					sse.PatchElementTempl(pages.NotFound(user))
 				}
@@ -256,11 +259,20 @@ func (s Server) getStudentViewStream(w http.ResponseWriter, r *http.Request) {
 			}
 			model := &models.Student{}
 			if err := entry.JSON(model); err != nil {
-				println(err.Error())
+				s.Logger.ErrorContext(ctx, "student view stream json read", "err", err)
 				return
 			}
 			view := dto.NewStudentView(model)
-			sse.PatchElementTempl(pages.View(user, view))
+			view.URL = fmt.Sprintf("/students/%s", studentID)
+			services, err := s.IEPServices.ListIEPServicesForStudent(ctx, studentID)
+			if err != nil {
+				s.Logger.ErrorContext(ctx, "get student view db list services", "err", err)
+			}
+			serviceViews := make([]idto.IEPServiceView, len(services))
+			for i, service := range services {
+				serviceViews[i] = idto.NewIEPServiceView(&service)
+			}
+			sse.PatchElementTempl(pages.View(user, view, serviceViews))
 		}
 	}
 }
@@ -281,10 +293,11 @@ func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	view := dto.NewStudentFormView(model)
+	view.URL = fmt.Sprintf("/students/%s/edit", studentID)
 	_ = pages.Edit(user, view).Render(ctx, w)
 }
 
-// GET request to /student/{id}/stream
+// GET request to /student/{id}/edit/stream
 func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
@@ -297,7 +310,7 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 		notifier.Notify()
 	})
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "student edit stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
@@ -311,7 +324,7 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "student edit stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -322,10 +335,10 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 			return
 		case <-notifier.Signal():
 			if err := s.refreshStudentEditState(ctx, studentID); err != nil {
-				println(err.Error())
 				if err.Error() == "student not found" {
 					sse.PatchElementTempl(pages.NotFound(user))
 				}
+				s.Logger.ErrorContext(ctx, "student edit stream refresh in select", "err", err)
 				return
 			}
 		case entry, ok := <-watcher.Updates():
@@ -334,10 +347,11 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			model := &models.Student{}
 			if err := entry.JSON(model); err != nil {
-				println(err.Error())
+				s.Logger.ErrorContext(ctx, "student edit stream json read", "err", err)
 				return
 			}
 			view := dto.NewStudentFormView(model)
+			view.URL = fmt.Sprintf("/students/%s/edit", studentID)
 			sse.PatchElementTempl(pages.Edit(user, view))
 		}
 	}
@@ -346,55 +360,51 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 // POST request to /students/{id}/edit/validate
 func (s Server) postStudentEditValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
+	studentID := chi.URLParam(r, "id")
 	signals := &struct {
 		Student dto.StudentView `json:"student"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Logger.ErrorContext(ctx, "student edit validate read signals", "err", err)
 		return
 	}
 	model := dto.NewStudentModelFromView(&signals.Student)
-	model.ID = chi.URLParam(r, "id")
-	view := dto.NewStudentFormView(&model)
-	_ = pages.Edit(user, view).Render(ctx, w)
+	model.ID = studentID
+	viewstore.PutState(ctx, s.ViewStore, studentID, model)
 }
 
 // POST request to /students/{id}/edit
 func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
+	studentID := chi.URLParam(r, "id")
 	signals := &struct {
 		Student dto.StudentView `json:"student"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("error reading signals: ", err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Logger.ErrorContext(ctx, "post student edit read signals", "err", err)
 		return
 	}
-
-	gradeInt := int(signals.Student.Grade)
-
-	studentID := chi.URLParam(r, "id")
 	result, err := events.UpdateStudentCommandHandler(ctx, events.UpdateStudentCommand{
 		StudentID:   studentID,
 		GivenName:   signals.Student.GivenName,
 		ChosenName:  signals.Student.ChosenName,
 		FamilyName:  signals.Student.FamilyName,
-		Grade:       gradeInt,
+		Grade:       int(signals.Student.Grade),
 		Homeroom:    signals.Student.Homeroom,
 		CaseManager: signals.Student.CaseManager,
 		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {
-		println("command error: ", err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Logger.ErrorContext(ctx, "post student edit command handler", "err", err)
 		return
 	}
 	if result.Skipped == true {
-		println("update skipped")
+		s.Logger.InfoContext(ctx, "post student edit command handler", "skipped", result.Skipped)
 		return
 	}
+	sse := newSSE(w, r)
+	sse.Redirect(fmt.Sprintf("/students/%s", studentID))
 }
 
 // POST request to /students/{id}/delete

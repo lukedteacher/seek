@@ -1,0 +1,26 @@
+package blocks
+
+import (
+	"seek/internal/features/iepservices/dto"
+	"seek/internal/ui/core/coreblocks/forms"
+
+	"github.com/starfederation/datastar-go/datastar"
+)
+
+templ EditServiceForm(view dto.IEPServiceFormView) {
+	<form
+		id="edit-iep-service-form"
+		class="seek-form"
+		data-on:submit={ datastar.PostSSE(view.URL) }
+	>
+		<hgroup>
+			<h2>edit IEP service</h2>
+			<p>edit an iep service for a student.</p>
+		</hgroup>
+		@FormSections(view)
+		<footer>
+			@forms.CancelButton()
+			@forms.SaveButton()
+		</footer>
+	</form>
+}

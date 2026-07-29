@@ -1,0 +1,41 @@
+package blocks
+
+import (
+	"seek/internal/features/students/dto"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
+)
+
+templ IEPServiceStudentSelectBox(views []dto.StudentSelectBoxView) {
+	@selectbox.SelectBox(selectbox.Props{
+		ID: "student-multiselect-container",
+	}) {
+		@label.Label(label.Props{
+			For:   "student-multiselect",
+			Class: "text-neutral-content/80 mb-3",
+		}) {
+			student
+		}
+		@selectbox.Trigger(selectbox.TriggerProps{
+			ID: "student-multiselect",
+			Attributes: templ.Attributes{
+				"data-bind:iepservice.student_id": "",
+			},
+		}) {
+			@selectbox.Value(selectbox.ValueProps{
+				Placeholder: "no student selected",
+			})
+		}
+		@selectbox.Content() {
+			for i := range views {
+				@selectbox.Item(selectbox.ItemProps{
+					Value:    views[i].Student.ID,
+					Selected: views[i].Selected,
+				}) {
+					{ views[i].Student.NameInitial() }
+				}
+			}
+		}
+	}
+	@selectbox.Script()
+}

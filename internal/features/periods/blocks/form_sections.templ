@@ -15,7 +15,7 @@ templ FormSections(view dto.PeriodFormView) {
 			"period.title",
 			view.Title,
 		)
-		@SelectboxServiceType(view)
+		@forms.SelectboxServiceType(view.URL, "period", view.ServiceType)
 		<div style="display: flex; gap: var(--size-1);">
 			@FormTimePickers(view)
 			@DurationSlider(view)

@@ -2,7 +2,16 @@
 
 updates for SEEK
 
-## v0.3.12 (26.07.29)
+## v0.3.12 (26.07.29) various features and bug fixes
+
+- style tweaks for period cards
+- reverted {object}/list pattern to comply with breadcrumb structure
+- reverted {object}/view pattern
+- added some better logging errors in handlers
+- removed every println!
+- fixed up IEP services pages and blocks
+- fixed data table to show grouped fields for headers
+- added services to student view
 
 ## v0.3.11 (26.07.28) fixed validate field bugs, student list filter for service type
 

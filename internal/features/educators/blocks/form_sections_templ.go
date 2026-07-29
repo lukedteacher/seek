@@ -17,7 +17,7 @@ import (
 	"seek/pkg/templui/components/selectbox"
 )
 
-func FormSections(url string, view dto.EducatorView) templ.Component {
+func FormSections(view dto.EducatorView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -45,7 +45,7 @@ func FormSections(url string, view dto.EducatorView) templ.Component {
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
 			"given-name-label",
 			"given name",
-			fmt.Sprintf("%s/validate", url),
+			fmt.Sprintf("%s/validate", view.URL),
 			"educator.given_name",
 			view.GivenName,
 		).Render(ctx, templ_7745c5c3_Buffer)
@@ -55,7 +55,7 @@ func FormSections(url string, view dto.EducatorView) templ.Component {
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
 			"chosen-name-label",
 			"chosen name",
-			fmt.Sprintf("%s/validate", url),
+			fmt.Sprintf("%s/validate", view.URL),
 			"educator.chosen_name",
 			view.ChosenName,
 		).Render(ctx, templ_7745c5c3_Buffer)
@@ -65,7 +65,7 @@ func FormSections(url string, view dto.EducatorView) templ.Component {
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
 			"family-name-label",
 			"family name",
-			fmt.Sprintf("%s/validate", url),
+			fmt.Sprintf("%s/validate", view.URL),
 			"educator.family_name",
 			view.FamilyName,
 		).Render(ctx, templ_7745c5c3_Buffer)
@@ -79,7 +79,7 @@ func FormSections(url string, view dto.EducatorView) templ.Component {
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
 			"email-label",
 			"email",
-			fmt.Sprintf("%s/validate", url),
+			fmt.Sprintf("%s/validate", view.URL),
 			"educator.email",
 			view.Email,
 		).Render(ctx, templ_7745c5c3_Buffer)

@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"fmt"
 	"net/http"
 
 	"seek/internal/eventstore"
@@ -14,7 +15,7 @@ import (
 )
 
 func (s Server) teacherRoutes(r chi.Router) {
-	r.Get("/teachers/list", s.getTeachersList)
+	r.Get("/teachers", s.getTeachersList)
 	r.Get("/teachers/{id}", s.getTeacher)
 	r.Get("/teachers/create", s.getCreateTeacherForm)
 	r.Post("/teachers/create", s.createTeacher)
@@ -28,18 +29,13 @@ func (s Server) teacherRoutes(r chi.Router) {
 func (s Server) getTeachersList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	type Signals struct {
-		View int64 `json:"view"`
-	}
-	signals := &Signals{}
 	teachers, err := s.Teachers.List(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Logger.ErrorContext(ctx, "teachers list db list", "err", err)
 		return
 	}
-	datastar.ReadSignals(r, signals)
 
-	_ = pages.List(user, signals.View, teachers).Render(ctx, w)
+	_ = pages.List(user, teachers).Render(ctx, w)
 }
 
 // GET request to /teachers/{id}
@@ -79,7 +75,7 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	_, err := events.CreateTeacherCommandHandler(ctx, events.CreateTeacherCommand{
+	result, err := events.CreateTeacherCommandHandler(ctx, events.CreateTeacherCommand{
 		GivenName:  signals.GivenName,
 		ChosenName: signals.ChosenName,
 		FamilyName: signals.FamilyName,
@@ -92,9 +88,8 @@ func (s Server) createTeacher(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-		return clearSignals(&Signals{}, sse)
-	})
+	sse := newSSE(w, r)
+	sse.Redirect(fmt.Sprintf("/teachers/%s", result.EventID))
 }
 
 // GET request to /students/{id}/edit
@@ -105,7 +100,7 @@ func (s Server) getEditTeacher(w http.ResponseWriter, r *http.Request) {
 	teacherRes, err := s.Teachers.Get(ctx, teacherID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "get edit teacher db get", "err", err)
 		return
 	}
 
@@ -122,16 +117,16 @@ func (s Server) getEditTeacher(w http.ResponseWriter, r *http.Request) {
 
 // POST request to /teachers/{id}/edit/validate
 func (s Server) postValidateEditTeacher(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	teacherID := chi.URLParam(r, "id")
 	type Signals struct {
 		Teacher models.TeacherSignals `json:"teacher"`
 	}
 	signals := &Signals{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("vet signals: ", err.Error())
+		s.Logger.ErrorContext(ctx, "post edit teacher validate read signals", "err", err)
 		return
 	}
-
-	teacherID := chi.URLParam(r, "id")
 
 	model := models.Teacher{
 		ID:         teacherID,
@@ -153,21 +148,8 @@ func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
 	}
 	signals := &Signals{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Logger.ErrorContext(ctx, "post edit teacher read signals", "err", err)
 		return
-	}
-
-	model := models.Teacher{
-		ID:         signals.Teacher.ID,
-		GivenName:  signals.Teacher.GivenName,
-		ChosenName: &signals.Teacher.ChosenName,
-		FamilyName: signals.Teacher.FamilyName,
-	}
-
-	// TODO add actual validation
-	validation := events.Validate(&model)
-	if validation == nil {
-		println("some validation error")
 	}
 
 	command := events.UpdateTeacherCommand{
@@ -179,11 +161,11 @@ func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
 	}
 	result, err := events.UpdateTeacherCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Logger.ErrorContext(ctx, "post edit teacher command handler", "err", err)
 		return
 	}
 	if result.Skipped == true {
-		println("update skipped")
+		s.Logger.InfoContext(ctx, "post edit teacher", "skipped", result.Skipped)
 		return
 	}
 }

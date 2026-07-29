@@ -5,15 +5,17 @@ import (
 	"seek/internal/features/students/blocks"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/users/models"
+	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-templ Edit(user models.User, s dto.StudentFormView) {
+templ Edit(user models.User, view dto.StudentFormView) {
 	@corelayouts.LayoutBase("SEEK: edit student", user) {
-		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/students/%s/edit/stream", s.Student.ID)) }>
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
+			@coreblocks.HeaderMain("edit student", view.URL)
 			<section>
-				@blocks.StudentEditForm(s)
+				@blocks.StudentEditForm(view)
 			</section>
 		</main>
 	}

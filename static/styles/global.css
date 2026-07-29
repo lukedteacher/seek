@@ -275,6 +275,10 @@ table.data-table {
   border: 1px solid var(--color-muted);
   border-radius: var(--border-radius-0);
   tr {
+    th {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
     td {
       border-top: 1px solid var(--color-muted);
     }
@@ -351,5 +355,5 @@ h4 {
 
 table {
   background-color: transparent;
-  color: var(--clr-n3o);
+  color: var(--neutral-3-on);
 }

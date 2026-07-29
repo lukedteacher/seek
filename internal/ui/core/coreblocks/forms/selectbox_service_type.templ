@@ -1,0 +1,42 @@
+package forms
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
+)
+
+templ SelectboxServiceType(url, object string, selected sharedmodels.ServiceType) {
+	@selectbox.SelectBox() {
+		@label.Label(label.Props{
+			Class: "mb-3",
+		}) {
+			service type
+		}
+		@selectbox.Trigger(selectbox.TriggerProps{
+			DataBind:     fmt.Sprintf("%s.service_type", object),
+			DataOnChange: fmt.Sprintf("@post('%s/validate')", url),
+		}) {
+			@selectbox.Value(selectbox.ValueProps{
+				Placeholder: "select a service type",
+			})
+		}
+		@selectbox.Content() {
+			for i := range sharedmodels.ServiceTypeList {
+				@selectbox.Item(selectbox.ItemProps{
+					Value:    sharedmodels.ServiceTypeList[i].String(),
+					Selected: sharedmodels.ServiceTypeList[i] == selected,
+				}) {
+					@icon.Icon(sharedmodels.ServiceTypeList[i].IconName())(icon.Props{
+						Class: "inline-block mr-2 align-middle",
+						Size:  "16",
+					})
+					<span class="align-middle">{ sharedmodels.ServiceTypeList[i].LongString() }</span>
+				}
+			}
+		}
+	}
+}

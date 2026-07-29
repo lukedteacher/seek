@@ -74,7 +74,7 @@ func NavStyles() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<style>\n\t\tbody > header nav {\n\t\t\tul {\n\t\t\t\tdisplay: flex;\n\t\t\t\tflex-direction: row;\n\t\t\t\tgap: var(--size-4);\n\n\t\t\t\tli a {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tgap: var(--size--2);\n\t\t\t\t\tfont-size: var(--fnt-sm);\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tpadding: var(--size--1) var(--size-1);\n\t\t\t\t\tborder-radius: var(--bd-rd1);\n\t\t\t\t\t&:hover {\n\t\t\t\t\t\tbackground-color: var(--secondary-5);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<style>\r\n\t\tbody > header nav {\r\n\t\t\tul {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: row;\r\n\t\t\t\tgap: var(--size-4);\r\n\r\n\t\t\t\tli a {\r\n\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\tgap: var(--size--2);\r\n\t\t\t\t\tfont-size: var(--fnt-sm);\r\n\t\t\t\t\talign-items: center;\r\n\t\t\t\t\tpadding: var(--size--1) var(--size-1);\r\n\t\t\t\t\tborder-radius: var(--bd-rd1);\r\n\t\t\t\t\t&:hover {\r\n\t\t\t\t\t\tbackground-color: var(--secondary-5);\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

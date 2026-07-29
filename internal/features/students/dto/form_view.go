@@ -8,6 +8,7 @@ import (
 type StudentFormView struct {
 	Student    StudentView                  `json:"student"`
 	Validation map[string]events.Validation `json:"validation"`
+	URL        string                       `json:"url"`
 }
 
 func NewStudentFormView(s *models.Student) StudentFormView {

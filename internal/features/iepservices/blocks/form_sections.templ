@@ -1,0 +1,99 @@
+package blocks
+
+import (
+	"seek/internal/features/iepservices/dto"
+	"seek/internal/ui/core/coreblocks/forms"
+	"seek/pkg/templui/components/datepicker"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
+)
+
+templ FormSections(view dto.IEPServiceFormView) {
+	<section>
+		@IEPServiceStudentSelectBox(view.Students)
+	</section>
+	<section>
+		@forms.SelectboxServiceType(view.URL, "iepservice", view.IEPService.ServiceType)
+		<div>
+			<p>minutes</p>
+			<div style="display:flex; gap:var(--size-1);">
+				@forms.NumberInputWithLabel(
+					"iep-service-indirect-minutes",
+					"indirect",
+					view.URL+"/validate",
+					"iepservice.indirect_minutes",
+					view.IEPService.IndirectMinutes,
+				)
+				@forms.NumberInputWithLabel(
+					"iep-service-direct-minutes",
+					"direct",
+					view.URL+"/validate",
+					"iepservice.direct_minutes",
+					view.IEPService.DirectMinutes,
+				)
+			</div>
+		</div>
+		<div>
+			<p>frequency</p>
+			<div style="display:flex; align-items: center; justify-content: space-between; gap:var(--size-1);">
+				@forms.NumberInputWithLabel(
+					"iep-service-frequency-count",
+					"count",
+					view.URL+"/validate",
+					"iepservice.frequency_count",
+					view.IEPService.FrequencyCount,
+				)
+				<span>x</span>
+				@FrequencyTypeSelect(view.IEPService.FrequencyType)
+			</div>
+		</div>
+		@ServiceLocationSelect(view.IEPService.Location)
+		@forms.TextInputWithLabel(
+			"iep-service-provider",
+			"provider",
+			view.URL+"/validate",
+			"iepservice.provider",
+			view.IEPService.Provider,
+		)
+	</section>
+	<section>
+		<div class="flex gap-3">
+			<div>
+				@label.Label(label.Props{
+					For:   "start-date-input",
+					Class: "mb-3",
+				}) {
+					start date
+				}
+				@datepicker.DatePicker(datepicker.Props{
+					ID:       "start-date-input",
+					Class:    "input",
+					DataBind: "iepservice.start_date",
+					Value:    view.IEPService.StartDate.Time(),
+					Attributes: templ.Attributes{
+						"data-text": "$iepservice.start_date",
+					},
+				})
+			</div>
+			<div>
+				@label.Label(label.Props{
+					For:   "start-date-input",
+					Class: "mb-3",
+				}) {
+					end date
+				}
+				@datepicker.DatePicker(datepicker.Props{
+					ID:       "end-date-input",
+					Class:    "input",
+					DataBind: "iepservice.end_date",
+					Value:    view.IEPService.EndDate.Time(),
+					Attributes: templ.Attributes{
+						"data-text": "$iepservice.end_date",
+					},
+				})
+			</div>
+		</div>
+	</section>
+	@selectbox.Script()
+	@datepicker.Script()
+}

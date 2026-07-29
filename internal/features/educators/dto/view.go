@@ -9,6 +9,7 @@ type EducatorView struct {
 	sharedmodels.Person        // embeds given, chosen, & family name
 	ID                  string `json:"id" display:"ID"`
 	Role                string `json:"role" display:"role"`
+	URL                 string `json:"url"`
 }
 
 func NewEducatorView(s *models.Educator) *EducatorView {

@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"reflect"
 
 	"seek/internal/eventstore"
-	"seek/internal/features/iep_services/dto"
-	"seek/internal/features/iep_services/events"
-	"seek/internal/features/iep_services/models"
-	"seek/internal/features/iep_services/pages"
+	"seek/internal/features/iepservices/dto"
+	"seek/internal/features/iepservices/events"
+	"seek/internal/features/iepservices/models"
+	"seek/internal/features/iepservices/pages"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -20,14 +19,14 @@ import (
 )
 
 func (s Server) iepServiceRoutes(r chi.Router) {
-	r.Get("/iepservices/list", s.getIEPServicesList)
-	r.Get("/iepservices/list/stream", s.getIEPServicesListStream)
+	r.Get("/iepservices", s.getIEPServicesList)
+	r.Get("/iepservices/stream", s.getIEPServicesListStream)
 	r.Get("/iepservices/create", s.getIEPServiceCreate)
 	r.Get("/iepservices/create/stream", s.getIEPServiceCreateStream)
 	r.Post("/iepservices/create/validate", s.postIEPServiceCreateValidate)
 	r.Post("/iepservices/create", s.postIEPServiceCreate)
-	r.Get("/iepservices/{id}/view", s.getIEPServiceView)
-	r.Get("/iepservices/{id}/view/stream", s.getIEPServiceViewStream)
+	r.Get("/iepservices/{id}", s.getIEPServiceView)
+	r.Get("/iepservices/{id}/stream", s.getIEPServiceViewStream)
 	r.Get("/iepservices/{id}/edit", s.getIEPServiceEdit)
 	r.Get("/iepservices/{id}/edit/stream", s.getIEPServiceEditStream)
 	r.Post("/iepservices/{id}/edit", s.postIEPServiceEdit)
@@ -40,21 +39,13 @@ func (s Server) iepServiceRoutes(r chi.Router) {
 func (s Server) getIEPServicesList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	type Signals struct {
-		View int `json:"view"`
-	}
-	signals := &Signals{}
-	datastar.ReadSignals(r, signals)
-	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("signal read error: ", err.Error())
-		return
-	}
 	services, err := s.IEPServices.List(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Logger.ErrorContext(ctx, "iep services list db list", "err", err)
 		return
 	}
 	view := dto.NewIEPServiceTableView(services)
+	view.URL = "/iepservices"
 	_ = pages.List(user, view).Render(ctx, w)
 }
 
@@ -69,7 +60,7 @@ func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request)
 		notifier.Notify()
 	})
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "iep services list stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
@@ -79,15 +70,15 @@ func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request)
 		case <-ctx.Done():
 			return
 		case <-notifier.Signal(): // triggers when the read model publishes
-			// for now just reloads the page
+			// for now just refreshes the page
 			// consider adding a view store for the list
 			services, err := s.IEPServices.List(ctx)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				s.Logger.ErrorContext(ctx, "iep services list stream db list", "err", err)
 				return
 			}
 			view := dto.NewIEPServiceTableView(services)
-
+			view.URL = "/iepservices"
 			sse.PatchElementTempl(pages.List(user, view))
 		}
 	}
@@ -161,7 +152,7 @@ func (s Server) postIEPServiceCreateValidate(w http.ResponseWriter, r *http.Requ
 	// saves the state to a view store so that the SSE can update
 	// TODO look into a better name for the channel
 	if err := viewstore.PutState(ctx, s.ViewStore, "new", model); err != nil {
-		println("view store error ", err.Error())
+		s.Logger.ErrorContext(ctx, "post iep services create validate viewstore", "err", err)
 	}
 }
 
@@ -173,17 +164,17 @@ func (s Server) postIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 		View dto.IEPServiceView `json:"iepservice"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("pc signal read: ", err.Error())
+		s.Logger.ErrorContext(ctx, "post iep services create signals", "err", err)
 		return
 	}
 	if signals.View.StudentID == "" {
-		println("no student ID!")
+		s.Logger.InfoContext(ctx, "no student ID!")
 		return
 	}
 	model := dto.NewModelFromView(&signals.View)
 	command := events.AddIEPServiceToStudentCommand{
 		StudentID:       model.StudentID,
-		ServiceType:     string(model.ServiceType),
+		ServiceType:     signals.View.ServiceType.ShortString(),
 		IndirectMinutes: model.IndirectMinutes,
 		DirectMinutes:   model.DirectMinutes,
 		FrequencyCount:  model.FrequencyCount,
@@ -192,16 +183,15 @@ func (s Server) postIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 		Provider:        model.Provider,
 		StartDate:       model.StartDate.String(),
 		EndDate:         model.EndDate.String(),
+		Metadata:        eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
-	command.Metadata = eventstore.HTTPCommandMetadata(r, user.UserRegisteredID)
-	_, err := events.AddIEPServiceToStudentCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
+	result, err := events.AddIEPServiceToStudentCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
 	if err != nil {
-		println("ph cpch error: ", err.Error())
+		s.Logger.ErrorContext(ctx, "post iep services create command handler", "err", err)
 		return
 	}
-	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-		return clearSignals(&dto.IEPServiceView{}, sse)
-	})
+	sse := newSSE(w, r)
+	sse.Redirect(fmt.Sprintf("/iepservices/%s", result.EventID))
 }
 
 // GET request to /iepservices/{id}
@@ -210,16 +200,17 @@ func (s Server) getIEPServiceView(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	iepServiceID := chi.URLParam(r, "id")
 	model, err := s.IEPServices.Get(ctx, iepServiceID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	if model == nil {
 		_ = pages.NotFound(user).Render(ctx, w)
 		return
 	}
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "iep service view db get", "err", err)
+		return
+	}
 
 	view := dto.NewIEPServiceView(model)
+	view.URL = fmt.Sprintf("/iepservices/%s", iepServiceID)
 	_ = pages.View(user, view).Render(ctx, w)
 }
 
@@ -236,13 +227,13 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 		notifier.Notify()
 	})
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "iep service view stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
 
 	if err := s.refreshIEPServiceViewState(ctx, iepServiceID); err != nil {
-		println("pvs first refresh: ", err.Error())
+		s.Logger.ErrorContext(ctx, "iep service view stream refresh", "err", err)
 		return
 	}
 
@@ -256,7 +247,7 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 		},
 	)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "iep service view stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -267,10 +258,10 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 			return
 		case <-notifier.Signal(): // triggers when the read model publishes
 			if err := s.refreshIEPServiceViewState(ctx, iepServiceID); err != nil {
-				println("pvs second refresh: ", err.Error())
 				if err.Error() == "iepService not found" {
 					sse.PatchElementTempl(pages.NotFound(user))
 				}
+				s.Logger.ErrorContext(ctx, "iep service view stream refresh in select", "err", err)
 				return
 			}
 		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
@@ -279,10 +270,11 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 			}
 			model := &models.IEPService{}
 			if err := entry.JSON(model); err != nil {
-				println(err.Error())
+				s.Logger.ErrorContext(ctx, "iep service view stream json", "err", err)
 				return
 			}
 			view := dto.NewIEPServiceView(model)
+			view.URL = fmt.Sprintf("/iepservices/%s", iepServiceID)
 			sse.PatchElementTempl(pages.View(user, view))
 		}
 	}
@@ -295,7 +287,7 @@ func (s Server) getIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	iepServiceID := chi.URLParam(r, "id")
 	model, err := s.IEPServices.Get(ctx, iepServiceID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Logger.ErrorContext(ctx, "iep service edit db get", "err", err)
 		return
 	}
 	students, _ := s.Students.List(ctx)
@@ -317,7 +309,7 @@ func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) 
 		notifier.Notify()
 	})
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "iep service edit stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
@@ -331,7 +323,7 @@ func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) 
 		},
 	)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "iep service edit stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -342,10 +334,10 @@ func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) 
 			return
 		case <-notifier.Signal():
 			if err := s.refreshIEPServiceEditState(ctx, iepServiceID); err != nil {
-				println(err.Error())
 				if err.Error() == "iepService not found" {
 					sse.PatchElementTempl(pages.NotFound(user))
 				}
+				s.Logger.ErrorContext(ctx, "iep service edit stream refresh", "err", err)
 				return
 			}
 		case entry, ok := <-watcher.Updates():
@@ -354,7 +346,7 @@ func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) 
 			}
 			model := &models.IEPService{}
 			if err := entry.JSON(model); err != nil {
-				println(err.Error())
+				s.Logger.ErrorContext(ctx, "iep service edit stream json", "err", err)
 				return
 			}
 			students, _ := s.Students.List(ctx)
@@ -373,10 +365,10 @@ func (s Server) postIEPServiceEditValidate(w http.ResponseWriter, r *http.Reques
 		View dto.IEPServiceView `json:"iepservice"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("vep signals: ", err.Error())
+		s.Logger.ErrorContext(ctx, "post iep service edit validate signals", "err", err)
 		return
 	}
-	signals.View.IEPServiceID = iepServiceID
+	signals.View.ID = iepServiceID
 	model := dto.NewModelFromView(&signals.View)
 	viewstore.PutState(ctx, s.ViewStore, iepServiceID, model)
 }
@@ -385,25 +377,38 @@ func (s Server) postIEPServiceEditValidate(w http.ResponseWriter, r *http.Reques
 func (s Server) postIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
+	iepServiceID := chi.URLParam(r, "id")
 	signals := &struct {
 		View dto.IEPServiceView `json:"iepservice"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		println("iep service edit read signals error: ", err.Error())
+		s.Logger.ErrorContext(ctx, "post iep service edit signals", "err", err)
 		return
 	}
-	var command events.UpdateIEPServiceCommand
-	CopyFields(&command, &signals.View)
-	command.IEPServiceID = chi.URLParam(r, "id")
-	command.Metadata = eventstore.HTTPCommandMetadata(r, user.UserRegisteredID)
+	command := events.UpdateIEPServiceCommand{
+		IEPServiceID:    iepServiceID,
+		StudentID:       signals.View.StudentID,
+		ServiceType:     signals.View.ServiceType.ShortString(),
+		IndirectMinutes: signals.View.IndirectMinutes,
+		DirectMinutes:   signals.View.DirectMinutes,
+		FrequencyCount:  signals.View.FrequencyCount,
+		FrequencyType:   signals.View.FrequencyType,
+		Location:        signals.View.Location,
+		StartDate:       signals.View.StartDate.String(),
+		EndDate:         signals.View.EndDate.String(),
+		Provider:        signals.View.Provider,
+		Metadata:        eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+	}
 	result, err := events.UpdateIEPServiceCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
 	if err != nil {
-		println(fmt.Errorf("upch error: %w", err))
+		s.Logger.ErrorContext(ctx, "post iep service edit command handler", "err", err)
 		return
 	}
 	if result.Skipped == true {
-		println("iep service update skipped")
+		s.Logger.Info("post iep service edit command handler", "skipped", result.Skipped)
 	}
+	sse := newSSE(w, r)
+	sse.Redirect(fmt.Sprintf("/iepservices/%s", iepServiceID))
 }
 
 // DELETE request to /iepservices/{id}
@@ -416,11 +421,11 @@ func (s Server) deleteIEPService(w http.ResponseWriter, r *http.Request) {
 		Metadata:     eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "delete iep service command handler", "err", err)
 		return
 	}
 	sse := newSSE(w, r)
-	sse.Redirect("/iepservices/list")
+	sse.Redirect("/iepservices")
 }
 
 // GET request to /iepservices/csv
@@ -489,17 +494,4 @@ func (s Server) refreshIEPServiceEditState(ctx context.Context, iepServiceID str
 		return err
 	}
 	return viewstore.PutState(ctx, s.ViewStore, iepService.ID+".edit", iepService)
-}
-
-// copies a view to a model
-// llm slop
-func CopyFields(dst, src interface{}) {
-	srcV := reflect.ValueOf(src).Elem()
-	dstV := reflect.ValueOf(dst).Elem()
-	for i := 0; i < srcV.NumField(); i++ {
-		f := srcV.Field(i)
-		if dstF := dstV.FieldByName(srcV.Type().Field(i).Name); dstF.IsValid() && dstF.Type() == f.Type() {
-			dstF.Set(f)
-		}
-	}
 }

@@ -17,7 +17,7 @@ type CreateTeacherCommand struct {
 }
 
 type CreateTeacherResult struct {
-	Id string
+	EventID string
 }
 
 func CreateTeacherCommandHandler(ctx context.Context, command CreateTeacherCommand, saver eventstore.Saver) (CreateTeacherResult, error) {
@@ -30,7 +30,7 @@ func CreateTeacherCommandHandler(ctx context.Context, command CreateTeacherComma
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, model.query); err != nil {
 		return CreateTeacherResult{}, err
 	}
-	return CreateTeacherResult{Id: model.id}, nil
+	return CreateTeacherResult{EventID: model.id}, nil
 }
 
 type createTeacherContext struct {

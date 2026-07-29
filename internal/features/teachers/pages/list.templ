@@ -10,9 +10,9 @@ import (
 	"seek/pkg/templui/components/icon"
 )
 
-templ List(user um.User, view int64, views []models.Teacher) {
+templ List(user um.User, view []models.Teacher) {
 	@corelayouts.LayoutBase("SEEK: teachers", user) {
-		<main data-signals:view={ view } data-init={ sse.LongRunningGetSSE("/teachers/stream") }>
+		<main data-init={ sse.LongRunningGetSSE("/teachers/stream") }>
 			<section>
 				<h2>TEACHERS</h2>
 				<p>review and enter teacher data here</p>
@@ -20,7 +20,7 @@ templ List(user um.User, view int64, views []models.Teacher) {
 				<div>
 					@button.Button(button.Props{
 						Attributes: templ.Attributes{
-							"data-on:click": "$view=0; @get('/teachers/list')",
+							"data-on:click": "$view=0; @get('/teachers')",
 						},
 					}) {
 						@icon.Table(icon.Props{
@@ -30,7 +30,7 @@ templ List(user um.User, view int64, views []models.Teacher) {
 					}
 					@button.Button(button.Props{
 						Attributes: templ.Attributes{
-							"data-on:click": "$view=1; @get('/teachers/list')",
+							"data-on:click": "$view=1; @get('/teachers')",
 						},
 					}) {
 						@icon.LayoutGrid(icon.Props{
@@ -39,11 +39,7 @@ templ List(user um.User, view int64, views []models.Teacher) {
 						<span>grid</span>
 					}
 				</div>
-				if view == 0 {
-					@blocks.List(views)
-				} else {
-					@blocks.Cards(views)
-				}
+				@blocks.List(view)
 			</section>
 		</main>
 	}

@@ -11,7 +11,7 @@ import (
 	"seek/internal/auth"
 	"seek/internal/eventstore"
 	educators "seek/internal/features/educators/events"
-	iepService "seek/internal/features/iep_services/events"
+	iepService "seek/internal/features/iepservices/events"
 	period "seek/internal/features/periods/events"
 	periodStudent "seek/internal/features/periods_students/events"
 	profile "seek/internal/features/profiles/events"

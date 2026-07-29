@@ -20,7 +20,7 @@ type CreatePeriodCommand struct {
 }
 
 type CreatePeriodResult struct {
-	PeriodID string
+	EventID string
 }
 
 func CreatePeriodCommandHandler(
@@ -48,7 +48,7 @@ func CreatePeriodCommandHandler(
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, context.query); err != nil {
 		return CreatePeriodResult{}, err
 	}
-	return CreatePeriodResult{PeriodID: context.id}, nil
+	return CreatePeriodResult{EventID: context.id}, nil
 }
 
 type createPeriodContext struct {

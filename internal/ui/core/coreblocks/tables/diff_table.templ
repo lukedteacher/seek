@@ -1,0 +1,125 @@
+package tables
+
+import (
+	"fmt"
+	"seek/internal/features/_shared/shareddto"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/table"
+)
+
+func uniqueGroups(cols []shareddto.ColumnView) []string {
+	seen := map[string]bool{}
+	var groups []string
+	for _, c := range cols {
+		if c.Group == "" {
+			continue
+		}
+		if !seen[c.Group] {
+			seen[c.Group] = true
+			groups = append(groups, c.Group)
+		}
+	}
+	return groups
+}
+
+func countColumnsInGroup(cols []shareddto.ColumnView, group string) int {
+	count := 0
+	for _, c := range cols {
+		if c.Group == group {
+			count++
+		}
+	}
+	return count
+}
+
+templ DiffTable(view shareddto.DiffTableView) {
+	@table.Table() {
+		@table.Header() {
+			// first row: status (rowspan=2) + group headers and ungrouped headers
+			@table.Row() {
+				@table.Head(table.HeadProps{
+					Attributes: templ.Attributes{
+						"rowspan": 2,
+						"style":   "text-align: center;",
+					},
+				}) {
+					status 
+				}
+				{{ renderedGroups := make(map[string]bool) }}
+				for _, col := range view.Columns {
+					if col.Group == "" {
+						@table.Head(table.HeadProps{
+							Attributes: templ.Attributes{
+								"rowspan": 2,
+								"style":   "text-align: center;",
+							},
+						}) {
+							{ col.Display }
+						}
+					} else {
+						if !renderedGroups[col.Group] {
+							{{ renderedGroups[col.Group] = true }}
+							{{ count := countColumnsInGroup(view.Columns, col.Group) }}
+							@table.Head(table.HeadProps{
+								Attributes: templ.Attributes{
+									"colspan": count,
+									"style":   "text-align: center;",
+								},
+							}) {
+								{ col.Group }
+							}
+						}
+					}
+				}
+			}
+			// second row: individual headers only for grouped columns
+			@table.Row() {
+				for _, col := range view.Columns {
+					if col.Group != "" {
+						@table.Head() {
+							{ col.Display }
+						}
+					}
+				}
+			}
+		}
+		@table.Body() {
+			for _, row := range view.Rows {
+				@DiffRow(row)
+			}
+		}
+	}
+}
+
+templ DiffRow(row shareddto.DiffRowView) {
+	@table.Row() {
+		// status column
+		@table.Cell(table.CellProps{
+			Class: "text-center",
+		}) {
+			@badge.Badge(badge.Props{
+				Class: fmt.Sprintf("badge-%s", row.Status.String()),
+			}) {
+				{ row.Status.String() }
+			}
+		}
+		// data columns
+		for i := range row.OldCells {
+			@table.Cell() {
+				switch  {
+					case row.Status == sharedmodels.DiffUpdated && row.NewCells[i] != row.OldCells[i]:
+						<span class="line-through">{ row.OldCells[i] }</span>
+						→
+						<span class={ fmt.Sprintf("span-%s", row.Status.String()) }>{ row.NewCells[i] }</span>
+					case row.Status == sharedmodels.DiffAdded:
+						<span class={ fmt.Sprintf("span-%s", row.Status.String()) }>{ row.NewCells[i] }</span>
+					case row.Status == sharedmodels.DiffRemoved:
+						<span class={ fmt.Sprintf("span-%s", row.Status.String()) }>{ row.OldCells[i] }</span>
+					default:
+						{ row.NewCells[i] }
+				}
+			}
+		}
+	}
+}

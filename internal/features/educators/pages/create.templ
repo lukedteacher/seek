@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"fmt"
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
 	"seek/internal/features/users/models"
@@ -8,11 +9,11 @@ import (
 	"seek/pkg/sse"
 )
 
-templ Create(user models.User, url string, view dto.EducatorView) {
+templ Create(user models.User, view dto.EducatorView) {
 	@corelayouts.LayoutBase("SEEK: create educator", user) {
-		<main data-init={ sse.LongRunningGetSSE("/educators/create/stream") }>
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			<section>
-				@blocks.EducatorCreateForm(url, view)
+				@blocks.EducatorCreateForm(view)
 			</section>
 		</main>
 	}

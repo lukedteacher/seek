@@ -10,11 +10,11 @@ import (
 	"seek/pkg/sse"
 )
 
-templ Edit(user models.User, url string, view dto.EducatorView) {
+templ Edit(user models.User, view dto.EducatorView) {
 	@corelayouts.LayoutBase("SEEK: edit educator", user) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/educators/%s/edit/stream", view.ID)) }>
 			<section>
-				@blocks.EducatorEditForm(url, view)
+				@blocks.EducatorEditForm(view)
 			</section>
 		</main>
 	}

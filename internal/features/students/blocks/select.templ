@@ -32,7 +32,7 @@ templ StudentSelect(views []dto.StudentSelectBoxView) {
 					Value:    views[i].Student.ID,
 					Selected: views[i].Selected,
 				}) {
-					{ views[i].Student.Name() }
+					{ views[i].Student.NameInitial() }
 				}
 			}
 		}

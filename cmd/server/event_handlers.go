@@ -8,7 +8,7 @@ import (
 	"seek/internal/config"
 	"seek/internal/eventstore"
 	educatorEvents "seek/internal/features/educators/events"
-	iepServiceEvents "seek/internal/features/iep_services/events"
+	iepServiceEvents "seek/internal/features/iepservices/events"
 	periodEvents "seek/internal/features/periods/events"
 	periodStudentEvents "seek/internal/features/periods_students/events"
 	profileEvents "seek/internal/features/profiles/events"

@@ -3,7 +3,6 @@ package httpserver
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 
 	"seek/internal/appdb"
@@ -52,14 +51,14 @@ func (s Server) getProfileStream(w http.ResponseWriter, r *http.Request) {
 		notifier.Notify()
 	})
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "get profile stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
 
 	watcher, err := s.ViewStore.Watch(ctx, key, viewstore.WatchOptions{IgnoreDeletes: true})
 	if err != nil {
-		println(err.Error())
+		s.Logger.ErrorContext(ctx, "get profile stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -70,7 +69,7 @@ func (s Server) getProfileStream(w http.ResponseWriter, r *http.Request) {
 			return
 		case <-notifier.Signal():
 			if err := s.refreshProfileViewState(ctx, key, user); err != nil {
-				_ = alert(sse, err.Error())
+				s.Logger.ErrorContext(ctx, "get profile stream refresh", "err", err)
 				return
 			}
 		case entry, ok := <-watcher.Updates():
@@ -79,12 +78,10 @@ func (s Server) getProfileStream(w http.ResponseWriter, r *http.Request) {
 			}
 			var state profileViewState
 			if err := entry.JSON(&state); err != nil {
-				_ = alert(sse, err.Error())
+				s.Logger.ErrorContext(ctx, "get profile stream json read", "err", err)
 				return
 			}
-			if err := sse.PatchElementTempl(pages.Profile(user, nil)); err != nil {
-				return
-			}
+			sse.PatchElementTempl(pages.Profile(user, nil))
 		}
 	}
 }
@@ -124,9 +121,8 @@ func (s Server) postProfileEdit(w http.ResponseWriter, r *http.Request) {
 		s.EventRetriever,
 		s.PIIKeys,
 	); err != nil {
-		println("update success")
+		s.Logger.InfoContext(ctx, "profile updated", "user", user.Email)
 	}
-	log.Println("s:", signals.Profile.Bio)
 }
 
 // refreshes profile view state in kv store when there is an update for the SSE stream

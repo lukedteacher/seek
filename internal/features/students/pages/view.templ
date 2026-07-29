@@ -3,19 +3,28 @@ package pages
 import (
 	"fmt"
 
+	idto "seek/internal/features/iepservices/dto"
 	"seek/internal/features/students/blocks"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/users/models"
+	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
-	"seek/pkg/sse"
+	sse "seek/pkg/sse"
 )
 
-templ View(user models.User, s dto.StudentView) {
+templ View(user models.User, view dto.StudentView, services []idto.IEPServiceView) {
 	@corelayouts.LayoutBase("SEEK: student", user) {
-		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/students/%s/stream", s.ID)) }>
+		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
+			@coreblocks.HeaderMain("student view", view.URL)
 			<section style="width: 100%;">
-				@blocks.Card(s)
+				@blocks.Card(view)
 			</section>
+			if len(services) > 0 {
+				<section style="width: 100%;">
+					<h4>IEP services</h4>
+					@blocks.Services(services)
+				</section>
+			}
 		</main>
 	}
 }
