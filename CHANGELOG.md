@@ -2,6 +2,8 @@
 
 updates for SEEK
 
+## v0.3.12 (26.07.29)
+
 ## v0.3.11 (26.07.28) fixed validate field bugs, student list filter for service type
 
 - tweaked validate so that it successfully fires and updates appropriate fields
