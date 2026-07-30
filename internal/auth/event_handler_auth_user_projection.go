@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"log/slog"
-	"strings"
 	"time"
 
 	"seek/internal/eventstore"
@@ -15,7 +14,6 @@ const AuthUserProjectionEventHandlerName = "auth_user_projection_event_handler"
 type AuthUserProjectionWriter interface {
 	CreateRegisteredUserAccount(ctx context.Context, registered RegisterUserResult) error
 	MarkEmailVerified(ctx context.Context, userRegisteredID string) error
-	UpdateNameByRegisteredID(ctx context.Context, userRegisteredID, name string) error
 	UpdatePasswordByRegisteredID(ctx context.Context, userRegisteredID, passwordHash string) error
 }
 
@@ -69,8 +67,6 @@ func (h *AuthUserProjectionEventHandler) handle(ctx context.Context, resolved ev
 	switch resolved.Event.EventType {
 	case UserRegistered:
 		return h.handleUserRegistered(ctx, resolved)
-	case UserNameChanged:
-		return h.handleUserNameChanged(ctx, resolved)
 	case EmailVerificationOTPGenerated:
 		return h.handleEmailVerificationOTPGenerated(ctx, resolved)
 	case EmailVerificationOTPValidated:
@@ -94,32 +90,10 @@ func (h *AuthUserProjectionEventHandler) handleUserRegistered(ctx context.Contex
 	if !ok {
 		return eventstore.ErrNotFound
 	}
-	givenName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredGivenNameField)
-	familyName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredFamilyNameField)
 	return h.writer.CreateRegisteredUserAccount(ctx, RegisterUserResult{
-		UserRegisteredID: userRegisteredID,
-		Username:         protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredUsernameField),
-		Email:            protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredEmailField),
-		GivenName:        givenName,
-		FamilyName:       familyName,
-		PasswordHash:     stringValue(resolved.Event.Data[UserRegisteredPasswordHashField]),
+		Email:        protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredEmailField),
+		PasswordHash: stringValue(resolved.Event.Data[UserRegisteredPasswordHashField]),
 	})
-}
-
-func (h *AuthUserProjectionEventHandler) handleUserNameChanged(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	userRegisteredID := stringValue(eventstore.Scope(resolved.Event.Data)[UserRegisteredIDField])
-	subjectKey, ok, err := h.keys.GetSubjectDataKey(ctx, userRegisteredID)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return eventstore.ErrNotFound
-	}
-	name := protectedpii.MustDecryptEventStringWithDataKey(protectedpii.FromEnv(), subjectKey, resolved.Event.Data, UserNameChangedNameField)
-	if userRegisteredID == "" || strings.TrimSpace(name) == "" {
-		return nil
-	}
-	return h.writer.UpdateNameByRegisteredID(ctx, userRegisteredID, name)
 }
 
 func (h *AuthUserProjectionEventHandler) handleEmailVerificationOTPGenerated(ctx context.Context, resolved eventstore.ResolvedEvent) error {
@@ -176,15 +150,23 @@ func (h *AuthUserProjectionEventHandler) handlePasswordUpdated(ctx context.Conte
 }
 
 func authUserProjectionEventHandlerQuery() eventstore.Query {
-	return eventstore.Query{Criteria: []eventstore.Criterion{
-		{Tags: []eventstore.Tag{{Key: "eventType", Value: UserRegistered}}},
-		{Tags: []eventstore.Tag{{Key: "eventType", Value: UserNameChanged}}},
-		{Tags: []eventstore.Tag{{Key: "eventType", Value: EmailVerificationOTPGenerated}}},
-		{Tags: []eventstore.Tag{{Key: "eventType", Value: EmailVerificationOTPValidated}}},
-		{Tags: []eventstore.Tag{{Key: "eventType", Value: PasswordResetRequested}}},
-		{Tags: []eventstore.Tag{{Key: "eventType", Value: PasswordResetCompleted}}},
-		{Tags: []eventstore.Tag{{Key: "eventType", Value: PasswordChanged}}},
-	}}
+	eventTypes := []string{
+		UserRegistered,
+		EmailVerificationOTPGenerated,
+		EmailVerificationOTPValidated,
+		PasswordResetRequested,
+		PasswordResetCompleted,
+		PasswordChanged,
+	}
+	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
+	for _, eventType := range eventTypes {
+		criteria = append(criteria, eventstore.Criterion{
+			Tags: []eventstore.Tag{
+				{Key: "eventType", Value: eventType},
+			},
+		})
+	}
+	return eventstore.Query{Criteria: criteria}
 }
 
 func stringValue(value any) string {

@@ -10,8 +10,6 @@ import (
 type UserByIdorRegisteredIdRes struct {
 	Id               string `json:"id"`
 	UserRegisteredId string `json:"user_registered_id"`
-	Name             string `json:"name"`
-	Username         string `json:"username"`
 	Email            string `json:"email"`
 	EmailVerified    int64  `json:"email_verified"`
 	Image            string `json:"image"`
@@ -30,8 +28,6 @@ func UserByIdorRegisteredId(tx *sqlite.Conn) *UserByIdorRegisteredIdStmt {
 	const querySQL = `
 SELECT u.id,
        u.user_registered_id,
-       u.name,
-       coalesce(u.username, '') AS username,
        u.email,
        u.email_verified,
        coalesce(u.image, '') AS image,
@@ -88,13 +84,11 @@ func (ps *UserByIdorRegisteredIdStmt) Run(
 		row := UserByIdorRegisteredIdRes{}
 		row.Id = stmt.ColumnText(0)
 		row.UserRegisteredId = stmt.ColumnText(1)
-		row.Name = stmt.ColumnText(2)
-		row.Username = stmt.ColumnText(3)
-		row.Email = stmt.ColumnText(4)
-		row.EmailVerified = stmt.ColumnInt64(5)
-		row.Image = stmt.ColumnText(6)
-		row.Bio = stmt.ColumnText(7)
-		row.HeaderImageUrl = stmt.ColumnText(8)
+		row.Email = stmt.ColumnText(2)
+		row.EmailVerified = stmt.ColumnInt64(3)
+		row.Image = stmt.ColumnText(4)
+		row.Bio = stmt.ColumnText(5)
+		row.HeaderImageUrl = stmt.ColumnText(6)
 		res = &row
 	}
 

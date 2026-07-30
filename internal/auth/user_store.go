@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"strings"
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
@@ -20,25 +19,19 @@ func NewAuthUserStore(db *appdb.DB) *AuthUserStore {
 }
 
 func (s *AuthUserStore) CreateRegisteredUserAccount(ctx context.Context, registered RegisterUserResult) error {
-	userID := registered.UserRegisteredID
-	name := strings.TrimSpace(registered.GivenName + " " + registered.FamilyName)
-	if name == "" {
-		name = registered.Username
-	}
+	userID := registered.EventID
 	if err := s.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		if err := dbsql.OnceCreateAuthUser(conn, dbsql.CreateAuthUserParams{
 			Id:               userID,
-			Name:             name,
 			Email:            registered.Email,
-			Username:         stringPtr(registered.Username),
-			UserRegisteredId: registered.UserRegisteredID,
+			UserRegisteredId: registered.EventID,
 		}); err != nil {
 			return err
 		}
 		if registered.PasswordHash == "" {
 			return nil
 		}
-		user, err := dbsql.OnceUserByRegisteredId(conn, registered.UserRegisteredID)
+		user, err := dbsql.OnceUserByRegisteredId(conn, registered.EventID)
 		if err != nil {
 			return err
 		}
@@ -46,7 +39,7 @@ func (s *AuthUserStore) CreateRegisteredUserAccount(ctx context.Context, registe
 			return appdb.ErrNoRows
 		}
 		return dbsql.OnceCreateAuthAccount(conn, dbsql.CreateAuthAccountParams{
-			Id:        registered.UserRegisteredID + ":credential",
+			Id:        registered.EventID + ":credential",
 			AccountId: registered.Email,
 			UserId:    user.Id,
 			Password:  stringPtr(registered.PasswordHash),
@@ -108,18 +101,6 @@ func (s *AuthUserStore) MarkEmailVerified(ctx context.Context, userRegisteredID 
 	})
 }
 
-func (s *AuthUserStore) UpdateName(ctx context.Context, userID, name string) error {
-	return s.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceUpdateAuthUserName(conn, dbsql.UpdateAuthUserNameParams{Name: name, Id: userID})
-	})
-}
-
-func (s *AuthUserStore) UpdateNameByRegisteredID(ctx context.Context, userRegisteredID, name string) error {
-	return s.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceUpdateAuthUserNameByRegisteredId(conn, dbsql.UpdateAuthUserNameByRegisteredIdParams{Name: name, UserRegisteredId: userRegisteredID})
-	})
-}
-
 func (s *AuthUserStore) UpdatePasswordByRegisteredID(ctx context.Context, userRegisteredID, passwordHash string) error {
 	return s.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateAuthAccountPasswordByRegisteredId(conn, dbsql.UpdateAuthAccountPasswordByRegisteredIdParams{
@@ -144,8 +125,6 @@ func (s *AuthUserStore) UserByEmailWithPassword(ctx context.Context, emailAddres
 	return models.User{
 		ID:               row.Id,
 		UserRegisteredID: row.UserRegisteredId,
-		Name:             row.Name,
-		Username:         row.Username,
 		Email:            row.Email,
 		EmailVerified:    row.EmailVerified != 0,
 		Image:            row.Image,

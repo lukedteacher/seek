@@ -34,10 +34,10 @@ INSERT INTO educators (
 	family_name, 
 	email,
 	role,
-	created_at, 
-	updated_at, 
 	last_event_commit_position, 
-	last_event_prepare_position
+	last_event_prepare_position,
+	created_at, 
+	updated_at
 )
 VALUES (
 	@id, 
@@ -46,10 +46,10 @@ VALUES (
 	@family_name, 
 	@email,
 	@role,
-	@created_at, 
-	@created_at, 
 	@last_event_commit_position, 
-	@last_event_prepare_position
+	@last_event_prepare_position,
+	@created_at, 
+	@created_at
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -61,18 +61,18 @@ SET
 	family_name = @family_name,
 	email = @email,
 	role = @role,
-	updated_at = @updated_at,
 	last_event_commit_position = @last_event_commit_position,
-	last_event_prepare_position = @last_event_prepare_position
+	last_event_prepare_position = @last_event_prepare_position,
+	updated_at = @updated_at
 WHERE id = @id;
 
 -- name: ArchiveEducator :exec
 UPDATE educators
 SET
-	updated_at = @archived_at,
-	archived_at = @archived_at,
 	last_event_commit_position = @last_event_commit_position,
-	last_event_prepare_position = @last_event_prepare_position
+	last_event_prepare_position = @last_event_prepare_position,
+	updated_at = @archived_at,
+	archived_at = @archived_at
 WHERE id = @id;
 
 -- name: DeleteEducator :exec

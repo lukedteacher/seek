@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"log/slog"
-	"strings"
 
 	"seek/internal/eventstore"
 	"seek/internal/features/users/models"
@@ -58,14 +57,9 @@ func (h *RegistrationOTPToBeGeneratedEventHandler) handle(ctx context.Context, r
 	}
 	userRegisteredID, _ := resolved.Event.Data[UserRegisteredIDField].(string)
 	emailAddress, _ := resolved.Event.Data[UserRegisteredEmailField].(string)
-	givenName, _ := resolved.Event.Data[UserRegisteredGivenNameField].(string)
-	familyName, _ := resolved.Event.Data[UserRegisteredFamilyNameField].(string)
-	username, _ := resolved.Event.Data[UserRegisteredUsernameField].(string)
 
 	user := models.User{
 		UserRegisteredID: userRegisteredID,
-		Name:             strings.TrimSpace(givenName + " " + familyName),
-		Username:         username,
 		Email:            emailAddress,
 	}
 	_, err := GenerateEmailVerificationOTPCommandHandler(ctx, GenerateEmailVerificationOTPCommand{

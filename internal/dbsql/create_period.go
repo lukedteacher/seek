@@ -14,9 +14,9 @@ type CreatePeriodParams struct {
 	StartTime                string `json:"start_time"`
 	Duration                 int64  `json:"duration"`
 	DaysBitmask              int64  `json:"days_bitmask"`
-	CreatedAt                string `json:"created_at"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
+	CreatedAt                string `json:"created_at"`
 }
 
 type CreatePeriodStmt struct {
@@ -35,10 +35,10 @@ INSERT INTO periods (
 	start_time, 
 	duration, 
 	days_bitmask, 
-	created_at, 
-	updated_at, 
 	last_event_commit_position, 
-	last_event_prepare_position
+	last_event_prepare_position,
+	created_at, 
+	updated_at
 )
 VALUES (
 	?1, 
@@ -48,8 +48,8 @@ VALUES (
 	?5, 
 	?6, 
 	?7, 
-	?7, 
-	?8, 
+	?8,
+	?9, 
 	?9
 )
 ON CONFLICT (id) DO NOTHING
@@ -107,13 +107,13 @@ func (ps *CreatePeriodStmt) Run(
 	stmt.BindInt64(bindIndex, params.DaysBitmask)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.CreatedAt)
-
-	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.CreatedAt)
 
 	bindIndex++
 

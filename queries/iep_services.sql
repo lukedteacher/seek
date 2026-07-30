@@ -71,6 +71,8 @@ INSERT INTO iep_services (
 	start_date,
 	end_date,
 	provider,
+	last_event_commit_position,
+	last_event_prepare_position,
 	created_at, 
 	updated_at
 )
@@ -87,6 +89,8 @@ VALUES (
 	@start_date,
 	@end_date,
 	@provider,
+	@last_event_commit_position,
+	@last_event_prepare_position,
 	@created_at, 
 	@created_at
 )
@@ -106,16 +110,18 @@ SET
 	start_date = @start_date,
 	end_date = @end_date,
 	provider = @provider,
+	last_event_commit_position = @last_event_commit_position,
+	last_event_prepare_position = @last_event_prepare_position,
 	updated_at = @updated_at
 WHERE id = @id;
 
 -- name: ArchiveIEPService :exec
 UPDATE iep_services
 SET
-	updated_at = @archived_at,
-	archived_at = @archived_at,
 	last_event_commit_position = @last_event_commit_position,
-	last_event_prepare_position = @last_event_prepare_position
+	last_event_prepare_position = @last_event_prepare_position,
+	updated_at = @archived_at,
+	archived_at = @archived_at
 WHERE id = @id;
 
 -- name: DeleteIEPService :exec

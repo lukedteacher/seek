@@ -8,11 +8,11 @@ CREATE TABLE IF NOT EXISTS
 		grade INTEGER NOT NULL,
 		homeroom TEXT NOT NULL,
 		case_manager TEXT NOT NULL,
+		last_event_commit_position INTEGER NOT NULL,
+		last_event_prepare_position INTEGER NOT NULL,
 		created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-		archived_at TEXT,
-		last_event_commit_position INTEGER NOT NULL,
-		last_event_prepare_position INTEGER NOT NULL
+		archived_at TEXT
 	);
 
 CREATE INDEX IF NOT EXISTS students_marss_id_idx ON students (marss_id);

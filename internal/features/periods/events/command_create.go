@@ -66,6 +66,7 @@ func newCreatePeriodContext(command CreatePeriodCommand) (*createPeriodContext, 
 	return &createPeriodContext{
 		id:          periodID,
 		title:       command.Title,
+		serviceType: command.ServiceType,
 		startTime:   command.StartTime,
 		duration:    command.Duration,
 		daysBitmask: command.DaysBitmask,

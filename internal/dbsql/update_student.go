@@ -15,9 +15,9 @@ type UpdateStudentParams struct {
 	Grade                    int64  `json:"grade"`
 	Homeroom                 string `json:"homeroom"`
 	CaseManager              string `json:"case_manager"`
-	UpdatedAt                string `json:"updated_at"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
+	UpdatedAt                string `json:"updated_at"`
 	Id                       string `json:"id"`
 }
 
@@ -39,9 +39,9 @@ SET
 	grade = ?5,
 	homeroom = ?6,
 	case_manager = ?7,
-	updated_at = ?8,
-	last_event_commit_position = ?9,
-	last_event_prepare_position = ?10
+	last_event_commit_position = ?8,
+	last_event_prepare_position = ?9,
+	updated_at = ?10
 WHERE id = ?11
     `
 
@@ -100,13 +100,13 @@ func (ps *UpdateStudentStmt) Run(
 	stmt.BindText(bindIndex, params.CaseManager)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.UpdatedAt)
-
-	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.UpdatedAt)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Id)

@@ -9,12 +9,8 @@ func userRegisteredQuery(userRegisteredID string) eventstore.Query {
 	}}}}
 }
 
-func userRegisteredByUsernameOrEmailQuery(usernameHash, emailHash string) eventstore.Query {
+func userRegisteredByEmailQuery(emailHash string) eventstore.Query {
 	return eventstore.Query{Criteria: []eventstore.Criterion{
-		{Tags: []eventstore.Tag{
-			{Key: "eventType", Value: UserRegistered},
-			{Key: UserRegisteredUsernameHashField, Value: usernameHash},
-		}},
 		{Tags: []eventstore.Tag{
 			{Key: "eventType", Value: UserRegistered},
 			{Key: UserRegisteredEmailHashField, Value: emailHash},
@@ -95,13 +91,6 @@ func passwordResetCompletedQuery(requestID string) eventstore.Query {
 func passwordChangedByUserQuery(userRegisteredID string) eventstore.Query {
 	return eventstore.Query{Criteria: []eventstore.Criterion{{Tags: []eventstore.Tag{
 		{Key: "eventType", Value: PasswordChanged},
-		{Key: ScopeUserRegisteredIDField, Value: userRegisteredID},
-	}}}}
-}
-
-func userNameChangedByUserQuery(userRegisteredID string) eventstore.Query {
-	return eventstore.Query{Criteria: []eventstore.Criterion{{Tags: []eventstore.Tag{
-		{Key: "eventType", Value: UserNameChanged},
 		{Key: ScopeUserRegisteredIDField, Value: userRegisteredID},
 	}}}}
 }

@@ -8,19 +8,21 @@ import (
 )
 
 type AddIepserviceToStudentParams struct {
-	Id              string `json:"id"`
-	StudentId       string `json:"student_id"`
-	ServiceName     string `json:"service_name"`
-	ServiceType     string `json:"service_type"`
-	IndirectMinutes int64  `json:"indirect_minutes"`
-	DirectMinutes   int64  `json:"direct_minutes"`
-	FrequencyCount  int64  `json:"frequency_count"`
-	FrequencyType   string `json:"frequency_type"`
-	Location        string `json:"location"`
-	StartDate       string `json:"start_date"`
-	EndDate         string `json:"end_date"`
-	Provider        string `json:"provider"`
-	CreatedAt       string `json:"created_at"`
+	Id                       string `json:"id"`
+	StudentId                string `json:"student_id"`
+	ServiceName              string `json:"service_name"`
+	ServiceType              string `json:"service_type"`
+	IndirectMinutes          int64  `json:"indirect_minutes"`
+	DirectMinutes            int64  `json:"direct_minutes"`
+	FrequencyCount           int64  `json:"frequency_count"`
+	FrequencyType            string `json:"frequency_type"`
+	Location                 string `json:"location"`
+	StartDate                string `json:"start_date"`
+	EndDate                  string `json:"end_date"`
+	Provider                 string `json:"provider"`
+	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
+	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
+	CreatedAt                string `json:"created_at"`
 }
 
 type AddIepserviceToStudentStmt struct {
@@ -45,6 +47,8 @@ INSERT INTO iep_services (
 	start_date,
 	end_date,
 	provider,
+	last_event_commit_position,
+	last_event_prepare_position,
 	created_at, 
 	updated_at
 )
@@ -61,8 +65,10 @@ VALUES (
 	?10,
 	?11,
 	?12,
-	?13, 
-	?13
+	?13,
+	?14,
+	?15, 
+	?15
 )
 ON CONFLICT (id) DO NOTHING
     `
@@ -135,6 +141,12 @@ func (ps *AddIepserviceToStudentStmt) Run(
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Provider)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.CreatedAt)

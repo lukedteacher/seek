@@ -5,10 +5,10 @@ CREATE TABLE IF NOT EXISTS educators (
 	family_name TEXT NOT NULL,
 	email TEXT NOT NULL,
 	role TEXT NOT NULL,
+	last_event_commit_position INTEGER NOT NULL,
+	last_event_prepare_position INTEGER NOT NULL,
 	created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	archived_at TEXT,
-	last_event_commit_position INTEGER NOT NULL,
-	last_event_prepare_position INTEGER NOT NULL
+	archived_at TEXT
 );
 

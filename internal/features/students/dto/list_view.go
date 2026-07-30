@@ -6,6 +6,7 @@ import (
 
 type StudentListView struct {
 	ID          string `json:"id"`
+	MARSSID     string `json:"marss_id"`
 	GivenName   string `json:"given_name"`
 	ChosenName  string `json:"chosen_name"`
 	FamilyName  string `json:"family_name"`

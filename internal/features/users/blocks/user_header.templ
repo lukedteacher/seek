@@ -56,9 +56,6 @@ templ UserHeaderDropdown(user models.User) {
 				@avatar.Avatar(avatar.Props{
 					Class: "h-6 w-6 border-2 border-border text-xs",
 				}) {
-					@avatar.Fallback() {
-						{ models.UserInitials(user) }
-					}
 				}
 				@icon.ChevronDown(icon.Props{Class: "size-4"})
 			}
@@ -71,12 +68,8 @@ templ UserHeaderDropdown(user models.User) {
 					@avatar.Avatar(avatar.Props{
 						Class: "h-12 w-12",
 					}) {
-						@avatar.Fallback() {
-							{ models.UserInitials(user) }
-						}
 					}
 					<div class="flex-1 min-w-0">
-						<div class="font-medium text-neutral-content">{ user.Name }</div>
 						<div class="text-sm truncate text-neutral-content/80">{ user.Email }</div>
 						<div class="flex items-center space-x-2 mt-1">
 							@badge.Badge(badge.Props{

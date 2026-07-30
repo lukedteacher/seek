@@ -31,12 +31,8 @@ templ Register(user models.User, errors map[string]string) {
 
 templ RegisterForm(errors map[string]string) {
 	@coreblocks.AuthForm("/register", "create account", []coreblocks.Field{
-		{Name: "username", Type: "text", Label: "username"},
 		{Name: "email", Type: "email", Label: "email"},
 		{Name: "password", Type: "password", Label: "password"},
-		{Name: "givenName", Type: "text", Label: "first name"},
-		{Name: "familyName", Type: "text", Label: "last name"},
-		{Name: "yearOfBirth", Type: "number", Label: "year of birth"},
 	}, errors) {
 		<a href="/login">sign in</a>
 	}

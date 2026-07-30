@@ -9,8 +9,6 @@ import (
 
 type UpsertRegisteredProfileUserParams struct {
 	UserId                   string  `json:"user_id"`
-	Name                     *string `json:"name"`
-	Username                 *string `json:"username"`
 	Email                    *string `json:"email"`
 	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
 	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
@@ -25,11 +23,19 @@ type UpsertRegisteredProfileUserStmt struct {
 
 func UpsertRegisteredProfileUser(tx *sqlite.Conn) *UpsertRegisteredProfileUserStmt {
 	const querySQL = `
-INSERT INTO profile_stats (user_id, name, username, email, last_event_commit_position, last_event_prepare_position)
-VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+INSERT INTO profile_stats (
+	user_id, 
+	email, 
+	last_event_commit_position, 
+	last_event_prepare_position
+)
+VALUES (
+	?1, 
+	?2, 
+	?3, 
+	?4
+)
 ON CONFLICT (user_id) DO UPDATE SET
-    name = EXCLUDED.name,
-    username = EXCLUDED.username,
     email = EXCLUDED.email,
     last_event_commit_position = EXCLUDED.last_event_commit_position,
     last_event_prepare_position = EXCLUDED.last_event_prepare_position,
@@ -72,20 +78,6 @@ func (ps *UpsertRegisteredProfileUserStmt) Run(
 	// Bind parameters
 	stmt.BindText(bindIndex, params.UserId)
 
-	bindIndex++
-	if params.Name == nil {
-		stmt.BindNull(bindIndex)
-	} else {
-		stmt.BindText(bindIndex, *params.Name)
-
-	}
-	bindIndex++
-	if params.Username == nil {
-		stmt.BindNull(bindIndex)
-	} else {
-		stmt.BindText(bindIndex, *params.Username)
-
-	}
 	bindIndex++
 	if params.Email == nil {
 		stmt.BindNull(bindIndex)

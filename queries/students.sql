@@ -42,10 +42,10 @@ INSERT INTO students (
 	grade, 
 	homeroom, 
 	case_manager, 
-	created_at, 
-	updated_at,
 	last_event_commit_position,
-	last_event_prepare_position
+	last_event_prepare_position,
+	created_at, 
+	updated_at
 )
 VALUES (
 	@id, 
@@ -56,10 +56,10 @@ VALUES (
 	@grade, 
 	@homeroom, 
 	@case_manager, 
-	@created_at, 
-	@created_at, 
 	@last_event_commit_position, 
-	@last_event_prepare_position
+	@last_event_prepare_position,
+	@created_at, 
+	@created_at
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -73,18 +73,18 @@ SET
 	grade = @grade,
 	homeroom = @homeroom,
 	case_manager = @case_manager,
-	updated_at = @updated_at,
 	last_event_commit_position = @last_event_commit_position,
-	last_event_prepare_position = @last_event_prepare_position
+	last_event_prepare_position = @last_event_prepare_position,
+	updated_at = @updated_at
 WHERE id = @id;
 
 -- name: ArchiveStudent :exec
 UPDATE students
 SET
-	updated_at = @archived_at,
-	archived_at = @archived_at,
 	last_event_commit_position = @last_event_commit_position,
-	last_event_prepare_position = @last_event_prepare_position
+	last_event_prepare_position = @last_event_prepare_position,
+	updated_at = @archived_at,
+	archived_at = @archived_at
 WHERE id = @id;
 
 -- name: DeleteStudent :exec

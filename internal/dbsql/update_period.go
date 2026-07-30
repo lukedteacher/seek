@@ -13,9 +13,9 @@ type UpdatePeriodParams struct {
 	StartTime                string `json:"start_time"`
 	Duration                 int64  `json:"duration"`
 	DaysBitmask              int64  `json:"days_bitmask"`
-	UpdatedAt                string `json:"updated_at"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
+	UpdatedAt                string `json:"updated_at"`
 	Id                       string `json:"id"`
 }
 
@@ -35,9 +35,9 @@ SET
 	start_time = ?3,
 	duration = ?4,
 	days_bitmask = ?5,
-	updated_at = ?6,
-	last_event_commit_position = ?7,
-	last_event_prepare_position = ?8
+	last_event_commit_position = ?6,
+	last_event_prepare_position = ?7,
+	updated_at = ?8
 WHERE id = ?9
     `
 
@@ -90,13 +90,13 @@ func (ps *UpdatePeriodStmt) Run(
 	stmt.BindInt64(bindIndex, params.DaysBitmask)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.UpdatedAt)
-
-	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.UpdatedAt)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Id)

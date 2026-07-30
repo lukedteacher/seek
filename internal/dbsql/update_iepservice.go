@@ -8,19 +8,21 @@ import (
 )
 
 type UpdateIepserviceParams struct {
-	StudentId       string `json:"student_id"`
-	ServiceName     string `json:"service_name"`
-	ServiceType     string `json:"service_type"`
-	IndirectMinutes int64  `json:"indirect_minutes"`
-	DirectMinutes   int64  `json:"direct_minutes"`
-	FrequencyCount  int64  `json:"frequency_count"`
-	FrequencyType   string `json:"frequency_type"`
-	Location        string `json:"location"`
-	StartDate       string `json:"start_date"`
-	EndDate         string `json:"end_date"`
-	Provider        string `json:"provider"`
-	UpdatedAt       string `json:"updated_at"`
-	Id              string `json:"id"`
+	StudentId                string `json:"student_id"`
+	ServiceName              string `json:"service_name"`
+	ServiceType              string `json:"service_type"`
+	IndirectMinutes          int64  `json:"indirect_minutes"`
+	DirectMinutes            int64  `json:"direct_minutes"`
+	FrequencyCount           int64  `json:"frequency_count"`
+	FrequencyType            string `json:"frequency_type"`
+	Location                 string `json:"location"`
+	StartDate                string `json:"start_date"`
+	EndDate                  string `json:"end_date"`
+	Provider                 string `json:"provider"`
+	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
+	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
+	UpdatedAt                string `json:"updated_at"`
+	Id                       string `json:"id"`
 }
 
 type UpdateIepserviceStmt struct {
@@ -45,8 +47,10 @@ SET
 	start_date = ?9,
 	end_date = ?10,
 	provider = ?11,
-	updated_at = ?12
-WHERE id = ?13
+	last_event_commit_position = ?12,
+	last_event_prepare_position = ?13,
+	updated_at = ?14
+WHERE id = ?15
     `
 
 	ps := &UpdateIepserviceStmt{
@@ -114,6 +118,12 @@ func (ps *UpdateIepserviceStmt) Run(
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Provider)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.UpdatedAt)

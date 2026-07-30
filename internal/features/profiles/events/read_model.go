@@ -2,7 +2,6 @@ package events
 
 import (
 	"context"
-	"strings"
 
 	"seek/internal/appdb"
 	"seek/internal/auth"
@@ -15,8 +14,7 @@ import (
 )
 
 const (
-	userRegistered  = "UserRegistered"
-	userNameChanged = "UserNameChanged"
+	userRegistered = "UserRegistered"
 )
 
 type ReadModel struct {
@@ -43,8 +41,6 @@ func (m *ReadModel) User(ctx context.Context, userRegisteredID string) (models.U
 	return models.User{
 		ID:               row.UserId,
 		UserRegisteredID: row.UserId,
-		Name:             row.Name,
-		Username:         row.Username,
 		Email:            row.Email,
 		Image:            row.Image,
 		Bio:              row.Bio,
@@ -63,37 +59,11 @@ func (m *ReadModel) UpsertRegisteredUser(ctx context.Context, resolved eventstor
 	if !ok {
 		return eventstore.ErrNotFound
 	}
-	username := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "username")
 	emailAddress := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "email")
-	givenName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "given_name")
-	familyName := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "familyName")
-	name := strings.TrimSpace(givenName + " " + familyName)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpsertRegisteredProfileUser(conn, dbsql.UpsertRegisteredProfileUserParams{
 			UserId:                   userRegisteredID,
-			Name:                     stringPtr(name),
-			Username:                 stringPtr(username),
 			Email:                    stringPtr(emailAddress),
-			LastEventCommitPosition:  resolved.Position.Commit,
-			LastEventPreparePosition: resolved.Position.Prepare,
-		})
-	})
-}
-
-func (m *ReadModel) UpdateName(ctx context.Context, resolved eventstore.ResolvedEvent, keys auth.SubjectPiiKeyPort) error {
-	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[auth.UserRegisteredIDField].(string)
-	subjectKey, ok, err := keys.GetSubjectDataKey(ctx, userRegisteredID)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return eventstore.ErrNotFound
-	}
-	name := protectedpii.MustDecryptEventStringWithDataKey(protectedpii.FromEnv(), subjectKey, resolved.Event.Data, "name")
-	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceUpsertProfileName(conn, dbsql.UpsertProfileNameParams{
-			UserId:                   userRegisteredID,
-			Name:                     stringPtr(name),
 			LastEventCommitPosition:  resolved.Position.Commit,
 			LastEventPreparePosition: resolved.Position.Prepare,
 		})

@@ -25,8 +25,5 @@ DELETE FROM students;
 -- name: ResetReadModelPeriodsStudents :exec
 DELETE FROM periods_students;
 
--- name: ResetReadModelTeachers :exec
-DELETE FROM teachers;
-
 -- name: ResetEventHandlerCheckpoints :exec
 DELETE FROM projector_checkpoint;

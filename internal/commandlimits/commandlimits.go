@@ -19,7 +19,6 @@ type fieldLimit struct {
 var fieldLimits = []fieldLimit{
 	{regexp.MustCompile(`(?i)^(.*\.)?(id|.*id|.*ids|.*createdid|.*registeredid|.*requestedid|.*generatedid|.*uploadedid|.*deletedid|.*updatedid|.*reopenedid|.*completedid|.*renamedid|eventid|token)$`), 128},
 	{regexp.MustCompile(`(?i)^(.*\.)?(email|emailaddress)$`), 320},
-	{regexp.MustCompile(`(?i)^(.*\.)?(username)$`), 32},
 	{regexp.MustCompile(`(?i)^(.*\.)?(password|currentpassword|newpassword|confirmpassword)$`), 1024},
 	{regexp.MustCompile(`(?i)^(.*\.)?(name|firstname|lastname|title)$`), 160},
 	{regexp.MustCompile(`(?i)^(.*\.)?(contenttype)$`), 100},

@@ -4,6 +4,7 @@ import "fmt"
 import "seek/internal/features/periods/dto"
 
 templ ScheduleComponent(periods []dto.PeriodScheduleView) {
+	@ScheduleStyle()
 	<div id="schedule-component">
 		@DayHeaders()
 		@TimeColumn()
@@ -14,7 +15,6 @@ templ ScheduleComponent(periods []dto.PeriodScheduleView) {
 				@PeriodCard(periods[i])
 			}
 		}
-		@ScheduleStyle()
 	</div>
 }
 

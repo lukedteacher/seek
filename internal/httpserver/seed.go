@@ -16,100 +16,120 @@ func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 
 	students := []sm.Student{
 		{
+			MARSSID: "1",
 			Person: sharedmodels.Person{
 				GivenName:  "Emma",
 				ChosenName: "Em",
 				FamilyName: "Johnson",
+				Email:      "emma.j@schoolofnorthernlights.org",
 			},
 			Grade:       5,
 			Homeroom:    "Ms. Smith",
 			CaseManager: "Mr. Davis",
 		},
 		{
+			MARSSID: "2",
 			Person: sharedmodels.Person{
 				GivenName:  "Liam",
 				ChosenName: "",
 				FamilyName: "Garcia",
+				Email:      "liam.g@schoolofnorthernlights.org",
 			},
 			Grade:       6,
 			Homeroom:    "Mr. Brown",
 			CaseManager: "Ms. Wilson",
 		},
 		{
+			MARSSID: "3",
 			Person: sharedmodels.Person{
 				GivenName:  "Olivia",
 				ChosenName: "Liv",
 				FamilyName: "Martinez",
+				Email:      "olivia.m@schoolofnorthernlights.org",
 			},
 			Grade:       2,
 			Homeroom:    "Mrs. Lee",
 			CaseManager: "",
 		},
 		{
+			MARSSID: "4",
 			Person: sharedmodels.Person{
 				GivenName:  "Noah",
 				ChosenName: "",
 				FamilyName: "Rodriguez",
+				Email:      "noah.r@schoolofnorthernlights.org",
 			},
 			Grade:       1,
 			Homeroom:    "Mr. Jones",
 			CaseManager: "Ms. Taylor",
 		},
 		{
+			MARSSID: "5",
 			Person: sharedmodels.Person{
 				GivenName:  "Ava",
 				ChosenName: "Aves",
 				FamilyName: "Williams",
+				Email:      "ava.w@schoolofnorthernlights.org",
 			},
 			Grade:       4,
 			Homeroom:    "Mrs. Clark",
 			CaseManager: "Mr. Harris",
 		},
 		{
+			MARSSID: "6",
 			Person: sharedmodels.Person{
 				GivenName:  "Mason",
 				ChosenName: "Mace",
 				FamilyName: "Brown",
+				Email:      "mason.b@schoolofnorthernlights.org",
 			},
 			Grade:       8,
 			Homeroom:    "Ms. White",
 			CaseManager: "",
 		},
 		{
+			MARSSID: "7",
 			Person: sharedmodels.Person{
 				GivenName:  "Sophia",
 				ChosenName: "Soph",
 				FamilyName: "Jones",
+				Email:      "sophia.j@schoolofnorthernlights.org",
 			},
 			Grade:       0,
 			Homeroom:    "Mr. Anderson",
 			CaseManager: "Ms. Thomas",
 		},
 		{
+			MARSSID: "8",
 			Person: sharedmodels.Person{
 				GivenName:  "Logan",
 				ChosenName: "",
 				FamilyName: "Miller",
+				Email:      "logan.m@schoolofnorthernlights.org",
 			},
 			Grade:       7,
 			Homeroom:    "Mrs. Martinez",
 			CaseManager: "Mr. Garcia",
 		},
 		{
+			MARSSID: "9",
 			Person: sharedmodels.Person{
 				GivenName:  "Mia",
 				ChosenName: "",
 				FamilyName: "Davis",
+				Email:      "mia.d@schoolofnorthernlights.org",
 			},
 			Grade:       5,
 			Homeroom:    "Ms. Smith",
 			CaseManager: "Ms. Wilson",
 		},
 		{
+			MARSSID: "10",
 			Person: sharedmodels.Person{
 				GivenName:  "Ethan",
 				ChosenName: "E",
 				FamilyName: "Moore",
+				Email:      "ethan.m@schoolofnorthernlights.org",
 			},
 			Grade:       6,
 			Homeroom:    "Mr. Brown",
@@ -117,7 +137,6 @@ func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	// helper if CaseManager is *string
 	for _, student := range students {
 		command := se.CreateStudentCommand{
 			GivenName:   student.GivenName,
@@ -154,6 +173,7 @@ func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 	for _, period := range periods {
 		command := pe.CreatePeriodCommand{
 			Title:       period.Title,
+			ServiceType: period.ServiceType,
 			StartTime:   period.StartTime,
 			Duration:    period.Duration,
 			DaysBitmask: period.DaysBitmask,

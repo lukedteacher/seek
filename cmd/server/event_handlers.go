@@ -13,7 +13,6 @@ import (
 	periodStudentEvents "seek/internal/features/periods_students/events"
 	profileEvents "seek/internal/features/profiles/events"
 	studentEvents "seek/internal/features/students/events"
-	teacherEvents "seek/internal/features/teachers/events"
 	"seek/internal/natsbus"
 )
 
@@ -134,18 +133,6 @@ func eventHandlerFactories(
 					store,
 					components.checkpointer,
 					components.studentReadModel,
-					bus,
-					logger,
-				)
-			},
-		},
-		{
-			name: "teacher read model",
-			create: func() (eventHandler, error) {
-				return teacherEvents.NewTeacherReadModelEventHandler(
-					store,
-					components.checkpointer,
-					components.teacherReadModel,
 					bus,
 					logger,
 				)

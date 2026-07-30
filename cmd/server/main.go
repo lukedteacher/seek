@@ -24,7 +24,6 @@ import (
 	periodStudent "seek/internal/features/periods_students/events"
 	profile "seek/internal/features/profiles/events"
 	student "seek/internal/features/students/events"
-	teacher "seek/internal/features/teachers/events"
 	"seek/internal/httpserver"
 	"seek/internal/natsbus"
 	"seek/internal/protectedpii"
@@ -49,7 +48,6 @@ type appComponents struct {
 	periodReadModel        *period.ReadModel
 	profileReadModel       *profile.ReadModel
 	studentReadModel       *student.ReadModel
-	teacherReadModel       *teacher.ReadModel
 	periodStudentReadModel *periodStudent.ReadModel
 	checkpointer           eventstore.Checkpointer
 	emailSender            email.Sender
@@ -132,7 +130,6 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		Profiles:            components.profileReadModel,
 		Periods:             components.periodReadModel,
 		Students:            components.studentReadModel,
-		Teachers:            components.teacherReadModel,
 		PeriodsStudents:     components.periodStudentReadModel,
 		EventSaver:          orisunStore,
 		EventRetriever:      orisunStore,
@@ -172,9 +169,6 @@ func resetReadModels(ctx context.Context, db *appdb.DB) error {
 			return err
 		}
 		if err := dbsql.OnceResetReadModelStudents(conn); err != nil {
-			return err
-		}
-		if err := dbsql.OnceResetReadModelTeachers(conn); err != nil {
 			return err
 		}
 		if err := dbsql.OnceResetReadModelPeriodsStudents(conn); err != nil {
@@ -222,7 +216,6 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 	profileReadModel := profile.NewReadModel(db)
 	periodReadModel := period.NewReadModel(db)
 	studentReadModel := student.NewReadModel(db)
-	teacherReadModel := teacher.NewReadModel(db)
 	periodStudentReadModel := periodStudent.NewReadModel(db)
 	profileStorage := storage.NewLocalProvider(cfg.UploadDir, cfg.UploadBaseURL)
 	piiKeys := auth.NewSubjectPiiKeyStore(db, protectedpii.FromEnv())
@@ -237,7 +230,6 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 		profileReadModel:       profileReadModel,
 		periodReadModel:        periodReadModel,
 		studentReadModel:       studentReadModel,
-		teacherReadModel:       teacherReadModel,
 		periodStudentReadModel: periodStudentReadModel,
 		checkpointer:           eventstore.NewSQLiteCheckpointer(db),
 		emailSender:            email.LogSender{Logger: logger},

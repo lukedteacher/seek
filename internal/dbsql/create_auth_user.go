@@ -8,11 +8,9 @@ import (
 )
 
 type CreateAuthUserParams struct {
-	Id               string  `json:"id"`
-	Name             string  `json:"name"`
-	Email            string  `json:"email"`
-	Username         *string `json:"username"`
-	UserRegisteredId string  `json:"user_registered_id"`
+	Id               string `json:"id"`
+	Email            string `json:"email"`
+	UserRegisteredId string `json:"user_registered_id"`
 }
 
 type CreateAuthUserStmt struct {
@@ -24,8 +22,18 @@ type CreateAuthUserStmt struct {
 
 func CreateAuthUser(tx *sqlite.Conn) *CreateAuthUserStmt {
 	const querySQL = `
-INSERT OR IGNORE INTO auth_user (id, name, email, email_verified, username, display_username, user_registered_id)
-VALUES (?1, ?2, ?3, false, ?4, ?4, ?5)
+INSERT OR IGNORE INTO auth_user (
+	id, 
+	email, 
+	email_verified, 
+	user_registered_id
+)
+VALUES (
+	?1, 
+	?2, 
+	true, 
+	?3
+)
     `
 
 	ps := &CreateAuthUserStmt{
@@ -65,18 +73,8 @@ func (ps *CreateAuthUserStmt) Run(
 	stmt.BindText(bindIndex, params.Id)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.Name)
-
-	bindIndex++
 	stmt.BindText(bindIndex, params.Email)
 
-	bindIndex++
-	if params.Username == nil {
-		stmt.BindNull(bindIndex)
-	} else {
-		stmt.BindText(bindIndex, *params.Username)
-
-	}
 	bindIndex++
 	stmt.BindText(bindIndex, params.UserRegisteredId)
 

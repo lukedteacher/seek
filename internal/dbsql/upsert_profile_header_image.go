@@ -23,8 +23,18 @@ type UpsertProfileHeaderImageStmt struct {
 
 func UpsertProfileHeaderImage(tx *sqlite.Conn) *UpsertProfileHeaderImageStmt {
 	const querySQL = `
-INSERT INTO profile_stats (user_id, header_image_url, last_event_commit_position, last_event_prepare_position)
-VALUES (?1, ?2, ?3, ?4)
+INSERT INTO profile_stats (
+	user_id, 
+	header_image_url, 
+	last_event_commit_position, 
+	last_event_prepare_position
+)
+VALUES (
+	?1, 
+	?2, 
+	?3, 
+	?4
+)
 ON CONFLICT (user_id) DO UPDATE SET
     header_image_url = EXCLUDED.header_image_url,
     last_event_commit_position = EXCLUDED.last_event_commit_position,

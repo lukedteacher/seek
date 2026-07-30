@@ -3,8 +3,6 @@ package auth
 import (
 	"testing"
 	"time"
-
-	"seek/internal/protectedpii"
 )
 
 func TestPasswordResetCompletedEventMatchesFrasesShape(t *testing.T) {
@@ -46,14 +44,5 @@ func TestEventSpecificIDMatchesEventID(t *testing.T) {
 	passwordChanged := NewPasswordChangedEvent("password-changed-id", changedAt, "user-id", "hash", nil)
 	if passwordChanged.EventID != passwordChanged.Data[PasswordChangedIDField] {
 		t.Fatalf("password changed event id = %q, password_changed_id = %v", passwordChanged.EventID, passwordChanged.Data[PasswordChangedIDField])
-	}
-
-	subjectKey, err := protectedpii.GenerateSubjectDataKey()
-	if err != nil {
-		t.Fatal(err)
-	}
-	userNameChanged := NewUserNameChangedEvent("name-changed-id", "Ada Lovelace", changedAt, "user-id", subjectKey, nil)
-	if userNameChanged.EventID != userNameChanged.Data[UserNameChangedIDField] {
-		t.Fatalf("name changed event id = %q, user_name_changed_id = %v", userNameChanged.EventID, userNameChanged.Data[UserNameChangedIDField])
 	}
 }

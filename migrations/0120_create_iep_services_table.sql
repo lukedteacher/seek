@@ -11,11 +11,11 @@ CREATE TABLE IF NOT EXISTS iep_services (
 	start_date TEXT NOT NULL,
 	end_date TEXT NOT NULL,
 	provider TEXT NOT NULL,
+	last_event_commit_position INTEGER NOT NULL,
+	last_event_prepare_position INTEGER NOT NULL,
 	created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	archived_at TEXT,
-	last_event_commit_position INTEGER NOT NULL,
-	last_event_prepare_position INTEGER NOT NULL,
 	FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 );
 

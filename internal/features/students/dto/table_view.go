@@ -6,6 +6,7 @@ import (
 )
 
 var StudentColumns = []shareddto.ColumnView{
+	{Field: "MARSSID", Display: "MARSS ID"},
 	{Field: "GivenName", Display: "given", Group: "name"},
 	{Field: "ChosenName", Display: "chosen", Group: "name"},
 	{Field: "FamilyName", Display: "family", Group: "name"},
@@ -22,6 +23,8 @@ func extractStudent(s *models.Student, field string) string {
 	switch field {
 	case "ID":
 		return s.ID
+	case "MARSSID":
+		return s.MARSSID
 	case "GivenName":
 		return s.GivenName
 	case "ChosenName":

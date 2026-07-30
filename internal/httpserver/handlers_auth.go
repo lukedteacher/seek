@@ -3,7 +3,6 @@ package httpserver
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"seek/internal/auth"
 	"seek/internal/eventstore"
@@ -40,19 +39,17 @@ func (s Server) register(w http.ResponseWriter, r *http.Request) {
 		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return flashError(sse, err.Error()) })
 		return
 	}
-	year, _ := strconv.Atoi(r.FormValue("yearOfBirth"))
-	registered, err := auth.RegisterUserCommandHandler(ctx, auth.RegisterUserCommand{
-		Username: r.FormValue("username"), Email: r.FormValue("email"), Password: r.FormValue("password"),
-		GivenName: r.FormValue("givenName"), FamilyName: r.FormValue("familyName"), YearOfBirth: year,
+	_, err := auth.RegisterUserCommandHandler(ctx, auth.RegisterUserCommand{
+		Email:    r.FormValue("email"),
+		Password: r.FormValue("password"),
 		Metadata: eventstore.HTTPCommandMetadata(r, ""),
 	}, s.EventSaver, s.EventRetriever, s.PIIKeys)
 	if err != nil {
 		patchTempl(w, r, corepages.RegisterForm(map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
 		return
 	}
-	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-		return sse.Redirect("/register/" + registered.UserRegisteredID + "/validate-email")
-	})
+	sse := newSSE(w, r)
+	sse.Redirect("/login")
 }
 
 func (s Server) login(w http.ResponseWriter, r *http.Request) {

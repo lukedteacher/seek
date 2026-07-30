@@ -16,7 +16,6 @@ import (
 	periodStudent "seek/internal/features/periods_students/events"
 	profile "seek/internal/features/profiles/events"
 	student "seek/internal/features/students/events"
-	teacher "seek/internal/features/teachers/events"
 	"seek/internal/features/users/models"
 	"seek/internal/resources"
 	"seek/internal/viewstore"
@@ -64,7 +63,6 @@ type Server struct {
 	Periods             period.PeriodReadModelReader
 	Profiles            ProfileReader
 	Students            student.StudentReadModelReader
-	Teachers            teacher.TeacherReadModelReader
 	PeriodsStudents     periodStudent.PeriodStudentReadModelReader
 	EventSaver          eventstore.Saver
 	EventRetriever      eventstore.Retriever
@@ -109,7 +107,6 @@ func (s Server) Routes() http.Handler {
 		s.iepServiceRoutes(r)
 		s.periodRoutes(r)
 		s.studentRoutes(r)
-		s.teacherRoutes(r)
 		s.profileRoutes(r)
 	})
 

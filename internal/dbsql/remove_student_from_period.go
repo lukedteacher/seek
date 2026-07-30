@@ -22,7 +22,8 @@ type RemoveStudentFromPeriodStmt struct {
 func RemoveStudentFromPeriod(tx *sqlite.Conn) *RemoveStudentFromPeriodStmt {
 	const querySQL = `
 DELETE FROM periods_students
-WHERE period_id = ?1 AND student_id = ?2
+WHERE period_id = ?1 
+	AND student_id = ?2
     `
 
 	ps := &RemoveStudentFromPeriodStmt{

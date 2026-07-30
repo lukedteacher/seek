@@ -1,10 +1,32 @@
 -- name: CreateAuthUser :exec
-INSERT OR IGNORE INTO auth_user (id, name, email, email_verified, username, display_username, user_registered_id)
-VALUES (@id, @name, @email, false, @username, @username, @user_registered_id);
+INSERT OR IGNORE INTO auth_user (
+	id, 
+	email, 
+	email_verified, 
+	user_registered_id
+)
+VALUES (
+	@id, 
+	@email, 
+	true, 
+	@user_registered_id
+);
 
 -- name: CreateAuthAccount :exec
-INSERT OR IGNORE INTO auth_account (id, account_id, provider_id, user_id, password)
-VALUES (@id, @account_id, 'credential', @user_id, @password);
+INSERT OR IGNORE INTO auth_account (
+	id, 
+	account_id, 
+	provider_id, 
+	user_id, 
+	password
+)
+VALUES (
+	@id, 
+	@account_id, 
+	'credential', 
+	@user_id, 
+	@password
+);
 
 -- name: CreateAuthSession :exec
 INSERT INTO auth_session (id, token, user_id, expires_at)
@@ -17,8 +39,6 @@ WHERE token = @token;
 -- name: UserBySessionToken :one
 SELECT u.id,
        u.user_registered_id,
-       u.name,
-       coalesce(u.username, '') AS username,
        u.email,
        u.email_verified,
        coalesce(u.image, '') AS image,
@@ -33,8 +53,6 @@ WHERE s.token = @token
 -- name: UserByRegisteredID :one
 SELECT u.id,
        u.user_registered_id,
-       u.name,
-       coalesce(u.username, '') AS username,
        u.email,
        u.email_verified,
        coalesce(u.image, '') AS image,
@@ -47,8 +65,6 @@ WHERE u.user_registered_id = @user_registered_id;
 -- name: UserByIDOrRegisteredID :one
 SELECT u.id,
        u.user_registered_id,
-       u.name,
-       coalesce(u.username, '') AS username,
        u.email,
        u.email_verified,
        coalesce(u.image, '') AS image,
@@ -83,18 +99,6 @@ WHERE identifier LIKE 'password-reset:%'
 ORDER BY created_at DESC
 LIMIT 1;
 
--- name: UpdateAuthUserName :exec
-UPDATE auth_user
-SET name = @name,
-    updated_at = CURRENT_TIMESTAMP
-WHERE id = @id;
-
--- name: UpdateAuthUserNameByRegisteredID :exec
-UPDATE auth_user
-SET name = @name,
-    updated_at = CURRENT_TIMESTAMP
-WHERE user_registered_id = @user_registered_id;
-
 -- name: UpdateAuthAccountPassword :exec
 UPDATE auth_account
 SET password = @password,
@@ -116,8 +120,6 @@ WHERE user_id = (
 -- name: UserByEmailWithPassword :one
 SELECT u.id,
        u.user_registered_id,
-       u.name,
-       coalesce(u.username, '') AS username,
        u.email,
        u.email_verified,
        coalesce(u.image, '') AS image,

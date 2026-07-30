@@ -23,8 +23,20 @@ type CreateAuthAccountStmt struct {
 
 func CreateAuthAccount(tx *sqlite.Conn) *CreateAuthAccountStmt {
 	const querySQL = `
-INSERT OR IGNORE INTO auth_account (id, account_id, provider_id, user_id, password)
-VALUES (?1, ?2, 'credential', ?3, ?4)
+INSERT OR IGNORE INTO auth_account (
+	id, 
+	account_id, 
+	provider_id, 
+	user_id, 
+	password
+)
+VALUES (
+	?1, 
+	?2, 
+	'credential', 
+	?3, 
+	?4
+)
     `
 
 	ps := &CreateAuthAccountStmt{

@@ -23,7 +23,11 @@ type SubjectPiiKeyStmt struct {
 
 func SubjectPiiKey(tx *sqlite.Conn) *SubjectPiiKeyStmt {
 	const querySQL = `
-SELECT subject_id, encrypted_data_key, encryption_nonce, key_version
+SELECT
+	subject_id, 
+	encrypted_data_key, 
+	encryption_nonce, 
+	key_version
 FROM subject_pii_keys
 WHERE subject_id = ?1
     `

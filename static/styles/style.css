@@ -9335,9 +9335,6 @@
   .text-green-500 {
     color: var(--color-green-500);
   }
-  .text-neutral-content {
-    color: var(--color-neutral-content);
-  }
   .text-neutral-content\/70 {
     color: var(--color-neutral-content);
     @supports (color: color-mix(in lab, red, red)) {

@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.4.0 (26.07.29) user revisions
+
+- removed the need for a OTP or verification
+- removed various fields from user registration and models
+- deleted teachers (superceded by educators)
+- fixed a bug with the period creation that wasn't saving service type
+
 ## v0.3.13 (26.07.29) mostly code cleanup
 
 - removed URL /delete for delete action on objects

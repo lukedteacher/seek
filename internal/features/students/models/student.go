@@ -6,6 +6,7 @@ import (
 
 type Student struct {
 	ID                  string             `json:"id"`
+	MARSSID             string             `json:"marss_id"`
 	sharedmodels.Person                    // embeds given, chosen, & family name, and email fields
 	Grade               sharedmodels.Grade `json:"grade"`
 	Homeroom            string             `json:"homeroom"`

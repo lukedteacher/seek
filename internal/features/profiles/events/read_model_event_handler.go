@@ -62,11 +62,6 @@ func (h *ReadModelEventHandler) handle(ctx context.Context, resolved eventstore.
 		if err := h.readModel.UpsertRegisteredUser(ctx, resolved, h.keys); err != nil {
 			return err
 		}
-	case userNameChanged:
-		userRegisteredID, _ = eventstore.Scope(resolved.Event.Data)[auth.UserRegisteredIDField].(string)
-		if err := h.readModel.UpdateName(ctx, resolved, h.keys); err != nil {
-			return err
-		}
 	case ProfileBioUpdated:
 		userRegisteredID, _ = eventstore.Scope(resolved.Event.Data)[auth.UserRegisteredIDField].(string)
 		if err := h.readModel.UpdateBio(ctx, resolved, h.keys); err != nil {
@@ -97,7 +92,6 @@ func (h *ReadModelEventHandler) handle(ctx context.Context, resolved eventstore.
 func readModelEventHandlerQuery() eventstore.Query {
 	return eventstore.Query{Criteria: []eventstore.Criterion{
 		{Tags: []eventstore.Tag{{Key: "eventType", Value: userRegistered}}},
-		{Tags: []eventstore.Tag{{Key: "eventType", Value: userNameChanged}}},
 		{Tags: []eventstore.Tag{{Key: "eventType", Value: ProfileBioUpdated}}},
 		{Tags: []eventstore.Tag{{Key: "eventType", Value: ProfileImageUploaded}}},
 		{Tags: []eventstore.Tag{{Key: "eventType", Value: ProfileHeaderImageUploaded}}},

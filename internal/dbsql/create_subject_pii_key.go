@@ -23,8 +23,18 @@ type CreateSubjectPiiKeyStmt struct {
 
 func CreateSubjectPiiKey(tx *sqlite.Conn) *CreateSubjectPiiKeyStmt {
 	const querySQL = `
-INSERT OR IGNORE INTO subject_pii_keys (subject_id, encrypted_data_key, encryption_nonce, key_version)
-VALUES (?1, ?2, ?3, ?4)
+INSERT OR IGNORE INTO subject_pii_keys (
+	subject_id, 
+	encrypted_data_key, 
+	encryption_nonce, 
+	key_version
+)
+VALUES (
+	?1, 
+	?2, 
+	?3, 
+	?4
+)
     `
 
 	ps := &CreateSubjectPiiKeyStmt{

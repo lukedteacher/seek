@@ -8,9 +8,9 @@ import (
 )
 
 type ArchiveIepserviceParams struct {
-	ArchivedAt               string `json:"archived_at"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
+	ArchivedAt               string `json:"archived_at"`
 	Id                       string `json:"id"`
 }
 
@@ -25,10 +25,10 @@ func ArchiveIepservice(tx *sqlite.Conn) *ArchiveIepserviceStmt {
 	const querySQL = `
 UPDATE iep_services
 SET
-	updated_at = ?1,
-	archived_at = ?1,
-	last_event_commit_position = ?2,
-	last_event_prepare_position = ?3
+	last_event_commit_position = ?1,
+	last_event_prepare_position = ?2,
+	updated_at = ?3,
+	archived_at = ?3
 WHERE id = ?4
     `
 
@@ -66,13 +66,13 @@ func (ps *ArchiveIepserviceStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, params.ArchivedAt)
-
-	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.ArchivedAt)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Id)

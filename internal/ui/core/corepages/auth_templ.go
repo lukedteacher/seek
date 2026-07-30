@@ -199,12 +199,8 @@ func RegisterForm(errors map[string]string) templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = coreblocks.AuthForm("/register", "create account", []coreblocks.Field{
-			{Name: "username", Type: "text", Label: "username"},
 			{Name: "email", Type: "email", Label: "email"},
 			{Name: "password", Type: "password", Label: "password"},
-			{Name: "givenName", Type: "text", Label: "first name"},
-			{Name: "familyName", Type: "text", Label: "last name"},
-			{Name: "yearOfBirth", Type: "number", Label: "year of birth"},
 		}, errors).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -488,7 +484,7 @@ func ValidateEmailForm(userID string, errors map[string]string) templ.Component 
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(sendValidationOTPSSE(userID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/auth.templ`, Line: 82, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/auth.templ`, Line: 78, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 			if templ_7745c5c3_Err != nil {

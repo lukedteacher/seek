@@ -1,9 +1,23 @@
 -- name: CreateSubjectPiiKey :exec
-INSERT OR IGNORE INTO subject_pii_keys (subject_id, encrypted_data_key, encryption_nonce, key_version)
-VALUES (@subject_id, @encrypted_data_key, @encryption_nonce, @key_version);
+INSERT OR IGNORE INTO subject_pii_keys (
+	subject_id, 
+	encrypted_data_key, 
+	encryption_nonce, 
+	key_version
+)
+VALUES (
+	@subject_id, 
+	@encrypted_data_key, 
+	@encryption_nonce, 
+	@key_version
+);
 
 -- name: SubjectPiiKey :one
-SELECT subject_id, encrypted_data_key, encryption_nonce, key_version
+SELECT
+	subject_id, 
+	encrypted_data_key, 
+	encryption_nonce, 
+	key_version
 FROM subject_pii_keys
 WHERE subject_id = @subject_id;
 

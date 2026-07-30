@@ -34,10 +34,10 @@ INSERT INTO periods (
 	start_time, 
 	duration, 
 	days_bitmask, 
-	created_at, 
-	updated_at, 
 	last_event_commit_position, 
-	last_event_prepare_position
+	last_event_prepare_position,
+	created_at, 
+	updated_at
 )
 VALUES (
 	@id, 
@@ -46,10 +46,10 @@ VALUES (
 	@start_time, 
 	@duration, 
 	@days_bitmask, 
-	@created_at, 
-	@created_at, 
 	@last_event_commit_position, 
-	@last_event_prepare_position
+	@last_event_prepare_position,
+	@created_at, 
+	@created_at
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -61,18 +61,18 @@ SET
 	start_time = @start_time,
 	duration = @duration,
 	days_bitmask = @days_bitmask,
-	updated_at = @updated_at,
 	last_event_commit_position = @last_event_commit_position,
-	last_event_prepare_position = @last_event_prepare_position
+	last_event_prepare_position = @last_event_prepare_position,
+	updated_at = @updated_at
 WHERE id = @id;
 
 -- name: ArchivePeriod :exec
 UPDATE periods
 SET
-	updated_at = @archived_at,
-	archived_at = @archived_at,
 	last_event_commit_position = @last_event_commit_position,
-	last_event_prepare_position = @last_event_prepare_position
+	last_event_prepare_position = @last_event_prepare_position,
+	updated_at = @archived_at,
+	archived_at = @archived_at
 WHERE id = @id;
 
 -- name: DeletePeriod :exec
