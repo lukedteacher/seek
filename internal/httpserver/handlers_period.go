@@ -158,7 +158,7 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 			// get student list based on service type
 			students := []smodels.Student{}
 			if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
-				students, err = s.Students.ListStudentsByIEPServiceType(ctx, model.ServiceType.ShortString())
+				students, err = s.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
 			} else {
 				students, err = s.Students.List(ctx)
 			}
@@ -314,7 +314,7 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 	view.URL = fmt.Sprintf("/periods/%s", periodID)
 	studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 	for i := range studentIDs {
-		student, _ := s.Students.Get(ctx, studentIDs[i])
+		student, _ := s.Students.GetByID(ctx, studentIDs[i])
 		studentView := sdto.NewStudentView(student)
 		view.Students = append(view.Students, studentView)
 	}
@@ -384,7 +384,7 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 			view.URL = fmt.Sprintf("/periods/%s", periodID)
 			studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 			for i := range studentIDs {
-				student, _ := s.Students.Get(ctx, studentIDs[i])
+				student, _ := s.Students.GetByID(ctx, studentIDs[i])
 				studentView := sdto.NewStudentView(student)
 				view.Students = append(view.Students, studentView)
 			}
@@ -413,7 +413,7 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	// get student list based on service type
 	students := []smodels.Student{}
 	if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
-		students, err = s.Students.ListStudentsByIEPServiceType(ctx, model.ServiceType.ShortString())
+		students, err = s.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
 	} else {
 		students, err = s.Students.List(ctx)
 	}
@@ -498,7 +498,7 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			// get student list based on service type
 			students := []smodels.Student{}
 			if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
-				students, err = s.Students.ListStudentsByIEPServiceType(ctx, model.ServiceType.ShortString())
+				students, err = s.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
 			} else {
 				students, err = s.Students.List(ctx)
 			}

@@ -24,15 +24,15 @@ templ View(user models.User, view dto.StudentView, periods []pdto.PeriodSchedule
 			@tabs.Script()
 			@tabs.Tabs(tabs.Props{
 				ID:    "student-tabs",
-				Class: "w-3/4 flex flex-col gap-3",
+				Class: "w-full md:px-3 flex flex-col gap-3",
 			}) {
 				@tabs.List(tabs.ListProps{
 					ID:    "student-tabs-list",
-					Class: "flex w-98 gap-1",
+					Class: "flex w-full  max-w-128 gap-1",
 				}) {
 					@button.Button(button.Props{
 						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/students/%s/info", view.ID),
+						Href:  fmt.Sprintf("/students/%s/info", view.Username),
 						Attributes: templ.Attributes{
 							"data-tab-active": active == "info",
 						},
@@ -40,11 +40,11 @@ templ View(user models.User, view dto.StudentView, periods []pdto.PeriodSchedule
 						@icon.Info(icon.Props{
 							Class: "size-4",
 						})
-						<span>info</span>
+						<span class="hidden md:flex">info</span>
 					}
 					@button.Button(button.Props{
 						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/students/%s/schedule", view.ID),
+						Href:  fmt.Sprintf("/students/%s/schedule", view.Username),
 						Attributes: templ.Attributes{
 							"data-tab-active": active == "schedule",
 						},
@@ -52,11 +52,11 @@ templ View(user models.User, view dto.StudentView, periods []pdto.PeriodSchedule
 						@icon.CalendarRange(icon.Props{
 							Class: "size-4",
 						})
-						<span>schedule</span>
+						<span class="hidden md:flex">schedule</span>
 					}
 					@button.Button(button.Props{
 						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/students/%s/services", view.ID),
+						Href:  fmt.Sprintf("/students/%s/services", view.Username),
 						Attributes: templ.Attributes{
 							"data-tab-active": active == "services",
 						},
@@ -64,7 +64,7 @@ templ View(user models.User, view dto.StudentView, periods []pdto.PeriodSchedule
 						@icon.Blocks(icon.Props{
 							Class: "size-4",
 						})
-						<span>services</span>
+						<span class="hidden md:flex">services</span>
 					}
 				}
 				@tabs.Content(tabs.ContentProps{

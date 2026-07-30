@@ -16,7 +16,7 @@ var EducatorColumns = []shareddto.ColumnView{
 }
 
 // extract values from an educator by field name
-func extractEducator(svc *models.Educator, field string) string {
+func valueExtractor(svc *models.Educator, field string) string {
 	if svc == nil {
 		return ""
 	}
@@ -38,11 +38,16 @@ func extractEducator(svc *models.Educator, field string) string {
 	}
 }
 
+func targetExtractor(m *models.Educator) string {
+	return m.ID
+}
+
 // table config for educator (used by both regular and diff tables)
 var EducatorTableConfig = shareddto.TableConfig[models.Educator]{
-	Name:    "educators",
-	Columns: EducatorColumns,
-	Extract: extractEducator,
+	Name:            "educators",
+	Columns:         EducatorColumns,
+	ValueExtractor:  valueExtractor,
+	TargetExtractor: targetExtractor,
 }
 
 // convenience constructor for a regular table view of educators

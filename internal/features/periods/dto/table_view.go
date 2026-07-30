@@ -13,37 +13,41 @@ var PeriodColumns = []shareddto.ColumnView{
 	{Field: "EndTime", Display: "end", Group: "time", Alignment: "center"},
 	{Field: "Duration", Display: "duration", Alignment: "center"},
 	{Field: "Days", Display: "days", Alignment: "center"},
-	// id omitted from display (auto‑stored in RowView.ID)
 }
 
-func extractPeriod(p *models.Period, field string) string {
-	if p == nil {
+func valueExtractor(m *models.Period, field string) string {
+	if m == nil {
 		return ""
 	}
 	switch field {
 	case "ID":
-		return p.ID
+		return m.ID
 	case "Title":
-		return p.Title
+		return m.Title
 	case "ServiceType":
-		return p.ServiceType.String()
+		return m.ServiceType.String()
 	case "StartTime":
-		return p.StartTime.Format("15:04")
+		return m.StartTime.Format("15:04")
 	case "EndTime":
-		return p.EndTime.Format("15:04")
+		return m.EndTime.Format("15:04")
 	case "Duration":
-		return strconv.Itoa(p.Duration)
+		return strconv.Itoa(m.Duration)
 	case "Days":
-		return p.DaysBitmask.String()
+		return m.DaysBitmask.String()
 	default:
 		return ""
 	}
 }
 
+func targetExtractor(m *models.Period) string {
+	return m.ID
+}
+
 var PeriodTableConfig = shareddto.TableConfig[models.Period]{
-	Name:    "periods",
-	Columns: PeriodColumns,
-	Extract: extractPeriod,
+	Name:            "periods",
+	Columns:         PeriodColumns,
+	ValueExtractor:  valueExtractor,
+	TargetExtractor: targetExtractor,
 }
 
 func NewPeriodTableView(periods []models.Period) shareddto.TableView {

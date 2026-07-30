@@ -8,7 +8,7 @@ import (
 type StudentView struct {
 	ID                  string             `json:"id"`
 	MARSSID             string             `json:"marss_id"`
-	sharedmodels.Person                    // embeds given, chosen, & family name and email fields
+	sharedmodels.Person                    // embeds given, chosen, & family name and email & username fields
 	Grade               sharedmodels.Grade `json:"grade"`
 	Homeroom            string             `json:"homeroom"`
 	CaseManager         string             `json:"case_manager"`

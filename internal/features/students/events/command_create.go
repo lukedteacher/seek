@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"seek/pkg/uuidv7"
@@ -14,6 +15,7 @@ type CreateStudentCommand struct {
 	GivenName   string
 	ChosenName  string
 	FamilyName  string
+	Email       string
 	Grade       int
 	Homeroom    string
 	CaseManager string
@@ -43,6 +45,8 @@ func CreateStudentCommandHandler(
 		model.givenName,
 		model.chosenName,
 		model.familyName,
+		model.email,
+		model.username,
 		model.grade,
 		model.homeroom,
 		model.caseManager,
@@ -60,6 +64,8 @@ type createStudentContext struct {
 	givenName   string
 	chosenName  string
 	familyName  string
+	email       string
+	username    string
 	grade       int
 	homeroom    string
 	caseManager string
@@ -67,14 +73,23 @@ type createStudentContext struct {
 }
 
 func newCreateStudentContext(command CreateStudentCommand, eventID string) (*createStudentContext, error) {
+	username := deriveUsername(command.Email)
 	return &createStudentContext{
 		marssID:     command.MARSSID,
 		givenName:   command.GivenName,
 		chosenName:  command.ChosenName,
 		familyName:  command.FamilyName,
+		email:       command.Email,
+		username:    username,
 		grade:       command.Grade,
 		homeroom:    command.Homeroom,
 		caseManager: command.CaseManager,
 		query:       StreamQuery(eventID),
 	}, nil
+}
+
+func deriveUsername(email string) string {
+	localPart := strings.Split(email, "@")[0]
+	username := strings.ReplaceAll(localPart, ".", "")
+	return strings.ToLower(username)
 }

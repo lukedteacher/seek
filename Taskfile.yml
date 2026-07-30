@@ -36,7 +36,7 @@ tasks:
     cmds:
       - go run ./cmd/server -seed-only
 
-  reset-read-models:
+  reset:
     cmds:
       - go run ./cmd/server -reset-read-models
 

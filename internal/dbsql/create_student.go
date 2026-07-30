@@ -13,6 +13,8 @@ type CreateStudentParams struct {
 	GivenName                string `json:"given_name"`
 	ChosenName               string `json:"chosen_name"`
 	FamilyName               string `json:"family_name"`
+	Email                    string `json:"email"`
+	Username                 string `json:"username"`
 	Grade                    int64  `json:"grade"`
 	Homeroom                 string `json:"homeroom"`
 	CaseManager              string `json:"case_manager"`
@@ -36,6 +38,8 @@ INSERT INTO students (
 	given_name, 
 	chosen_name, 
 	family_name, 
+	email,
+	username,
 	grade, 
 	homeroom, 
 	case_manager, 
@@ -50,13 +54,15 @@ VALUES (
 	?3, 
 	?4, 
 	?5, 
-	?6, 
-	?7, 
+	?6,
+	?7,
 	?8, 
 	?9, 
-	?10,
+	?10, 
 	?11, 
-	?11
+	?12,
+	?13, 
+	?13
 )
 ON CONFLICT (id) DO NOTHING
     `
@@ -108,6 +114,12 @@ func (ps *CreateStudentStmt) Run(
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.FamilyName)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.Email)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.Username)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.Grade)

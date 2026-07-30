@@ -14,6 +14,8 @@ type UpdateStudentCommand struct {
 	GivenName   string
 	ChosenName  string
 	FamilyName  string
+	Email       string
+	Username    string
 	Grade       int
 	Homeroom    string
 	CaseManager string
@@ -41,9 +43,9 @@ func UpdateStudentCommandHandler(
 	if err := model.isActive(); err != nil {
 		return UpdateStudentResult{}, err
 	}
-	if model.givenName == command.GivenName && model.chosenName == command.ChosenName && model.familyName == command.FamilyName && model.grade == command.Grade && model.homeroom == command.Homeroom && model.caseManager == command.CaseManager {
-		return UpdateStudentResult{Skipped: true}, nil
-	}
+
+	// TODO add skip logic
+
 	eventID := uuidv7.NewString()
 	event := NewStudentUpdatedEvent(
 		eventID,
@@ -52,6 +54,8 @@ func UpdateStudentCommandHandler(
 		command.GivenName,
 		command.ChosenName,
 		command.FamilyName,
+		command.Email,
+		command.Username,
 		command.Grade,
 		command.Homeroom,
 		command.CaseManager,
@@ -73,6 +77,8 @@ type updateStudentContext struct {
 	givenName   string
 	chosenName  string
 	familyName  string
+	email       string
+	username    string
 	grade       int
 	homeroom    string
 	caseManager string
@@ -81,7 +87,13 @@ type updateStudentContext struct {
 	query       eventstore.Query
 }
 
-func loadUpdateStudentContext(ctx context.Context, retriever eventstore.Retriever, studentID string) (*updateStudentContext, error) {
+func loadUpdateStudentContext(
+	ctx context.Context,
+	retriever eventstore.Retriever,
+	studentID string,
+) (*updateStudentContext,
+	error,
+) {
 	query := StreamQuery(studentID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
@@ -113,6 +125,8 @@ func (m *updateStudentContext) handle(resolved eventstore.ResolvedEvent) {
 		m.givenName, _ = data[FieldStudentGivenName].(string)
 		m.chosenName, _ = data[FieldStudentChosenName].(string)
 		m.familyName, _ = data[FieldStudentFamilyName].(string)
+		m.email, _ = data[FieldStudentEmail].(string)
+		m.username, _ = data[FieldStudentUsername].(string)
 		m.grade = int(data[FieldStudentGrade].(float64))
 		m.homeroom, _ = data[FieldStudentHomeroom].(string)
 		m.caseManager, _ = data[FieldStudentCaseManager].(string)
@@ -120,6 +134,8 @@ func (m *updateStudentContext) handle(resolved eventstore.ResolvedEvent) {
 		m.givenName, _ = data[FieldStudentGivenName].(string)
 		m.chosenName, _ = data[FieldStudentChosenName].(string)
 		m.familyName, _ = data[FieldStudentFamilyName].(string)
+		m.email, _ = data[FieldStudentEmail].(string)
+		m.username, _ = data[FieldStudentUsername].(string)
 		m.grade = int(data[FieldStudentGrade].(float64))
 		m.homeroom, _ = data[FieldStudentHomeroom].(string)
 		m.caseManager, _ = data[FieldStudentCaseManager].(string)

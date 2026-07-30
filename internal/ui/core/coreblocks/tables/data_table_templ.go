@@ -432,7 +432,7 @@ func Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = ActionCell(target, row.ID).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ActionCell(target, row.Target).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

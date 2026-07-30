@@ -7,7 +7,7 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type ListStudentsRes struct {
+type GetStudentByUsernameRes struct {
 	Id          string  `json:"id"`
 	MarssId     string  `json:"marss_id"`
 	GivenName   string  `json:"given_name"`
@@ -23,14 +23,14 @@ type ListStudentsRes struct {
 	ArchivedAt  *string `json:"archived_at"`
 }
 
-type ListStudentsStmt struct {
+type GetStudentByUsernameStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func ListStudents(tx *sqlite.Conn) *ListStudentsStmt {
+func GetStudentByUsername(tx *sqlite.Conn) *GetStudentByUsernameStmt {
 	const querySQL = `
 SELECT 
 	id, 
@@ -48,10 +48,10 @@ SELECT
 	archived_at
 FROM students
 WHERE archived_at IS NULL
-ORDER BY family_name DESC, given_name DESC
+	AND username = ?1
     `
 
-	ps := &ListStudentsStmt{
+	ps := &GetStudentByUsernameStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -64,8 +64,10 @@ ORDER BY family_name DESC, given_name DESC
 	return ps
 }
 
-func (ps *ListStudentsStmt) Run() (
-	res []ListStudentsRes,
+func (ps *GetStudentByUsernameStmt) Run(
+	username string,
+) (
+	res *GetStudentByUsernameRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
@@ -82,15 +84,17 @@ func (ps *ListStudentsStmt) Run() (
 		_ = stmt.Reset()
 	}()
 
-	// Execute the query
-	for {
-		if hasRow, err := stmt.Step(); err != nil {
-			return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
-		} else if !hasRow {
-			break
-		}
+	bindIndex := 1
+	// Bind parameters
+	stmt.BindText(bindIndex, username)
 
-		row := ListStudentsRes{}
+	bindIndex++
+
+	// Execute the query
+	if hasRow, err := stmt.Step(); err != nil {
+		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
+	} else if hasRow {
+		row := GetStudentByUsernameRes{}
 		row.Id = stmt.ColumnText(0)
 		row.MarssId = stmt.ColumnText(1)
 		row.GivenName = stmt.ColumnText(2)
@@ -108,19 +112,22 @@ func (ps *ListStudentsStmt) Run() (
 			tmp := stmt.ColumnText(12)
 			row.ArchivedAt = &tmp
 		}
-		res = append(res, row)
+		res = &row
 	}
 
 	return res, nil
 }
 
-func OnceListStudents(
+func OnceGetStudentByUsername(
 	tx *sqlite.Conn,
+	username string,
 ) (
-	res []ListStudentsRes,
+	res *GetStudentByUsernameRes,
 	err error,
 ) {
-	ps := ListStudents(tx)
+	ps := GetStudentByUsername(tx)
 
-	return ps.Run()
+	return ps.Run(
+		username,
+	)
 }

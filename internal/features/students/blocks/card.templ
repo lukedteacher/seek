@@ -11,7 +11,7 @@ import (
 
 templ Card(view dto.StudentView) {
 	@card.Card(card.Props{
-		ID:    fmt.Sprintf("student-%s-card", view.ID),
+		ID:    fmt.Sprintf("student-%s-card", view.Username),
 		Class: "student-card w-72 h-min",
 		Attributes: templ.Attributes{
 			"style": "background-color: var(--neutral-4);",
@@ -32,7 +32,7 @@ templ Card(view dto.StudentView) {
 		}
 		@card.Footer() {
 			@button.Button(button.Props{
-				Href: fmt.Sprintf("/students/%s/edit", view.ID),
+				Href: fmt.Sprintf("/students/%s/edit", view.Username),
 			}) {
 				@icon.Pencil(icon.Props{
 					Size: "16",

@@ -13,15 +13,17 @@ import (
 const StudentReadModelEventHandlerName = "student_read_model_event_handler"
 
 type StudentReadModelReader interface {
-	Get(ctx context.Context, studentID string) (*models.Student, error)
+	GetByID(ctx context.Context, studentID string) (*models.Student, error)
+	GetByUsername(ctx context.Context, username string) (*models.Student, error)
 	List(ctx context.Context) ([]models.Student, error)
-	ListStudentsByIEPServiceType(ctx context.Context, s string) ([]models.Student, error)
+	ListByIEPServiceType(ctx context.Context, s string) ([]models.Student, error)
 }
 
 type StudentReadModelWriter interface {
-	CreateStudent(ctx context.Context, event StudentCreatedProjection) error
-	UpdateStudent(ctx context.Context, event StudentUpdatedProjection) error
-	DeleteStudent(ctx context.Context, event StudentDeletedProjection) error
+	Create(ctx context.Context, event StudentCreatedProjection) error
+	Update(ctx context.Context, event StudentUpdatedProjection) error
+	Archive(ctx context.Context, event StudentArchivedProjection) error
+	Delete(ctx context.Context, event StudentDeletedProjection) error
 }
 
 type StudentCreatedProjection struct {
@@ -30,6 +32,8 @@ type StudentCreatedProjection struct {
 	GivenName   string
 	ChosenName  string
 	FamilyName  string
+	Email       string
+	Username    string
 	Grade       int
 	Homeroom    string
 	CaseManager string
@@ -42,10 +46,18 @@ type StudentUpdatedProjection struct {
 	GivenName   string
 	ChosenName  string
 	FamilyName  string
+	Email       string
+	Username    string
 	Grade       int
 	Homeroom    string
 	CaseManager string
 	UpdatedAt   time.Time
+}
+
+type StudentArchivedProjection struct {
+	Position   eventstore.Position
+	StudentID  string
+	ArchivedAt time.Time
 }
 
 type StudentDeletedProjection struct {
@@ -99,6 +111,7 @@ func StudentReadModelEventHandlerQuery() eventstore.Query {
 	eventTypes := []string{
 		StudentCreated,
 		StudentUpdated,
+		StudentArchived,
 		StudentDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
@@ -121,15 +134,19 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		givenName, _ := data[FieldStudentGivenName].(string)
 		chosenName, _ := data[FieldStudentChosenName].(string)
 		familyName, _ := data[FieldStudentFamilyName].(string)
+		email, _ := data[FieldStudentEmail].(string)
+		username, _ := data[FieldStudentUsername].(string)
 		grade := int(data[FieldStudentGrade].(float64))
 		homeroom, _ := data[FieldStudentHomeroom].(string)
 		caseManager, _ := data[FieldStudentCaseManager].(string)
-		if err := h.readModel.CreateStudent(ctx, StudentCreatedProjection{
+		if err := h.readModel.Create(ctx, StudentCreatedProjection{
 			Position:    resolved.Position,
 			StudentID:   studentID,
 			GivenName:   givenName,
 			ChosenName:  chosenName,
 			FamilyName:  familyName,
+			Email:       email,
+			Username:    username,
 			Grade:       grade,
 			Homeroom:    homeroom,
 			CaseManager: caseManager,
@@ -141,15 +158,19 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		givenName, _ := data[FieldStudentGivenName].(string)
 		chosenName, _ := data[FieldStudentChosenName].(string)
 		familyName, _ := data[FieldStudentFamilyName].(string)
+		email, _ := data[FieldStudentEmail].(string)
+		username, _ := data[FieldStudentUsername].(string)
 		grade := int(data[FieldStudentGrade].(float64))
 		homeroom, _ := data[FieldStudentHomeroom].(string)
 		caseManager, _ := data[FieldStudentCaseManager].(string)
-		if err := h.readModel.UpdateStudent(ctx, StudentUpdatedProjection{
+		if err := h.readModel.Update(ctx, StudentUpdatedProjection{
 			Position:    resolved.Position,
 			StudentID:   studentID,
 			GivenName:   givenName,
 			ChosenName:  chosenName,
 			FamilyName:  familyName,
+			Email:       email,
+			Username:    username,
 			Grade:       grade,
 			Homeroom:    homeroom,
 			CaseManager: caseManager,
@@ -157,8 +178,16 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		}); err != nil {
 			return err
 		}
+	case StudentArchived:
+		if err := h.readModel.Archive(ctx, StudentArchivedProjection{
+			Position:   resolved.Position,
+			StudentID:  studentID,
+			ArchivedAt: parseTime(data[FieldStudentArchivedAt]),
+		}); err != nil {
+			return err
+		}
 	case StudentDeleted:
-		if err := h.readModel.DeleteStudent(ctx, StudentDeletedProjection{
+		if err := h.readModel.Delete(ctx, StudentDeletedProjection{
 			Position:  resolved.Position,
 			StudentID: studentID,
 			DeletedAt: parseTime(data[FieldStudentDeletedAt]),

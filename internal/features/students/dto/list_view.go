@@ -10,6 +10,8 @@ type StudentListView struct {
 	GivenName   string `json:"given_name"`
 	ChosenName  string `json:"chosen_name"`
 	FamilyName  string `json:"family_name"`
+	Email       string `json:"email"`
+	Username    string `json:"username"`
 	Grade       string `json:"grade"`
 	Homeroom    string `json:"homeroom"`
 	CaseManager string `json:"case_manager"`

@@ -197,7 +197,7 @@
 }
 
 .bg-muted {
-  background-color: var(--neutral-3);
+  background-color: var(--neutral-4);
 }
 
 a[data-tab-active] {
@@ -206,6 +206,18 @@ a[data-tab-active] {
   border-color: var(--primary-4-dim);
   border-width: 1px;
   border-style: solid;
+}
+
+a:not([data-tab-active]) {
+  color: var(--neutral-3-on);
+  background-color: var(--neutral-3);
+  border-color: transparent;
+  border-width: 1px;
+  border-style: solid;
+  &:hover {
+    color: var(--primary-3-on);
+    background-color: var(--primary-3);
+  }
 }
 
 .border-input {
@@ -290,15 +302,23 @@ span.span-removed {
 table.data-table {
   border-collapse: separate;
   border-spacing: 0;
-  border: 1px solid var(--color-muted);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--neutral-4-dim);
   border-radius: var(--border-radius-0);
+  overflow: hidden;
+  thead {
+    background-color: var(--neutral-3);
+  }
   tr {
     th {
       padding-top: 0.5rem;
       padding-bottom: 0.5rem;
     }
     td {
-      border-top: 1px solid var(--color-muted);
+      border-top-width: 1px;
+      border-top-style: solid;
+      border-top-color: var(--neutral-4-dim);
     }
   }
 }

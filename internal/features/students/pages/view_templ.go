@@ -125,7 +125,7 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " <span>info</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " <span class=\"hidden md:flex\">info</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -133,7 +133,7 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 					})
 					templ_7745c5c3_Err = button.Button(button.Props{
 						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/students/%s/info", view.ID),
+						Href:  fmt.Sprintf("/students/%s/info", view.Username),
 						Attributes: templ.Attributes{
 							"data-tab-active": active == "info",
 						},
@@ -163,7 +163,7 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " <span>schedule</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " <span class=\"hidden md:flex\">schedule</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -171,7 +171,7 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 					})
 					templ_7745c5c3_Err = button.Button(button.Props{
 						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/students/%s/schedule", view.ID),
+						Href:  fmt.Sprintf("/students/%s/schedule", view.Username),
 						Attributes: templ.Attributes{
 							"data-tab-active": active == "schedule",
 						},
@@ -201,7 +201,7 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " <span>services</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " <span class=\"hidden md:flex\">services</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -209,7 +209,7 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 					})
 					templ_7745c5c3_Err = button.Button(button.Props{
 						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/students/%s/services", view.ID),
+						Href:  fmt.Sprintf("/students/%s/services", view.Username),
 						Attributes: templ.Attributes{
 							"data-tab-active": active == "services",
 						},
@@ -221,7 +221,7 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 				})
 				templ_7745c5c3_Err = tabs.List(tabs.ListProps{
 					ID:    "student-tabs-list",
-					Class: "flex w-98 gap-1",
+					Class: "flex w-full  max-w-128 gap-1",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -341,7 +341,7 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 			})
 			templ_7745c5c3_Err = tabs.Tabs(tabs.Props{
 				ID:    "student-tabs",
-				Class: "w-3/4 flex flex-col gap-3",
+				Class: "w-full md:px-3 flex flex-col gap-3",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

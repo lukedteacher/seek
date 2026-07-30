@@ -30,6 +30,8 @@ const (
 	FieldStudentGivenName   = "given_name"
 	FieldStudentChosenName  = "chosen_name"
 	FieldStudentFamilyName  = "family_name"
+	FieldStudentEmail       = "email"
+	FieldStudentUsername    = "username"
 	FieldStudentGrade       = "grade"
 	FieldStudentHomeroom    = "homeroom"
 	FieldStudentCaseManager = "case_manager"
@@ -45,6 +47,8 @@ type StudentCreatedEvent struct {
 	GivenName   string       `json:"given_name"`
 	ChosenName  string       `json:"chosen_name"`
 	FamilyName  string       `json:"family_name"`
+	Email       string       `json:"email"`
+	Username    string       `json:"username"`
 	Grade       int          `json:"grade"`
 	Homeroom    string       `json:"homeroom"`
 	CaseManager string       `json:"case_manager"`
@@ -58,6 +62,8 @@ type StudentUpdatedEvent struct {
 	GivenName   string       `json:"given_name"`
 	ChosenName  string       `json:"chosen_name"`
 	FamilyName  string       `json:"family_name"`
+	Email       string       `json:"email"`
+	Username    string       `json:"username"`
 	Grade       int          `json:"grade"`
 	Homeroom    string       `json:"homeroom"`
 	CaseManager string       `json:"case_manager"`
@@ -86,7 +92,9 @@ func NewStudentCreatedEvent(
 	marssID,
 	givenName,
 	chosenName,
-	familyName string,
+	familyName,
+	email,
+	username string,
 	grade int,
 	homeroom,
 	caseManager string,
@@ -99,6 +107,8 @@ func NewStudentCreatedEvent(
 		GivenName:   givenName,
 		ChosenName:  chosenName,
 		FamilyName:  familyName,
+		Email:       email,
+		Username:    username,
 		Grade:       grade,
 		Homeroom:    homeroom,
 		CaseManager: caseManager,
@@ -119,7 +129,9 @@ func NewStudentUpdatedEvent(
 	marssID,
 	givenName,
 	chosenName,
-	familyName string,
+	familyName,
+	email,
+	username string,
 	grade int,
 	homeroom,
 	caseManager string,
@@ -132,6 +144,8 @@ func NewStudentUpdatedEvent(
 		GivenName:   givenName,
 		ChosenName:  chosenName,
 		FamilyName:  familyName,
+		Email:       email,
+		Username:    username,
 		Grade:       grade,
 		Homeroom:    homeroom,
 		CaseManager: caseManager,

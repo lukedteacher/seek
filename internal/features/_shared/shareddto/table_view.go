@@ -1,13 +1,10 @@
 package shareddto
 
-import (
-	"reflect"
-)
-
 type TableConfig[T any] struct {
-	Name    string
-	Columns []ColumnView
-	Extract func(*T, string) string
+	Name            string
+	Columns         []ColumnView
+	ValueExtractor  func(item *T, field string) string // for cell values
+	TargetExtractor func(item *T) string               // for row link target
 }
 
 type TableView struct {
@@ -28,8 +25,8 @@ type ColumnView struct {
 }
 
 type RowView struct {
-	ID    string
-	Cells []CellView
+	Target string
+	Cells  []CellView
 }
 
 type CellView string
@@ -42,19 +39,15 @@ func NewTableView[T any](items []T, cfg TableConfig[T]) TableView {
 	}
 
 	rows := make([]RowView, len(items))
-	for i, item := range items {
-		// id extraction using reflection
-		v := reflect.ValueOf(item)
-		if v.Kind() == reflect.Ptr {
-			v = v.Elem()
-		}
-		idVal := v.FieldByName("ID")
+	for i := range items {
+		item := &items[i]
+		target := cfg.TargetExtractor(item)
 
 		cells := make([]CellView, len(cfg.Columns))
 		for j, col := range cfg.Columns {
-			cells[j] = CellView(cfg.Extract(&item, col.Field))
+			cells[j] = CellView(cfg.ValueExtractor(item, col.Field))
 		}
-		rows[i] = RowView{ID: idVal.String(), Cells: cells}
+		rows[i] = RowView{Target: target, Cells: cells}
 	}
 
 	return TableView{

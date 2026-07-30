@@ -23,49 +23,54 @@ var IEPServiceColumns = []shareddto.ColumnView{
 }
 
 // extract values from an iep service by field name
-func extractIEPService(svc *models.IEPService, field string) string {
-	if svc == nil {
+func valueExtractor(m *models.IEPService, field string) string {
+	if m == nil {
 		return ""
 	}
 	switch field {
 	case "ID":
-		return svc.ID
+		return m.ID
 	case "StudentID":
-		return svc.StudentID
+		return m.StudentID
 	case "ServiceName":
-		return svc.ServiceName
+		return m.ServiceName
 	case "ServiceType":
-		return svc.ServiceType.ShortString()
+		return m.ServiceType.ShortString()
 	case "IndirectMinutes":
-		return strconv.Itoa(svc.IndirectMinutes)
+		return strconv.Itoa(m.IndirectMinutes)
 	case "DirectMinutes":
-		return strconv.Itoa(svc.DirectMinutes)
+		return strconv.Itoa(m.DirectMinutes)
 	case "FrequencyCount":
-		return strconv.Itoa(svc.FrequencyCount)
+		return strconv.Itoa(m.FrequencyCount)
 	case "FrequencyType":
-		return svc.FrequencyType
+		return m.FrequencyType
 	case "Location":
-		return svc.Location
+		return m.Location
 	case "Provider":
-		return svc.Provider
+		return m.Provider
 	case "StartDate":
-		return svc.StartDate.String()
+		return m.StartDate.String()
 	case "EndDate":
-		return svc.EndDate.String()
+		return m.EndDate.String()
 	case "CreatedAt":
-		return svc.CreatedAt.Format("02 Jan, 2006")
+		return m.CreatedAt.Format("02 Jan, 2006")
 	case "UpdatedAt":
-		return svc.UpdatedAt.Format("02 Jan, 2006")
+		return m.UpdatedAt.Format("02 Jan, 2006")
 	default:
 		return ""
 	}
 }
 
+func targetExtractor(m *models.IEPService) string {
+	return m.ID
+}
+
 // table config for IEP service (used by both regular and diff tables)
 var IEPServiceTableConfig = shareddto.TableConfig[models.IEPService]{
-	Name:    "iepservices",
-	Columns: IEPServiceColumns,
-	Extract: extractIEPService,
+	Name:            "iepservices",
+	Columns:         IEPServiceColumns,
+	ValueExtractor:  valueExtractor,
+	TargetExtractor: targetExtractor,
 }
 
 func NewIEPServiceTableView(services []models.IEPService) shareddto.TableView {

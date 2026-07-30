@@ -7,12 +7,14 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type GetStudentRes struct {
+type GetStudentByIdRes struct {
 	Id          string  `json:"id"`
 	MarssId     string  `json:"marss_id"`
 	GivenName   string  `json:"given_name"`
 	ChosenName  string  `json:"chosen_name"`
 	FamilyName  string  `json:"family_name"`
+	Email       string  `json:"email"`
+	Username    string  `json:"username"`
 	Grade       int64   `json:"grade"`
 	Homeroom    string  `json:"homeroom"`
 	CaseManager string  `json:"case_manager"`
@@ -21,14 +23,14 @@ type GetStudentRes struct {
 	ArchivedAt  *string `json:"archived_at"`
 }
 
-type GetStudentStmt struct {
+type GetStudentByIdStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func GetStudent(tx *sqlite.Conn) *GetStudentStmt {
+func GetStudentById(tx *sqlite.Conn) *GetStudentByIdStmt {
 	const querySQL = `
 SELECT 
 	id, 
@@ -36,6 +38,8 @@ SELECT
 	given_name, 
 	chosen_name, 
 	family_name, 
+	email,
+	username,
 	grade, 
 	homeroom, 
 	case_manager, 
@@ -47,7 +51,7 @@ WHERE archived_at IS NULL
 	AND id = ?1
     `
 
-	ps := &GetStudentStmt{
+	ps := &GetStudentByIdStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -60,10 +64,10 @@ WHERE archived_at IS NULL
 	return ps
 }
 
-func (ps *GetStudentStmt) Run(
+func (ps *GetStudentByIdStmt) Run(
 	id string,
 ) (
-	res *GetStudentRes,
+	res *GetStudentByIdRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
@@ -90,20 +94,22 @@ func (ps *GetStudentStmt) Run(
 	if hasRow, err := stmt.Step(); err != nil {
 		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
 	} else if hasRow {
-		row := GetStudentRes{}
+		row := GetStudentByIdRes{}
 		row.Id = stmt.ColumnText(0)
 		row.MarssId = stmt.ColumnText(1)
 		row.GivenName = stmt.ColumnText(2)
 		row.ChosenName = stmt.ColumnText(3)
 		row.FamilyName = stmt.ColumnText(4)
-		row.Grade = stmt.ColumnInt64(5)
-		row.Homeroom = stmt.ColumnText(6)
-		row.CaseManager = stmt.ColumnText(7)
-		row.CreatedAt = stmt.ColumnText(8)
-		row.UpdatedAt = stmt.ColumnText(9)
-		isNullArchivedAt := stmt.ColumnIsNull(10)
+		row.Email = stmt.ColumnText(5)
+		row.Username = stmt.ColumnText(6)
+		row.Grade = stmt.ColumnInt64(7)
+		row.Homeroom = stmt.ColumnText(8)
+		row.CaseManager = stmt.ColumnText(9)
+		row.CreatedAt = stmt.ColumnText(10)
+		row.UpdatedAt = stmt.ColumnText(11)
+		isNullArchivedAt := stmt.ColumnIsNull(12)
 		if !isNullArchivedAt {
-			tmp := stmt.ColumnText(10)
+			tmp := stmt.ColumnText(12)
 			row.ArchivedAt = &tmp
 		}
 		res = &row
@@ -112,14 +118,14 @@ func (ps *GetStudentStmt) Run(
 	return res, nil
 }
 
-func OnceGetStudent(
+func OnceGetStudentById(
 	tx *sqlite.Conn,
 	id string,
 ) (
-	res *GetStudentRes,
+	res *GetStudentByIdRes,
 	err error,
 ) {
-	ps := GetStudent(tx)
+	ps := GetStudentById(tx)
 
 	return ps.Run(
 		id,

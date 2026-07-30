@@ -23,8 +23,8 @@ func NewDiffTableView[T any](diffs []sharedmodels.Diff[T], cfg TableConfig[T]) D
 		rows[i] = DiffRowView{
 			ID:       d.Key,
 			Status:   d.Status,
-			OldCells: extractCells(d.Old, cfg.Columns, cfg.Extract),
-			NewCells: extractCells(d.New, cfg.Columns, cfg.Extract),
+			OldCells: extractCells(d.Old, cfg.Columns, cfg.ValueExtractor),
+			NewCells: extractCells(d.New, cfg.Columns, cfg.ValueExtractor),
 		}
 	}
 	return DiffTableView{

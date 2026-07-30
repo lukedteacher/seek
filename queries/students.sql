@@ -1,10 +1,12 @@
--- name: GetStudent :one
+-- name: GetStudentByID :one
 SELECT 
 	id, 
 	marss_id,
 	given_name, 
 	chosen_name, 
 	family_name, 
+	email,
+	username,
 	grade, 
 	homeroom, 
 	case_manager, 
@@ -14,6 +16,25 @@ SELECT
 FROM students
 WHERE archived_at IS NULL
 	AND id = @id;
+	
+-- name: GetStudentByUsername :one
+SELECT 
+	id, 
+	marss_id,
+	given_name, 
+	chosen_name, 
+	family_name, 
+	email,
+	username,
+	grade, 
+	homeroom, 
+	case_manager, 
+	created_at, 
+	updated_at,
+	archived_at
+FROM students
+WHERE archived_at IS NULL
+	AND username = @username;
 
 -- name: ListStudents :many
 SELECT 
@@ -22,6 +43,8 @@ SELECT
 	given_name, 
 	chosen_name, 
 	family_name, 
+	email,
+	username,
 	grade, 
 	homeroom, 
 	case_manager, 
@@ -39,6 +62,8 @@ INSERT INTO students (
 	given_name, 
 	chosen_name, 
 	family_name, 
+	email,
+	username,
 	grade, 
 	homeroom, 
 	case_manager, 
@@ -53,6 +78,8 @@ VALUES (
 	@given_name, 
 	@chosen_name, 
 	@family_name, 
+	@email,
+	@username,
 	@grade, 
 	@homeroom, 
 	@case_manager, 
@@ -70,6 +97,8 @@ SET
 	given_name = @given_name,
 	chosen_name = @chosen_name,
 	family_name = @family_name,
+	email = @email,
+	username = @username,
 	grade = @grade,
 	homeroom = @homeroom,
 	case_manager = @case_manager,
@@ -98,6 +127,8 @@ SELECT
     s.given_name, 
     s.chosen_name, 
     s.family_name, 
+		s.email,
+		s.username,
     s.grade, 
     s.homeroom, 
     s.case_manager, 

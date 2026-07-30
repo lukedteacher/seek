@@ -10,42 +10,50 @@ var StudentColumns = []shareddto.ColumnView{
 	{Field: "GivenName", Display: "given", Group: "name"},
 	{Field: "ChosenName", Display: "chosen", Group: "name"},
 	{Field: "FamilyName", Display: "family", Group: "name"},
+	{Field: "Email", Display: "email"},
 	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center"},
 	{Field: "Homeroom", Display: "homeroom"},
 	{Field: "CaseManager", Display: "case manager"},
 	// id omitted from display (auto‑stored in RowView.ID)
 }
 
-func extractStudent(s *models.Student, field string) string {
-	if s == nil {
+func valueExtractor(m *models.Student, field string) string {
+	if m == nil {
 		return ""
 	}
 	switch field {
 	case "ID":
-		return s.ID
+		return m.ID
 	case "MARSSID":
-		return s.MARSSID
+		return m.MARSSID
 	case "GivenName":
-		return s.GivenName
+		return m.GivenName
 	case "ChosenName":
-		return s.ChosenName
+		return m.ChosenName
 	case "FamilyName":
-		return s.FamilyName
+		return m.FamilyName
+	case "Email":
+		return m.Email
 	case "Grade":
-		return s.Grade.Ordinal()
+		return m.Grade.Ordinal()
 	case "Homeroom":
-		return s.Homeroom
+		return m.Homeroom
 	case "CaseManager":
-		return s.CaseManager
+		return m.CaseManager
 	default:
 		return ""
 	}
 }
 
+func targetExtractor(m *models.Student) string {
+	return m.Username
+}
+
 var StudentTableConfig = shareddto.TableConfig[models.Student]{
-	Name:    "students",
-	Columns: StudentColumns,
-	Extract: extractStudent,
+	Name:            "students",
+	Columns:         StudentColumns,
+	ValueExtractor:  valueExtractor,
+	TargetExtractor: targetExtractor,
 }
 
 func NewStudentTableView(students []models.Student) shareddto.TableView {

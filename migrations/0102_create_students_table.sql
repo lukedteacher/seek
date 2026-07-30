@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS
 		given_name TEXT NOT NULL,
 		chosen_name TEXT NOT NULL,
 		family_name TEXT NOT NULL,
+		email TEXT NOT NULL,
+		username TEXT NOT NULL,
 		grade INTEGER NOT NULL,
 		homeroom TEXT NOT NULL,
 		case_manager TEXT NOT NULL,
@@ -19,4 +21,6 @@ CREATE INDEX IF NOT EXISTS students_marss_id_idx ON students (marss_id);
 CREATE INDEX IF NOT EXISTS students_given_name_idx ON students (given_name);
 CREATE INDEX IF NOT EXISTS students_chosen_name_idx ON students (chosen_name);
 CREATE INDEX IF NOT EXISTS students_family_name_idx ON students (family_name);
+CREATE INDEX IF NOT EXISTS students_email_idx ON students (email);
+CREATE INDEX IF NOT EXISTS students_username_idx ON students (username);
 CREATE INDEX IF NOT EXISTS students_grade_idx ON students (grade);

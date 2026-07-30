@@ -142,6 +142,7 @@ func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 			GivenName:   student.GivenName,
 			ChosenName:  student.ChosenName,
 			FamilyName:  student.FamilyName,
+			Email:       student.Email,
 			Grade:       int(student.Grade),
 			Homeroom:    student.Homeroom,
 			CaseManager: student.CaseManager,

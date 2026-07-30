@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.4.2 (26.07.30) light theme tweaks, table view stuff
+
+- changed light view variables to match dark view
+- tweaked table view function and related dtos in order to accept username as target
+- converted students to use username instead of id for view urls
+- various other bug fixes
+
 ## v0.4.1 (26.07.30) schedule and student view page revisions
 
 - added schedule component

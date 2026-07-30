@@ -13,6 +13,8 @@ type ListStudentsByIepserviceTypeRes struct {
 	GivenName   string  `json:"given_name"`
 	ChosenName  string  `json:"chosen_name"`
 	FamilyName  string  `json:"family_name"`
+	Email       string  `json:"email"`
+	Username    string  `json:"username"`
 	Grade       int64   `json:"grade"`
 	Homeroom    string  `json:"homeroom"`
 	CaseManager string  `json:"case_manager"`
@@ -36,6 +38,8 @@ SELECT
     s.given_name, 
     s.chosen_name, 
     s.family_name, 
+		s.email,
+		s.username,
     s.grade, 
     s.homeroom, 
     s.case_manager, 
@@ -104,14 +108,16 @@ func (ps *ListStudentsByIepserviceTypeStmt) Run(
 		row.GivenName = stmt.ColumnText(2)
 		row.ChosenName = stmt.ColumnText(3)
 		row.FamilyName = stmt.ColumnText(4)
-		row.Grade = stmt.ColumnInt64(5)
-		row.Homeroom = stmt.ColumnText(6)
-		row.CaseManager = stmt.ColumnText(7)
-		row.CreatedAt = stmt.ColumnText(8)
-		row.UpdatedAt = stmt.ColumnText(9)
-		isNullArchivedAt := stmt.ColumnIsNull(10)
+		row.Email = stmt.ColumnText(5)
+		row.Username = stmt.ColumnText(6)
+		row.Grade = stmt.ColumnInt64(7)
+		row.Homeroom = stmt.ColumnText(8)
+		row.CaseManager = stmt.ColumnText(9)
+		row.CreatedAt = stmt.ColumnText(10)
+		row.UpdatedAt = stmt.ColumnText(11)
+		isNullArchivedAt := stmt.ColumnIsNull(12)
 		if !isNullArchivedAt {
-			tmp := stmt.ColumnText(10)
+			tmp := stmt.ColumnText(12)
 			row.ArchivedAt = &tmp
 		}
 		res = append(res, row)

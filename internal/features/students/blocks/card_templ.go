@@ -240,7 +240,7 @@ func Card(view dto.StudentView) templ.Component {
 					return nil
 				})
 				templ_7745c5c3_Err = button.Button(button.Props{
-					Href: fmt.Sprintf("/students/%s/edit", view.ID),
+					Href: fmt.Sprintf("/students/%s/edit", view.Username),
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -254,7 +254,7 @@ func Card(view dto.StudentView) templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = card.Card(card.Props{
-			ID:    fmt.Sprintf("student-%s-card", view.ID),
+			ID:    fmt.Sprintf("student-%s-card", view.Username),
 			Class: "student-card w-72 h-min",
 			Attributes: templ.Attributes{
 				"style": "background-color: var(--neutral-4);",

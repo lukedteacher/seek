@@ -21,11 +21,13 @@ func NewReadModel(db *appdb.DB) *ReadModel {
 	return &ReadModel{db: db}
 }
 
-func (m *ReadModel) Get(ctx context.Context, studentID string) (*models.Student, error) {
-	var row *dbsql.GetStudentRes
+// student read model reader functions
+
+func (m *ReadModel) GetByID(ctx context.Context, studentID string) (*models.Student, error) {
+	var row *dbsql.GetStudentByIdRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
-		row, err = dbsql.OnceGetStudent(conn, studentID)
+		row, err = dbsql.OnceGetStudentById(conn, studentID)
 		return err
 	}); err != nil {
 		return nil, err
@@ -41,6 +43,38 @@ func (m *ReadModel) Get(ctx context.Context, studentID string) (*models.Student,
 			GivenName:  row.GivenName,
 			ChosenName: row.ChosenName,
 			FamilyName: row.FamilyName,
+			Email:      row.Email,
+			Username:   row.Username,
+		},
+		Grade:       sharedmodels.Grade(row.Grade),
+		Homeroom:    row.Homeroom,
+		CaseManager: row.CaseManager,
+	}
+
+	return student, nil
+}
+func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models.Student, error) {
+	var row *dbsql.GetStudentByUsernameRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		row, err = dbsql.OnceGetStudentByUsername(conn, username)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	if row == nil {
+		return nil, fmt.Errorf("student not found")
+	}
+
+	student := &models.Student{
+		ID: row.Id,
+		Person: sharedmodels.Person{
+			GivenName:  row.GivenName,
+			ChosenName: row.ChosenName,
+			FamilyName: row.FamilyName,
+			Email:      row.Email,
+			Username:   row.Username,
 		},
 		Grade:       sharedmodels.Grade(row.Grade),
 		Homeroom:    row.Homeroom,
@@ -68,6 +102,8 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 				GivenName:  rows[i].GivenName,
 				ChosenName: rows[i].ChosenName,
 				FamilyName: rows[i].FamilyName,
+				Email:      rows[i].Email,
+				Username:   rows[i].Username,
 			},
 			Grade:       sharedmodels.Grade(rows[i].Grade),
 			Homeroom:    rows[i].Homeroom,
@@ -77,7 +113,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 	return students, nil
 }
 
-func (m *ReadModel) ListStudentsByIEPServiceType(ctx context.Context, serviceType string) ([]models.Student, error) {
+func (m *ReadModel) ListByIEPServiceType(ctx context.Context, serviceType string) ([]models.Student, error) {
 	var rows []dbsql.ListStudentsByIepserviceTypeRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
@@ -95,6 +131,8 @@ func (m *ReadModel) ListStudentsByIEPServiceType(ctx context.Context, serviceTyp
 				GivenName:  rows[i].GivenName,
 				ChosenName: rows[i].ChosenName,
 				FamilyName: rows[i].FamilyName,
+				Email:      rows[i].Email,
+				Username:   rows[i].Username,
 			},
 			Grade:       sharedmodels.Grade(rows[i].Grade),
 			Homeroom:    rows[i].Homeroom,
@@ -104,13 +142,17 @@ func (m *ReadModel) ListStudentsByIEPServiceType(ctx context.Context, serviceTyp
 	return students, nil
 }
 
-func (m *ReadModel) CreateStudent(ctx context.Context, event StudentCreatedProjection) error {
+// student read model writer functions
+
+func (m *ReadModel) Create(ctx context.Context, event StudentCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceCreateStudent(conn, dbsql.CreateStudentParams{
 			Id:                       event.StudentID,
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
+			Email:                    event.Email,
+			Username:                 event.Username,
 			Grade:                    int64(event.Grade),
 			Homeroom:                 event.Homeroom,
 			CaseManager:              event.CaseManager,
@@ -121,12 +163,14 @@ func (m *ReadModel) CreateStudent(ctx context.Context, event StudentCreatedProje
 	})
 }
 
-func (m *ReadModel) UpdateStudent(ctx context.Context, event StudentUpdatedProjection) error {
+func (m *ReadModel) Update(ctx context.Context, event StudentUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateStudent(conn, dbsql.UpdateStudentParams{
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
+			Email:                    event.Email,
+			Username:                 event.Username,
 			Grade:                    int64(event.Grade),
 			Homeroom:                 event.Homeroom,
 			CaseManager:              event.CaseManager,
@@ -138,7 +182,18 @@ func (m *ReadModel) UpdateStudent(ctx context.Context, event StudentUpdatedProje
 	})
 }
 
-func (m *ReadModel) DeleteStudent(ctx context.Context, event StudentDeletedProjection) error {
+func (m *ReadModel) Archive(ctx context.Context, event StudentArchivedProjection) error {
+	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
+		return dbsql.OnceArchiveStudent(conn, dbsql.ArchiveStudentParams{
+			LastEventCommitPosition:  event.Position.Commit,
+			LastEventPreparePosition: event.Position.Prepare,
+			ArchivedAt:               appdb.SQLTime(event.ArchivedAt),
+			Id:                       event.StudentID,
+		})
+	})
+}
+
+func (m *ReadModel) Delete(ctx context.Context, event StudentDeletedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceDeleteStudent(conn, event.StudentID)
 	})
