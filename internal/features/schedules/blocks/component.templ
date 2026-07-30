@@ -52,9 +52,16 @@ templ TimeColumn() {
 		}
 	}}
 	<div id="schedule-times">
-		for _, time := range times {
-			<div>
-				{ time }
+		for i, time := range times {
+			<div class="flex relative">
+				<span class="absolute top-0 translate-y-[-50%]">
+					{ time }
+				</span>
+				if i == len(times)-1 {
+					<span class="absolute bottom-0 translate-y-[50%]">
+						4:00
+					</span>
+				}
 			</div>
 		}
 	</div>

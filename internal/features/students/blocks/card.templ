@@ -12,7 +12,10 @@ import (
 templ Card(view dto.StudentView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("student-%s-card", view.ID),
-		Class: "student-card",
+		Class: "student-card w-72 h-min",
+		Attributes: templ.Attributes{
+			"style": "background-color: var(--neutral-4);",
+		},
 	}) {
 		@card.Header() {
 			@card.Title() {

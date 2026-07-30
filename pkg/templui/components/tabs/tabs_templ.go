@@ -293,13 +293,13 @@ func Trigger(props ...TriggerProps) templ.Component {
 			tabsID = IDFromContext(ctx)
 		}
 		if p.Value == "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"text-xs text-destructive\">Error: Tab Trigger missing required 'Value' attribute.</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"text-xs text-destructive\">error: Tab Trigger missing required 'Value' attribute.</span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		var templ_7745c5c3_Var12 = []any{utils.TwMerge(
-			"data-[tui-tabs-state=active]:bg-background dark:data-[tui-tabs-state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[tui-tabs-state=active]:border-input dark:data-[tui-tabs-state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[tui-tabs-state=active]:shadow-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+			"focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 			p.Class,
 		),
 		}
@@ -436,7 +436,7 @@ func Content(props ...ContentProps) templ.Component {
 			tabsID = IDFromContext(ctx)
 		}
 		if p.Value == "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"text-xs text-destructive\">Error: Tab Content missing required 'Value' attribute.</span> return templ.NopComponent")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"text-xs text-destructive\">error: Tab Content missing required 'Value' attribute.</span> return templ.NopComponent")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

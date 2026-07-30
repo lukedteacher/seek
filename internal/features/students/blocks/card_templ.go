@@ -77,7 +77,7 @@ func Card(view dto.StudentView) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(view.GivenName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 19, Col: 20}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 22, Col: 20}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -90,7 +90,7 @@ func Card(view dto.StudentView) templ.Component {
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(view.FamilyName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 19, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 22, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -157,7 +157,7 @@ func Card(view dto.StudentView) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(view.Grade)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 26, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 29, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -170,7 +170,7 @@ func Card(view dto.StudentView) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(view.Homeroom)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 27, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 30, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -183,7 +183,7 @@ func Card(view dto.StudentView) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(view.CaseManager)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 28, Col: 38}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 31, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -255,7 +255,10 @@ func Card(view dto.StudentView) templ.Component {
 		})
 		templ_7745c5c3_Err = card.Card(card.Props{
 			ID:    fmt.Sprintf("student-%s-card", view.ID),
-			Class: "student-card",
+			Class: "student-card w-72 h-min",
+			Attributes: templ.Attributes{
+				"style": "background-color: var(--neutral-4);",
+			},
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

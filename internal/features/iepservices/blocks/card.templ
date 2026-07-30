@@ -10,35 +10,40 @@ import (
 templ Card(view dto.IEPServiceView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("period-%s-card", view.ID),
-		Class: "iep-service-card w-min",
+		Class: "iep-service-card w-full",
+		Attributes: templ.Attributes{
+			"style": "background-color: var(--neutral-4);",
+		},
 	}) {
 		@card.Header() {
-			@card.Title() {
+			@card.Title(card.TitleProps{
+				Class: "text-sm",
+			}) {
 				{ view.ServiceType }
 			}
 		}
 		@card.Content(card.ContentProps{
-			Class: "flex justify-around gap-4",
+			Class: "flex justify-around gap-4 text-sm",
 		}) {
 			<div>
-				<h4>location</h4>
+				<p class="text-md font-medium">location</p>
 				<p class="text-sm">{ view.Location }</p>
 			</div>
 			<div>
-				<h4>minutes</h4>
+				<p class="text-md font-medium">minutes</p>
 				<p class="text-sm">indirect: { view.IndirectMinutes }</p>
 				<p class="text-sm">direct: { view.DirectMinutes }</p>
 			</div>
 			<div>
-				<h4>frequency</h4>
+				<p class="text-md font-medium">frequency</p>
 				<p class="text-sm">{ view.FrequencyCount } x per { view.FrequencyType }</p>
 			</div>
 			<div>
-				<h4>provider</h4>
+				<p class="text-md font-medium">provider</p>
 				<p class="text-sm">{ view.Provider }</p>
 			</div>
 			<div>
-				<h4>dates</h4>
+				<p class="text-md font-medium">dates</p>
 				<p class="text-sm">{ view.StartDate.String() } - { view.EndDate.String() }</p>
 			</div>
 		}

@@ -2,9 +2,17 @@
 
 updates for SEEK
 
+## v0.4.1 (26.07.30) schedule and student view page revisions
+
+- added schedule component
+- added tabs
+- created URLs for each tab and handlers for each URL
+- tweaked styling of classes to mimic tab trigger styling
+- aligned time spans with time grid and hardcoded last time
+
 ## v0.4.0 (26.07.29) user revisions
 
-- removed the need for a OTP or verification
+- removed the need for a OTP for verification
 - removed various fields from user registration and models
 - deleted teachers (superceded by educators)
 - fixed a bug with the period creation that wasn't saving service type

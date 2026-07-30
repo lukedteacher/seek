@@ -196,6 +196,24 @@
   }
 }
 
+.bg-muted {
+  background-color: var(--neutral-3);
+}
+
+a[data-tab-active] {
+  color: var(--primary-4-on);
+  background-color: var(--primary-4);
+  border-color: var(--primary-4-dim);
+  border-width: 1px;
+  border-style: solid;
+}
+
+.border-input {
+  border-style: solid;
+  border-color: var(--neutral-4-dim);
+  border-width: 1px;
+}
+
 @layer utilities {
   :root {
     html {

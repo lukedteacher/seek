@@ -4,26 +4,93 @@ import (
 	"fmt"
 
 	idto "seek/internal/features/iepservices/dto"
+	pdto "seek/internal/features/periods/dto"
+	sblocks "seek/internal/features/schedules/blocks"
 	"seek/internal/features/students/blocks"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	sse "seek/pkg/sse"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/tabs"
 )
 
-templ View(user models.User, view dto.StudentView, services []idto.IEPServiceView) {
+templ View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleView, services []idto.IEPServiceView, active string) {
 	@corelayouts.LayoutBase("SEEK: student", user) {
 		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
-			@coreblocks.HeaderMain("student view", view.URL)
-			<section style="width: 100%;">
-				@blocks.Card(view)
-			</section>
-			if len(services) > 0 {
-				<section style="width: 100%;">
-					<h4>IEP services</h4>
-					@blocks.Services(services)
-				</section>
+			@coreblocks.HeaderMain(view.FullName(), view.URL)
+			@tabs.Script()
+			@tabs.Tabs(tabs.Props{
+				ID:    "student-tabs",
+				Class: "w-3/4 flex flex-col gap-3",
+			}) {
+				@tabs.List(tabs.ListProps{
+					ID:    "student-tabs-list",
+					Class: "flex w-98 gap-1",
+				}) {
+					@button.Button(button.Props{
+						Class: "basis-1 flex-grow py-1 h-auto",
+						Href:  fmt.Sprintf("/students/%s/info", view.ID),
+						Attributes: templ.Attributes{
+							"data-tab-active": active == "info",
+						},
+					}) {
+						@icon.Info(icon.Props{
+							Class: "size-4",
+						})
+						<span>info</span>
+					}
+					@button.Button(button.Props{
+						Class: "basis-1 flex-grow py-1 h-auto",
+						Href:  fmt.Sprintf("/students/%s/schedule", view.ID),
+						Attributes: templ.Attributes{
+							"data-tab-active": active == "schedule",
+						},
+					}) {
+						@icon.CalendarRange(icon.Props{
+							Class: "size-4",
+						})
+						<span>schedule</span>
+					}
+					@button.Button(button.Props{
+						Class: "basis-1 flex-grow py-1 h-auto",
+						Href:  fmt.Sprintf("/students/%s/services", view.ID),
+						Attributes: templ.Attributes{
+							"data-tab-active": active == "services",
+						},
+					}) {
+						@icon.Blocks(icon.Props{
+							Class: "size-4",
+						})
+						<span>services</span>
+					}
+				}
+				@tabs.Content(tabs.ContentProps{
+					Value:    "info",
+					IsActive: active == "info",
+				}) {
+					<section class="w-full">
+						@blocks.Card(view)
+					</section>
+				}
+				@tabs.Content(tabs.ContentProps{
+					Value:    "schedule",
+					IsActive: active == "schedule",
+				}) {
+					<section class="w-full">
+						@sblocks.ScheduleComponent(periods)
+					</section>
+				}
+				@tabs.Content(tabs.ContentProps{
+					Value:    "services",
+					IsActive: active == "services",
+				}) {
+					<section class="w-full flex flex-col gap-2">
+						@blocks.Services(services)
+					</section>
+				}
 			}
 		</main>
 	}
