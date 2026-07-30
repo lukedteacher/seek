@@ -31,7 +31,7 @@ func (s Server) iepServiceRoutes(r chi.Router) {
 	r.Get("/iepservices/{id}/edit/stream", s.getIEPServiceEditStream)
 	r.Post("/iepservices/{id}/edit", s.postIEPServiceEdit)
 	r.Post("/iepservices/{id}/edit/validate", s.postIEPServiceEditValidate)
-	r.Delete("/iepservices/{id}/delete", s.deleteIEPService)
+	r.Delete("/iepservices/{id}", s.deleteIEPService)
 	r.Get("/iepservices/csv", s.ReadCSV)
 }
 

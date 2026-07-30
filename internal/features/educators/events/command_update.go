@@ -114,17 +114,17 @@ func (m *updateEducatorContext) handle(resolved eventstore.ResolvedEvent) {
 	case EducatorCreated:
 		m.exists = true
 		m.deleted = false
-		m.givenName, _ = data[EducatorGivenNameField].(string)
-		m.chosenName, _ = data[EducatorChosenNameField].(string)
-		m.familyName, _ = data[EducatorFamilyNameField].(string)
-		m.email = data[EducatorEmailField].(string)
-		m.role = data[EducatorRoleField].(string)
+		m.givenName, _ = data[FieldEducatorGivenName].(string)
+		m.chosenName, _ = data[FieldEducatorChosenName].(string)
+		m.familyName, _ = data[FieldEducatorFamilyName].(string)
+		m.email = data[FieldEducatorEmail].(string)
+		m.role = data[FieldEducatorRole].(string)
 	case EducatorUpdated:
-		m.givenName, _ = data[EducatorGivenNameField].(string)
-		m.chosenName, _ = data[EducatorChosenNameField].(string)
-		m.familyName, _ = data[EducatorFamilyNameField].(string)
-		m.email = data[EducatorEmailField].(string)
-		m.role = data[EducatorRoleField].(string)
+		m.givenName, _ = data[FieldEducatorGivenName].(string)
+		m.chosenName, _ = data[FieldEducatorChosenName].(string)
+		m.familyName, _ = data[FieldEducatorFamilyName].(string)
+		m.email = data[FieldEducatorEmail].(string)
+		m.role = data[FieldEducatorRole].(string)
 	case EducatorDeleted:
 		m.deleted = true
 	}

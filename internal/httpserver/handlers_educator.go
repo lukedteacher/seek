@@ -403,7 +403,7 @@ func (s Server) postEducatorEdit(w http.ResponseWriter, r *http.Request) {
 	sse.Redirect(fmt.Sprintf("/educators/%s", educatorID))
 }
 
-// POST request to /educators/{id}/delete
+// POST request to /educators/{id}
 func (s Server) deleteEducator(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	educatorID := chi.URLParam(r, "id")

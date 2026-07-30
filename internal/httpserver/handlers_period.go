@@ -7,12 +7,14 @@ import (
 	"strings"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/dto"
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
 	"seek/internal/features/periods/pages"
 	psevents "seek/internal/features/periods_students/events"
 	sdto "seek/internal/features/students/dto"
+	smodels "seek/internal/features/students/models"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -33,7 +35,8 @@ func (s Server) periodRoutes(r chi.Router) {
 	r.Get("/periods/{id}/edit/stream", s.getPeriodEditStream)
 	r.Post("/periods/{id}/edit/validate", s.postPeriodEditValidate)
 	r.Post("/periods/{id}/edit", s.postPeriodEdit)
-	r.Delete("/periods/{id}/delete", s.deletePeriod)
+	r.Post("/periods/{id}/archive", s.postPeriodArchive)
+	r.Delete("/periods/{id}", s.deletePeriod)
 }
 
 // GET request to /periods
@@ -90,14 +93,25 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
+
+	// create an empty model
 	empty, _ := models.NewPeriod()
+
+	// list all students
 	students, err := s.Students.List(ctx)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "get period create db list students", "err", err)
+		return
 	}
+
+	// create the form view
 	view := dto.NewPeriodFormView(empty, students)
-	view.URL = "/periods/create"
+
+	// create blank views for the schedule
 	psvs := []dto.PeriodScheduleView{}
+
+	// set the URL
+	view.URL = "/periods/create"
 	_ = pages.Create(user, view, psvs).Render(ctx, w)
 }
 
@@ -107,7 +121,7 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	sse := newSSE(w, r)
 
-	// watches the key value stream for ephemeral changes
+	// watches the kv "seek-view-state" for create view state changes
 	// lasts 5m
 	watcher, err := s.ViewStore.Watch(
 		ctx,
@@ -117,7 +131,7 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		s.Logger.ErrorContext(ctx, "get period create stream watcher", "err", err)
+		s.Logger.ErrorContext(ctx, "period create stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -137,13 +151,29 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 				s.Logger.Error("get period create json", "err", err)
 				return
 			}
+
+			// convert the form view to a model
 			model := signals.Period.ToPeriod()
-			psvs := dto.NewPeriodScheduleViews(&model)
-			students, err := s.Students.ListStudentsByIEPServiceType(ctx, string(model.ServiceType))
+
+			// get student list based on service type
+			students := []smodels.Student{}
+			if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
+				students, err = s.Students.ListStudentsByIEPServiceType(ctx, model.ServiceType.ShortString())
+			} else {
+				students, err = s.Students.List(ctx)
+			}
 			if err != nil {
 				s.Logger.ErrorContext(ctx, "get period create stream db list students by iep service", "err", err)
+				return
 			}
+
+			// create the form view
 			view := dto.NewPeriodFormView(&model, students)
+
+			// create views for the schedule
+			psvs := dto.NewPeriodScheduleViews(model)
+
+			// set the URL in the view
 			view.URL = "/periods/create"
 			sse.PatchElementTempl(pages.Create(user, view, psvs))
 		}
@@ -157,11 +187,11 @@ func (s Server) postPeriodCreateValidate(w http.ResponseWriter, r *http.Request)
 		Period dto.PeriodFormView `json:"period"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		s.Logger.ErrorContext(ctx, "pcv signal read", "err", err.Error())
+		s.Logger.ErrorContext(ctx, "period create validate signals", "err", err.Error())
 		return
 	}
-	// saves the state to a view store so that the SSE can update
-	// TODO look into a better name for the channel
+
+	// saves the view in a nats kv so the SSE can update
 	if err := viewstore.PutState(ctx, s.ViewStore, "new", signals); err != nil {
 		s.Logger.ErrorContext(ctx, "post period create validate viewstore", "err", err)
 	}
@@ -229,13 +259,21 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 		s.Logger.ErrorContext(ctx, "post period create signals", "err", err)
 		return
 	}
-	metadata := eventstore.HTTPCommandMetadata(r, user.UserRegisteredID)
-	command := signals.Period.ToCreateCommand(metadata)
+	command := events.CreatePeriodCommand{
+		Title:       signals.Period.Title,
+		ServiceType: signals.Period.ServiceType,
+		StartTime:   signals.Period.StartTime,
+		Duration:    signals.Period.Duration,
+		DaysBitmask: signals.Period.Days.ToBitmask(),
+		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+	}
 	result, err := events.CreatePeriodCommandHandler(ctx, command, s.EventSaver)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "post period create command handler", "err", err)
 		return
 	}
+
+	// create period student associations
 	studentIDs := strings.Split(signals.Period.StudentIDs, ",")
 	for _, studentID := range studentIDs {
 		periodStudentAddCommand := psevents.PeriodStudentAddCommand{
@@ -253,6 +291,7 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 			s.Logger.ErrorContext(ctx, "post period create command handler", "err", err)
 		}
 	}
+	// redirect to the view page after creating
 	sse := newSSE(w, r)
 	sse.Redirect(fmt.Sprintf("/periods/%s", result.EventID))
 }
@@ -359,21 +398,39 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	periodID := chi.URLParam(r, "id")
+
+	// get period model
 	model, err := s.Periods.Get(ctx, periodID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	all, err := s.Students.List(ctx)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+
+	// set studentIDs for model (because they are not loaded in the get function... TODO change that?)
 	selected, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
 	model.StudentIDs = strings.Join(selected, ",")
-	view := dto.NewPeriodFormView(model, all)
+
+	// get student list based on service type
+	students := []smodels.Student{}
+	if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
+		students, err = s.Students.ListStudentsByIEPServiceType(ctx, model.ServiceType.ShortString())
+	} else {
+		students, err = s.Students.List(ctx)
+	}
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "get period edit db list students by iep service", "err", err)
+		return
+	}
+
+	// create the form view
+	view := dto.NewPeriodFormView(model, students)
+
+	// create views for schedule
+	psvs := dto.NewPeriodScheduleViews(*model)
+
+	// set the URL in the view
 	view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
-	_ = pages.Edit(user, view).Render(ctx, w)
+	_ = pages.Edit(user, view, psvs).Render(ctx, w)
 }
 
 // GET request to /period/{id}/stream
@@ -383,18 +440,19 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 	periodID := chi.URLParam(r, "id")
 	sse := newSSE(w, r)
 
-	notifier := NewDedupeNotifier()
 	// subscribes to the channel which publishes changes to the underlying model
+	notifier := NewDedupeNotifier()
 	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(periodID), func(context.Context, []byte) {
 		notifier.Notify()
 	})
 	if err != nil {
-		s.Logger.ErrorContext(ctx, "get period edit stream subscribe", "err", err)
+		s.Logger.ErrorContext(ctx, "period edit stream subscribe", "err", err)
 		return
 	}
 	defer sub.Close()
 
-	// watches the period edit view state kv
+	// watches the kv "seek-view-state" for edit view state changes
+	// lasts 5m
 	watcher, err := s.ViewStore.Watch(
 		ctx,
 		periodID+".edit",
@@ -403,7 +461,7 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	if err != nil {
-		s.Logger.ErrorContext(ctx, "get edit view stream watcher", "err", err)
+		s.Logger.ErrorContext(ctx, "edit view stream watcher", "err", err)
 		return
 	}
 	defer watcher.Stop()
@@ -413,31 +471,51 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 		case <-ctx.Done():
 			return
 		case <-notifier.Signal():
+			// triggers when there is a change published on the read model's channel
 			if err := s.refreshPeriodEditState(ctx, periodID); err != nil {
+				// in case the period no longer exists
 				if err.Error() == "period not found" {
 					sse.PatchElementTempl(pages.NotFound(user))
 				}
-				s.Logger.ErrorContext(ctx, "get period edit stream refresh in select", "err", err)
+				s.Logger.ErrorContext(ctx, "period edit stream refresh in select", "err", err)
 				return
 			}
 		case entry, ok := <-watcher.Updates():
 			if !ok {
 				return
 			}
-			model := &models.Period{}
-			if err := entry.JSON(model); err != nil {
-				s.Logger.ErrorContext(ctx, "get edit view stream json", "err", err)
+			signals := &struct {
+				Period dto.PeriodFormView `json:"period"`
+			}{}
+			if err := entry.JSON(signals); err != nil {
+				s.Logger.Error("period edit stream json", "err", err)
 				return
 			}
-			all, err := s.Students.List(ctx)
-			if err != nil {
-				s.Logger.ErrorContext(ctx, "get edit view stream db list students", "err", err)
+
+			// convert the form view to a model
+			model := signals.Period.ToPeriod()
+
+			// get student list based on service type
+			students := []smodels.Student{}
+			if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
+				students, err = s.Students.ListStudentsByIEPServiceType(ctx, model.ServiceType.ShortString())
+			} else {
+				students, err = s.Students.List(ctx)
 			}
-			selected, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
-			model.StudentIDs = strings.Join(selected, ",")
-			view := dto.NewPeriodFormView(model, all)
+			if err != nil {
+				s.Logger.ErrorContext(ctx, "period edit stream db list students by iep service", "err", err)
+				return
+			}
+
+			// create the form view
+			view := dto.NewPeriodFormView(&model, students)
+
+			// create views for the schedule
+			psvs := dto.NewPeriodScheduleViews(model)
+
+			// set the URL in the view
 			view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
-			sse.PatchElementTempl(pages.Edit(user, view))
+			sse.PatchElementTempl(pages.Edit(user, view, psvs))
 		}
 	}
 }
@@ -447,15 +525,19 @@ func (s Server) postPeriodEditValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	periodID := chi.URLParam(r, "id")
 	signals := &struct {
-		Period dto.PeriodFormView `json:"period"`
+		FormView dto.PeriodFormView `json:"period"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
-		s.Logger.ErrorContext(ctx, "period edit validate", "err", err)
+		s.Logger.ErrorContext(ctx, "period edit validate signals", "err", err)
 		return
 	}
-	signals.Period.ID = periodID
-	model := signals.Period.ToPeriod()
-	viewstore.PutState(ctx, s.ViewStore, periodID, model)
+	// ensures signal gets the ID
+	signals.FormView.ID = periodID
+
+	// saves the view in a nats kv so the SSE can update
+	if err := viewstore.PutState(ctx, s.ViewStore, periodID+".edit", signals); err != nil {
+		s.Logger.ErrorContext(ctx, "post period create validate viewstore", "err", err)
+	}
 }
 
 // POST request to /periods/{id}/edit
@@ -470,7 +552,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	periodID := chi.URLParam(r, "id")
-	updatePeriodCommand := events.UpdatePeriodCommand{
+	command := events.UpdatePeriodCommand{
 		ID:          periodID,
 		Title:       signals.Period.Title,
 		ServiceType: signals.Period.ServiceType,
@@ -479,7 +561,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		DaysBitmask: signals.Period.Days.ToBitmask(),
 		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
-	result, err := events.UpdatePeriodCommandHandler(ctx, updatePeriodCommand, s.EventSaver, s.EventRetriever)
+	result, err := events.UpdatePeriodCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "post period edit command handler", "err", err)
 		return
@@ -487,6 +569,10 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	if result.Skipped == true {
 		s.Logger.InfoContext(ctx, "post period edit command handler", "skipped", result.Skipped)
 	}
+
+	// compare the current student list and the proposed one
+	// updates period student associations (delete or add)
+	// TODO move this logic to its own function?
 	current, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, periodID)
 	proposed := strings.Split(signals.Period.StudentIDs, ",")
 	if len(current) != 0 || len(proposed) != 0 {
@@ -535,6 +621,27 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+
+	// redirect the view page after editing
+	sse := newSSE(w, r)
+	sse.Redirect(fmt.Sprintf("/periods/%s", periodID))
+}
+
+// POST request to /periods/{id}/archive
+func (s Server) postPeriodArchive(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := currentUser(r)
+	periodID := chi.URLParam(r, "id")
+	_, err := events.ArchivePeriodCommandHandler(ctx, events.ArchivePeriodCommand{
+		PeriodID: periodID,
+		Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+	}, s.EventSaver, s.EventRetriever)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "archive period command handler", "err", err)
+		return
+	}
+	sse := newSSE(w, r)
+	sse.Redirect("/periods")
 }
 
 // DELETE request to /periods/{id}

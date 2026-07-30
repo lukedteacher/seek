@@ -10,19 +10,24 @@ import (
 templ DayButtons(view dto.PeriodFormView) {
 	<div class="flex flex-col">
 		@label.Label(label.Props{
-			Class: "mb-3",
+			Class: "mb-3 text-neutral-content/80",
 		}) {
 			days
 		}
-		<div class="days-selector">
+		<div class="days-selector flex justify-center items-center radius-md">
 			for i := range sharedmodels.Days {
-				<label for={ sharedmodels.Days[i].NameLower() }>
+				<label
+					for={ sharedmodels.Days[i].NameLower() }
+					class="first:rounded-l-md last:rounded-r-md flex border border-muted bg-neutral hover:bg-primary/80  active:bg-primary/90 justify-center items-center text-xs has-checked:bg-primary flex-grow basis-1 aspect-square"
+				>
 					{ sharedmodels.Days[i].Short() }
 					<input
+						hidden
 						data-bind={ fmt.Sprintf("period.days.%s", sharedmodels.Days[i].NameLower()) }
 						name="days"
 						type="checkbox"
 						id={ sharedmodels.Days[i].NameLower() }
+						class="h-12"
 						if view.Days.IsDaySet(sharedmodels.Days[i]) {
 							checked
 						}
@@ -32,57 +37,4 @@ templ DayButtons(view dto.PeriodFormView) {
 			}
 		</div>
 	</div>
-	@DayButtonsStyle()
-}
-
-templ DayButtonsStyle() {
-	<style>
-		.days-selector {
-			display: flex;
-			flex-direction: row;
-			gap: var(--size-0);
-			justify-content: center;
-			align-items: center;
-
-			label {
-				height: var(--size-8);
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				font-size: var(--font-size--2);
-				color: var(--secondary-3-on);
-				background-color: var(--secondary-3);
-				border-color: var(--secondary-4);
-				border-radius: var(--bd-rd0);
-				border-style: solid;
-				border-width: var(--border-width--0);
-				flex: 1;
-				transition: all var(--anim-duration-fast) var(--anim-ease-standard);
-
-				&:hover {
-					color: var(--secondary-4-on);
-					background-color: var(--secondary-4);
-					border-color: var(--secondary-5);
-					cursor: pointer;
-					transform: scale(var(--anim-scale-up));
-				}
-
-				input {
-					display: none;
-				}
-
-				&:has(input:checked) {
-					color: var(--secondary-5-on);
-					background-color: var(--secondary-5);
-					border-color: var(--secondary-6);
-
-					&:hover {
-						color: var(--secondary-6-on);
-						background-color: var(--secondary-6);
-						border-color: var(--secondary-7);
-					}
-				}
-			}
-		}
-	</style>
 }

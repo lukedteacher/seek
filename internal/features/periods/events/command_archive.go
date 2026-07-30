@@ -8,42 +8,42 @@ import (
 	"seek/pkg/uuidv7"
 )
 
-type DeletePeriodCommand struct {
+type ArchivePeriodCommand struct {
 	PeriodID string
 	Metadata CommandMetadata
 }
 
-type DeletePeriodResult struct {
-	PeriodDeletedID string
+type ArchivePeriodResult struct {
+	PeriodArchivedID string
 }
 
-func DeletePeriodCommandHandler(
+func ArchivePeriodCommandHandler(
 	ctx context.Context,
-	command DeletePeriodCommand,
+	command ArchivePeriodCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
-	DeletePeriodResult,
+	ArchivePeriodResult,
 	error,
 ) {
-	model, err := loadDeletePeriodContext(ctx, retriever, command.PeriodID)
+	model, err := loadArchivePeriodContext(ctx, retriever, command.PeriodID)
 	if err != nil {
-		return DeletePeriodResult{}, err
+		return ArchivePeriodResult{}, err
 	}
-	if err := model.requireActive(); err != nil {
-		return DeletePeriodResult{}, err
+	if err := model.isActive(); err != nil {
+		return ArchivePeriodResult{}, err
 	}
 
 	eventID := uuidv7.NewString()
-	event := NewPeriodDeletedEvent(eventID, command.PeriodID, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewPeriodArchivedEvent(eventID, command.PeriodID, time.Now(), metadataWithQuery(command.Metadata, model.query))
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
-		return DeletePeriodResult{}, err
+		return ArchivePeriodResult{}, err
 	}
-	return DeletePeriodResult{PeriodDeletedID: eventID}, nil
+	return ArchivePeriodResult{PeriodArchivedID: eventID}, nil
 }
 
-type deletePeriodContext struct {
+type archivePeriodContext struct {
 	created  bool
 	archived bool
 	deleted  bool
@@ -52,28 +52,35 @@ type deletePeriodContext struct {
 	query    eventstore.Query
 }
 
-func loadDeletePeriodContext(ctx context.Context, retriever eventstore.Retriever, periodID string) (*deletePeriodContext, error) {
+func loadArchivePeriodContext(
+	ctx context.Context,
+	retriever eventstore.Retriever,
+	periodID string,
+) (
+	*archivePeriodContext,
+	error,
+) {
 	query := streamQuery(periodID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err
 	}
 
-	model := &deletePeriodContext{position: eventstore.NoEventPosition, events: events, query: query}
+	model := &archivePeriodContext{position: eventstore.NoEventPosition, events: events, query: query}
 	for _, event := range events {
 		model.handle(event)
 	}
 	return model, nil
 }
 
-func (m *deletePeriodContext) requireActive() error {
+func (m *archivePeriodContext) isActive() error {
 	if !m.created || m.archived || m.deleted {
 		return eventstore.ErrNotFound
 	}
 	return nil
 }
 
-func (m *deletePeriodContext) handle(resolved eventstore.ResolvedEvent) {
+func (m *archivePeriodContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case PeriodCreated:
 		m.created = true

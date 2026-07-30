@@ -14,31 +14,34 @@ const (
 	StudentDeleted  = "StudentDeleted"
 )
 
+// student event id & scope fields
 const (
-	StudentCreatedIDField  = "student_created_event_id"
-	StudentUpdatedIDField  = "student_updated_event_id"
-	StudentArchivedIDField = "student_archived_event_id"
-	StudentDeletedIDField  = "student_deleted_event_id"
+	FieldStudentCreatedID  = "student_created_event_id"
+	FieldStudentUpdatedID  = "student_updated_event_id"
+	FieldStudentArchivedID = "student_archived_event_id"
+	FieldStudentDeletedID  = "student_deleted_event_id"
+	FieldStudentScopeID    = "scope.student_id"
 )
 
 // student event fields
 const (
-	StudentIDField          = "student_id"
-	StudentGivenNameField   = "given_name"
-	StudentChosenNameField  = "chosen_name"
-	StudentFamilyNameField  = "family_name"
-	StudentGradeField       = "grade"
-	StudentHomeroomField    = "homeroom"
-	StudentCaseManagerField = "case_manager"
-	StudentCreatedAtField   = "created_at"
-	StudentUpdatedAtField   = "updated_at"
-	StudentArchivedAtField  = "archived_at"
-	StudentDeletedAtField   = "deleted_at"
-	StudentScopeIDField     = "scope.student_id"
+	FieldStudentID          = "student_id"
+	FieldStudentMARSSID     = "marss_id"
+	FieldStudentGivenName   = "given_name"
+	FieldStudentChosenName  = "chosen_name"
+	FieldStudentFamilyName  = "family_name"
+	FieldStudentGrade       = "grade"
+	FieldStudentHomeroom    = "homeroom"
+	FieldStudentCaseManager = "case_manager"
+	FieldStudentCreatedAt   = "created_at"
+	FieldStudentUpdatedAt   = "updated_at"
+	FieldStudentArchivedAt  = "archived_at"
+	FieldStudentDeletedAt   = "deleted_at"
 )
 
 type StudentCreatedEvent struct {
 	EventID     string       `json:"student_created_event_id"`
+	MARSSID     string       `json:"marss_id"`
 	GivenName   string       `json:"given_name"`
 	ChosenName  string       `json:"chosen_name"`
 	FamilyName  string       `json:"family_name"`
@@ -51,6 +54,7 @@ type StudentCreatedEvent struct {
 
 type StudentUpdatedEvent struct {
 	EventID     string       `json:"student_updated_event_id"`
+	MARSSID     string       `json:"marss_id"`
 	GivenName   string       `json:"given_name"`
 	ChosenName  string       `json:"chosen_name"`
 	FamilyName  string       `json:"family_name"`
@@ -79,6 +83,7 @@ type StudentScope struct {
 
 func NewStudentCreatedEvent(
 	eventID,
+	marssID,
 	givenName,
 	chosenName,
 	familyName string,
@@ -90,6 +95,7 @@ func NewStudentCreatedEvent(
 ) eventstore.DomainEvent {
 	event := StudentCreatedEvent{
 		EventID:     eventID,
+		MARSSID:     marssID,
 		GivenName:   givenName,
 		ChosenName:  chosenName,
 		FamilyName:  familyName,
@@ -110,6 +116,7 @@ func NewStudentCreatedEvent(
 func NewStudentUpdatedEvent(
 	eventID,
 	studentID,
+	marssID,
 	givenName,
 	chosenName,
 	familyName string,
@@ -121,6 +128,7 @@ func NewStudentUpdatedEvent(
 ) eventstore.DomainEvent {
 	event := StudentUpdatedEvent{
 		EventID:     eventID,
+		MARSSID:     marssID,
 		GivenName:   givenName,
 		ChosenName:  chosenName,
 		FamilyName:  familyName,

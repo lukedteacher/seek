@@ -13,13 +13,14 @@ import (
 
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
+	sblocks "seek/internal/features/schedules/blocks"
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-func Edit(user models.User, view dto.PeriodFormView) templ.Component {
+func Edit(user models.User, view dto.PeriodFormView, psvs []dto.PeriodScheduleView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -59,7 +60,7 @@ func Edit(user models.User, view dto.PeriodFormView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/edit.templ`, Line: 16, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/edit.templ`, Line: 17, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -73,11 +74,15 @@ func Edit(user models.User, view dto.PeriodFormView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<section>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<section class=\"flex justify-start gap-4 h-full\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.EditPeriodForm(view).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.FormEdit(view).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = sblocks.ScheduleComponent(psvs).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

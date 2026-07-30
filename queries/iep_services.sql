@@ -109,6 +109,15 @@ SET
 	updated_at = @updated_at
 WHERE id = @id;
 
+-- name: ArchiveIEPService :exec
+UPDATE iep_services
+SET
+	updated_at = @archived_at,
+	archived_at = @archived_at,
+	last_event_commit_position = @last_event_commit_position,
+	last_event_prepare_position = @last_event_prepare_position
+WHERE id = @id;
+
 -- name: DeleteIEPService :exec
 DELETE FROM iep_services
 WHERE id = @id;

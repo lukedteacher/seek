@@ -407,7 +407,7 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 	sse.Redirect(fmt.Sprintf("/students/%s", studentID))
 }
 
-// POST request to /students/{id}/delete
+// POST request to /students/{id}
 func (s Server) deleteStudent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)

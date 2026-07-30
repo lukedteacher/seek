@@ -6,7 +6,7 @@ import (
 	"seek/internal/eventstore"
 )
 
-// EVENT NAMES
+// educator event types
 const (
 	EducatorCreated  = "EducatorCreated"
 	EducatorUpdated  = "EducatorUpdated"
@@ -14,23 +14,27 @@ const (
 	EducatorDeleted  = "EducatorDeleted"
 )
 
-// EVENT FIELDS
+// educator event id and scope fields
 const (
-	EducatorIDField              = "educator_id"
-	EducatorGivenNameField       = "given_name"
-	EducatorChosenNameField      = "chosen_name"
-	EducatorFamilyNameField      = "family_name"
-	EducatorEmailField           = "email"
-	EducatorRoleField            = "role"
-	EducatorCreatedEventIDField  = "educator_created_event_id"
-	EducatorCreatedAtField       = "created_at"
-	EducatorUpdatedEventIDField  = "educator_updated_event_id"
-	EducatorUpdatedAtField       = "updated_at"
-	EducatorArchivedEventIDField = "educator_archived_event_id"
-	EducatorArchivedAtField      = "archived_at"
-	EducatorDeletedEventIDField  = "educator_deleted_event_id"
-	EducatorDeletedAtField       = "deleted_at"
-	EducatorScopeIDField         = "scope.educator_created_event_id"
+	FieldEducatorCreatedEventID  = "educator_created_event_id"
+	FieldEducatorUpdatedEventID  = "educator_updated_event_id"
+	FieldEducatorArchivedEventID = "educator_archived_event_id"
+	FieldEducatorDeletedEventID  = "educator_deleted_event_id"
+	FieldEducatorScopeID         = "scope.educator_created_event_id"
+)
+
+// educator event fields
+const (
+	FieldEducatorID         = "educator_id"
+	FieldEducatorGivenName  = "given_name"
+	FieldEducatorChosenName = "chosen_name"
+	FieldEducatorFamilyName = "family_name"
+	FieldEducatorEmail      = "email"
+	FieldEducatorRole       = "role"
+	FieldEducatorCreatedAt  = "created_at"
+	FieldEducatorUpdatedAt  = "updated_at"
+	FieldEducatorArchivedAt = "archived_at"
+	FieldEducatorDeletedAt  = "deleted_at"
 )
 
 type EducatorCreatedEvent struct {

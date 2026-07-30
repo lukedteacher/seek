@@ -1,7 +1,6 @@
 package dto
 
 import (
-	"seek/internal/eventstore"
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/events"
@@ -57,16 +56,5 @@ func (v PeriodFormView) ToPeriod() models.Period {
 		Duration:    v.Duration,
 		DaysBitmask: v.Days.ToBitmask(),
 		StudentIDs:  v.StudentIDs,
-	}
-}
-
-func (v PeriodFormView) ToCreateCommand(metadata eventstore.CommandMetadata) events.CreatePeriodCommand {
-	return events.CreatePeriodCommand{
-		Title:       v.Title,
-		ServiceType: v.ServiceType,
-		StartTime:   v.StartTime,
-		Duration:    v.Duration,
-		DaysBitmask: v.Days.ToBitmask(),
-		Metadata:    metadata,
 	}
 }

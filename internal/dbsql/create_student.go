@@ -9,6 +9,7 @@ import (
 
 type CreateStudentParams struct {
 	Id                       string `json:"id"`
+	MarssId                  string `json:"marss_id"`
 	GivenName                string `json:"given_name"`
 	ChosenName               string `json:"chosen_name"`
 	FamilyName               string `json:"family_name"`
@@ -31,6 +32,7 @@ func CreateStudent(tx *sqlite.Conn) *CreateStudentStmt {
 	const querySQL = `
 INSERT INTO students (
 	id, 
+	marss_id,
 	given_name, 
 	chosen_name, 
 	family_name, 
@@ -44,16 +46,17 @@ INSERT INTO students (
 )
 VALUES (
 	?1, 
-	?2, 
+	?2,
 	?3, 
 	?4, 
 	?5, 
 	?6, 
 	?7, 
 	?8, 
-	?8, 
 	?9, 
-	?10
+	?9, 
+	?10, 
+	?11
 )
 ON CONFLICT (id) DO NOTHING
     `
@@ -93,6 +96,9 @@ func (ps *CreateStudentStmt) Run(
 	bindIndex := 1
 	// Bind parameters
 	stmt.BindText(bindIndex, params.Id)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.MarssId)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.GivenName)

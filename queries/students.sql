@@ -1,6 +1,7 @@
 -- name: GetStudent :one
 SELECT 
 	id, 
+	marss_id,
 	given_name, 
 	chosen_name, 
 	family_name, 
@@ -17,6 +18,7 @@ WHERE archived_at IS NULL
 -- name: ListStudents :many
 SELECT 
 	id, 
+	marss_id,
 	given_name, 
 	chosen_name, 
 	family_name, 
@@ -33,6 +35,7 @@ ORDER BY family_name DESC, given_name DESC;
 -- name: CreateStudent :exec
 INSERT INTO students (
 	id, 
+	marss_id,
 	given_name, 
 	chosen_name, 
 	family_name, 
@@ -46,6 +49,7 @@ INSERT INTO students (
 )
 VALUES (
 	@id, 
+	@marss_id,
 	@given_name, 
 	@chosen_name, 
 	@family_name, 
@@ -61,13 +65,24 @@ ON CONFLICT (id) DO NOTHING;
 
 -- name: UpdateStudent :exec
 UPDATE students
-SET given_name = @given_name,
+SET 
+	marss_id = @marss_id,
+	given_name = @given_name,
 	chosen_name = @chosen_name,
 	family_name = @family_name,
 	grade = @grade,
 	homeroom = @homeroom,
 	case_manager = @case_manager,
 	updated_at = @updated_at,
+	last_event_commit_position = @last_event_commit_position,
+	last_event_prepare_position = @last_event_prepare_position
+WHERE id = @id;
+
+-- name: ArchiveStudent :exec
+UPDATE students
+SET
+	updated_at = @archived_at,
+	archived_at = @archived_at,
 	last_event_commit_position = @last_event_commit_position,
 	last_event_prepare_position = @last_event_prepare_position
 WHERE id = @id;
@@ -79,6 +94,7 @@ WHERE id = @id;
 -- name: ListStudentsByIEPServiceType :many
 SELECT 
     s.id, 
+		s.marss_id,
     s.given_name, 
     s.chosen_name, 
     s.family_name, 

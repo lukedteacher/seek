@@ -9,6 +9,7 @@ import (
 
 type ListStudentsRes struct {
 	Id          string  `json:"id"`
+	MarssId     string  `json:"marss_id"`
 	GivenName   string  `json:"given_name"`
 	ChosenName  string  `json:"chosen_name"`
 	FamilyName  string  `json:"family_name"`
@@ -31,6 +32,7 @@ func ListStudents(tx *sqlite.Conn) *ListStudentsStmt {
 	const querySQL = `
 SELECT 
 	id, 
+	marss_id,
 	given_name, 
 	chosen_name, 
 	family_name, 
@@ -86,17 +88,18 @@ func (ps *ListStudentsStmt) Run() (
 
 		row := ListStudentsRes{}
 		row.Id = stmt.ColumnText(0)
-		row.GivenName = stmt.ColumnText(1)
-		row.ChosenName = stmt.ColumnText(2)
-		row.FamilyName = stmt.ColumnText(3)
-		row.Grade = stmt.ColumnInt64(4)
-		row.Homeroom = stmt.ColumnText(5)
-		row.CaseManager = stmt.ColumnText(6)
-		row.CreatedAt = stmt.ColumnText(7)
-		row.UpdatedAt = stmt.ColumnText(8)
-		isNullArchivedAt := stmt.ColumnIsNull(9)
+		row.MarssId = stmt.ColumnText(1)
+		row.GivenName = stmt.ColumnText(2)
+		row.ChosenName = stmt.ColumnText(3)
+		row.FamilyName = stmt.ColumnText(4)
+		row.Grade = stmt.ColumnInt64(5)
+		row.Homeroom = stmt.ColumnText(6)
+		row.CaseManager = stmt.ColumnText(7)
+		row.CreatedAt = stmt.ColumnText(8)
+		row.UpdatedAt = stmt.ColumnText(9)
+		isNullArchivedAt := stmt.ColumnIsNull(10)
 		if !isNullArchivedAt {
-			tmp := stmt.ColumnText(9)
+			tmp := stmt.ColumnText(10)
 			row.ArchivedAt = &tmp
 		}
 		res = append(res, row)

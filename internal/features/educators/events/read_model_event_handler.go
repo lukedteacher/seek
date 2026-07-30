@@ -120,14 +120,14 @@ func EducatorReadModelEventHandlerQuery() eventstore.Query {
 func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	educatorCreatedEventID, _ := scope[EducatorCreatedEventIDField].(string)
+	educatorCreatedEventID, _ := scope[FieldEducatorCreatedEventID].(string)
 	switch resolved.Event.EventType {
 	case EducatorCreated:
-		givenName, _ := data[EducatorGivenNameField].(string)
-		chosenName, _ := data[EducatorChosenNameField].(string)
-		familyName, _ := data[EducatorFamilyNameField].(string)
-		email, _ := data[EducatorEmailField].(string)
-		role, _ := data[EducatorRoleField].(string)
+		givenName, _ := data[FieldEducatorGivenName].(string)
+		chosenName, _ := data[FieldEducatorChosenName].(string)
+		familyName, _ := data[FieldEducatorFamilyName].(string)
+		email, _ := data[FieldEducatorEmail].(string)
+		role, _ := data[FieldEducatorRole].(string)
 		if err := h.readModel.CreateEducator(ctx, EducatorCreatedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
@@ -136,16 +136,16 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 			FamilyName: familyName,
 			Email:      email,
 			Role:       role,
-			CreatedAt:  parseTime(data[EducatorCreatedAtField]),
+			CreatedAt:  parseTime(data[FieldEducatorCreatedAt]),
 		}); err != nil {
 			return err
 		}
 	case EducatorUpdated:
-		givenName, _ := data[EducatorGivenNameField].(string)
-		chosenName, _ := data[EducatorChosenNameField].(string)
-		familyName, _ := data[EducatorFamilyNameField].(string)
-		email, _ := data[EducatorEmailField].(string)
-		role, _ := data[EducatorRoleField].(string)
+		givenName, _ := data[FieldEducatorGivenName].(string)
+		chosenName, _ := data[FieldEducatorChosenName].(string)
+		familyName, _ := data[FieldEducatorFamilyName].(string)
+		email, _ := data[FieldEducatorEmail].(string)
+		role, _ := data[FieldEducatorRole].(string)
 		if err := h.readModel.UpdateEducator(ctx, EducatorUpdatedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
@@ -154,7 +154,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 			FamilyName: familyName,
 			Email:      email,
 			Role:       role,
-			UpdatedAt:  parseTime(data[EducatorUpdatedAtField]),
+			UpdatedAt:  parseTime(data[FieldEducatorUpdatedAt]),
 		}); err != nil {
 			return err
 		}
@@ -162,7 +162,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 		if err := h.readModel.ArchiveEducator(ctx, EducatorArchivedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
-			ArchivedAt: parseTime(data[EducatorArchivedAtField]),
+			ArchivedAt: parseTime(data[FieldEducatorArchivedAt]),
 		}); err != nil {
 			return err
 		}
@@ -170,7 +170,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 		if err := h.readModel.DeleteEducator(ctx, EducatorDeletedProjection{
 			Position:  resolved.Position,
 			ID:        educatorCreatedEventID,
-			DeletedAt: parseTime(data[EducatorDeletedAtField]),
+			DeletedAt: parseTime(data[FieldEducatorDeletedAt]),
 		}); err != nil {
 			return err
 		}

@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.3.13 (26.07.29) mostly code cleanup
+
+- removed URL /delete for delete action on objects
+- refactored period edit to match period create
+- added MARSS ID to student data
+- other various tweaks
+
 ## v0.3.12 (26.07.29) various features and bug fixes
 
 - style tweaks for period cards

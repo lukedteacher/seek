@@ -74,11 +74,11 @@ func Create(user models.User, view dto.PeriodFormView, psvs []dto.PeriodSchedule
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<section class=\"flex justify-start h-full\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<section class=\"flex justify-start gap-4 h-full\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.CreateForm(view).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.FormCreate(view).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

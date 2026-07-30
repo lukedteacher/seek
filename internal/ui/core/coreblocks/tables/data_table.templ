@@ -46,7 +46,7 @@ templ Header(view shareddto.TableView) {
 			for _, col := range view.Columns {
 				if col.Group == "" {
 					@table.Head(table.HeadProps{
-						Class: "text-center border-l border-dashed border-muted",
+						Class: "text-center not-first:border-l border-dashed border-muted",
 						Attributes: templ.Attributes{
 							"rowspan": 2,
 						},

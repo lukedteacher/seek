@@ -10,6 +10,7 @@ import (
 )
 
 type CreateStudentCommand struct {
+	MARSSID     string
 	GivenName   string
 	ChosenName  string
 	FamilyName  string
@@ -38,6 +39,7 @@ func CreateStudentCommandHandler(
 	}
 	event := NewStudentCreatedEvent(
 		eventID,
+		model.marssID,
 		model.givenName,
 		model.chosenName,
 		model.familyName,
@@ -54,6 +56,7 @@ func CreateStudentCommandHandler(
 }
 
 type createStudentContext struct {
+	marssID     string
 	givenName   string
 	chosenName  string
 	familyName  string
@@ -65,6 +68,7 @@ type createStudentContext struct {
 
 func newCreateStudentContext(command CreateStudentCommand, eventID string) (*createStudentContext, error) {
 	return &createStudentContext{
+		marssID:     command.MARSSID,
 		givenName:   command.GivenName,
 		chosenName:  command.ChosenName,
 		familyName:  command.FamilyName,

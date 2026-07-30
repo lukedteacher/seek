@@ -115,15 +115,15 @@ func StudentReadModelEventHandlerQuery() eventstore.Query {
 func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	studentID, _ := scope[StudentIDField].(string)
+	studentID, _ := scope[FieldStudentID].(string)
 	switch resolved.Event.EventType {
 	case StudentCreated:
-		givenName, _ := data[StudentGivenNameField].(string)
-		chosenName, _ := data[StudentChosenNameField].(string)
-		familyName, _ := data[StudentFamilyNameField].(string)
-		grade := int(data[StudentGradeField].(float64))
-		homeroom, _ := data[StudentHomeroomField].(string)
-		caseManager, _ := data[StudentCaseManagerField].(string)
+		givenName, _ := data[FieldStudentGivenName].(string)
+		chosenName, _ := data[FieldStudentChosenName].(string)
+		familyName, _ := data[FieldStudentFamilyName].(string)
+		grade := int(data[FieldStudentGrade].(float64))
+		homeroom, _ := data[FieldStudentHomeroom].(string)
+		caseManager, _ := data[FieldStudentCaseManager].(string)
 		if err := h.readModel.CreateStudent(ctx, StudentCreatedProjection{
 			Position:    resolved.Position,
 			StudentID:   studentID,
@@ -133,17 +133,17 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 			Grade:       grade,
 			Homeroom:    homeroom,
 			CaseManager: caseManager,
-			CreatedAt:   parseTime(data[StudentCreatedAtField]),
+			CreatedAt:   parseTime(data[FieldStudentCreatedAt]),
 		}); err != nil {
 			return err
 		}
 	case StudentUpdated:
-		givenName, _ := data[StudentGivenNameField].(string)
-		chosenName, _ := data[StudentChosenNameField].(string)
-		familyName, _ := data[StudentFamilyNameField].(string)
-		grade := int(data[StudentGradeField].(float64))
-		homeroom, _ := data[StudentHomeroomField].(string)
-		caseManager, _ := data[StudentCaseManagerField].(string)
+		givenName, _ := data[FieldStudentGivenName].(string)
+		chosenName, _ := data[FieldStudentChosenName].(string)
+		familyName, _ := data[FieldStudentFamilyName].(string)
+		grade := int(data[FieldStudentGrade].(float64))
+		homeroom, _ := data[FieldStudentHomeroom].(string)
+		caseManager, _ := data[FieldStudentCaseManager].(string)
 		if err := h.readModel.UpdateStudent(ctx, StudentUpdatedProjection{
 			Position:    resolved.Position,
 			StudentID:   studentID,
@@ -153,7 +153,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 			Grade:       grade,
 			Homeroom:    homeroom,
 			CaseManager: caseManager,
-			UpdatedAt:   parseTime(data[StudentUpdatedAtField]),
+			UpdatedAt:   parseTime(data[FieldStudentUpdatedAt]),
 		}); err != nil {
 			return err
 		}
@@ -161,7 +161,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		if err := h.readModel.DeleteStudent(ctx, StudentDeletedProjection{
 			Position:  resolved.Position,
 			StudentID: studentID,
-			DeletedAt: parseTime(data[StudentDeletedAtField]),
+			DeletedAt: parseTime(data[FieldStudentDeletedAt]),
 		}); err != nil {
 			return err
 		}

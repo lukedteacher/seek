@@ -241,7 +241,7 @@ func DeleteButton(object, id string) templ.Component {
 			Type:  "button",
 			Class: "btn-destructive",
 			Attributes: templ.Attributes{
-				"data-on:click": fmt.Sprintf("@post('/%s/%s/delete'", object, id),
+				"data-on:click": fmt.Sprintf("@post('/%s/%s'", object, id),
 				"style":         "flex: 1;",
 			},
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)

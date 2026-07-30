@@ -7,7 +7,7 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ CreateForm(view dto.PeriodFormView) {
+templ FormCreate(view dto.PeriodFormView) {
 	<form id="create-period-form" class="seek-form h-min" data-on:submit={ datastar.PostSSE(view.URL) }>
 		<hgroup>
 			<h2>create period</h2>

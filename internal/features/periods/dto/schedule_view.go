@@ -21,12 +21,8 @@ type PeriodScheduleView struct {
 }
 
 func NewPeriodScheduleViews(
-	p *models.Period,
+	p models.Period,
 ) []PeriodScheduleView {
-	if p == nil {
-		return []PeriodScheduleView{}
-	}
-
 	row := timeToRow(p.StartTime, 479)
 	views := make([]PeriodScheduleView, 0)
 

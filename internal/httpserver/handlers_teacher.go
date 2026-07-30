@@ -170,7 +170,7 @@ func (s Server) postEditTeacher(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// POST request to /teachers/{id}/delete
+// POST request to /teachers/{id}
 func (s Server) deleteTeacher(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	teacherID := chi.URLParam(r, "id")

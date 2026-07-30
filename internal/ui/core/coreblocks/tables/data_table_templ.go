@@ -208,7 +208,7 @@ func Header(view shareddto.TableView) templ.Component {
 							return nil
 						})
 						templ_7745c5c3_Err = table.Head(table.HeadProps{
-							Class: "text-center border-l border-dashed border-muted",
+							Class: "text-center not-first:border-l border-dashed border-muted",
 							Attributes: templ.Attributes{
 								"rowspan": 2,
 							},

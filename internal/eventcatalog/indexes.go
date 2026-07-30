@@ -2,27 +2,42 @@ package eventcatalog
 
 import (
 	"seek/internal/eventstore"
-	period "seek/internal/features/periods/events"
-	student "seek/internal/features/students/events"
-	teacher "seek/internal/features/teachers/events"
+	e "seek/internal/features/educators/events"
+	p "seek/internal/features/periods/events"
+	s "seek/internal/features/students/events"
 )
 
 func BoundaryIndexes() []eventstore.BoundaryIndexDefinition {
 	return []eventstore.BoundaryIndexDefinition{
 		{
-			Name:       "period_scope",
-			Fields:     []string{period.FieldPeriodScopeID},
-			EventTypes: []string{period.PeriodCreated, period.PeriodUpdated, period.PeriodDeleted},
+			Name:   "educator_scope",
+			Fields: []string{e.FieldEducatorScopeID},
+			EventTypes: []string{
+				e.EducatorCreated,
+				e.EducatorUpdated,
+				e.EducatorArchived,
+				e.EducatorDeleted,
+			},
 		},
 		{
-			Name:       "student_scope",
-			Fields:     []string{student.StudentScopeIDField},
-			EventTypes: []string{student.StudentCreated, student.StudentUpdated, student.StudentDeleted},
+			Name:   "period_scope",
+			Fields: []string{p.FieldPeriodScopeID},
+			EventTypes: []string{
+				p.PeriodCreated,
+				p.PeriodUpdated,
+				p.PeriodArchived,
+				p.PeriodDeleted,
+			},
 		},
 		{
-			Name:       "teacher_scope",
-			Fields:     []string{teacher.TeacherScopeIDField},
-			EventTypes: []string{teacher.TeacherCreated, teacher.TeacherUpdated, teacher.TeacherDeleted},
+			Name:   "student_scope",
+			Fields: []string{s.FieldStudentScopeID},
+			EventTypes: []string{
+				s.StudentCreated,
+				s.StudentUpdated,
+				s.StudentArchived,
+				s.StudentDeleted,
+			},
 		},
 	}
 }

@@ -22,7 +22,7 @@ func streamQuery(iepServiceID, studentID string) eventstore.Query {
 		criteria = append(criteria, eventstore.Criterion{
 			Tags: []eventstore.Tag{
 				{Key: "eventType", Value: eventType},
-				{Key: se.StudentScopeIDField, Value: studentID},
+				{Key: se.FieldStudentScopeID, Value: studentID},
 				{Key: FieldIEPServiceScopeID, Value: iepServiceID},
 			},
 		})
@@ -31,7 +31,7 @@ func streamQuery(iepServiceID, studentID string) eventstore.Query {
 		criteria = append(criteria, eventstore.Criterion{
 			Tags: []eventstore.Tag{
 				{Key: "eventType", Value: eventType},
-				{Key: se.StudentScopeIDField, Value: studentID},
+				{Key: se.FieldStudentScopeID, Value: studentID},
 			},
 		})
 	}

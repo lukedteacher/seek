@@ -80,7 +80,7 @@ func (h *PeriodStudentReadModelEventHandler) handle(ctx context.Context, resolve
 	if periodID == "" {
 		return fmt.Errorf("no period id provided for read model event")
 	}
-	studentID, _ := scope[student.StudentIDField].(string)
+	studentID, _ := scope[student.FieldStudentID].(string)
 	if studentID == "" {
 		return fmt.Errorf("no student id provided for read model event")
 	}
