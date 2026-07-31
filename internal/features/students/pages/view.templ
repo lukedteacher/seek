@@ -28,7 +28,7 @@ templ View(user models.User, view dto.StudentView, periods []pdto.PeriodSchedule
 			}) {
 				@tabs.List(tabs.ListProps{
 					ID:    "student-tabs-list",
-					Class: "flex w-full  max-w-128 gap-1",
+					Class: "tabs-list flex w-full max-w-128 gap-1",
 				}) {
 					@button.Button(button.Props{
 						Class: "basis-1 flex-grow py-1 h-auto",

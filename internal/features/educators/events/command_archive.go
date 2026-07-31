@@ -35,12 +35,21 @@ func ArchiveEducatorCommandHandler(
 	}
 
 	eventID := uuidv7.NewString()
-	event := NewEducatorArchivedEvent(
-		eventID,
-		command.EducatorID,
-		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
-	)
+
+	// build event data struct directly
+	eventData := EducatorArchivedEvent{
+		EventID:    eventID,
+		ArchivedAt: time.Now(),
+		Scope:      educatorScope(command.EducatorID),
+	}
+
+	// wrap data in a domain event
+	event := eventstore.DomainEvent{
+		EventID:   eventID,
+		EventType: EducatorArchived,
+		Data:      eventstore.MustData(eventData),
+		Metadata:  metadataWithQuery(command.Metadata, model.query),
+	}
 
 	if _, err := saver.SaveEvents(
 		ctx,

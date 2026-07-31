@@ -20,6 +20,7 @@ func NewAuthUserStore(db *appdb.DB) *AuthUserStore {
 
 func (s *AuthUserStore) CreateRegisteredUserAccount(ctx context.Context, registered RegisterUserResult) error {
 	userID := registered.EventID
+	println("2: ", userID)
 	if err := s.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		if err := dbsql.OnceCreateAuthUser(conn, dbsql.CreateAuthUserParams{
 			Id:               userID,
@@ -28,6 +29,8 @@ func (s *AuthUserStore) CreateRegisteredUserAccount(ctx context.Context, registe
 		}); err != nil {
 			return err
 		}
+		println("3: ", registered.Email)
+		println("4: ", registered.EventID)
 		if registered.PasswordHash == "" {
 			return nil
 		}

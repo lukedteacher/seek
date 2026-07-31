@@ -16,10 +16,10 @@ templ FormTimePickers(view dto.PeriodFormView) {
 		minTime := time.Date(now.Year(), now.Month(), now.Day(), 8, 0, 0, 0, now.Location())
 		maxTime := time.Date(now.Year(), now.Month(), now.Day(), 16, 0, 0, 0, now.Location())
 	}}
-	<div class="flex-2 flex flex-col">
+	<div class="flex flex-col">
 		@label.Label(label.Props{
 			For:   "period-start-time-picker",
-			Class: "mb-3",
+			Class: "mb-3 text-muted-foreground",
 		}) {
 			start
 		}
@@ -29,19 +29,17 @@ templ FormTimePickers(view dto.PeriodFormView) {
 			MaxTime:     maxTime,
 			Step:        5,
 			Placeholder: "start time",
-			Class:       "input",
+			Class:       "input min-w-24 text-right",
 			Value:       view.StartTime.Time(),
 			DataBind:    "period.start_time",
 			DataOnInput: fmt.Sprintf("@post('%s/validate/starttime')", view.URL),
-			Attributes: templ.Attributes{
-				"data-text": "$period.start_time",
-			},
+			DataText:    "$period.start_time",
 		})
 	</div>
-	<div class="flex-2 flex flex-col">
+	<div class="flex flex-col">
 		@label.Label(label.Props{
 			For:   "period-end-time-picker",
-			Class: "mb-3",
+			Class: "mb-3 text-muted-foreground",
 		}) {
 			end
 		}
@@ -55,9 +53,7 @@ templ FormTimePickers(view dto.PeriodFormView) {
 			Value:       view.EndTime.Time(),
 			DataBind:    "period.end_time",
 			DataOnInput: fmt.Sprintf("@post('%s/validate/endtime')", view.URL),
-			Attributes: templ.Attributes{
-				"data-text": "$period.end_time",
-			},
+			DataText:    "$period.end_time",
 		})
 	</div>
 	@timepicker.Script()

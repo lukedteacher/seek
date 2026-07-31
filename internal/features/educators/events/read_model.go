@@ -21,6 +21,8 @@ func NewReadModel(db *appdb.DB) *ReadModel {
 	return &ReadModel{db: db}
 }
 
+// educator read model reader functions
+
 func (m *ReadModel) Get(ctx context.Context, educatorID string) (*models.Educator, error) {
 	var row *dbsql.GetEducatorRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
@@ -74,6 +76,8 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Educator, error) {
 	}
 	return educators, nil
 }
+
+// educator read model writer functions
 
 func (m *ReadModel) CreateEducator(ctx context.Context, event EducatorCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {

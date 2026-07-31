@@ -10,7 +10,7 @@ import (
 templ DayButtons(view dto.PeriodFormView) {
 	<div class="flex flex-col">
 		@label.Label(label.Props{
-			Class: "mb-3 text-neutral-content/80",
+			Class: "mb-3 text-muted-foreground",
 		}) {
 			days
 		}
@@ -18,7 +18,7 @@ templ DayButtons(view dto.PeriodFormView) {
 			for i := range sharedmodels.Days {
 				<label
 					for={ sharedmodels.Days[i].NameLower() }
-					class="first:rounded-l-md last:rounded-r-md flex border border-muted bg-neutral hover:bg-primary/80  active:bg-primary/90 justify-center items-center text-xs has-checked:bg-primary flex-grow basis-1 aspect-square"
+					class="first:rounded-l-md last:rounded-r-md flex border border-muted bg-neutral hover:bg-primary/80 active:bg-primary/90 justify-center items-center text-xs has-checked:bg-primary has-checked:hover:bg-primary/50 flex-grow basis-1 aspect-square"
 				>
 					{ sharedmodels.Days[i].Short() }
 					<input

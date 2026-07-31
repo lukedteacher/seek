@@ -383,7 +383,7 @@ func (s Server) postEducatorEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	educatorID := chi.URLParam(r, "id")
 	result, err := events.UpdateEducatorCommandHandler(ctx, events.UpdateEducatorCommand{
-		ID:         educatorID,
+		EducatorID: educatorID,
 		GivenName:  signals.Educator.GivenName,
 		ChosenName: signals.Educator.ChosenName,
 		FamilyName: signals.Educator.FamilyName,

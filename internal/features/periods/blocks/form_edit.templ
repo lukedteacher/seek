@@ -10,7 +10,7 @@ import (
 templ FormEdit(view dto.PeriodFormView) {
 	<form
 		id="edit-period-form"
-		class="seek-form"
+		class="seek-form w-full md:max-w-128 h-fit"
 		data-on:submit={ datastar.PostSSE(view.URL) }
 	>
 		<hgroup>

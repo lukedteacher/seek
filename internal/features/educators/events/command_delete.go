@@ -30,17 +30,25 @@ func DeleteEducatorCommandHandler(
 	if err != nil {
 		return DeleteEducatorResult{}, err
 	}
-	if err := model.requireActive(); err != nil {
+	if err := model.isActive(); err != nil {
 		return DeleteEducatorResult{}, err
 	}
-
 	eventID := uuidv7.NewString()
-	event := NewEducatorDeletedEvent(
-		eventID,
-		command.EducatorID,
-		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
-	)
+
+	// build event data struct directly
+	eventData := EducatorDeletedEvent{
+		EventID:   eventID,
+		DeletedAt: time.Now(),
+		Scope:     educatorScope(command.EducatorID),
+	}
+
+	// wrap data in a domain event
+	event := eventstore.DomainEvent{
+		EventID:   eventID,
+		EventType: EducatorDeleted,
+		Data:      eventstore.MustData(eventData),
+		Metadata:  metadataWithQuery(command.Metadata, model.query),
+	}
 
 	if _, err := saver.SaveEvents(
 		ctx,
@@ -55,7 +63,7 @@ func DeleteEducatorCommandHandler(
 }
 
 type deleteEducatorContext struct {
-	exists   bool
+	created  bool
 	deleted  bool
 	position eventstore.Position
 	events   []eventstore.ResolvedEvent
@@ -83,9 +91,9 @@ func loadDeleteEducatorContext(
 	return model, nil
 }
 
-func (m *deleteEducatorContext) requireActive() error {
-	if !m.exists || m.deleted {
-		return eventstore.ErrNotFound
+func (m *deleteEducatorContext) isActive() error {
+	if !m.created || m.deleted {
+		return eventstore.ErrNotActive
 	}
 	return nil
 }
@@ -93,7 +101,7 @@ func (m *deleteEducatorContext) requireActive() error {
 func (m *deleteEducatorContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case EducatorCreated:
-		m.exists = true
+		m.created = true
 		m.deleted = false
 	case EducatorDeleted:
 		m.deleted = true

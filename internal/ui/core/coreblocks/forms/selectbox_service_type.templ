@@ -12,7 +12,7 @@ import (
 templ SelectboxServiceType(url, object string, selected sharedmodels.ServiceType) {
 	@selectbox.SelectBox() {
 		@label.Label(label.Props{
-			Class: "mb-3",
+			Class: "mb-3 text-muted-foreground",
 		}) {
 			service type
 		}

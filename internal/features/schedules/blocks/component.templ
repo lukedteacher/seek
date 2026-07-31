@@ -1,7 +1,11 @@
 package blocks
 
-import "fmt"
-import "seek/internal/features/periods/dto"
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/periods/dto"
+)
 
 templ ScheduleComponent(periods []dto.PeriodScheduleView) {
 	@ScheduleStyle()
@@ -19,21 +23,15 @@ templ ScheduleComponent(periods []dto.PeriodScheduleView) {
 }
 
 templ DayHeaders() {
-	{{
-		days := []string{
-			"Monday",
-			"Tuesday",
-			"Wednesday",
-			"Thursday",
-			"Friday",
-		}
-	}}
+	{{ days := sharedmodels.Days }}
 	for index, day := range days {
 		<div
-			class="day-header"
+			class="day-header @container"
 			style={ fmt.Sprintf("grid-column: %d / span 1;", index+2) }
 		>
-			{ day }
+			<span class="hidden @4xs:inline-block">{ day.Name() }</span>
+			<span class="hidden @5xs:inline-block @4xs:hidden">{ day.Short() }</span>
+			<span class="@5xs:hidden">{ day.Initial() }</span>
 		</div>
 	}
 }
@@ -131,8 +129,8 @@ templ ScheduleStyle() {
 			border-color: var(--clr-n4d);
 			border-width: var(--border-width-0);
 			border-radius: var(--bd-rd1);
-			padding-right: var(--size-2);
-			padding-bottom: var(--size-2);
+			padding-right: var(--size-4);
+			padding-bottom: var(--size-4);
 
 			div.day-header {
 				width: 100%;

@@ -90,7 +90,9 @@ func (h *AuthUserProjectionEventHandler) handleUserRegistered(ctx context.Contex
 	if !ok {
 		return eventstore.ErrNotFound
 	}
+	println("1: ", resolved.Event.EventID)
 	return h.writer.CreateRegisteredUserAccount(ctx, RegisterUserResult{
+		EventID:      resolved.Event.EventID,
 		Email:        protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredEmailField),
 		PasswordHash: stringValue(resolved.Event.Data[UserRegisteredPasswordHashField]),
 	})

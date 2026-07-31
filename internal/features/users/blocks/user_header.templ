@@ -12,34 +12,6 @@ import (
 
 templ UserHeader(user models.User) {
 	<div class="flex items-center space-x-4">
-		@button.Button(button.Props{
-			Variant: button.VariantGhost,
-			Size:    button.SizeIcon,
-		}) {
-			@icon.Search(icon.Props{
-				Class: "size-5",
-			})
-		}
-		@button.Button(button.Props{
-			Variant: button.VariantGhost,
-			Size:    button.SizeIcon,
-		}) {
-			@icon.Bell(icon.Props{
-				Class: "size-5",
-			})
-		}
-		@button.Button(button.Props{
-			Variant: button.VariantGhost,
-			Size:    button.SizeIcon,
-		}) {
-			@icon.MessageSquare(icon.Props{
-				Class: "size-5",
-			})
-		}
-		@separator.Separator(separator.Props{
-			Orientation: "vertical",
-			Class:       "h-6",
-		})
 		@UserHeaderDropdown(user)
 	</div>
 }

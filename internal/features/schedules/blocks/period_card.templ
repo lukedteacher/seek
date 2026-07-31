@@ -14,14 +14,12 @@ templ PeriodCard(view dto.PeriodScheduleView) {
 	>
 		<button
 			id={ fmt.Sprintf("period-schedule-%s-card", view.ID) }
-			class="period-card w-full h-full flex flex-col items-center justify-center rounded-md border border-solid bg-neutral"
+			class="@container period-card w-full h-full flex flex-row gap-2 items-center justify-center rounded-md border border-solid bg-neutral"
 		>
-			<p class="flex items-center gap-1">
-				@icon.Icon(view.ServiceType.IconName())(icon.Props{
-					Size: "12",
-				})
-				<span>{ view.ServiceType.ShortString() }</span>
-			</p>
+			@icon.Icon(view.ServiceType.IconName())(icon.Props{
+				Size: "14",
+			})
+			<span class="hidden @5xs:flex">{ view.ServiceType.ShortString() }</span>
 		</button>
 	</div>
 	@PeriodCardStyles()

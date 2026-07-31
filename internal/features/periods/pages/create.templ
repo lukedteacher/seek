@@ -16,7 +16,7 @@ templ Create(user models.User, view dto.PeriodFormView, psvs []dto.PeriodSchedul
 	@corelayouts.LayoutBase("SEEK: create period", user) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain("create period", view.URL)
-			<section class="flex justify-start gap-4 h-full">
+			<section class="w-full flex flex-col md:flex-row gap-4 h-full">
 				@blocks.FormCreate(view)
 				@sblocks.ScheduleComponent(psvs)
 			</section>

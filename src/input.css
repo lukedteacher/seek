@@ -566,6 +566,11 @@ a {
   line-height: 1.08;
 }
 
+@theme {
+  --container-5xs: 5rem;
+  --container-4xs: 9rem;
+}
+
 .brand-title {
   overflow: hidden;
   text-overflow: ellipsis;

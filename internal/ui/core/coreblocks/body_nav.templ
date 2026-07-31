@@ -5,13 +5,20 @@ import "seek/pkg/templui/components/icon"
 templ Nav() {
 	<nav>
 		<ul>
-			<li><a href="/">home</a></li>
+			<li>
+				<a href="/">
+					@icon.House(icon.Props{
+						Size: "20",
+					})
+					<span class="hidden sm:block">home</span>
+				</a>
+			</li>
 			<li>
 				<a href="/components">
 					@icon.Component(icon.Props{
 						Size: "20",
 					})
-					<span>components</span>
+					<span class="hidden sm:block">components</span>
 				</a>
 			</li>
 		</ul>

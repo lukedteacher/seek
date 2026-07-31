@@ -3,9 +3,9 @@ package events
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
-	"seek/internal/features/educators/models"
 	"seek/pkg/uuidv7"
 
 	"seek/internal/eventstore"
@@ -28,22 +28,38 @@ func CreateEducatorCommandHandler(
 	ctx context.Context,
 	command CreateEducatorCommand,
 	saver eventstore.Saver,
-) (CreateEducatorResult, error) {
-	model, err := newCreateEducatorContext(command)
+) (
+	CreateEducatorResult,
+	error,
+) {
+	eventID := uuidv7.NewString()
+	model, err := newCreateEducatorContext(command, eventID)
 	if err != nil {
 		return CreateEducatorResult{}, fmt.Errorf("building educator context: %w", err)
 	}
 
-	event := NewEducatorCreatedEvent(
-		model.id,
-		model.givenName,
-		model.chosenName,
-		model.familyName,
-		model.email,
-		model.role,
-		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
-	)
+	// build event data struct directly
+	eventData := EducatorCreatedEvent{
+		EventID: eventID,
+		EducatorState: EducatorState{
+			GivenName:  model.givenName,
+			ChosenName: model.chosenName,
+			FamilyName: model.familyName,
+			Email:      model.email,
+			Username:   model.username,
+			Role:       model.role,
+		},
+		CreatedAt: time.Now(),
+		Scope:     educatorScope(model.id),
+	}
+
+	// wrap data in a domain event
+	event := eventstore.DomainEvent{
+		EventID:   eventID,
+		EventType: EducatorCreated,
+		Data:      eventstore.MustData(eventData),
+		Metadata:  metadataWithQuery(command.Metadata, model.query),
+	}
 
 	if _, err := saver.SaveEvents(
 		ctx,
@@ -64,32 +80,29 @@ type createEducatorContext struct {
 	chosenName string
 	familyName string
 	email      string
+	username   string
 	role       string
 	query      eventstore.Query
 }
 
-func newCreateEducatorContext(command CreateEducatorCommand) (*createEducatorContext, error) {
-	id := uuidv7.NewString()
-
-	educator, err := models.NewEducator(
-		id,
-		command.GivenName,
-		command.ChosenName,
-		command.FamilyName,
-		command.Email,
-		command.Role,
-	)
-	if err != nil {
-		return nil, err
-	}
-
+// minimal logic here, since the educator is its own event root
+// TODO consider creating an educator model and using that for validation
+func newCreateEducatorContext(command CreateEducatorCommand, eventID string) (*createEducatorContext, error) {
+	username := deriveUsername(command.Email)
 	return &createEducatorContext{
-		id:         id,
-		givenName:  educator.GivenName,
-		chosenName: educator.ChosenName,
-		familyName: educator.FamilyName,
-		email:      educator.Email,
-		role:       educator.Role,
-		query:      streamQuery(id),
+		id:         eventID,
+		givenName:  command.GivenName,
+		chosenName: command.ChosenName,
+		familyName: command.FamilyName,
+		email:      command.Email,
+		username:   username,
+		role:       command.Role,
+		query:      streamQuery(eventID),
 	}, nil
+}
+
+func deriveUsername(email string) string {
+	localPart := strings.Split(email, "@")[0]
+	username := strings.ReplaceAll(localPart, ".", "")
+	return strings.ToLower(username)
 }

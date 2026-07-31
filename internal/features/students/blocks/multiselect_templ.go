@@ -67,7 +67,7 @@ func StudentMultiselect(views []dto.StudentSelectBoxView) templ.Component {
 			})
 			templ_7745c5c3_Err = label.Label(label.Props{
 				For:   "student-multiselect",
-				Class: "text-neutral-content/80 mb-3",
+				Class: "text-muted-foreground mb-3",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

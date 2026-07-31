@@ -221,7 +221,7 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 				})
 				templ_7745c5c3_Err = tabs.List(tabs.ListProps{
 					ID:    "student-tabs-list",
-					Class: "flex w-full  max-w-128 gap-1",
+					Class: "tabs-list flex w-full max-w-128 gap-1",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

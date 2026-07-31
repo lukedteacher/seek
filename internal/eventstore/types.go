@@ -52,6 +52,7 @@ type DomainEvent struct {
 	EventID   string         `json:"eventId"`
 	EventType string         `json:"eventType"`
 	Data      map[string]any `json:"data"`
+	RawData   string         `json:"raw_data"`
 	Metadata  map[string]any `json:"metadata,omitempty"`
 }
 

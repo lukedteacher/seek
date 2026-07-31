@@ -11,9 +11,9 @@ var (
 )
 
 type Educator struct {
-	sharedmodels.Person
-	ID   string
-	Role string
+	sharedmodels.Person //embeds given, chosen, family name & email, username fields
+	ID                  string
+	Role                string
 }
 
 func NewEducator(id, given, chosen, family, email, role string) (Educator, error) {

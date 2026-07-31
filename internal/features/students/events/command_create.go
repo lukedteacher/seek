@@ -5,9 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"seek/pkg/uuidv7"
-
 	"seek/internal/eventstore"
+	"seek/pkg/uuidv7"
 )
 
 type CreateStudentCommand struct {
@@ -34,13 +33,12 @@ func CreateStudentCommandHandler(
 	CreateStudentResult,
 	error,
 ) {
-	eventID := uuidv7.NewString()
-	model, err := newCreateStudentContext(command, eventID)
+	model, err := newCreateStudentContext(command)
 	if err != nil {
 		return CreateStudentResult{}, err
 	}
 	event := NewStudentCreatedEvent(
-		eventID,
+		model.id,
 		model.marssID,
 		model.givenName,
 		model.chosenName,
@@ -56,10 +54,11 @@ func CreateStudentCommandHandler(
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, model.query); err != nil {
 		return CreateStudentResult{}, err
 	}
-	return CreateStudentResult{EventID: eventID}, nil
+	return CreateStudentResult{EventID: model.id}, nil
 }
 
 type createStudentContext struct {
+	id          string
 	marssID     string
 	givenName   string
 	chosenName  string
@@ -72,9 +71,11 @@ type createStudentContext struct {
 	query       eventstore.Query
 }
 
-func newCreateStudentContext(command CreateStudentCommand, eventID string) (*createStudentContext, error) {
+func newCreateStudentContext(command CreateStudentCommand) (*createStudentContext, error) {
+	id := uuidv7.NewString()
 	username := deriveUsername(command.Email)
 	return &createStudentContext{
+		id:          id,
 		marssID:     command.MARSSID,
 		givenName:   command.GivenName,
 		chosenName:  command.ChosenName,
@@ -84,7 +85,7 @@ func newCreateStudentContext(command CreateStudentCommand, eventID string) (*cre
 		grade:       command.Grade,
 		homeroom:    command.Homeroom,
 		caseManager: command.CaseManager,
-		query:       StreamQuery(eventID),
+		query:       StreamQuery(id),
 	}, nil
 }
 

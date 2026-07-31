@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/oexza/Orisun/config"
 	"strings"
 	"time"
+
+	"github.com/oexza/Orisun/config"
 
 	natsgo "github.com/nats-io/nats.go"
 	orisunlog "github.com/oexza/Orisun/logging"
@@ -198,7 +199,13 @@ func (s *EmbeddedOrisun) GetLatestByCriteria(ctx context.Context, criteria []Cri
 	return result, nil
 }
 
-func (s *EmbeddedOrisun) SubscribeToEvents(ctx context.Context, subscriberName string, after Position, query Query, handle func(context.Context, ResolvedEvent) error) error {
+func (s *EmbeddedOrisun) SubscribeToEvents(
+	ctx context.Context,
+	subscriberName string,
+	after Position,
+	query Query,
+	handle func(context.Context, ResolvedEvent) error,
+) error {
 	subscriptionCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -225,7 +232,13 @@ func (s *EmbeddedOrisun) SubscribeToEvents(ctx context.Context, subscriberName s
 			}
 			if err := handle(subscriptionCtx, ResolvedEvent{
 				Position: fromOrisunPosition(event.Position),
-				Event:    DomainEvent{EventID: event.EventId, EventType: event.EventType, Data: unflattenMap(data), Metadata: metadata},
+				Event: DomainEvent{
+					EventID:   event.EventId,
+					EventType: event.EventType,
+					Data:      unflattenMap(data),
+					RawData:   event.Data,
+					Metadata:  metadata,
+				},
 			}); err != nil {
 				errs <- err
 				return
@@ -266,6 +279,7 @@ func fromOrisunEvent(event *orisunapi.Event) (ResolvedEvent, error) {
 			EventID:   event.EventId,
 			EventType: event.EventType,
 			Data:      unflattenMap(data),
+			RawData:   event.Data,
 			Metadata:  metadata,
 		},
 	}, nil

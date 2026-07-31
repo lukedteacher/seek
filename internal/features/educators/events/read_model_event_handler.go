@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"time"
@@ -31,6 +32,7 @@ type EducatorCreatedProjection struct {
 	ChosenName string
 	FamilyName string
 	Email      string
+	Username   string
 	Role       string
 	CreatedAt  time.Time
 }
@@ -42,6 +44,7 @@ type EducatorUpdatedProjection struct {
 	ChosenName string
 	FamilyName string
 	Email      string
+	Username   string
 	Role       string
 	UpdatedAt  time.Time
 }
@@ -123,37 +126,37 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 	educatorCreatedEventID, _ := scope[FieldEducatorCreatedEventID].(string)
 	switch resolved.Event.EventType {
 	case EducatorCreated:
-		givenName, _ := data[FieldEducatorGivenName].(string)
-		chosenName, _ := data[FieldEducatorChosenName].(string)
-		familyName, _ := data[FieldEducatorFamilyName].(string)
-		email, _ := data[FieldEducatorEmail].(string)
-		role, _ := data[FieldEducatorRole].(string)
+		var event EducatorCreatedEvent
+		if err := json.Unmarshal([]byte(resolved.Event.RawData), &event); err != nil {
+			return err
+		}
 		if err := h.readModel.CreateEducator(ctx, EducatorCreatedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
-			GivenName:  givenName,
-			ChosenName: chosenName,
-			FamilyName: familyName,
-			Email:      email,
-			Role:       role,
-			CreatedAt:  parseTime(data[FieldEducatorCreatedAt]),
+			GivenName:  event.GivenName,
+			ChosenName: event.ChosenName,
+			FamilyName: event.FamilyName,
+			Email:      event.Email,
+			Username:   event.Username,
+			Role:       event.Role,
+			CreatedAt:  event.CreatedAt,
 		}); err != nil {
 			return err
 		}
 	case EducatorUpdated:
-		givenName, _ := data[FieldEducatorGivenName].(string)
-		chosenName, _ := data[FieldEducatorChosenName].(string)
-		familyName, _ := data[FieldEducatorFamilyName].(string)
-		email, _ := data[FieldEducatorEmail].(string)
-		role, _ := data[FieldEducatorRole].(string)
+		var event EducatorUpdatedEvent
+		if err := json.Unmarshal([]byte(resolved.Event.RawData), &event); err != nil {
+			return err
+		}
 		if err := h.readModel.UpdateEducator(ctx, EducatorUpdatedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
-			GivenName:  givenName,
-			ChosenName: chosenName,
-			FamilyName: familyName,
-			Email:      email,
-			Role:       role,
+			GivenName:  event.GivenName,
+			ChosenName: event.ChosenName,
+			FamilyName: event.FamilyName,
+			Email:      event.Email,
+			Username:   event.Username,
+			Role:       event.Role,
 			UpdatedAt:  parseTime(data[FieldEducatorUpdatedAt]),
 		}); err != nil {
 			return err
@@ -188,4 +191,12 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 
 func stringPtr(value string) *string {
 	return &value
+}
+
+func unmarshalEvent(data map[string]any, target any) error {
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(b, target)
 }

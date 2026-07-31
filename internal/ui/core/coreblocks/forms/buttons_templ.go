@@ -120,7 +120,7 @@ func SaveButton() templ.Component {
 		})
 		templ_7745c5c3_Err = button.Button(button.Props{
 			Type:  "submit",
-			Class: "btn-success",
+			Class: "btn-success bg-success/80 hover:bg-success/90 active:bg-success",
 			Attributes: templ.Attributes{
 				"style": "flex: 1;",
 			},

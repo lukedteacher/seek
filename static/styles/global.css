@@ -200,23 +200,25 @@
   background-color: var(--neutral-4);
 }
 
-a[data-tab-active] {
-  color: var(--primary-4-on);
-  background-color: var(--primary-4);
-  border-color: var(--primary-4-dim);
-  border-width: 1px;
-  border-style: solid;
-}
+.tabs-list {
+  a[data-tab-active] {
+    color: var(--primary-4-on);
+    background-color: var(--primary-4);
+    border-color: var(--primary-4-dim);
+    border-width: 1px;
+    border-style: solid;
+  }
 
-a:not([data-tab-active]) {
-  color: var(--neutral-3-on);
-  background-color: var(--neutral-3);
-  border-color: transparent;
-  border-width: 1px;
-  border-style: solid;
-  &:hover {
-    color: var(--primary-3-on);
-    background-color: var(--primary-3);
+  a:not([data-tab-active]) {
+    color: var(--neutral-3-on);
+    background-color: var(--neutral-3);
+    border-color: transparent;
+    border-width: 1px;
+    border-style: solid;
+    &:hover {
+      color: var(--primary-3-on);
+      background-color: var(--primary-3);
+    }
   }
 }
 
@@ -263,7 +265,7 @@ body {
     padding: var(--size-2);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: start;
   }
 }
 
@@ -307,6 +309,7 @@ table.data-table {
   border-color: var(--neutral-4-dim);
   border-radius: var(--border-radius-0);
   overflow: hidden;
+  min-width: 320px;
   thead {
     background-color: var(--neutral-3);
   }
@@ -332,13 +335,12 @@ form.seek-form {
   display: flex;
   flex-direction: column;
   gap: var(--size-3);
-  width: 30rem;
   background-color: var(--neutral-3);
   color: var(--neutral-3-on);
   border-color: var(--neutral-3-dim);
   border-style: solid;
   border-width: var(--border-width-0);
-  border-radius: var(--border-radius-2);
+  border-radius: var(--border-radius-3);
   padding: var(--size-2);
 
   hgroup p {

@@ -2,8 +2,6 @@ package events
 
 import (
 	"time"
-
-	"seek/internal/eventstore"
 )
 
 // educator event types
@@ -30,6 +28,7 @@ const (
 	FieldEducatorChosenName = "chosen_name"
 	FieldEducatorFamilyName = "family_name"
 	FieldEducatorEmail      = "email"
+	FieldEducatorUsername   = "username"
 	FieldEducatorRole       = "role"
 	FieldEducatorCreatedAt  = "created_at"
 	FieldEducatorUpdatedAt  = "updated_at"
@@ -37,137 +36,43 @@ const (
 	FieldEducatorDeletedAt  = "deleted_at"
 )
 
+type EducatorState struct {
+	GivenName  string `json:"given_name"`
+	ChosenName string `json:"chosen_name"`
+	FamilyName string `json:"family_name"`
+	Email      string `json:"email"`
+	Username   string `json:"username"`
+	Role       string `json:"role"`
+}
+
 type EducatorCreatedEvent struct {
-	EventID    string        `json:"educator_created_event_id"`
-	GivenName  string        `json:"given_name"`
-	ChosenName string        `json:"chosen_name"`
-	FamilyName string        `json:"family_name"`
-	Email      string        `json:"email"`
-	Role       string        `json:"role"`
-	CreatedAt  string        `json:"created_at"`
-	Scope      EducatorScope `json:"scope"`
+	EventID string `json:"educator_created_event_id"`
+	EducatorState
+	CreatedAt time.Time     `json:"created_at"`
+	Scope     EducatorScope `json:"scope"`
 }
 
 type EducatorUpdatedEvent struct {
-	EventID    string        `json:"educator_created_event_id"`
-	GivenName  string        `json:"given_name"`
-	ChosenName string        `json:"chosen_name"`
-	FamilyName string        `json:"family_name"`
-	Email      string        `json:"email"`
-	Role       string        `json:"role"`
-	UpdatedAt  string        `json:"updated_at"`
-	Scope      EducatorScope `json:"scope"`
+	EventID string `json:"educator_updated_event_id"`
+	EducatorState
+	UpdatedAt time.Time     `json:"updated_at"`
+	Scope     EducatorScope `json:"scope"`
 }
 
 type EducatorArchivedEvent struct {
-	EventID    string        `json:"educator_created_event_id"`
-	ArchivedAt string        `json:"archived_at"`
+	EventID    string        `json:"educator_archived_event_id"`
+	ArchivedAt time.Time     `json:"archived_at"`
 	Scope      EducatorScope `json:"scope"`
 }
 
 type EducatorDeletedEvent struct {
 	EventID   string        `json:"educator_deleted_event_id"`
-	DeletedAt string        `json:"deleted_at"`
+	DeletedAt time.Time     `json:"deleted_at"`
 	Scope     EducatorScope `json:"scope"`
 }
 
 type EducatorScope struct {
 	ID string `json:"educator_created_event_id"`
-}
-
-func NewEducatorCreatedEvent(
-	educatorID,
-	givenName,
-	chosenName,
-	familyName,
-	email,
-	role string,
-	createdAt time.Time,
-	metadata map[string]any,
-) eventstore.DomainEvent {
-	event := EducatorCreatedEvent{
-		EventID:    educatorID,
-		GivenName:  givenName,
-		ChosenName: chosenName,
-		FamilyName: familyName,
-		Email:      email,
-		Role:       role,
-		CreatedAt:  createdAt.Format(time.RFC3339),
-		Scope:      educatorScope(educatorID),
-	}
-	return eventstore.DomainEvent{
-		EventID:   educatorID,
-		EventType: EducatorCreated,
-		Data:      eventstore.MustData(event),
-		Metadata:  metadata,
-	}
-}
-
-func NewEducatorUpdatedEvent(
-	eventID,
-	educatorID,
-	givenName,
-	chosenName,
-	familyName,
-	email,
-	role string,
-	updatedAt time.Time,
-	metadata map[string]any,
-) eventstore.DomainEvent {
-	event := EducatorUpdatedEvent{
-		EventID:    eventID,
-		GivenName:  givenName,
-		ChosenName: chosenName,
-		FamilyName: familyName,
-		Email:      email,
-		Role:       role,
-		UpdatedAt:  updatedAt.Format(time.RFC3339),
-		Scope:      educatorScope(educatorID),
-	}
-	return eventstore.DomainEvent{
-		EventID:   eventID,
-		EventType: EducatorUpdated,
-		Data:      eventstore.MustData(event),
-		Metadata:  metadata,
-	}
-}
-
-func NewEducatorArchivedEvent(
-	eventID,
-	educatorID string,
-	archivedAt time.Time,
-	metadata map[string]any,
-) eventstore.DomainEvent {
-	event := EducatorArchivedEvent{
-		EventID:    eventID,
-		ArchivedAt: archivedAt.Format(time.RFC3339),
-		Scope:      educatorScope(educatorID),
-	}
-	return eventstore.DomainEvent{
-		EventID:   eventID,
-		EventType: EducatorArchived,
-		Data:      eventstore.MustData(event),
-		Metadata:  metadata,
-	}
-}
-
-func NewEducatorDeletedEvent(
-	eventID,
-	educatorID string,
-	deletedAt time.Time,
-	metadata map[string]any,
-) eventstore.DomainEvent {
-	event := EducatorDeletedEvent{
-		EventID:   eventID,
-		DeletedAt: deletedAt.Format(time.RFC3339),
-		Scope:     educatorScope(educatorID),
-	}
-	return eventstore.DomainEvent{
-		EventID:   eventID,
-		EventType: EducatorDeleted,
-		Data:      eventstore.MustData(event),
-		Metadata:  metadata,
-	}
 }
 
 func educatorScope(id string) EducatorScope {

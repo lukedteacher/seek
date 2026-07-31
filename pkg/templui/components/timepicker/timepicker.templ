@@ -31,6 +31,7 @@ type Props struct {
 	HasError    bool
 	DataBind    string
 	DataOnInput string
+	DataText    string
 }
 
 templ TimePicker(props ...Props) {
@@ -121,17 +122,23 @@ templ TimePicker(props ...Props) {
 						"aria-invalid":                    utils.If(p.HasError, "true"),
 					}),
 				}) {
-					<span data-tui-timepicker-display class="text-left grow text-muted-foreground">
-						{ p.Placeholder }
-					</span>
-					<span class="text-muted-foreground flex items-center ml-2">
+					<span class="text-muted-foreground flex items-center">
 						@icon.Clock(icon.Props{Class: "size-4"})
+					</span>
+					<span
+						data-tui-timepicker-display
+						class="text-left grow"
+						if p.DataText != "" {
+							data-text={ p.DataText }
+						}
+					>
+						{ p.Placeholder }
 					</span>
 				}
 			}
 			@popover.Content(popover.ContentProps{
 				Placement: popover.PlacementBottomStart,
-				Class:     "p-0 w-80",
+				Class:     "p-0 w-80 mt-1",
 			}) {
 				@card.Card(card.Props{
 					Class: "border-0 shadow-none",

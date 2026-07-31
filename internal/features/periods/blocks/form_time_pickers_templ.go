@@ -42,7 +42,7 @@ func FormTimePickers(view dto.PeriodFormView) templ.Component {
 		now := time.Now()
 		minTime := time.Date(now.Year(), now.Month(), now.Day(), 8, 0, 0, 0, now.Location())
 		maxTime := time.Date(now.Year(), now.Month(), now.Day(), 16, 0, 0, 0, now.Location())
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex-2 flex flex-col\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -66,7 +66,7 @@ func FormTimePickers(view dto.PeriodFormView) templ.Component {
 		})
 		templ_7745c5c3_Err = label.Label(label.Props{
 			For:   "period-start-time-picker",
-			Class: "mb-3",
+			Class: "mb-3 text-muted-foreground",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -77,18 +77,16 @@ func FormTimePickers(view dto.PeriodFormView) templ.Component {
 			MaxTime:     maxTime,
 			Step:        5,
 			Placeholder: "start time",
-			Class:       "input",
+			Class:       "input min-w-24 text-right",
 			Value:       view.StartTime.Time(),
 			DataBind:    "period.start_time",
 			DataOnInput: fmt.Sprintf("@post('%s/validate/starttime')", view.URL),
-			Attributes: templ.Attributes{
-				"data-text": "$period.start_time",
-			},
+			DataText:    "$period.start_time",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"flex-2 flex flex-col\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div class=\"flex flex-col\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -112,7 +110,7 @@ func FormTimePickers(view dto.PeriodFormView) templ.Component {
 		})
 		templ_7745c5c3_Err = label.Label(label.Props{
 			For:   "period-end-time-picker",
-			Class: "mb-3",
+			Class: "mb-3 text-muted-foreground",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -127,9 +125,7 @@ func FormTimePickers(view dto.PeriodFormView) templ.Component {
 			Value:       view.EndTime.Time(),
 			DataBind:    "period.end_time",
 			DataOnInput: fmt.Sprintf("@post('%s/validate/endtime')", view.URL),
-			Attributes: templ.Attributes{
-				"data-text": "$period.end_time",
-			},
+			DataText:    "$period.end_time",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

@@ -2,6 +2,15 @@
 
 updates for SEEK
 
+## v0.4.2 (26.07.31) bug fixes, style tweaks, educator refactor
+
+- fixed bug that wasn't passing eventID in user register handler
+- container queries on period card and schedule day headers
+- majorly refactored educators
+- includes username field
+- new logic for saving and retrieving events involving rawdata to avoid multiple marshals and unmarshals
+- various other bug fixes
+
 ## v0.4.2 (26.07.30) light theme tweaks, table view stuff
 
 - changed light view variables to match dark view

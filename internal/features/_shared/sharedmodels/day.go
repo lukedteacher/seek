@@ -27,8 +27,16 @@ func (d Day) Short() string {
 	return time.Weekday(d).String()[:3]
 }
 
+var weekdayInitial = map[time.Weekday]string{
+	time.Monday:    "M",
+	time.Tuesday:   "T",
+	time.Wednesday: "W",
+	time.Thursday:  "H",
+	time.Friday:    "F",
+}
+
 func (d Day) Initial() string {
-	return string(time.Weekday(d).String()[0])
+	return weekdayInitial[time.Weekday(d)]
 }
 
 func (d Day) Column() int {

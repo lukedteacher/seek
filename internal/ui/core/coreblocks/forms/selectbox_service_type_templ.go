@@ -69,7 +69,7 @@ func SelectboxServiceType(url, object string, selected sharedmodels.ServiceType)
 				return nil
 			})
 			templ_7745c5c3_Err = label.Label(label.Props{
-				Class: "mb-3",
+				Class: "mb-3 text-muted-foreground",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
