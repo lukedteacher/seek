@@ -11,9 +11,9 @@ import (
 	educatorPeriodEvents "seek/internal/features/educators_periods/events"
 	iepServiceEvents "seek/internal/features/iepservices/events"
 	periodEvents "seek/internal/features/periods/events"
-	periodStudentEvents "seek/internal/features/periods_students/events"
 	profileEvents "seek/internal/features/profiles/events"
 	studentEvents "seek/internal/features/students/events"
+	periodStudentEvents "seek/internal/features/students_periods/events"
 	"seek/internal/natsbus"
 )
 
@@ -96,7 +96,7 @@ func eventHandlerFactories(
 				return profileEvents.NewReadModelEventHandler(
 					store,
 					components.checkpointer,
-					components.profileReadModel,
+					components.readModels.Profiles,
 					bus,
 					components.piiKeys,
 					logger,
@@ -109,7 +109,7 @@ func eventHandlerFactories(
 				return educatorEvents.NewReadModelEventHandler(
 					store,
 					components.checkpointer,
-					components.educatorReadModel,
+					components.readModels.Educators,
 					bus,
 					logger,
 				)
@@ -121,7 +121,7 @@ func eventHandlerFactories(
 				return educatorPeriodEvents.NewPeriodEducatorReadModelEventHandler(
 					store,
 					components.checkpointer,
-					components.educatorPeriodsReadModel,
+					components.readModels.EducatorPeriods,
 					bus,
 					logger,
 				)
@@ -133,7 +133,7 @@ func eventHandlerFactories(
 				return periodEvents.NewPeriodReadModelEventHandler(
 					store,
 					components.checkpointer,
-					components.periodReadModel,
+					components.readModels.Periods,
 					bus,
 					logger,
 				)
@@ -145,7 +145,7 @@ func eventHandlerFactories(
 				return studentEvents.NewStudentReadModelEventHandler(
 					store,
 					components.checkpointer,
-					components.studentReadModel,
+					components.readModels.Students,
 					bus,
 					logger,
 				)
@@ -157,7 +157,7 @@ func eventHandlerFactories(
 				return iepServiceEvents.NewIEPServiceReadModelEventHandler(
 					store,
 					components.checkpointer,
-					components.iepServiceReadModel,
+					components.readModels.IEPServices,
 					bus,
 					logger,
 				)
@@ -169,7 +169,7 @@ func eventHandlerFactories(
 				return periodStudentEvents.NewPeriodStudentReadModelEventHandler(
 					store,
 					components.checkpointer,
-					components.periodStudentReadModel,
+					components.readModels.StudentPeriods,
 					bus,
 					logger,
 				)

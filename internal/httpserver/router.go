@@ -8,15 +8,10 @@ import (
 	"net/http"
 	"time"
 
+	"seek/internal/appcore"
 	"seek/internal/auth"
 	"seek/internal/eventstore"
-	educators "seek/internal/features/educators/events"
-	educatorsPeriods "seek/internal/features/educators_periods/events"
-	iepService "seek/internal/features/iepservices/events"
-	period "seek/internal/features/periods/events"
-	periodStudent "seek/internal/features/periods_students/events"
 	profile "seek/internal/features/profiles/events"
-	student "seek/internal/features/students/events"
 	"seek/internal/features/users/models"
 	"seek/internal/resources"
 	"seek/internal/viewstore"
@@ -59,13 +54,7 @@ type Server struct {
 	PIIKeys             auth.SubjectPiiKeyPort
 	PasswordCredentials auth.PasswordCredentialReader
 	Verifications       VerificationStore
-	Educators           educators.EducatorReadModelReader
-	EducatorsPeriods    educatorsPeriods.PeriodEducatorReadModelReader
-	IEPServices         iepService.IEPServiceReadModelReader
-	Periods             period.PeriodReadModelReader
-	Profiles            ProfileReader
-	Students            student.StudentReadModelReader
-	PeriodsStudents     periodStudent.PeriodStudentReadModelReader
+	ReadModels          appcore.ReadModelContainer
 	EventSaver          eventstore.Saver
 	EventRetriever      eventstore.Retriever
 	ProfileStorage      profile.ObjectStore

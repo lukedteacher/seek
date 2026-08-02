@@ -12,9 +12,9 @@ import (
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
 	"seek/internal/features/periods/pages"
-	psevents "seek/internal/features/periods_students/events"
 	sdto "seek/internal/features/students/dto"
 	smodels "seek/internal/features/students/models"
+	psevents "seek/internal/features/students_periods/events"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"

@@ -7,12 +7,16 @@ a tool for educators.
 ## features
 
 - scheduling
-- goals
-- data tracking
-- behavior
+  - for educators
+  - for students
+- student data
 - info page
 
-### reminders
+## comings soon
 
-- camelCase for event sourcing
-- snake_case for datastar and sqlite
+- goals & objectives
+- data tracking
+- assessments
+  - CORE
+  - PAST
+  - words their way
