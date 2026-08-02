@@ -32,7 +32,7 @@ type RowView struct {
 type CellView string
 
 // NewTableView converts a slice of structs to a TableView.
-// the "ID" field is always hidden and stored in RowView.ID.
+// the ID field is always hidden
 func NewTableView[T any](items []T, cfg TableConfig[T]) TableView {
 	if len(items) == 0 || len(cfg.Columns) == 0 {
 		return TableView{Name: cfg.Name, Columns: cfg.Columns, Rows: []RowView{}}

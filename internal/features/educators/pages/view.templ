@@ -12,7 +12,7 @@ import (
 
 templ View(user models.User, view dto.EducatorView) {
 	@corelayouts.LayoutBase("SEEK: educator", user) {
-		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/educators/%s/stream", view.ID)) }>
+		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/%s/stream", view.URL)) }>
 			<section style="width: 100%;">
 				@blocks.Card(view)
 			</section>

@@ -7,7 +7,7 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type ListEducatorsRes struct {
+type GetEducatorByIdRes struct {
 	Id         string `json:"id"`
 	GivenName  string `json:"given_name"`
 	ChosenName string `json:"chosen_name"`
@@ -19,14 +19,14 @@ type ListEducatorsRes struct {
 	UpdatedAt  string `json:"updated_at"`
 }
 
-type ListEducatorsStmt struct {
+type GetEducatorByIdStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func ListEducators(tx *sqlite.Conn) *ListEducatorsStmt {
+func GetEducatorById(tx *sqlite.Conn) *GetEducatorByIdStmt {
 	const querySQL = `
 SELECT 
 	id, 
@@ -40,10 +40,10 @@ SELECT
 	updated_at
 FROM educators
 WHERE archived_at IS NULL
-ORDER BY family_name DESC, given_name DESC
+	AND id = ?1
     `
 
-	ps := &ListEducatorsStmt{
+	ps := &GetEducatorByIdStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -56,8 +56,10 @@ ORDER BY family_name DESC, given_name DESC
 	return ps
 }
 
-func (ps *ListEducatorsStmt) Run() (
-	res []ListEducatorsRes,
+func (ps *GetEducatorByIdStmt) Run(
+	id string,
+) (
+	res *GetEducatorByIdRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
@@ -74,15 +76,17 @@ func (ps *ListEducatorsStmt) Run() (
 		_ = stmt.Reset()
 	}()
 
-	// Execute the query
-	for {
-		if hasRow, err := stmt.Step(); err != nil {
-			return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
-		} else if !hasRow {
-			break
-		}
+	bindIndex := 1
+	// Bind parameters
+	stmt.BindText(bindIndex, id)
 
-		row := ListEducatorsRes{}
+	bindIndex++
+
+	// Execute the query
+	if hasRow, err := stmt.Step(); err != nil {
+		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
+	} else if hasRow {
+		row := GetEducatorByIdRes{}
 		row.Id = stmt.ColumnText(0)
 		row.GivenName = stmt.ColumnText(1)
 		row.ChosenName = stmt.ColumnText(2)
@@ -92,19 +96,22 @@ func (ps *ListEducatorsStmt) Run() (
 		row.Role = stmt.ColumnText(6)
 		row.CreatedAt = stmt.ColumnText(7)
 		row.UpdatedAt = stmt.ColumnText(8)
-		res = append(res, row)
+		res = &row
 	}
 
 	return res, nil
 }
 
-func OnceListEducators(
+func OnceGetEducatorById(
 	tx *sqlite.Conn,
+	id string,
 ) (
-	res []ListEducatorsRes,
+	res *GetEducatorByIdRes,
 	err error,
 ) {
-	ps := ListEducators(tx)
+	ps := GetEducatorById(tx)
 
-	return ps.Run()
+	return ps.Run(
+		id,
+	)
 }

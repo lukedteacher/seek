@@ -24,13 +24,13 @@ func (s Server) educatorRoutes(r chi.Router) {
 	r.Get("/educators/create/stream", s.getEducatorCreateStream)
 	r.Post("/educators/create/validate", s.postEducatorCreateValidate)
 	r.Post("/educators/create", s.postEducatorCreate)
-	r.Get("/educators/{id}", s.getEducatorView)
-	r.Get("/educators/{id}/stream", s.getEducatorViewStream)
-	r.Get("/educators/{id}/edit", s.getEducatorEdit)
-	r.Get("/educators/{id}/edit/stream", s.getEducatorEditStream)
-	r.Post("/educators/{id}/edit/validate", s.postEducatorEditValidate)
-	r.Post("/educators/{id}/edit", s.postEducatorEdit)
-	r.Delete("/educators/{id}", s.deleteEducator)
+	r.Get("/educators/{username}", s.getEducatorView)
+	r.Get("/educators/{username}/stream", s.getEducatorViewStream)
+	r.Get("/educators/{username}/edit", s.getEducatorEdit)
+	r.Get("/educators/{username}/edit/stream", s.getEducatorEditStream)
+	r.Post("/educators/{username}/edit/validate", s.postEducatorEditValidate)
+	r.Post("/educators/{username}/edit", s.postEducatorEdit)
+	r.Delete("/educators/{username}", s.deleteEducator)
 }
 
 // GET request to /educators
@@ -186,12 +186,12 @@ func (s Server) postEducatorCreate(w http.ResponseWriter, r *http.Request) {
 	sse.Redirect(fmt.Sprintf("/educators/%s", result.EventID))
 }
 
-// GET request to /educators/{id}
+// GET request to /educators/{username}
 func (s Server) getEducatorView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	educatorID := chi.URLParam(r, "id")
-	educator, err := s.Educators.Get(ctx, educatorID)
+	username := chi.URLParam(r, "username")
+	educator, err := s.Educators.GetByUsername(ctx, username)
 	if educator == nil {
 		_ = pages.NotFound(user).Render(ctx, w)
 		return
@@ -201,20 +201,20 @@ func (s Server) getEducatorView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view := dto.NewEducatorView(educator)
-	view.URL = fmt.Sprintf("/educators/%s", educatorID)
+	view.URL = fmt.Sprintf("/educatorsts/%s", username)
 	_ = pages.View(user, *view).Render(ctx, w)
 }
 
-// GET request to /educators/{id}/stream
+// GET request to /educators/{username}/stream
 func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	educatorID := chi.URLParam(r, "id")
+	username := chi.URLParam(r, "username")
 	sse := newSSE(w, r)
 
 	notifier := NewDedupeNotifier()
 	// subscribes to the channel which publishes changes to the underlying model
-	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(educatorID), func(context.Context, []byte) {
+	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
 		notifier.Notify()
 	})
 	if err != nil {
@@ -223,7 +223,7 @@ func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 	}
 	defer sub.Close()
 
-	if err := s.refreshEducatorViewState(ctx, educatorID); err != nil {
+	if err := s.refreshEducatorViewState(ctx, username); err != nil {
 		s.Logger.ErrorContext(ctx, "educator view stream refresh", "err", err)
 		return
 	}
@@ -232,7 +232,7 @@ func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 	// lasts 5m
 	watcher, err := s.ViewStore.Watch(
 		ctx,
-		educatorID+".view",
+		username+".view",
 		viewstore.WatchOptions{
 			IgnoreDeletes: true,
 		},
@@ -248,7 +248,7 @@ func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 		case <-ctx.Done():
 			return
 		case <-notifier.Signal(): // triggers when the read model publishes
-			if err := s.refreshEducatorViewState(ctx, educatorID); err != nil {
+			if err := s.refreshEducatorViewState(ctx, username); err != nil {
 				if err.Error() == "educator not found" {
 					sse.PatchElementTempl(pages.NotFound(user))
 				}
@@ -265,42 +265,42 @@ func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			view := dto.NewEducatorView(model)
-			view.URL = fmt.Sprintf("/educators/%s", educatorID)
+			view.URL = fmt.Sprintf("/educatorst/%s", username)
 			sse.PatchElementTempl(pages.View(user, *view))
 		}
 	}
 }
 
-// GET request to /educators/{id}/edit
+// GET request to /educators/{username}/edit
 func (s Server) getEducatorEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	educatorID := chi.URLParam(r, "id")
-	model, err := s.Educators.Get(ctx, educatorID)
+	username := chi.URLParam(r, "username")
+	educator, err := s.Educators.GetByUsername(ctx, username)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if model == nil {
+	if educator == nil {
 		_ = pages.NotFound(user).Render(ctx, w)
 		return
 	}
 
-	view := dto.NewEducatorView(model)
-	view.URL = fmt.Sprintf("/educators/%s/edit", educatorID)
+	view := dto.NewEducatorView(educator)
+	view.URL = fmt.Sprintf("/educators/%s/edit", username)
 	_ = pages.Edit(user, *view).Render(ctx, w)
 }
 
-// GET request to /educator/{id}/stream
+// GET request to /educator/{username}/stream
 func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	educatorID := chi.URLParam(r, "id")
+	username := chi.URLParam(r, "username")
 	sse := newSSE(w, r)
 
 	notifier := NewDedupeNotifier()
 	// subscribes to the channel which publishes changes to the underlying model
-	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(educatorID), func(context.Context, []byte) {
+	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
 		notifier.Notify()
 	})
 	if err != nil {
@@ -312,7 +312,7 @@ func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 	// watches the educator edit view state kv
 	watcher, err := s.ViewStore.Watch(
 		ctx,
-		educatorID+".edit",
+		username+".edit",
 		viewstore.WatchOptions{
 			IgnoreDeletes: true,
 		},
@@ -328,7 +328,7 @@ func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 		case <-ctx.Done():
 			return
 		case <-notifier.Signal():
-			if err := s.refreshEducatorEditState(ctx, educatorID); err != nil {
+			if err := s.refreshEducatorEditState(ctx, username); err != nil {
 				if err.Error() == "educator not found" {
 					sse.PatchElementTempl(pages.NotFound(user))
 				}
@@ -345,16 +345,16 @@ func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			view := dto.NewEducatorView(model)
-			view.URL = fmt.Sprintf("/educators/%s/edit", educatorID)
+			view.URL = fmt.Sprintf("/educators/%s/edit", username)
 			sse.PatchElementTempl(pages.Edit(user, *view))
 		}
 	}
 }
 
-// POST request to /educators/{id}/edit/validate
+// POST request to /educators/{username}/edit/validate
 func (s Server) postEducatorEditValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	educatorID := chi.URLParam(r, "id")
+	username := chi.URLParam(r, "username")
 	signals := &struct {
 		Educator dto.EducatorView `json:"educator"`
 	}{}
@@ -367,13 +367,14 @@ func (s Server) postEducatorEditValidate(w http.ResponseWriter, r *http.Request)
 		Person: signals.Educator.Person,
 		Role:   signals.Educator.Role,
 	}
-	viewstore.PutState(ctx, s.ViewStore, educatorID, model)
+	viewstore.PutState(ctx, s.ViewStore, username, model)
 }
 
-// POST request to /educators/{id}/edit
+// POST request to /educators/{username}/edit
 func (s Server) postEducatorEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
+	username := chi.URLParam(r, "username")
 	signals := &struct {
 		Educator dto.EducatorView `json:"educator"`
 	}{}
@@ -381,9 +382,8 @@ func (s Server) postEducatorEdit(w http.ResponseWriter, r *http.Request) {
 		s.Logger.ErrorContext(ctx, "post educator edit signal read", "err", err)
 		return
 	}
-	educatorID := chi.URLParam(r, "id")
 	result, err := events.UpdateEducatorCommandHandler(ctx, events.UpdateEducatorCommand{
-		EducatorID: educatorID,
+		EducatorID: signals.Educator.ID,
 		GivenName:  signals.Educator.GivenName,
 		ChosenName: signals.Educator.ChosenName,
 		FamilyName: signals.Educator.FamilyName,
@@ -400,31 +400,43 @@ func (s Server) postEducatorEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sse := newSSE(w, r)
-	sse.Redirect(fmt.Sprintf("/educators/%s", educatorID))
+	sse.Redirect(fmt.Sprintf("/educators/%s", username))
 }
 
-// POST request to /educators/{id}
+// POST request to /educators/{username}
 func (s Server) deleteEducator(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	user := currentUser(r)
-	educatorID := chi.URLParam(r, "id")
-	_, err := events.DeleteEducatorCommandHandler(r.Context(), events.DeleteEducatorCommand{
-		EducatorID: educatorID,
+	username := chi.URLParam(r, "username")
+	educator, err := s.Educators.GetByUsername(ctx, username)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "delete educator db get by username", "err", err)
+		return
+	}
+	result, err := events.DeleteEducatorCommandHandler(ctx, events.DeleteEducatorCommand{
+		EducatorID: educator.ID,
 		Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
-	emptySSE(w, r, err)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "delete educator command handler", "err", err)
+		return
+	}
+	s.Logger.InfoContext(ctx, "delete educator student deleted", "id", educator.ID, "event", result.EventID)
+	sse := newSSE(w, r)
+	sse.Redirect("/educators")
 }
 
 // HELPER FUNCTIONS
-func (s Server) refreshEducatorViewState(ctx context.Context, educatorID string) error {
-	educator, err := s.Educators.Get(ctx, educatorID)
+func (s Server) refreshEducatorViewState(ctx context.Context, username string) error {
+	educator, err := s.Educators.GetByUsername(ctx, username)
 	if err != nil {
 		return err
 	}
 	return viewstore.PutState(ctx, s.ViewStore, educator.ID+".view", educator)
 }
 
-func (s Server) refreshEducatorEditState(ctx context.Context, educatorID string) error {
-	educator, err := s.Educators.Get(ctx, educatorID)
+func (s Server) refreshEducatorEditState(ctx context.Context, username string) error {
+	educator, err := s.Educators.GetByUsername(ctx, username)
 	if err != nil {
 		return err
 	}

@@ -1,194 +1,155 @@
 package httpserver
 
 import (
+	"context"
 	"net/http"
 	"time"
 
+	"seek/internal/auth"
+	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
+	ee "seek/internal/features/educators/events"
 	pe "seek/internal/features/periods/events"
-	pm "seek/internal/features/periods/models"
 	se "seek/internal/features/students/events"
-	sm "seek/internal/features/students/models"
 )
 
 func (s Server) seedData(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	students := []sm.Student{
-		{
-			MARSSID: "1",
-			Person: sharedmodels.Person{
-				GivenName:  "Emma",
-				ChosenName: "Em",
-				FamilyName: "Johnson",
-				Email:      "emma.j@schoolofnorthernlights.org",
-			},
-			Grade:       5,
-			Homeroom:    "Ms. Smith",
-			CaseManager: "Mr. Davis",
-		},
-		{
-			MARSSID: "2",
-			Person: sharedmodels.Person{
-				GivenName:  "Liam",
-				ChosenName: "",
-				FamilyName: "Garcia",
-				Email:      "liam.g@schoolofnorthernlights.org",
-			},
-			Grade:       6,
-			Homeroom:    "Mr. Brown",
-			CaseManager: "Ms. Wilson",
-		},
-		{
-			MARSSID: "3",
-			Person: sharedmodels.Person{
-				GivenName:  "Olivia",
-				ChosenName: "Liv",
-				FamilyName: "Martinez",
-				Email:      "olivia.m@schoolofnorthernlights.org",
-			},
-			Grade:       2,
-			Homeroom:    "Mrs. Lee",
-			CaseManager: "",
-		},
-		{
-			MARSSID: "4",
-			Person: sharedmodels.Person{
-				GivenName:  "Noah",
-				ChosenName: "",
-				FamilyName: "Rodriguez",
-				Email:      "noah.r@schoolofnorthernlights.org",
-			},
-			Grade:       1,
-			Homeroom:    "Mr. Jones",
-			CaseManager: "Ms. Taylor",
-		},
-		{
-			MARSSID: "5",
-			Person: sharedmodels.Person{
-				GivenName:  "Ava",
-				ChosenName: "Aves",
-				FamilyName: "Williams",
-				Email:      "ava.w@schoolofnorthernlights.org",
-			},
-			Grade:       4,
-			Homeroom:    "Mrs. Clark",
-			CaseManager: "Mr. Harris",
-		},
-		{
-			MARSSID: "6",
-			Person: sharedmodels.Person{
-				GivenName:  "Mason",
-				ChosenName: "Mace",
-				FamilyName: "Brown",
-				Email:      "mason.b@schoolofnorthernlights.org",
-			},
-			Grade:       8,
-			Homeroom:    "Ms. White",
-			CaseManager: "",
-		},
-		{
-			MARSSID: "7",
-			Person: sharedmodels.Person{
-				GivenName:  "Sophia",
-				ChosenName: "Soph",
-				FamilyName: "Jones",
-				Email:      "sophia.j@schoolofnorthernlights.org",
-			},
-			Grade:       0,
-			Homeroom:    "Mr. Anderson",
-			CaseManager: "Ms. Thomas",
-		},
-		{
-			MARSSID: "8",
-			Person: sharedmodels.Person{
-				GivenName:  "Logan",
-				ChosenName: "",
-				FamilyName: "Miller",
-				Email:      "logan.m@schoolofnorthernlights.org",
-			},
-			Grade:       7,
-			Homeroom:    "Mrs. Martinez",
-			CaseManager: "Mr. Garcia",
-		},
-		{
-			MARSSID: "9",
-			Person: sharedmodels.Person{
-				GivenName:  "Mia",
-				ChosenName: "",
-				FamilyName: "Davis",
-				Email:      "mia.d@schoolofnorthernlights.org",
-			},
-			Grade:       5,
-			Homeroom:    "Ms. Smith",
-			CaseManager: "Ms. Wilson",
-		},
-		{
-			MARSSID: "10",
-			Person: sharedmodels.Person{
-				GivenName:  "Ethan",
-				ChosenName: "E",
-				FamilyName: "Moore",
-				Email:      "ethan.m@schoolofnorthernlights.org",
-			},
-			Grade:       6,
-			Homeroom:    "Mr. Brown",
-			CaseManager: "",
-		},
+	_, err := auth.RegisterUserCommandHandler(ctx, auth.RegisterUserCommand{
+		Email:    "luke@lukeout.world",
+		Password: "fart123",
+		Metadata: eventstore.HTTPCommandMetadata(r, ""),
+	}, s.EventSaver, s.EventRetriever, s.PIIKeys)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "seed data user", "err", err)
+		return
 	}
 
-	for _, student := range students {
-		command := se.CreateStudentCommand{
-			GivenName:   student.GivenName,
-			ChosenName:  student.ChosenName,
-			FamilyName:  student.FamilyName,
-			Email:       student.Email,
-			Grade:       int(student.Grade),
-			Homeroom:    student.Homeroom,
-			CaseManager: student.CaseManager,
+	if err := seedStudents(ctx, s); err != nil {
+		s.Logger.ErrorContext(ctx, "seed data students", "err", err)
+	}
+
+	if err := seedPeriods(ctx, s); err != nil {
+		s.Logger.ErrorContext(ctx, "seed data periods", "err", err)
+	}
+
+	if err := seedEducators(ctx, s); err != nil {
+		s.Logger.ErrorContext(ctx, "seed data educators", "err", err)
+	}
+}
+
+func seedStudents(ctx context.Context, s Server) error {
+	data := []struct {
+		GivenName   string
+		ChosenName  string
+		FamilyName  string
+		Email       string
+		Grade       int
+		Homeroom    string
+		CaseManager string
+	}{
+		{"Emma", "Em", "Johnson", "emma.j@schoolofnorthernlights.org", 5, "Ms. Smith", "Mr. Davis"},
+		{"Liam", "", "Garcia", "liam.g@schoolofnorthernlights.org", 6, "Mr. Brown", "Ms. Wilson"},
+		{"Olivia", "Liv", "Martinez", "olivia.m@schoolofnorthernlights.org", 2, "Mrs. Lee", ""},
+		{"Noah", "", "Rodriguez", "noah.r@schoolofnorthernlights.org", 1, "Mr. Jones", "Ms. Taylor"},
+		{"Ava", "Aves", "Williams", "ava.w@schoolofnorthernlights.org", 4, "Mrs. Clark", "Mr. Harris"},
+		{"Mason", "Mace", "Brown", "mason.b@schoolofnorthernlights.org", 8, "Ms. White", ""},
+		{"Sophia", "Soph", "Jones", "sophia.j@schoolofnorthernlights.org", 0, "Mr. Anderson", "Ms. Thomas"},
+		{"Logan", "", "Miller", "logan.m@schoolofnorthernlights.org", 7, "Mrs. Martinez", "Mr. Garcia"},
+		{"Mia", "", "Davis", "mia.d@schoolofnorthernlights.org", 5, "Ms. Smith", "Ms. Wilson"},
+		{"Ethan", "E", "Moore", "ethan.m@schoolofnorthernlights.org", 6, "Mr. Brown", ""},
+	}
+
+	for _, datum := range data {
+		cmd := se.CreateStudentCommand{
+			GivenName:   datum.GivenName,
+			ChosenName:  datum.ChosenName,
+			FamilyName:  datum.FamilyName,
+			Email:       datum.Email,
+			Grade:       datum.Grade,
+			Homeroom:    datum.Homeroom,
+			CaseManager: datum.CaseManager,
 		}
-		_, err := se.CreateStudentCommandHandler(
-			ctx,
-			command,
-			s.EventSaver,
-		)
+		_, err := se.CreateStudentCommandHandler(ctx, cmd, s.EventSaver)
 		if err != nil {
-			s.Logger.Error("seed data student", "err", err)
-			return
+			s.Logger.ErrorContext(ctx, "seed student", "err", err)
+			return err
 		}
 	}
+	return nil
+}
 
-	periods := []pm.Period{
-		{Title: "SEL", ServiceType: "SEL", StartTime: parseTimeOnly("08:00"), Duration: 20, DaysBitmask: 1},
-		{Title: "reading", ServiceType: "reading", StartTime: parseTimeOnly("08:55"), Duration: 30, DaysBitmask: 5},
-		{Title: "writing", ServiceType: "writing", StartTime: parseTimeOnly("09:50"), Duration: 30, DaysBitmask: 15},
-		{Title: "SEL", ServiceType: "SEL", StartTime: parseTimeOnly("10:50"), Duration: 20, DaysBitmask: 8},
-		{Title: "executive functioning", ServiceType: "EF", StartTime: parseTimeOnly("11:45"), Duration: 15, DaysBitmask: 19},
-		{Title: "OT", ServiceType: "OT", StartTime: parseTimeOnly("13:00"), Duration: 30, DaysBitmask: 18},
-		{Title: "speech", ServiceType: "speech", StartTime: parseTimeOnly("13:40"), Duration: 20, DaysBitmask: 22},
-		{Title: "speech", ServiceType: "speech", StartTime: parseTimeOnly("14:35"), Duration: 20, DaysBitmask: 29},
-		{Title: "math (push-in)", ServiceType: "math", StartTime: parseTimeOnly("13:30"), Duration: 60, DaysBitmask: 10},
-		{Title: "reading", ServiceType: "reading", StartTime: parseTimeOnly("14:20"), Duration: 30, DaysBitmask: 17},
+func seedPeriods(ctx context.Context, s Server) error {
+	data := []struct {
+		Title       string
+		ServiceType sharedmodels.ServiceType
+		StartTime   sharedmodels.TimeOnly
+		Duration    int
+		DaysBitmask sharedmodels.DaysBitmask
+	}{
+		{"SEL", "SEL", parseTimeOnly("08:00"), 20, 1},
+		{"reading", "reading", parseTimeOnly("08:55"), 30, 5},
+		{"writing", "writing", parseTimeOnly("09:50"), 30, 15},
+		{"SEL", "SEL", parseTimeOnly("10:50"), 20, 8},
+		{"executive functioning", "EF", parseTimeOnly("11:45"), 15, 19},
+		{"OT", "OT", parseTimeOnly("13:00"), 30, 18},
+		{"speech", "speech", parseTimeOnly("13:40"), 20, 22},
+		{"speech", "speech", parseTimeOnly("14:35"), 20, 29},
+		{"math (push-in)", "math", parseTimeOnly("13:30"), 60, 10},
+		{"reading", "reading", parseTimeOnly("14:20"), 30, 17},
 	}
 
-	for _, period := range periods {
-		command := pe.CreatePeriodCommand{
-			Title:       period.Title,
-			ServiceType: period.ServiceType,
-			StartTime:   period.StartTime,
-			Duration:    period.Duration,
-			DaysBitmask: period.DaysBitmask,
+	for _, datum := range data {
+		cmd := pe.CreatePeriodCommand{
+			Title:       datum.Title,
+			ServiceType: datum.ServiceType,
+			StartTime:   datum.StartTime,
+			Duration:    datum.Duration,
+			DaysBitmask: datum.DaysBitmask,
 		}
-		_, err := pe.CreatePeriodCommandHandler(
-			ctx,
-			command,
-			s.EventSaver,
-		)
+		_, err := pe.CreatePeriodCommandHandler(ctx, cmd, s.EventSaver)
 		if err != nil {
-			s.Logger.Error("seed data period", "err", err)
-			return
+			return err
 		}
 	}
+	return nil
+}
+
+func seedEducators(ctx context.Context, s Server) error {
+	data := []struct {
+		GivenName  string
+		ChosenName string
+		FamilyName string
+		Email      string
+		Role       string
+	}{
+		{"James", "Jim", "Peterson", "james.p@schoolofnorthernlights.org", "teacher"},
+		{"Sarah", "Sally", "Chen", "sarah.c@schoolofnorthernlights.org", "co-teacher"},
+		{"Michael", "Mike", "O'Brien", "michael.o@schoolofnorthernlights.org", "EA"},
+		{"Emily", "Em", "Kim", "emily.k@schoolofnorthernlights.org", "admin"},
+		{"David", "Dave", "Singh", "david.s@schoolofnorthernlights.org", "teacher"},
+		{"Jessica", "Jess", "Taylor", "jessica.t@schoolofnorthernlights.org", "co-teacher"},
+		{"Daniel", "Dan", "Martinez", "daniel.m@schoolofnorthernlights.org", "EA"},
+		{"Ashley", "Ash", "Johnson", "ashley.j@schoolofnorthernlights.org", "teacher"},
+		{"Christopher", "Chris", "Lee", "chris.l@schoolofnorthernlights.org", "admin"},
+		{"Amanda", "Mandy", "Garcia", "amanda.g@schoolofnorthernlights.org", "co-teacher"},
+	}
+
+	for _, datum := range data {
+		cmd := ee.CreateEducatorCommand{
+			GivenName:  datum.GivenName,
+			ChosenName: datum.ChosenName,
+			FamilyName: datum.FamilyName,
+			Email:      datum.Email,
+			Role:       datum.Role,
+		}
+		_, err := ee.CreateEducatorCommandHandler(ctx, cmd, s.EventSaver)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func parseTimeOnly(s string) sharedmodels.TimeOnly {

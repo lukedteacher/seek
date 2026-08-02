@@ -7,25 +7,26 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type GetEducatorRes struct {
+type GetEducatorByUsernameRes struct {
 	Id         string `json:"id"`
 	GivenName  string `json:"given_name"`
 	ChosenName string `json:"chosen_name"`
 	FamilyName string `json:"family_name"`
 	Email      string `json:"email"`
+	Username   string `json:"username"`
 	Role       string `json:"role"`
 	CreatedAt  string `json:"created_at"`
 	UpdatedAt  string `json:"updated_at"`
 }
 
-type GetEducatorStmt struct {
+type GetEducatorByUsernameStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func GetEducator(tx *sqlite.Conn) *GetEducatorStmt {
+func GetEducatorByUsername(tx *sqlite.Conn) *GetEducatorByUsernameStmt {
 	const querySQL = `
 SELECT 
 	id, 
@@ -33,15 +34,16 @@ SELECT
 	chosen_name, 
 	family_name, 
 	email, 
+	username,
 	role,
 	created_at, 
 	updated_at
 FROM educators
 WHERE archived_at IS NULL
-	AND id = ?1
+	AND username = ?1
     `
 
-	ps := &GetEducatorStmt{
+	ps := &GetEducatorByUsernameStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -54,10 +56,10 @@ WHERE archived_at IS NULL
 	return ps
 }
 
-func (ps *GetEducatorStmt) Run(
-	id string,
+func (ps *GetEducatorByUsernameStmt) Run(
+	username string,
 ) (
-	res *GetEducatorRes,
+	res *GetEducatorByUsernameRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
@@ -76,7 +78,7 @@ func (ps *GetEducatorStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, id)
+	stmt.BindText(bindIndex, username)
 
 	bindIndex++
 
@@ -84,31 +86,32 @@ func (ps *GetEducatorStmt) Run(
 	if hasRow, err := stmt.Step(); err != nil {
 		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
 	} else if hasRow {
-		row := GetEducatorRes{}
+		row := GetEducatorByUsernameRes{}
 		row.Id = stmt.ColumnText(0)
 		row.GivenName = stmt.ColumnText(1)
 		row.ChosenName = stmt.ColumnText(2)
 		row.FamilyName = stmt.ColumnText(3)
 		row.Email = stmt.ColumnText(4)
-		row.Role = stmt.ColumnText(5)
-		row.CreatedAt = stmt.ColumnText(6)
-		row.UpdatedAt = stmt.ColumnText(7)
+		row.Username = stmt.ColumnText(5)
+		row.Role = stmt.ColumnText(6)
+		row.CreatedAt = stmt.ColumnText(7)
+		row.UpdatedAt = stmt.ColumnText(8)
 		res = &row
 	}
 
 	return res, nil
 }
 
-func OnceGetEducator(
+func OnceGetEducatorByUsername(
 	tx *sqlite.Conn,
-	id string,
+	username string,
 ) (
-	res *GetEducatorRes,
+	res *GetEducatorByUsernameRes,
 	err error,
 ) {
-	ps := GetEducator(tx)
+	ps := GetEducatorByUsername(tx)
 
 	return ps.Run(
-		id,
+		username,
 	)
 }

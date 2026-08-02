@@ -2,6 +2,11 @@
 
 updates for SEEK
 
+## v0.4.3 (26.08.01) continued educator work, style stuff
+
+- moved educator to username instead of ID for resource URL target
+- various other tweaks in progress
+
 ## v0.4.2 (26.07.31) bug fixes, style tweaks, educator refactor
 
 - fixed bug that wasn't passing eventID in user register handler

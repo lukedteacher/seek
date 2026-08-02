@@ -1,16 +1,32 @@
--- name: GetEducator :one
+-- name: GetEducatorByID :one
 SELECT 
 	id, 
 	given_name, 
 	chosen_name, 
 	family_name, 
 	email, 
+	username,
 	role,
 	created_at, 
 	updated_at
 FROM educators
 WHERE archived_at IS NULL
 	AND id = @id;
+
+-- name: GetEducatorByUsername :one
+SELECT 
+	id, 
+	given_name, 
+	chosen_name, 
+	family_name, 
+	email, 
+	username,
+	role,
+	created_at, 
+	updated_at
+FROM educators
+WHERE archived_at IS NULL
+	AND username = @username;
 
 -- name: ListEducators :many
 SELECT 
@@ -19,6 +35,7 @@ SELECT
 	chosen_name, 
 	family_name, 
 	email, 
+	username,
 	role,
 	created_at, 
 	updated_at
@@ -33,6 +50,7 @@ INSERT INTO educators (
 	chosen_name, 
 	family_name, 
 	email,
+	username,
 	role,
 	last_event_commit_position, 
 	last_event_prepare_position,
@@ -45,6 +63,7 @@ VALUES (
 	@chosen_name, 
 	@family_name, 
 	@email,
+	@username,
 	@role,
 	@last_event_commit_position, 
 	@last_event_prepare_position,
@@ -60,6 +79,7 @@ SET
 	chosen_name = @chosen_name,
 	family_name = @family_name,
 	email = @email,
+	username = @username,
 	role = @role,
 	last_event_commit_position = @last_event_commit_position,
 	last_event_prepare_position = @last_event_prepare_position,

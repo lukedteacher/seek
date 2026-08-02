@@ -14,15 +14,16 @@ import (
 const EducatorReadModelEventHandlerName = "educator_read_model_event_handler"
 
 type EducatorReadModelReader interface {
-	Get(ctx context.Context, educatorID string) (*models.Educator, error)
+	GetByID(ctx context.Context, educatorID string) (*models.Educator, error)
+	GetByUsername(ctx context.Context, username string) (*models.Educator, error)
 	List(ctx context.Context) ([]models.Educator, error)
 }
 
 type EducatorReadModelWriter interface {
-	CreateEducator(ctx context.Context, event EducatorCreatedProjection) error
-	UpdateEducator(ctx context.Context, event EducatorUpdatedProjection) error
-	ArchiveEducator(ctx context.Context, event EducatorArchivedProjection) error
-	DeleteEducator(ctx context.Context, event EducatorDeletedProjection) error
+	Create(ctx context.Context, event EducatorCreatedProjection) error
+	Update(ctx context.Context, event EducatorUpdatedProjection) error
+	Archive(ctx context.Context, event EducatorArchivedProjection) error
+	Delete(ctx context.Context, event EducatorDeletedProjection) error
 }
 
 type EducatorCreatedProjection struct {
@@ -130,7 +131,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 		if err := json.Unmarshal([]byte(resolved.Event.RawData), &event); err != nil {
 			return err
 		}
-		if err := h.readModel.CreateEducator(ctx, EducatorCreatedProjection{
+		if err := h.readModel.Create(ctx, EducatorCreatedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
 			GivenName:  event.GivenName,
@@ -148,7 +149,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 		if err := json.Unmarshal([]byte(resolved.Event.RawData), &event); err != nil {
 			return err
 		}
-		if err := h.readModel.UpdateEducator(ctx, EducatorUpdatedProjection{
+		if err := h.readModel.Update(ctx, EducatorUpdatedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
 			GivenName:  event.GivenName,
@@ -162,7 +163,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 			return err
 		}
 	case EducatorArchived:
-		if err := h.readModel.ArchiveEducator(ctx, EducatorArchivedProjection{
+		if err := h.readModel.Archive(ctx, EducatorArchivedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
 			ArchivedAt: parseTime(data[FieldEducatorArchivedAt]),
@@ -170,7 +171,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 			return err
 		}
 	case EducatorDeleted:
-		if err := h.readModel.DeleteEducator(ctx, EducatorDeletedProjection{
+		if err := h.readModel.Delete(ctx, EducatorDeletedProjection{
 			Position:  resolved.Position,
 			ID:        educatorCreatedEventID,
 			DeletedAt: parseTime(data[FieldEducatorDeletedAt]),
@@ -185,7 +186,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 	return h.publisher.Publish(
 		ctx,
 		Channel(educatorCreatedEventID),
-		map[string]string{"educatorID": educatorCreatedEventID}, // TODO figure out why it is this
+		map[string]string{"educatorID": educatorCreatedEventID},
 	)
 }
 

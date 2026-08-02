@@ -14,7 +14,6 @@ var StudentColumns = []shareddto.ColumnView{
 	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center"},
 	{Field: "Homeroom", Display: "homeroom"},
 	{Field: "CaseManager", Display: "case manager"},
-	// id omitted from display (auto‑stored in RowView.ID)
 }
 
 func valueExtractor(m *models.Student, field string) string {

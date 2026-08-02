@@ -244,7 +244,7 @@ func Header(view shareddto.TableView) templ.Component {
 								return nil
 							})
 							templ_7745c5c3_Err = table.Head(table.HeadProps{
-								Class: "text-center border-l border-b border-dashed border-muted",
+								Class: "text-center not-first:border-l border-b border-dashed border-muted",
 								Attributes: templ.Attributes{
 									"colspan": count,
 								},
@@ -334,7 +334,7 @@ func Header(view shareddto.TableView) templ.Component {
 							return nil
 						})
 						templ_7745c5c3_Err = table.Head(table.HeadProps{
-							Class: "text-center border-l border-dashed border-muted",
+							Class: "not-first:border-l text-center border-dashed border-muted",
 						}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err

@@ -23,11 +23,11 @@ func NewReadModel(db *appdb.DB) *ReadModel {
 
 // educator read model reader functions
 
-func (m *ReadModel) Get(ctx context.Context, educatorID string) (*models.Educator, error) {
-	var row *dbsql.GetEducatorRes
+func (m *ReadModel) GetByID(ctx context.Context, educatorID string) (*models.Educator, error) {
+	var row *dbsql.GetEducatorByIdRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
-		row, err = dbsql.OnceGetEducator(conn, educatorID)
+		row, err = dbsql.OnceGetEducatorById(conn, educatorID)
 		return err
 	}); err != nil {
 		return nil, err
@@ -44,6 +44,36 @@ func (m *ReadModel) Get(ctx context.Context, educatorID string) (*models.Educato
 			ChosenName: row.ChosenName,
 			FamilyName: row.FamilyName,
 			Email:      row.Email,
+			Username:   row.Username,
+		},
+		Role: row.Role,
+	}
+
+	return educator, nil
+}
+
+func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models.Educator, error) {
+	var row *dbsql.GetEducatorByUsernameRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		row, err = dbsql.OnceGetEducatorByUsername(conn, username)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	if row == nil {
+		return nil, fmt.Errorf("educator not found")
+	}
+
+	educator := &models.Educator{
+		ID: row.Id,
+		Person: sharedmodels.Person{
+			GivenName:  row.GivenName,
+			ChosenName: row.ChosenName,
+			FamilyName: row.FamilyName,
+			Email:      row.Email,
+			Username:   row.Username,
 		},
 		Role: row.Role,
 	}
@@ -70,6 +100,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Educator, error) {
 				ChosenName: rows[i].ChosenName,
 				FamilyName: rows[i].FamilyName,
 				Email:      rows[i].Email,
+				Username:   rows[i].Username,
 			},
 			Role: rows[i].Role,
 		}
@@ -79,7 +110,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Educator, error) {
 
 // educator read model writer functions
 
-func (m *ReadModel) CreateEducator(ctx context.Context, event EducatorCreatedProjection) error {
+func (m *ReadModel) Create(ctx context.Context, event EducatorCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceCreateEducator(conn, dbsql.CreateEducatorParams{
 			Id:                       event.ID,
@@ -87,6 +118,7 @@ func (m *ReadModel) CreateEducator(ctx context.Context, event EducatorCreatedPro
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
 			Email:                    event.Email,
+			Username:                 event.Username,
 			Role:                     event.Role,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
@@ -95,13 +127,14 @@ func (m *ReadModel) CreateEducator(ctx context.Context, event EducatorCreatedPro
 	})
 }
 
-func (m *ReadModel) UpdateEducator(ctx context.Context, event EducatorUpdatedProjection) error {
+func (m *ReadModel) Update(ctx context.Context, event EducatorUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateEducator(conn, dbsql.UpdateEducatorParams{
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
 			Email:                    event.Email,
+			Username:                 event.Username,
 			Role:                     event.Role,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
@@ -111,7 +144,7 @@ func (m *ReadModel) UpdateEducator(ctx context.Context, event EducatorUpdatedPro
 	})
 }
 
-func (m *ReadModel) ArchiveEducator(ctx context.Context, event EducatorArchivedProjection) error {
+func (m *ReadModel) Archive(ctx context.Context, event EducatorArchivedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceArchiveEducator(conn, dbsql.ArchiveEducatorParams{
 			ArchivedAt:               appdb.SQLTime(event.ArchivedAt),
@@ -122,7 +155,7 @@ func (m *ReadModel) ArchiveEducator(ctx context.Context, event EducatorArchivedP
 	})
 }
 
-func (m *ReadModel) DeleteEducator(ctx context.Context, event EducatorDeletedProjection) error {
+func (m *ReadModel) Delete(ctx context.Context, event EducatorDeletedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceDeleteEducator(conn, event.ID)
 	})

@@ -12,6 +12,7 @@ type UpdateEducatorParams struct {
 	ChosenName               string `json:"chosen_name"`
 	FamilyName               string `json:"family_name"`
 	Email                    string `json:"email"`
+	Username                 string `json:"username"`
 	Role                     string `json:"role"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
@@ -34,11 +35,12 @@ SET
 	chosen_name = ?2,
 	family_name = ?3,
 	email = ?4,
-	role = ?5,
-	last_event_commit_position = ?6,
-	last_event_prepare_position = ?7,
-	updated_at = ?8
-WHERE id = ?9
+	username = ?5,
+	role = ?6,
+	last_event_commit_position = ?7,
+	last_event_prepare_position = ?8,
+	updated_at = ?9
+WHERE id = ?10
     `
 
 	ps := &UpdateEducatorStmt{
@@ -85,6 +87,9 @@ func (ps *UpdateEducatorStmt) Run(
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Email)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.Username)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Role)

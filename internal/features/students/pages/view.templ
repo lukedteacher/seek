@@ -67,29 +67,25 @@ templ View(user models.User, view dto.StudentView, periods []pdto.PeriodSchedule
 						<span class="hidden md:flex">services</span>
 					}
 				}
-				@tabs.Content(tabs.ContentProps{
-					Value:    "info",
-					IsActive: active == "info",
-				}) {
-					<section class="w-full">
-						@blocks.Card(view)
-					</section>
-				}
-				@tabs.Content(tabs.ContentProps{
-					Value:    "schedule",
-					IsActive: active == "schedule",
-				}) {
-					<section class="w-full">
-						@sblocks.ScheduleComponent(periods)
-					</section>
-				}
-				@tabs.Content(tabs.ContentProps{
-					Value:    "services",
-					IsActive: active == "services",
-				}) {
-					<section class="w-full flex flex-col gap-2">
-						@blocks.Services(services)
-					</section>
+				switch active {
+					case "info":
+						@tabs.Content(tabs.ContentProps{Value: "info", IsActive: true}) {
+							<section class="w-full">
+								@blocks.Card(view)
+							</section>
+						}
+					case "schedule":
+						@tabs.Content(tabs.ContentProps{Value: "schedule", IsActive: true}) {
+							<section class="w-full">
+								@sblocks.ScheduleComponent(periods)
+							</section>
+						}
+					case "services":
+						@tabs.Content(tabs.ContentProps{Value: "services", IsActive: true}) {
+							<section class="w-full flex flex-col gap-2">
+								@blocks.Services(services)
+							</section>
+						}
 				}
 			}
 		</main>

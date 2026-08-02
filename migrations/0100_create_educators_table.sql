@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS educators (
 	chosen_name TEXT NOT NULL,
 	family_name TEXT NOT NULL,
 	email TEXT NOT NULL,
+	username TEXT NOT NULL,
 	role TEXT NOT NULL,
 	last_event_commit_position INTEGER NOT NULL,
 	last_event_prepare_position INTEGER NOT NULL,

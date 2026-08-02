@@ -13,6 +13,7 @@ type CreateEducatorParams struct {
 	ChosenName               string `json:"chosen_name"`
 	FamilyName               string `json:"family_name"`
 	Email                    string `json:"email"`
+	Username                 string `json:"username"`
 	Role                     string `json:"role"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
@@ -34,6 +35,7 @@ INSERT INTO educators (
 	chosen_name, 
 	family_name, 
 	email,
+	username,
 	role,
 	last_event_commit_position, 
 	last_event_prepare_position,
@@ -47,10 +49,11 @@ VALUES (
 	?4, 
 	?5,
 	?6,
-	?7, 
-	?8,
-	?9, 
-	?9
+	?7,
+	?8, 
+	?9,
+	?10, 
+	?10
 )
 ON CONFLICT (id) DO NOTHING
     `
@@ -102,6 +105,9 @@ func (ps *CreateEducatorStmt) Run(
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Email)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.Username)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Role)

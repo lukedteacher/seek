@@ -659,19 +659,27 @@ func (s Server) deleteStudent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	username := chi.URLParam(r, "username")
-	student, _ := s.Students.GetByUsername(ctx, username)
-	_, err := events.DeleteStudentCommandHandler(ctx, events.DeleteStudentCommand{
+	student, err := s.Students.GetByUsername(ctx, username)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "delete student db get by username", "err", err)
+		return
+	}
+	result, err := events.DeleteStudentCommandHandler(ctx, events.DeleteStudentCommand{
 		StudentID: student.ID,
 		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {
-		s.Logger.ErrorContext(ctx, "delete student", "err", err)
+		s.Logger.ErrorContext(ctx, "delete student command handler", "err", err)
+		return
 	}
+	s.Logger.InfoContext(ctx, "delete student student deleted", "id", student.ID, "event", result.EventID)
 	sse := newSSE(w, r)
 	sse.Redirect("/students")
 }
 
-// HELPER FUNCTIONS
+// student helper functions
+
+// reads the db for the given student and saves the state to a kv store for the SSE to update
 func (s Server) refreshStudentViewState(ctx context.Context, username string) error {
 	student, err := s.Students.GetByUsername(ctx, username)
 	if err != nil {
@@ -680,6 +688,7 @@ func (s Server) refreshStudentViewState(ctx context.Context, username string) er
 	return viewstore.PutState(ctx, s.ViewStore, username+".view", student)
 }
 
+// reads the db for the given student and saves the state to a kv store for the SSE to update
 func (s Server) refreshStudentEditState(ctx context.Context, username string) error {
 	student, err := s.Students.GetByUsername(ctx, username)
 	if err != nil {

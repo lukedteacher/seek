@@ -12,7 +12,6 @@ var EducatorColumns = []shareddto.ColumnView{
 	{Field: "FamilyName", Display: "family", Group: "name"},
 	{Field: "Email", Display: "email"},
 	{Field: "Role", Display: "role", Renderer: "badge", Alignment: "center"},
-	// id omitted from display (auto‑stored in RowView.ID)
 }
 
 // extract values from an educator by field name
@@ -38,8 +37,9 @@ func valueExtractor(svc *models.Educator, field string) string {
 	}
 }
 
+// uses username as the target for the resource URL
 func targetExtractor(m *models.Educator) string {
-	return m.ID
+	return m.Username
 }
 
 // table config for educator (used by both regular and diff tables)

@@ -14,7 +14,7 @@ type DeleteStudentCommand struct {
 }
 
 type DeleteStudentResult struct {
-	StudentDeletedID string
+	EventID string
 }
 
 func DeleteStudentCommandHandler(ctx context.Context, command DeleteStudentCommand, saver eventstore.Saver, retriever eventstore.Retriever) (DeleteStudentResult, error) {
@@ -32,7 +32,7 @@ func DeleteStudentCommandHandler(ctx context.Context, command DeleteStudentComma
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return DeleteStudentResult{}, err
 	}
-	return DeleteStudentResult{StudentDeletedID: eventID}, nil
+	return DeleteStudentResult{EventID: eventID}, nil
 }
 
 type deleteStudentContext struct {
