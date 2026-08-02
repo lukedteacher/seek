@@ -2,8 +2,9 @@ package dto
 
 import (
 	"seek/internal/features/_shared/sharedmodels"
+	edto "seek/internal/features/educators/dto"
 	"seek/internal/features/periods/models"
-	"seek/internal/features/students/dto"
+	sdto "seek/internal/features/students/dto"
 )
 
 type PeriodView struct {
@@ -15,7 +16,8 @@ type PeriodView struct {
 	Duration    int                      `json:"duration"`
 	DaysBitmask sharedmodels.DaysBitmask `json:"days_bitmask"`
 	URL         string                   `json:"url"`
-	Students    []dto.StudentView
+	Educators   []edto.EducatorView
+	Students    []sdto.StudentView
 }
 
 func NewPeriodView(p *models.Period) PeriodView {

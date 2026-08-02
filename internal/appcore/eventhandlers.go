@@ -1,11 +1,13 @@
-package main
+package appcore
 
 import (
 	"context"
 	"fmt"
 	"log/slog"
+
 	"seek/internal/auth"
 	"seek/internal/config"
+	"seek/internal/email"
 	"seek/internal/eventstore"
 	educatorEvents "seek/internal/features/educators/events"
 	educatorPeriodEvents "seek/internal/features/educators_periods/events"
@@ -27,11 +29,16 @@ type eventHandlerFactory struct {
 	create func() (eventHandler, error)
 }
 
-func eventHandlerFactories(
+func EventHandlerFactories(
 	store *eventstore.EmbeddedOrisun,
 	bus *natsbus.Bus,
 	cfg config.Config,
-	components appComponents,
+	readModels *ReadModelContainer,
+	authUsers *auth.AuthUserStore,
+	verifications *auth.VerificationStore,
+	checkpointer eventstore.Checkpointer,
+	emailSender email.Sender,
+	piiKeys *auth.SubjectPiiKeyStore,
 	logger *slog.Logger,
 ) []eventHandlerFactory {
 	return []eventHandlerFactory{
@@ -40,7 +47,7 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return auth.NewRegistrationOTPToBeGeneratedEventHandler(
 					store,
-					components.checkpointer,
+					checkpointer,
 					store,
 					store,
 					logger,
@@ -52,11 +59,11 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return auth.NewEmailValidationOTPToBeSentEventHandler(
 					store,
-					components.checkpointer,
+					checkpointer,
 					store,
 					store,
-					components.emailSender,
-					components.piiKeys,
+					emailSender,
+					piiKeys,
 					logger,
 				)
 			},
@@ -66,12 +73,12 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return auth.NewPasswordResetEmailToBeSentEventHandler(
 					store,
-					components.checkpointer,
+					checkpointer,
 					store,
 					store,
-					components.emailSender,
+					emailSender,
 					cfg.AppURL,
-					components.piiKeys,
+					piiKeys,
 					logger,
 				)
 			},
@@ -81,11 +88,11 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return auth.NewAuthUserProjectionEventHandler(
 					store,
-					components.checkpointer,
+					checkpointer,
 					store,
-					components.authUsers,
-					components.verifications,
-					components.piiKeys,
+					authUsers,
+					verifications,
+					piiKeys,
 					logger,
 				)
 			},
@@ -95,10 +102,10 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return profileEvents.NewReadModelEventHandler(
 					store,
-					components.checkpointer,
-					components.readModels.Profiles,
+					checkpointer,
+					readModels.Profiles,
 					bus,
-					components.piiKeys,
+					piiKeys,
 					logger,
 				)
 			},
@@ -108,8 +115,8 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return educatorEvents.NewReadModelEventHandler(
 					store,
-					components.checkpointer,
-					components.readModels.Educators,
+					checkpointer,
+					readModels.Educators,
 					bus,
 					logger,
 				)
@@ -120,8 +127,8 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return educatorPeriodEvents.NewPeriodEducatorReadModelEventHandler(
 					store,
-					components.checkpointer,
-					components.readModels.EducatorPeriods,
+					checkpointer,
+					readModels.EducatorPeriods,
 					bus,
 					logger,
 				)
@@ -132,8 +139,8 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return periodEvents.NewPeriodReadModelEventHandler(
 					store,
-					components.checkpointer,
-					components.readModels.Periods,
+					checkpointer,
+					readModels.Periods,
 					bus,
 					logger,
 				)
@@ -144,8 +151,8 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return studentEvents.NewStudentReadModelEventHandler(
 					store,
-					components.checkpointer,
-					components.readModels.Students,
+					checkpointer,
+					readModels.Students,
 					bus,
 					logger,
 				)
@@ -156,8 +163,8 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return iepServiceEvents.NewIEPServiceReadModelEventHandler(
 					store,
-					components.checkpointer,
-					components.readModels.IEPServices,
+					checkpointer,
+					readModels.IEPServices,
 					bus,
 					logger,
 				)
@@ -168,8 +175,8 @@ func eventHandlerFactories(
 			create: func() (eventHandler, error) {
 				return periodStudentEvents.NewPeriodStudentReadModelEventHandler(
 					store,
-					components.checkpointer,
-					components.readModels.StudentPeriods,
+					checkpointer,
+					readModels.StudentPeriods,
 					bus,
 					logger,
 				)
@@ -178,16 +185,16 @@ func eventHandlerFactories(
 	}
 }
 
-func startEventHandlers(ctx context.Context, factories []eventHandlerFactory) ([]eventHandler, error) {
+func StartEventHandlers(ctx context.Context, factories []eventHandlerFactory) ([]eventHandler, error) {
 	handlers := make([]eventHandler, 0, len(factories))
 	for _, factory := range factories {
 		handler, err := factory.create()
 		if err != nil {
-			stopEventHandlers(handlers)
+			StopEventHandlers(handlers)
 			return nil, fmt.Errorf("create %s event handler: %w", factory.name, err)
 		}
 		if err := handler.StartSubscribing(ctx); err != nil {
-			stopEventHandlers(append(handlers, handler))
+			StopEventHandlers(append(handlers, handler))
 			return nil, fmt.Errorf("start %s event handler: %w", factory.name, err)
 		}
 		handlers = append(handlers, handler)
@@ -195,7 +202,7 @@ func startEventHandlers(ctx context.Context, factories []eventHandlerFactory) ([
 	return handlers, nil
 }
 
-func stopEventHandlers(handlers []eventHandler) {
+func StopEventHandlers(handlers []eventHandler) {
 	for i := len(handlers) - 1; i >= 0; i-- {
 		handlers[i].StopSubscribing()
 	}

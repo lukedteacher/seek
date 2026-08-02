@@ -15,18 +15,16 @@ import (
 	"seek/internal/appdb"
 	"seek/internal/auth"
 	"seek/internal/config"
-	"seek/internal/dbsql"
 	"seek/internal/email"
 	"seek/internal/eventcatalog"
 	"seek/internal/eventstore"
-	profile "seek/internal/features/profiles/events"
+	profileEvents "seek/internal/features/profiles/events"
 	"seek/internal/httpserver"
 	"seek/internal/natsbus"
 	"seek/internal/protectedpii"
+	"seek/internal/seed"
 	"seek/internal/storage"
 	"seek/internal/viewstore"
-
-	"zombiezen.com/go/sqlite"
 )
 
 type runOptions struct {
@@ -42,7 +40,7 @@ type appComponents struct {
 	readModels      *appcore.ReadModelContainer
 	checkpointer    eventstore.Checkpointer
 	emailSender     email.Sender
-	profileStorage  profile.ObjectStore
+	profileStorage  profileEvents.ObjectStore
 	piiKeys         *auth.SubjectPiiKeyStore
 	accountDeletion *auth.AccountDataDeletionStore
 }
@@ -78,17 +76,6 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		logger.Info("sqlite migrations complete", "path", cfg.SQLitePath)
 		return nil
 	}
-	if opts.seedOnly {
-		logger.Info("seed requested; no seed tasks are currently defined")
-		return nil
-	}
-	if opts.resetReadModels {
-		if err := resetReadModels(ctx, db); err != nil {
-			return fmt.Errorf("reset read models: %w", err)
-		}
-		logger.Info("read models and event-handler checkpoints reset", "path", cfg.SQLitePath)
-		return nil
-	}
 
 	orisunStore, err := startEventStore(ctx, cfg)
 	if err != nil {
@@ -104,11 +91,43 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 
 	viewStore := newViewStore(bus, logger)
 	components := newAppComponents(db, orisunStore, cfg, logger)
-	handlers, err := startEventHandlers(ctx, eventHandlerFactories(orisunStore, bus, cfg, components, logger))
+
+	// seeds the data from /internal/seed if the seed option is parsed
+	if opts.seedOnly {
+		if err := seed.SeedData(ctx, orisunStore, orisunStore, components.piiKeys, logger); err != nil {
+			return err
+		}
+		logger.Info("seed complete")
+		return nil
+	}
+
+	// requires components to be initated to run
+	if opts.resetReadModels {
+		if err := components.readModels.Reset(ctx, db); err != nil {
+			return fmt.Errorf("reset read models: %w", err)
+		}
+		logger.Info("read models and event-handler checkpoints reset", "path", cfg.SQLitePath)
+		return nil
+	}
+
+	factories := appcore.EventHandlerFactories(
+		orisunStore,
+		bus,
+		cfg,
+		components.readModels,
+		components.authUsers,
+		components.verifications,
+		components.checkpointer,
+		components.emailSender,
+		components.piiKeys,
+		logger,
+	)
+
+	handlers, err := appcore.StartEventHandlers(ctx, factories)
 	if err != nil {
 		return err
 	}
-	defer stopEventHandlers(handlers)
+	defer appcore.StopEventHandlers(handlers)
 
 	app := httpserver.Server{
 		Sessions:            components.sessionManager,
@@ -132,39 +151,6 @@ func closeDB(db *appdb.DB, logger *slog.Logger) {
 	if err := db.Close(); err != nil {
 		logger.Error("close sqlite", "err", err)
 	}
-}
-
-func resetReadModels(ctx context.Context, db *appdb.DB) error {
-	return db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		if err := dbsql.OnceResetReadModelAuthSessions(conn); err != nil {
-			return err
-		}
-		if err := dbsql.OnceResetReadModelAuthAccounts(conn); err != nil {
-			return err
-		}
-		if err := dbsql.OnceResetReadModelAuthVerifications(conn); err != nil {
-			return err
-		}
-		if err := dbsql.OnceResetReadModelProfiles(conn); err != nil {
-			return err
-		}
-		if err := dbsql.OnceResetReadModelIepservices(conn); err != nil {
-			return err
-		}
-		if err := dbsql.OnceResetReadModelPeriods(conn); err != nil {
-			return err
-		}
-		if err := dbsql.OnceResetReadModelStudents(conn); err != nil {
-			return err
-		}
-		if err := dbsql.OnceResetReadModelPeriodsStudents(conn); err != nil {
-			return err
-		}
-		if err := dbsql.OnceResetReadModelAuthUsers(conn); err != nil {
-			return err
-		}
-		return dbsql.OnceResetEventHandlerCheckpoints(conn)
-	})
 }
 
 func startEventStore(ctx context.Context, cfg config.Config) (*eventstore.EmbeddedOrisun, error) {

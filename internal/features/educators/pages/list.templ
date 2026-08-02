@@ -2,8 +2,10 @@ package pages
 
 import (
 	"fmt"
+
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/users/models"
+	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/tables"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
@@ -12,13 +14,8 @@ import (
 templ List(user models.User, view shareddto.TableView) {
 	@corelayouts.LayoutBase("SEEK: educators", user) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
-			<section style="display: flex; flex-direction: column; gap: 1rem;">
-				<header style="display: flex; flex-direction: column; gap: 0.25rem;">
-					<h2>educators</h2>
-					<p style="color: color-mix(in oklch, var(--neutral-4-on) 70%, transparent)">review and enter educator data here.</p>
-				</header>
-				@tables.DataTable(view)
-			</section>
+			@coreblocks.HeaderMain("list of educators", view.URL)
+			@tables.DataTable(view)
 		</main>
 	}
 }

@@ -15,7 +15,7 @@ templ View(user models.User, view dto.PeriodView) {
 	@corelayouts.LayoutBase("SEEK: period", user) {
 		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain("view period", view.URL)
-			<section>
+			<section class="w-full">
 				@blocks.Card(view)
 			</section>
 		</main>

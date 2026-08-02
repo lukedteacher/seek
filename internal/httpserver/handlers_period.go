@@ -43,7 +43,7 @@ func (s Server) periodRoutes(r chi.Router) {
 func (s Server) getPeriodsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	periods, err := s.Periods.List(ctx)
+	periods, err := s.ReadModels.Periods.List(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -77,7 +77,7 @@ func (s Server) getPeriodsListStream(w http.ResponseWriter, r *http.Request) {
 		case <-notifier.Signal(): // triggers when the read model publishes
 			// for now just reloads the page
 			// consider adding a view store for the list
-			periods, err := s.Periods.List(ctx)
+			periods, err := s.ReadModels.Periods.List(ctx)
 			if err != nil {
 				s.Logger.ErrorContext(ctx, "periods list stream db list", "err", err)
 				return
@@ -98,7 +98,7 @@ func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	empty, _ := models.NewPeriod()
 
 	// list all students
-	students, err := s.Students.List(ctx)
+	students, err := s.ReadModels.Students.List(ctx)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "get period create db list students", "err", err)
 		return
@@ -158,9 +158,9 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 			// get student list based on service type
 			students := []smodels.Student{}
 			if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
-				students, err = s.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
+				students, err = s.ReadModels.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
 			} else {
-				students, err = s.Students.List(ctx)
+				students, err = s.ReadModels.Students.List(ctx)
 			}
 			if err != nil {
 				s.Logger.ErrorContext(ctx, "get period create stream db list students by iep service", "err", err)
@@ -301,7 +301,7 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	periodID := chi.URLParam(r, "id")
-	model, err := s.Periods.Get(ctx, periodID)
+	model, err := s.ReadModels.Periods.Get(ctx, periodID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -312,9 +312,9 @@ func (s Server) getPeriodView(w http.ResponseWriter, r *http.Request) {
 	}
 	view := dto.NewPeriodView(model)
 	view.URL = fmt.Sprintf("/periods/%s", periodID)
-	studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
+	studentIDs, _ := s.ReadModels.StudentPeriods.ListStudentIDsForPeriod(ctx, model.ID)
 	for i := range studentIDs {
-		student, _ := s.Students.GetByID(ctx, studentIDs[i])
+		student, _ := s.ReadModels.Students.GetByID(ctx, studentIDs[i])
 		studentView := sdto.NewStudentView(student)
 		view.Students = append(view.Students, studentView)
 	}
@@ -382,9 +382,9 @@ func (s Server) getPeriodViewStream(w http.ResponseWriter, r *http.Request) {
 			}
 			view := dto.NewPeriodView(model)
 			view.URL = fmt.Sprintf("/periods/%s", periodID)
-			studentIDs, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
+			studentIDs, _ := s.ReadModels.StudentPeriods.ListStudentIDsForPeriod(ctx, model.ID)
 			for i := range studentIDs {
-				student, _ := s.Students.GetByID(ctx, studentIDs[i])
+				student, _ := s.ReadModels.Students.GetByID(ctx, studentIDs[i])
 				studentView := sdto.NewStudentView(student)
 				view.Students = append(view.Students, studentView)
 			}
@@ -400,22 +400,22 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	periodID := chi.URLParam(r, "id")
 
 	// get period model
-	model, err := s.Periods.Get(ctx, periodID)
+	model, err := s.ReadModels.Periods.Get(ctx, periodID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// set studentIDs for model (because they are not loaded in the get function... TODO change that?)
-	selected, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, model.ID)
+	selected, _ := s.ReadModels.StudentPeriods.ListStudentIDsForPeriod(ctx, model.ID)
 	model.StudentIDs = strings.Join(selected, ",")
 
 	// get student list based on service type
 	students := []smodels.Student{}
 	if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
-		students, err = s.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
+		students, err = s.ReadModels.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
 	} else {
-		students, err = s.Students.List(ctx)
+		students, err = s.ReadModels.Students.List(ctx)
 	}
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "get period edit db list students by iep service", "err", err)
@@ -498,9 +498,9 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			// get student list based on service type
 			students := []smodels.Student{}
 			if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
-				students, err = s.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
+				students, err = s.ReadModels.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
 			} else {
-				students, err = s.Students.List(ctx)
+				students, err = s.ReadModels.Students.List(ctx)
 			}
 			if err != nil {
 				s.Logger.ErrorContext(ctx, "period edit stream db list students by iep service", "err", err)
@@ -573,7 +573,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	// compare the current student list and the proposed one
 	// updates period student associations (delete or add)
 	// TODO move this logic to its own function?
-	current, _ := s.PeriodsStudents.ListStudentIDsForPeriod(ctx, periodID)
+	current, _ := s.ReadModels.StudentPeriods.ListStudentIDsForPeriod(ctx, periodID)
 	proposed := strings.Split(signals.Period.StudentIDs, ",")
 	if len(current) != 0 || len(proposed) != 0 {
 		// build maps for O(1) lookups
@@ -662,7 +662,7 @@ func (s Server) deletePeriod(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s Server) refreshPeriodViewState(ctx context.Context, periodID string) error {
-	period, err := s.Periods.Get(ctx, periodID)
+	period, err := s.ReadModels.Periods.Get(ctx, periodID)
 	if err != nil {
 		return err
 	}
@@ -670,7 +670,7 @@ func (s Server) refreshPeriodViewState(ctx context.Context, periodID string) err
 }
 
 func (s Server) refreshPeriodEditState(ctx context.Context, periodID string) error {
-	period, err := s.Periods.Get(ctx, periodID)
+	period, err := s.ReadModels.Periods.Get(ctx, periodID)
 	if err != nil {
 		return err
 	}

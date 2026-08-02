@@ -6800,6 +6800,9 @@
   .h-16 {
     height: calc(var(--spacing) * 16);
   }
+  .h-24 {
+    height: calc(var(--spacing) * 24);
+  }
   .h-\[1px\] {
     height: 1px;
   }
@@ -7026,6 +7029,9 @@
   }
   .w-16 {
     width: calc(var(--spacing) * 16);
+  }
+  .w-24 {
+    width: calc(var(--spacing) * 24);
   }
   .w-64 {
     width: calc(var(--spacing) * 64);
@@ -9379,6 +9385,9 @@
   }
   .text-green-500 {
     color: var(--color-green-500);
+  }
+  .text-neutral-content {
+    color: var(--color-neutral-content);
   }
   .text-neutral-content\/70 {
     color: var(--color-neutral-content);

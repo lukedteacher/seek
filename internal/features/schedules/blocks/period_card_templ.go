@@ -118,7 +118,7 @@ func PeriodCardStyles() templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<style>\n\t\t.period-card {\n\t\t\t--_border-color: var(--neutral-4-dim);\n\t\t\tbackground-color: var(--neutral-4);\n\t\t\tbackground: linear-gradient(to right bottom, var(--neutral-4) 8%, var(--neutral-3));\n\t\t\tborder-color: var(--_border-color);\n\t\t\tfont-size: var(--font-size--2);\n\t\t\tbox-shadow: \n\t\t\t\t0 1px var(--_border-color) inset,\n\t\t\t\t0 -2px oklch(100% 0 0 / 0) inset;\n      @supports (color: color-mix(in lab, red, red)) {\n        box-shadow: 0 1px color-mix(in oklch, var(--_border-color) 80%, white) inset, 0 -1px oklch(100% 0 0 / 0) inset;\n      }\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<style>\r\n\t\t.period-card {\r\n\t\t\t--_border-color: var(--neutral-4-dim);\r\n\t\t\tbackground-color: var(--neutral-4);\r\n\t\t\tbackground: linear-gradient(to right bottom, var(--neutral-4) 8%, var(--neutral-3));\r\n\t\t\tborder-color: var(--_border-color);\r\n\t\t\tfont-size: var(--font-size--2);\r\n\t\t\tbox-shadow: \r\n\t\t\t\t0 1px var(--_border-color) inset,\r\n\t\t\t\t0 -2px oklch(100% 0 0 / 0) inset;\r\n      @supports (color: color-mix(in lab, red, red)) {\r\n        box-shadow: 0 1px color-mix(in oklch, var(--_border-color) 80%, white) inset, 0 -1px oklch(100% 0 0 / 0) inset;\r\n      }\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -44,7 +44,7 @@ func (s Server) studentRoutes(r chi.Router) {
 func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	students, err := s.Students.List(ctx)
+	students, err := s.ReadModels.Students.List(ctx)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "students list db list", "err", err)
 		return
@@ -77,7 +77,7 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 		case <-notifier.Signal(): // triggers when the read model publishes
 			// for now just reloads the page
 			// consider adding a view store for the list
-			students, err := s.Students.List(ctx)
+			students, err := s.ReadModels.Students.List(ctx)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
@@ -202,7 +202,7 @@ func (s Server) getStudentViewInfo(w http.ResponseWriter, r *http.Request) {
 
 	// get the username from the URL and pull the data from the db
 	username := chi.URLParam(r, "username")
-	student, err := s.Students.GetByUsername(ctx, username)
+	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "get student view db get", "err", err)
 		return
@@ -288,7 +288,7 @@ func (s Server) getStudentViewSchedule(w http.ResponseWriter, r *http.Request) {
 
 	// get the username from the URL and get the student from the db
 	username := chi.URLParam(r, "username")
-	student, err := s.Students.GetByUsername(ctx, username)
+	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
 	if student == nil {
 		_ = pages.NotFound(user).Render(ctx, w)
 		return
@@ -303,7 +303,7 @@ func (s Server) getStudentViewSchedule(w http.ResponseWriter, r *http.Request) {
 	studentView.URL = fmt.Sprintf("/students/%s/schedule", username)
 
 	// get the periods for the student and make views
-	periods, err := s.Periods.ListPeriodsForStudent(ctx, student.ID)
+	periods, err := s.ReadModels.Periods.ListPeriodsForStudent(ctx, student.ID)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "get student view schedule db list periods", "err", err)
 		return
@@ -379,7 +379,7 @@ func (s Server) getStudentViewScheduleStream(w http.ResponseWriter, r *http.Requ
 			studentView.URL = fmt.Sprintf("/students/%s/schedule", username)
 
 			// get the periods for the student and make views
-			periods, err := s.Periods.ListPeriodsForStudent(ctx, student.ID)
+			periods, err := s.ReadModels.Periods.ListPeriodsForStudent(ctx, student.ID)
 			if err != nil {
 				s.Logger.ErrorContext(ctx, "get student view schedule db list periods", "err", err)
 				return
@@ -400,7 +400,7 @@ func (s Server) getStudentViewServices(w http.ResponseWriter, r *http.Request) {
 
 	// get the id from the URL and pull the data from the db
 	username := chi.URLParam(r, "username")
-	student, err := s.Students.GetByUsername(ctx, username)
+	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "get student view services db get", "err", err)
 		return
@@ -411,7 +411,7 @@ func (s Server) getStudentViewServices(w http.ResponseWriter, r *http.Request) {
 	studentView.URL = fmt.Sprintf("/students/%s/services", username)
 
 	// get the list of services for the student and make views
-	services, err := s.IEPServices.ListIEPServicesForStudent(ctx, student.ID)
+	services, err := s.ReadModels.IEPServices.ListIEPServicesForStudent(ctx, student.ID)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "get student view db list services", "err", err)
 	}
@@ -485,7 +485,7 @@ func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Requ
 			studentView.URL = fmt.Sprintf("/students/%s/services", username)
 
 			// get the list of services for the student and make views
-			services, err := s.IEPServices.ListIEPServicesForStudent(ctx, studentView.ID)
+			services, err := s.ReadModels.IEPServices.ListIEPServicesForStudent(ctx, studentView.ID)
 			if err != nil {
 				s.Logger.ErrorContext(ctx, "get student view db list services", "err", err)
 			}
@@ -504,7 +504,7 @@ func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	username := chi.URLParam(r, "username")
-	model, err := s.Students.GetByID(ctx, username)
+	model, err := s.ReadModels.Students.GetByID(ctx, username)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -606,7 +606,7 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 		s.Logger.ErrorContext(ctx, "post student edit read signals", "err", err)
 		return
 	}
-	student, _ := s.Students.GetByUsername(ctx, username) // TODO see if i shouldn't just update the command to use email?
+	student, _ := s.ReadModels.Students.GetByUsername(ctx, username) // TODO see if i shouldn't just update the command to use email?
 	result, err := events.UpdateStudentCommandHandler(ctx, events.UpdateStudentCommand{
 		StudentID:   student.ID,
 		GivenName:   signals.Student.GivenName,
@@ -634,7 +634,7 @@ func (s Server) postStudentArchive(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	username := chi.URLParam(r, "username")
-	student, _ := s.Students.GetByUsername(ctx, username)
+	student, _ := s.ReadModels.Students.GetByUsername(ctx, username)
 	_, err := events.ArchiveStudentCommandHandler(ctx, events.ArchiveStudentCommand{
 		StudentID: student.ID,
 		Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
@@ -651,7 +651,7 @@ func (s Server) deleteStudent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	username := chi.URLParam(r, "username")
-	student, err := s.Students.GetByUsername(ctx, username)
+	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "delete student db get by username", "err", err)
 		return
@@ -673,7 +673,7 @@ func (s Server) deleteStudent(w http.ResponseWriter, r *http.Request) {
 
 // reads the db for the given student and saves the state to a kv store for the SSE to update
 func (s Server) refreshStudentViewState(ctx context.Context, username string) error {
-	student, err := s.Students.GetByUsername(ctx, username)
+	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -682,7 +682,7 @@ func (s Server) refreshStudentViewState(ctx context.Context, username string) er
 
 // reads the db for the given student and saves the state to a kv store for the SSE to update
 func (s Server) refreshStudentEditState(ctx context.Context, username string) error {
-	student, err := s.Students.GetByUsername(ctx, username)
+	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
 	if err != nil {
 		return err
 	}

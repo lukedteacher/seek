@@ -39,7 +39,7 @@ func (s Server) iepServiceRoutes(r chi.Router) {
 func (s Server) getIEPServicesList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	services, err := s.IEPServices.List(ctx)
+	services, err := s.ReadModels.IEPServices.List(ctx)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "iep services list db list", "err", err)
 		return
@@ -72,7 +72,7 @@ func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request)
 		case <-notifier.Signal(): // triggers when the read model publishes
 			// for now just refreshes the page
 			// consider adding a view store for the list
-			services, err := s.IEPServices.List(ctx)
+			services, err := s.ReadModels.IEPServices.List(ctx)
 			if err != nil {
 				s.Logger.ErrorContext(ctx, "iep services list stream db list", "err", err)
 				return
@@ -90,7 +90,7 @@ func (s Server) getIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	empty := models.NewIEPService()
-	students, _ := s.Students.List(ctx)
+	students, _ := s.ReadModels.Students.List(ctx)
 	view := dto.NewIEPServiceFormView(empty, students)
 	view.URL = "/iepservices/create"
 	_ = pages.Create(user, view).Render(ctx, w)
@@ -130,7 +130,7 @@ func (s Server) getIEPServiceCreateStream(w http.ResponseWriter, r *http.Request
 				s.Logger.ErrorContext(ctx, "iep create stream watcher update", "err", err)
 				return
 			}
-			students, _ := s.Students.List(ctx)
+			students, _ := s.ReadModels.Students.List(ctx)
 			view := dto.NewIEPServiceFormView(model, students)
 			view.URL = "/iepservices/create"
 			sse.PatchElementTempl(pages.Create(user, view))
@@ -199,7 +199,7 @@ func (s Server) getIEPServiceView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	iepServiceID := chi.URLParam(r, "id")
-	model, err := s.IEPServices.Get(ctx, iepServiceID)
+	model, err := s.ReadModels.IEPServices.Get(ctx, iepServiceID)
 	if model == nil {
 		_ = pages.NotFound(user).Render(ctx, w)
 		return
@@ -285,12 +285,12 @@ func (s Server) getIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	iepServiceID := chi.URLParam(r, "id")
-	model, err := s.IEPServices.Get(ctx, iepServiceID)
+	model, err := s.ReadModels.IEPServices.Get(ctx, iepServiceID)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "iep service edit db get", "err", err)
 		return
 	}
-	students, _ := s.Students.List(ctx)
+	students, _ := s.ReadModels.Students.List(ctx)
 	view := dto.NewIEPServiceFormView(model, students)
 	view.URL = fmt.Sprintf("/iepservices/%s/edit", iepServiceID)
 	_ = pages.Edit(user, view).Render(ctx, w)
@@ -349,7 +349,7 @@ func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) 
 				s.Logger.ErrorContext(ctx, "iep service edit stream json", "err", err)
 				return
 			}
-			students, _ := s.Students.List(ctx)
+			students, _ := s.ReadModels.Students.List(ctx)
 			view := dto.NewIEPServiceFormView(model, students)
 			view.URL = fmt.Sprintf("/iepservices/%s/edit", iepServiceID)
 			sse.PatchElementTempl(pages.Edit(user, view))
@@ -462,7 +462,7 @@ func (s Server) ReadCSV(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// fetch existing DB services
-	dbServices, err := s.IEPServices.List(ctx)
+	dbServices, err := s.ReadModels.IEPServices.List(ctx)
 	if err != nil {
 		http.Error(w, "failed to list existing services: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -481,7 +481,7 @@ func (s Server) ReadCSV(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s Server) refreshIEPServiceViewState(ctx context.Context, iepServiceID string) error {
-	iepService, err := s.IEPServices.Get(ctx, iepServiceID)
+	iepService, err := s.ReadModels.IEPServices.Get(ctx, iepServiceID)
 	if err != nil {
 		return err
 	}
@@ -489,7 +489,7 @@ func (s Server) refreshIEPServiceViewState(ctx context.Context, iepServiceID str
 }
 
 func (s Server) refreshIEPServiceEditState(ctx context.Context, iepServiceID string) error {
-	iepService, err := s.IEPServices.Get(ctx, iepServiceID)
+	iepService, err := s.ReadModels.IEPServices.Get(ctx, iepServiceID)
 	if err != nil {
 		return err
 	}

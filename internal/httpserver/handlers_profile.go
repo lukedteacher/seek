@@ -136,7 +136,7 @@ func (s Server) refreshProfileViewState(ctx context.Context, key string, current
 
 // helper to get profile for the user
 func (s Server) profileUser(ctx context.Context, current um.User) (um.User, error) {
-	user, err := s.Profiles.User(ctx, current.UserRegisteredID)
+	user, err := s.ReadModels.Profiles.User(ctx, current.UserRegisteredID)
 	if err != nil {
 		if errors.Is(err, appdb.ErrNoRows) {
 			return current, nil

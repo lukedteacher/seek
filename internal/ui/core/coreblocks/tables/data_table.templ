@@ -79,13 +79,23 @@ templ Header(view shareddto.TableView) {
 		}
 		// second row: individual headers only for grouped columns
 		@table.Row() {
+			{{ seenUngrouped := false }}
+			{{ firstGrouped := true }}
 			for _, col := range view.Columns {
-				if col.Group != "" {
-					@table.Head(table.HeadProps{
-						Class: "not-first:border-l text-center border-dashed border-muted",
-					}) {
+				if col.Group == "" {
+					{{ seenUngrouped = true }}
+				} else {
+					{{ class := "text-center border-dashed border-muted" }}
+					if firstGrouped && seenUngrouped {
+						{{ class += " border-l" }}
+					}
+					if !firstGrouped {
+						{{ class += " not-first:border-l" }}
+					}
+					@table.Head(table.HeadProps{Class: class}) {
 						{ col.Display }
 					}
+					{{ firstGrouped = false }}
 				}
 			}
 		}

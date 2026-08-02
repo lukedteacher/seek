@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"seek/internal/features/periods/dto"
+	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
@@ -12,22 +13,44 @@ import (
 templ Card(view dto.PeriodView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("period-%s-card", view.ID),
-		Class: "period-card",
+		Class: "period-card max-w-128",
 	}) {
 		@card.Header() {
 			@card.Title() {
 				{ view.Title }
 			}
 			@card.Description() {
-				{ view.StartTime.Format("15:04") }
+				{ view.StartTime.String() } - { view.EndTime.String() } ({ view.Duration } min)
 			}
 		}
-		@card.Content() {
-			<p>teacher: ...</p>
+		@card.Content(card.ContentProps{
+			Class: "flex flex-col gap-2 text-sm",
+		}) {
+			<p>
+				<span class="text-neutral-content/80">days: </span>
+				<span class="text-neutral-content">{ view.DaysBitmask.String() }</span>
+			</p>
+			<p>
+				<span class="text-neutral-content/80">teachers ({ len(view.Educators) }):</span>
+			</p>
 			<p>location: ...</p>
-			<p>days: { view.DaysBitmask.String() }</p>
+			<p>
+				<span class="text-neutral-content/70">students ({ len(view.Students) }):</span>
+			</p>
+			<div class="flex gap-2 flex-wrap">
+				for _, student := range view.Students {
+					<div class="student-card border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
+						{ student.NameInitial() }
+						@badge.Badge() {
+							{ student.Grade.Ordinal() }
+						}
+					</div>
+				}
+			</div>
 		}
-		@card.Footer() {
+		@card.Footer(card.FooterProps{
+			Class: "flex justify-end",
+		}) {
 			@button.Button(button.Props{
 				Href: fmt.Sprintf("/periods/%s/edit", view.ID),
 			}) {

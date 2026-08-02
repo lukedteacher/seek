@@ -2,6 +2,15 @@
 
 updates for SEEK
 
+## v0.4.5 (26.08.01) read model container
+
+- refactored read models to a container for easier adjustment
+- moved reset to read model container
+- moved seed to its own package and implemented run option use
+- added breadcrumbs to educator list
+- updated period card style and content
+- fixed a bug with table header styling
+
 ## v0.4.4 (26.08.01) educator period read model
 
 - tweaked events for various objects

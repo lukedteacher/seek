@@ -44,7 +44,7 @@ func (s Server) Test(w http.ResponseWriter, r *http.Request) {
 func (s Server) getEducatorsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
-	educators, err := s.Educators.List(ctx)
+	educators, err := s.ReadModels.Educators.List(ctx)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "educators list db list", "err", err)
 		return
@@ -77,7 +77,7 @@ func (s Server) getEducatorsListStream(w http.ResponseWriter, r *http.Request) {
 		case <-notifier.Signal(): // triggers when the read model publishes
 			// for now just reloads the page
 			// consider adding a view store for the list
-			educators, err := s.Educators.List(ctx)
+			educators, err := s.ReadModels.Educators.List(ctx)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
@@ -198,7 +198,7 @@ func (s Server) getEducatorView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	username := chi.URLParam(r, "username")
-	educator, err := s.Educators.GetByUsername(ctx, username)
+	educator, err := s.ReadModels.Educators.GetByUsername(ctx, username)
 	if educator == nil {
 		_ = pages.NotFound(user).Render(ctx, w)
 		return
@@ -219,7 +219,7 @@ func (s Server) getEducatorViewSchedule(w http.ResponseWriter, r *http.Request) 
 
 	// get the username from the URL and get the educator from the db
 	username := chi.URLParam(r, "username")
-	educator, err := s.Educators.GetByUsername(ctx, username)
+	educator, err := s.ReadModels.Educators.GetByUsername(ctx, username)
 	if educator == nil {
 		_ = pages.NotFound(user).Render(ctx, w)
 		return
@@ -234,7 +234,7 @@ func (s Server) getEducatorViewSchedule(w http.ResponseWriter, r *http.Request) 
 	educatorView.URL = fmt.Sprintf("/educators/%s", username)
 
 	// get periods for the educator and make views
-	periods, err := s.Periods.ListPeriodsForEducator(ctx, educator.ID)
+	periods, err := s.ReadModels.Periods.ListPeriodsForEducator(ctx, educator.ID)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "get educator view schedule db list periods", "err", err)
 		return
@@ -318,7 +318,7 @@ func (s Server) getEducatorEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	username := chi.URLParam(r, "username")
-	educator, err := s.Educators.GetByUsername(ctx, username)
+	educator, err := s.ReadModels.Educators.GetByUsername(ctx, username)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -450,7 +450,7 @@ func (s Server) deleteEducator(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	username := chi.URLParam(r, "username")
-	educator, err := s.Educators.GetByUsername(ctx, username)
+	educator, err := s.ReadModels.Educators.GetByUsername(ctx, username)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "delete educator db get by username", "err", err)
 		return
@@ -470,7 +470,7 @@ func (s Server) deleteEducator(w http.ResponseWriter, r *http.Request) {
 
 // HELPER FUNCTIONS
 func (s Server) refreshEducatorViewState(ctx context.Context, username string) error {
-	educator, err := s.Educators.GetByUsername(ctx, username)
+	educator, err := s.ReadModels.Educators.GetByUsername(ctx, username)
 	if err != nil {
 		return err
 	}
@@ -478,7 +478,7 @@ func (s Server) refreshEducatorViewState(ctx context.Context, username string) e
 }
 
 func (s Server) refreshEducatorEditState(ctx context.Context, username string) error {
-	educator, err := s.Educators.GetByUsername(ctx, username)
+	educator, err := s.ReadModels.Educators.GetByUsername(ctx, username)
 	if err != nil {
 		return err
 	}
