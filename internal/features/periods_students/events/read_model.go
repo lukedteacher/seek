@@ -3,7 +3,6 @@ package events
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
@@ -28,11 +27,11 @@ type PeriodStudentReadModelReader interface {
 }
 
 type PeriodStudentReadModelWriter interface {
-	AddStudentToPeriod(ctx context.Context, event PeriodStudentAddedProjection) error
-	RemoveStudentFromPeriod(ctx context.Context, event PeriodStudentRemovedProjection) error
+	AddStudentToPeriod(ctx context.Context, event StudentAddedToPeriodProjection) error
+	RemoveStudentFromPeriod(ctx context.Context, event StudentRemovedFromPeriodProjection) error
 }
 
-// READ MODEL READER FUNCTIONS
+// period student read model reader functions
 
 func (m *ReadModel) Get(ctx context.Context, period_id, student_id string) (*models.PeriodStudent, error) {
 	var row *dbsql.GetPeriodStudentRes
@@ -108,9 +107,9 @@ func (m *ReadModel) ListStudentIDsForPeriod(ctx context.Context, period_id strin
 	return studentIDs, nil
 }
 
-// READ MODEL WRITER FUNCTIONS
+// period student read model writer functions
 
-func (m *ReadModel) AddStudentToPeriod(ctx context.Context, event PeriodStudentAddedProjection) error {
+func (m *ReadModel) AddStudentToPeriod(ctx context.Context, event StudentAddedToPeriodProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceAddStudentToPeriod(conn, dbsql.AddStudentToPeriodParams{
 			PeriodId:                 event.PeriodID,
@@ -122,32 +121,11 @@ func (m *ReadModel) AddStudentToPeriod(ctx context.Context, event PeriodStudentA
 	})
 }
 
-func (m *ReadModel) RemoveStudentFromPeriod(ctx context.Context, event PeriodStudentRemovedProjection) error {
+func (m *ReadModel) RemoveStudentFromPeriod(ctx context.Context, event StudentRemovedFromPeriodProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceRemoveStudentFromPeriod(conn, dbsql.RemoveStudentFromPeriodParams{
 			PeriodId:  event.PeriodID,
 			StudentId: event.StudentID,
 		})
 	})
-}
-
-// HELPERS
-
-func parseTime(value any) time.Time {
-	text, _ := value.(string)
-	parsed, err := time.Parse(time.RFC3339, text)
-	if err != nil {
-		return time.Now()
-	}
-	return parsed
-}
-
-func parseDBTime(value string) time.Time {
-	for _, layout := range []string{time.RFC3339Nano, time.RFC3339, "2006-01-02 15:04:05"} {
-		parsed, err := time.Parse(layout, value)
-		if err == nil {
-			return parsed
-		}
-	}
-	return time.Time{}
 }

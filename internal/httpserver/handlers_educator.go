@@ -11,6 +11,7 @@ import (
 	"seek/internal/features/educators/events"
 	"seek/internal/features/educators/models"
 	"seek/internal/features/educators/pages"
+	pdto "seek/internal/features/periods/dto"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -26,11 +27,17 @@ func (s Server) educatorRoutes(r chi.Router) {
 	r.Post("/educators/create", s.postEducatorCreate)
 	r.Get("/educators/{username}", s.getEducatorView)
 	r.Get("/educators/{username}/stream", s.getEducatorViewStream)
+	r.Get("/educators/{username}/schedule", s.getEducatorViewSchedule)
 	r.Get("/educators/{username}/edit", s.getEducatorEdit)
 	r.Get("/educators/{username}/edit/stream", s.getEducatorEditStream)
 	r.Post("/educators/{username}/edit/validate", s.postEducatorEditValidate)
 	r.Post("/educators/{username}/edit", s.postEducatorEdit)
 	r.Delete("/educators/{username}", s.deleteEducator)
+	r.Get("/e", s.Test)
+}
+
+func (s Server) Test(w http.ResponseWriter, r *http.Request) {
+	seedEducatorPeriods(r.Context(), s)
 }
 
 // GET request to /educators
@@ -89,7 +96,7 @@ func (s Server) getEducatorCreate(w http.ResponseWriter, r *http.Request) {
 	empty := models.Educator{}
 	view := dto.NewEducatorView(&empty)
 	view.URL = "/educators/create"
-	_ = pages.Create(user, *view).Render(ctx, w)
+	_ = pages.Create(user, view).Render(ctx, w)
 }
 
 // GET request to /educators/create/stream
@@ -127,7 +134,7 @@ func (s Server) getEducatorCreateStream(w http.ResponseWriter, r *http.Request) 
 			}
 			view := dto.NewEducatorView(model)
 			view.URL = "/educators/create"
-			sse.PatchElementTempl(pages.Create(user, *view))
+			sse.PatchElementTempl(pages.Create(user, view))
 		}
 	}
 }
@@ -201,8 +208,43 @@ func (s Server) getEducatorView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view := dto.NewEducatorView(educator)
-	view.URL = fmt.Sprintf("/educatorsts/%s", username)
-	_ = pages.View(user, *view).Render(ctx, w)
+	view.URL = fmt.Sprintf("/educators/%s", username)
+	_ = pages.View(user, view, []pdto.PeriodScheduleView{}, "info").Render(ctx, w)
+}
+
+// GET request to /educators/{username}/schedule
+func (s Server) getEducatorViewSchedule(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := currentUser(r)
+
+	// get the username from the URL and get the educator from the db
+	username := chi.URLParam(r, "username")
+	educator, err := s.Educators.GetByUsername(ctx, username)
+	if educator == nil {
+		_ = pages.NotFound(user).Render(ctx, w)
+		return
+	}
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "get educator view schedule db get", "error", err)
+		return
+	}
+
+	// create the educator view and set the URL
+	educatorView := dto.NewEducatorView(educator)
+	educatorView.URL = fmt.Sprintf("/educators/%s", username)
+
+	// get periods for the educator and make views
+	periods, err := s.Periods.ListPeriodsForEducator(ctx, educator.ID)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "get educator view schedule db list periods", "err", err)
+		return
+	}
+	periodViews := []pdto.PeriodScheduleView{}
+	for _, period := range periods {
+		periodViews = append(periodViews, pdto.NewPeriodScheduleViews(period)...)
+	}
+
+	_ = pages.View(user, educatorView, periodViews, "schedule").Render(ctx, w)
 }
 
 // GET request to /educators/{username}/stream
@@ -266,7 +308,7 @@ func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 			}
 			view := dto.NewEducatorView(model)
 			view.URL = fmt.Sprintf("/educatorst/%s", username)
-			sse.PatchElementTempl(pages.View(user, *view))
+			sse.PatchElementTempl(pages.View(user, view, []pdto.PeriodScheduleView{}, "info"))
 		}
 	}
 }
@@ -288,7 +330,7 @@ func (s Server) getEducatorEdit(w http.ResponseWriter, r *http.Request) {
 
 	view := dto.NewEducatorView(educator)
 	view.URL = fmt.Sprintf("/educators/%s/edit", username)
-	_ = pages.Edit(user, *view).Render(ctx, w)
+	_ = pages.Edit(user, view).Render(ctx, w)
 }
 
 // GET request to /educator/{username}/stream
@@ -346,7 +388,7 @@ func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			view := dto.NewEducatorView(model)
 			view.URL = fmt.Sprintf("/educators/%s/edit", username)
-			sse.PatchElementTempl(pages.Edit(user, *view))
+			sse.PatchElementTempl(pages.Edit(user, view))
 		}
 	}
 }

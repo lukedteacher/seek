@@ -9,13 +9,16 @@ import (
 )
 
 var (
-	ErrNotFound         = errors.New("not found")
-	ErrNotActive        = errors.New("not active")
-	ErrPeriodNotFound   = errors.New("period not found")
-	ErrScheduleNotFound = errors.New("schedule not found")
-	ErrStudentNotFound  = errors.New("student not found")
-	ErrConflict         = errors.New("event position conflict")
-	ErrInvalidEvent     = errors.New("invalid event")
+	ErrNotFound          = errors.New("not found")
+	ErrNotActive         = errors.New("not active")
+	ErrEducatorNotFound  = errors.New("educator not found")
+	ErrEducatorNotActive = errors.New("educator not active")
+	ErrPeriodNotFound    = errors.New("period not found")
+	ErrPeriodNotActive   = errors.New("period not active")
+	ErrStudentNotFound   = errors.New("student not found")
+	ErrStudentNotActive  = errors.New("student not active")
+	ErrConflict          = errors.New("event position conflict")
+	ErrInvalidEvent      = errors.New("invalid event")
 )
 
 type Position struct {

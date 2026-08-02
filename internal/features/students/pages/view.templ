@@ -21,7 +21,6 @@ templ View(user models.User, view dto.StudentView, periods []pdto.PeriodSchedule
 	@corelayouts.LayoutBase("SEEK: student", user) {
 		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain(view.FullName(), view.URL)
-			@tabs.Script()
 			@tabs.Tabs(tabs.Props{
 				ID:    "student-tabs",
 				Class: "w-full md:px-3 flex flex-col gap-3",

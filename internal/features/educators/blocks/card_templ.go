@@ -188,7 +188,7 @@ func Card(view dto.EducatorView) templ.Component {
 					return nil
 				})
 				templ_7745c5c3_Err = button.Button(button.Props{
-					Href: fmt.Sprintf("/%s/edit", view.URL),
+					Href: fmt.Sprintf("%s/edit", view.URL),
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -203,7 +203,7 @@ func Card(view dto.EducatorView) templ.Component {
 		})
 		templ_7745c5c3_Err = card.Card(card.Props{
 			ID:    fmt.Sprintf("educator-%s-card", view.Username),
-			Class: "educator-card",
+			Class: "educator-card w-128",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

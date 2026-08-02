@@ -8,6 +8,7 @@ import (
 	"seek/internal/config"
 	"seek/internal/eventstore"
 	educatorEvents "seek/internal/features/educators/events"
+	educatorPeriodEvents "seek/internal/features/educators_periods/events"
 	iepServiceEvents "seek/internal/features/iepservices/events"
 	periodEvents "seek/internal/features/periods/events"
 	periodStudentEvents "seek/internal/features/periods_students/events"
@@ -109,6 +110,18 @@ func eventHandlerFactories(
 					store,
 					components.checkpointer,
 					components.educatorReadModel,
+					bus,
+					logger,
+				)
+			},
+		},
+		{
+			name: "educator period read model",
+			create: func() (eventHandler, error) {
+				return educatorPeriodEvents.NewPeriodEducatorReadModelEventHandler(
+					store,
+					components.checkpointer,
+					components.educatorPeriodsReadModel,
 					bus,
 					logger,
 				)

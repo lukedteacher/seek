@@ -9,6 +9,7 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
 	ee "seek/internal/features/educators/events"
+	epe "seek/internal/features/educators_periods/events"
 	pe "seek/internal/features/periods/events"
 	se "seek/internal/features/students/events"
 )
@@ -155,4 +156,16 @@ func seedEducators(ctx context.Context, s Server) error {
 func parseTimeOnly(s string) sharedmodels.TimeOnly {
 	t, _ := time.Parse("15:04", s)
 	return sharedmodels.TimeOnly(t)
+}
+
+func seedEducatorPeriods(ctx context.Context, s Server) {
+	command := epe.AddEducatorToPeriodCommand{
+		PeriodID:   "019fc0a8-445b-76e5-bfec-e287bf6094ff",
+		EducatorID: "019fc0a8-446b-7d8c-b274-e1aabaeaaa39",
+	}
+	result, err := epe.AddEducatorToPeriodCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
+	if err != nil {
+		s.Logger.Error("fart", "err", err)
+	}
+	s.Logger.Debug(result.EventID)
 }

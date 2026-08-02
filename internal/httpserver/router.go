@@ -11,6 +11,7 @@ import (
 	"seek/internal/auth"
 	"seek/internal/eventstore"
 	educators "seek/internal/features/educators/events"
+	educatorsPeriods "seek/internal/features/educators_periods/events"
 	iepService "seek/internal/features/iepservices/events"
 	period "seek/internal/features/periods/events"
 	periodStudent "seek/internal/features/periods_students/events"
@@ -59,6 +60,7 @@ type Server struct {
 	PasswordCredentials auth.PasswordCredentialReader
 	Verifications       VerificationStore
 	Educators           educators.EducatorReadModelReader
+	EducatorsPeriods    educatorsPeriods.PeriodEducatorReadModelReader
 	IEPServices         iepService.IEPServiceReadModelReader
 	Periods             period.PeriodReadModelReader
 	Profiles            ProfileReader

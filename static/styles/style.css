@@ -7036,6 +7036,9 @@
   .w-80 {
     width: calc(var(--spacing) * 80);
   }
+  .w-128 {
+    width: calc(var(--spacing) * 128);
+  }
   .w-\[1px\] {
     width: 1px;
   }

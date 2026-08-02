@@ -8,7 +8,6 @@ import (
 	"seek/internal/eventstore"
 	idto "seek/internal/features/iepservices/dto"
 	pdto "seek/internal/features/periods/dto"
-	pmodels "seek/internal/features/periods/models"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/students/events"
 	"seek/internal/features/students/models"
@@ -50,9 +49,9 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 		s.Logger.ErrorContext(ctx, "students list db list", "err", err)
 		return
 	}
-	view := dto.NewStudentTableView(students)
-	view.URL = "/students"
-	_ = pages.List(user, view).Render(ctx, w)
+	studentTableView := dto.NewStudentTableView(students)
+	studentTableView.URL = "/students"
+	_ = pages.List(user, studentTableView).Render(ctx, w)
 }
 
 // GET request to /students/stream
@@ -83,9 +82,9 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			view := dto.NewStudentTableView(students)
-			view.URL = "/students"
-			sse.PatchElementTempl(pages.List(user, view))
+			studentTableView := dto.NewStudentTableView(students)
+			studentTableView.URL = "/students"
+			sse.PatchElementTempl(pages.List(user, studentTableView))
 		}
 	}
 }
@@ -95,9 +94,9 @@ func (s Server) getStudentCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	empty := models.NewStudent()
-	view := dto.NewStudentFormView(empty)
-	view.URL = "/students/create"
-	_ = pages.Create(user, view).Render(ctx, w)
+	studentFormView := dto.NewStudentFormView(empty)
+	studentFormView.URL = "/students/create"
+	_ = pages.Create(user, studentFormView).Render(ctx, w)
 }
 
 // GET request to /students/create/stream
@@ -129,14 +128,14 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			model := &models.Student{}
-			if err := entry.JSON(model); err != nil {
+			student := &models.Student{}
+			if err := entry.JSON(student); err != nil {
 				s.Logger.ErrorContext(ctx, "student create stream json", "err", err)
 				return
 			}
-			view := dto.NewStudentFormView(model)
-			view.URL = "/students/create"
-			sse.PatchElementTempl(pages.Create(user, view))
+			studentFormView := dto.NewStudentFormView(student)
+			studentFormView.URL = "/students/create"
+			sse.PatchElementTempl(pages.Create(user, studentFormView))
 		}
 	}
 }
@@ -151,8 +150,8 @@ func (s Server) postStudentCreateValidate(w http.ResponseWriter, r *http.Request
 		s.Logger.ErrorContext(ctx, "student create validate signal read", "err", err)
 		return
 	}
-	model := dto.NewStudentModelFromView(&signals.Student)
-	if err := viewstore.PutState(ctx, s.ViewStore, "newstudent", model); err != nil {
+	student := dto.NewStudentModelFromView(&signals.Student)
+	if err := viewstore.PutState(ctx, s.ViewStore, "newstudent", student); err != nil {
 		s.Logger.ErrorContext(ctx, "student create validate put state", "err", err)
 		return
 	}
@@ -210,10 +209,10 @@ func (s Server) getStudentViewInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create the student view and set the URL
-	view := dto.NewStudentView(student)
-	view.URL = fmt.Sprintf("/students/%s/info", student.Username)
+	studentView := dto.NewStudentView(student)
+	studentView.URL = fmt.Sprintf("/students/%s/info", student.Username)
 
-	_ = pages.View(user, view, []pdto.PeriodScheduleView{}, []idto.IEPServiceView{}, "info").Render(ctx, w)
+	_ = pages.View(user, studentView, []pdto.PeriodScheduleView{}, []idto.IEPServiceView{}, "info").Render(ctx, w)
 }
 
 // GET request to /students/{username}/info/stream
@@ -270,14 +269,14 @@ func (s Server) getStudentViewInfoStream(w http.ResponseWriter, r *http.Request)
 			if !ok {
 				return
 			}
-			model := &models.Student{}
-			if err := entry.JSON(model); err != nil {
+			student := &models.Student{}
+			if err := entry.JSON(student); err != nil {
 				s.Logger.ErrorContext(ctx, "student view info stream json read", "err", err)
 				return
 			}
-			view := dto.NewStudentView(model)
-			view.URL = fmt.Sprintf("/students/%s/info", username)
-			sse.PatchElementTempl(pages.View(user, view, []pdto.PeriodScheduleView{}, []idto.IEPServiceView{}, "info"))
+			studentView := dto.NewStudentView(student)
+			studentView.URL = fmt.Sprintf("/students/%s/info", username)
+			sse.PatchElementTempl(pages.View(user, studentView, []pdto.PeriodScheduleView{}, []idto.IEPServiceView{}, "info"))
 		}
 	}
 }
@@ -287,35 +286,34 @@ func (s Server) getStudentViewSchedule(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 
-	// get the id from the URL and pull the data from the db
+	// get the username from the URL and get the student from the db
 	username := chi.URLParam(r, "username")
 	student, err := s.Students.GetByUsername(ctx, username)
+	if student == nil {
+		_ = pages.NotFound(user).Render(ctx, w)
+		return
+	}
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "get student view schedule db get", "err", err)
 		return
 	}
 
 	// create the student view and set the URL
-	view := dto.NewStudentView(student)
-	view.URL = fmt.Sprintf("/students/%s/schedule", username)
+	studentView := dto.NewStudentView(student)
+	studentView.URL = fmt.Sprintf("/students/%s/schedule", username)
 
-	// get the list of periods for the student and make views
-	periodIDs, err := s.PeriodsStudents.ListPeriodIDsForStudent(ctx, student.ID)
+	// get the periods for the student and make views
+	periods, err := s.Periods.ListPeriodsForStudent(ctx, student.ID)
 	if err != nil {
-		s.Logger.ErrorContext(ctx, "get student view schedule db list period IDs", "err", err)
-	}
-	periods := make([]*pmodels.Period, len(periodIDs))
-	for i, periodID := range periodIDs {
-		periods[i], err = s.Periods.Get(ctx, periodID)
-		if err != nil {
-			s.Logger.ErrorContext(ctx, "get student view schedule db get period", "pid", periodID, "err", err)
-		}
+		s.Logger.ErrorContext(ctx, "get student view schedule db list periods", "err", err)
+		return
 	}
 	periodViews := []pdto.PeriodScheduleView{}
 	for _, period := range periods {
-		periodViews = append(periodViews, pdto.NewPeriodScheduleViews(*period)...)
+		periodViews = append(periodViews, pdto.NewPeriodScheduleViews(period)...)
 	}
-	_ = pages.View(user, view, periodViews, []idto.IEPServiceView{}, "schedule").Render(ctx, w)
+
+	_ = pages.View(user, studentView, periodViews, []idto.IEPServiceView{}, "schedule").Render(ctx, w)
 }
 
 // GET request to /students/{username}/schedule/stream
@@ -372,31 +370,25 @@ func (s Server) getStudentViewScheduleStream(w http.ResponseWriter, r *http.Requ
 			if !ok {
 				return
 			}
-			model := &models.Student{}
-			if err := entry.JSON(model); err != nil {
+			student := &models.Student{}
+			if err := entry.JSON(student); err != nil {
 				s.Logger.ErrorContext(ctx, "student view schedule stream json read", "err", err)
 				return
 			}
-			view := dto.NewStudentView(model)
-			view.URL = fmt.Sprintf("/students/%s/schedule", username)
+			studentView := dto.NewStudentView(student)
+			studentView.URL = fmt.Sprintf("/students/%s/schedule", username)
 
-			// get the list of periods for the student and make views
-			periodIDs, err := s.PeriodsStudents.ListPeriodIDsForStudent(ctx, view.ID)
+			// get the periods for the student and make views
+			periods, err := s.Periods.ListPeriodsForStudent(ctx, student.ID)
 			if err != nil {
-				s.Logger.ErrorContext(ctx, "get student view schedule stream db list period IDs", "err", err)
-			}
-			periods := make([]*pmodels.Period, len(periodIDs))
-			for i, periodID := range periodIDs {
-				periods[i], err = s.Periods.Get(ctx, periodID)
-				if err != nil {
-					s.Logger.ErrorContext(ctx, "get student view schedule stream db get period", "pid", periodID, "err", err)
-				}
+				s.Logger.ErrorContext(ctx, "get student view schedule db list periods", "err", err)
+				return
 			}
 			periodViews := []pdto.PeriodScheduleView{}
 			for _, period := range periods {
-				periodViews = append(periodViews, pdto.NewPeriodScheduleViews(*period)...)
+				periodViews = append(periodViews, pdto.NewPeriodScheduleViews(period)...)
 			}
-			sse.PatchElementTempl(pages.View(user, view, periodViews, []idto.IEPServiceView{}, "schedule"))
+			sse.PatchElementTempl(pages.View(user, studentView, periodViews, []idto.IEPServiceView{}, "schedule"))
 		}
 	}
 }
@@ -415,8 +407,8 @@ func (s Server) getStudentViewServices(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create the student view and set the URL
-	view := dto.NewStudentView(student)
-	view.URL = fmt.Sprintf("/students/%s/services", username)
+	studentView := dto.NewStudentView(student)
+	studentView.URL = fmt.Sprintf("/students/%s/services", username)
 
 	// get the list of services for the student and make views
 	services, err := s.IEPServices.ListIEPServicesForStudent(ctx, student.ID)
@@ -427,7 +419,7 @@ func (s Server) getStudentViewServices(w http.ResponseWriter, r *http.Request) {
 	for i, service := range services {
 		serviceViews[i] = idto.NewIEPServiceView(&service)
 	}
-	_ = pages.View(user, view, []pdto.PeriodScheduleView{}, serviceViews, "services").Render(ctx, w)
+	_ = pages.View(user, studentView, []pdto.PeriodScheduleView{}, serviceViews, "services").Render(ctx, w)
 }
 
 // GET request to /students/{username}/services/stream
@@ -484,16 +476,16 @@ func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Requ
 			if !ok {
 				return
 			}
-			model := &models.Student{}
-			if err := entry.JSON(model); err != nil {
+			student := &models.Student{}
+			if err := entry.JSON(student); err != nil {
 				s.Logger.ErrorContext(ctx, "student view services stream json read", "err", err)
 				return
 			}
-			view := dto.NewStudentView(model)
-			view.URL = fmt.Sprintf("/students/%s/services", username)
+			studentView := dto.NewStudentView(student)
+			studentView.URL = fmt.Sprintf("/students/%s/services", username)
 
 			// get the list of services for the student and make views
-			services, err := s.IEPServices.ListIEPServicesForStudent(ctx, view.ID)
+			services, err := s.IEPServices.ListIEPServicesForStudent(ctx, studentView.ID)
 			if err != nil {
 				s.Logger.ErrorContext(ctx, "get student view db list services", "err", err)
 			}
@@ -502,7 +494,7 @@ func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Requ
 				serviceViews[i] = idto.NewIEPServiceView(&service)
 			}
 
-			sse.PatchElementTempl(pages.View(user, view, []pdto.PeriodScheduleView{}, serviceViews, "services"))
+			sse.PatchElementTempl(pages.View(user, studentView, []pdto.PeriodScheduleView{}, serviceViews, "services"))
 		}
 	}
 }
@@ -522,9 +514,9 @@ func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	view := dto.NewStudentFormView(model)
-	view.URL = fmt.Sprintf("/students/%s/edit", username)
-	_ = pages.Edit(user, view).Render(ctx, w)
+	studentFormView := dto.NewStudentFormView(model)
+	studentFormView.URL = fmt.Sprintf("/students/%s/edit", username)
+	_ = pages.Edit(user, studentFormView).Render(ctx, w)
 }
 
 // GET request to /student/{username}/edit/stream
@@ -575,14 +567,14 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			model := &models.Student{}
-			if err := entry.JSON(model); err != nil {
+			student := &models.Student{}
+			if err := entry.JSON(student); err != nil {
 				s.Logger.ErrorContext(ctx, "student edit stream json read", "err", err)
 				return
 			}
-			view := dto.NewStudentFormView(model)
-			view.URL = fmt.Sprintf("/students/%s/edit", username)
-			sse.PatchElementTempl(pages.Edit(user, view))
+			studentFormView := dto.NewStudentFormView(student)
+			studentFormView.URL = fmt.Sprintf("/students/%s/edit", username)
+			sse.PatchElementTempl(pages.Edit(user, studentFormView))
 		}
 	}
 }
@@ -598,8 +590,8 @@ func (s Server) postStudentEditValidate(w http.ResponseWriter, r *http.Request) 
 		s.Logger.ErrorContext(ctx, "student edit validate read signals", "err", err)
 		return
 	}
-	model := dto.NewStudentModelFromView(&signals.Student)
-	viewstore.PutState(ctx, s.ViewStore, username, model)
+	student := dto.NewStudentModelFromView(&signals.Student)
+	viewstore.PutState(ctx, s.ViewStore, username, student)
 }
 
 // POST request to /students/{username}/edit

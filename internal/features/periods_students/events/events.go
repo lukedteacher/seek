@@ -8,27 +8,31 @@ import (
 
 // EVENT NAMES
 const (
-	PeriodStudentAdded   = "PeriodStudentAdded"
-	PeriodStudentRemoved = "PeriodStudentRemoved"
+	StudentAddedToPeriod     = "StudentAddedToPeriod"
+	StudentRemovedFromPeriod = "StudentRemovedFromPeriod"
 )
 
 // EVENT FIELDS
 const (
-	PeriodStudentAddedIDField   = "period_student_added_event_id"
-	PeriodStudentAddedAtField   = "added_at"
-	PeriodStudentRemovedIDField = "period_student_removed_event_id"
-	PeriodStudentRemovedAtField = "removed_at"
+	StudentAddedToPeriodIDField     = "student_added_to_period_event_id"
+	StudentAddedToPeriodAtField     = "added_at"
+	StudentRemovedFromPeriodIDField = "student_removed_from_period_event_id"
+	StudentRemovedFromPeriodAtField = "removed_at"
 )
 
-type PeriodStudentAddedEvent struct {
-	EventID string             `json:"period_student_added_event_id"`
-	AddedAt string             `json:"added_at"`
-	Scope   PeriodStudentScope `json:"scope"`
+type StudentAddedToPeriodEvent struct {
+	EventID   string             `json:"student_added_to_period_event_id"`
+	PeriodID  string             `json:"period_id"`
+	StudentID string             `json:"student_id"`
+	AddedAt   time.Time          `json:"added_at"`
+	Scope     PeriodStudentScope `json:"scope"`
 }
 
-type PeriodStudentRemovedEvent struct {
-	EventID   string             `json:"period_student_removed_event_id"`
-	RemovedAt string             `json:"removed_at"`
+type StudentRemovedFromPeriodEvent struct {
+	EventID   string             `json:"student_removed_from_period_event_id"`
+	PeriodID  string             `json:"period_id"`
+	StudentID string             `json:"student_id"`
+	RemovedAt time.Time          `json:"removed_at"`
 	Scope     PeriodStudentScope `json:"scope"`
 }
 
@@ -37,41 +41,45 @@ type PeriodStudentScope struct {
 	StudentID string `json:"student_id"`
 }
 
-func NewPeriodStudentAddedEvent(
+func NewStudentAddedToPeriodEvent(
 	eventID,
 	periodID,
 	studentID string,
 	addedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
-	event := PeriodStudentAddedEvent{
-		EventID: eventID,
-		AddedAt: addedAt.Format(time.RFC3339),
-		Scope:   periodStudentScope(periodID, studentID),
+	event := StudentAddedToPeriodEvent{
+		EventID:   eventID,
+		PeriodID:  periodID,
+		StudentID: studentID,
+		AddedAt:   addedAt,
+		Scope:     periodStudentScope(periodID, studentID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: PeriodStudentAdded,
+		EventType: StudentAddedToPeriod,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}
 }
 
-func NewPeriodStudentRemovedEvent(
+func NewStudentRemovedFromPeriodEvent(
 	eventID,
 	periodID,
 	studentID string,
 	removedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
-	event := PeriodStudentRemovedEvent{
+	event := StudentRemovedFromPeriodEvent{
 		EventID:   eventID,
-		RemovedAt: removedAt.Format(time.RFC3339),
+		PeriodID:  periodID,
+		StudentID: studentID,
+		RemovedAt: removedAt,
 		Scope:     periodStudentScope(periodID, studentID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: PeriodStudentRemoved,
+		EventType: StudentRemovedFromPeriod,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}

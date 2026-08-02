@@ -276,12 +276,12 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	// create period student associations
 	studentIDs := strings.Split(signals.Period.StudentIDs, ",")
 	for _, studentID := range studentIDs {
-		periodStudentAddCommand := psevents.PeriodStudentAddCommand{
+		periodStudentAddCommand := psevents.AddStudentToPeriodCommand{
 			PeriodID:  result.EventID,
 			StudentID: studentID,
 			Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
-		_, err := psevents.PeriodStudentAddCommandHandler(
+		_, err := psevents.AddStudentToPeriodCommandHandler(
 			ctx,
 			periodStudentAddCommand,
 			s.EventSaver,
@@ -590,7 +590,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		// find deletions
 		for _, studentID := range current {
 			if !proposedMap[studentID] {
-				result, err := psevents.PeriodStudentRemoveCommandHandler(ctx, psevents.PeriodStudentRemoveCommand{
+				result, err := psevents.RemoveStudentFromPeriodCommandHandler(ctx, psevents.RemoveStudentFromPeriodCommand{
 					PeriodID:  periodID,
 					StudentID: studentID,
 					Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
@@ -607,7 +607,7 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		// find additions
 		for _, studentID := range proposed {
 			if !currentMap[studentID] {
-				result, err := psevents.PeriodStudentAddCommandHandler(ctx, psevents.PeriodStudentAddCommand{
+				result, err := psevents.AddStudentToPeriodCommandHandler(ctx, psevents.AddStudentToPeriodCommand{
 					PeriodID:  periodID,
 					StudentID: studentID,
 					Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),

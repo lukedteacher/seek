@@ -9,3 +9,5 @@ CREATE TABLE IF NOT EXISTS periods_students (
 	FOREIGN KEY (period_id) REFERENCES periods(id) ON DELETE CASCADE,
 	FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 );
+
+CREATE INDEX IF NOT EXISTS periods_students_student_id_idx ON periods_students(student_id);

@@ -51,5 +51,5 @@ func (db *DB) WriteTX(ctx context.Context, fn TxFn) error {
 }
 
 func SQLTime(value time.Time) string {
-	return value.UTC().Format("2006-01-02 15:04:05")
+	return value.UTC().Format(time.RFC3339Nano)
 }

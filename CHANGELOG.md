@@ -2,6 +2,11 @@
 
 updates for SEEK
 
+## v0.4.4 (26.08.01) educator period read model
+
+- tweaked events for various objects
+- implemented educator period read model
+
 ## v0.4.3 (26.08.01) continued educator work, style stuff
 
 - moved educator to username instead of ID for resource URL target

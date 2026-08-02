@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"time"
@@ -13,14 +14,14 @@ import (
 
 const PeriodStudentReadModelEventHandlerName = "period_student_read_model_event_handler"
 
-type PeriodStudentAddedProjection struct {
+type StudentAddedToPeriodProjection struct {
 	Position  eventstore.Position
 	PeriodID  string
 	StudentID string
 	AddedAt   time.Time
 }
 
-type PeriodStudentRemovedProjection struct {
+type StudentRemovedFromPeriodProjection struct {
 	Position  eventstore.Position
 	PeriodID  string
 	StudentID string
@@ -33,7 +34,16 @@ type PeriodStudentReadModelEventHandler struct {
 	publisher eventstore.Publisher
 }
 
-func NewPeriodStudentReadModelEventHandler(subscriber eventstore.Subscriber, checkpointer eventstore.Checkpointer, readModel PeriodStudentReadModelWriter, publisher eventstore.Publisher, logger *slog.Logger) (*PeriodStudentReadModelEventHandler, error) {
+func NewPeriodStudentReadModelEventHandler(
+	subscriber eventstore.Subscriber,
+	checkpointer eventstore.Checkpointer,
+	readModel PeriodStudentReadModelWriter,
+	publisher eventstore.Publisher,
+	logger *slog.Logger,
+) (
+	*PeriodStudentReadModelEventHandler,
+	error,
+) {
 	handler := &PeriodStudentReadModelEventHandler{readModel: readModel, publisher: publisher}
 	global, err := eventstore.NewGlobalEventHandler(eventstore.GlobalEventHandlerConfig{
 		Subscriber:      subscriber,
@@ -61,8 +71,8 @@ func (h *PeriodStudentReadModelEventHandler) StopSubscribing() {
 
 func ScheduleReadModelEventHandlerQuery() eventstore.Query {
 	eventTypes := []string{
-		PeriodStudentAdded,
-		PeriodStudentRemoved,
+		StudentAddedToPeriod,
+		StudentRemovedFromPeriod,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
 	for _, eventType := range eventTypes {
@@ -74,33 +84,36 @@ func ScheduleReadModelEventHandlerQuery() eventstore.Query {
 }
 
 func (h *PeriodStudentReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	data := resolved.Event.Data
-	scope := eventstore.Scope(data)
-	periodID, _ := scope[period.FieldPeriodID].(string)
-	if periodID == "" {
-		return fmt.Errorf("no period id provided for read model event")
-	}
-	studentID, _ := scope[student.FieldStudentID].(string)
-	if studentID == "" {
-		return fmt.Errorf("no student id provided for read model event")
-	}
+	var periodID, studentID string
 
 	switch resolved.Event.EventType {
-	case PeriodStudentAdded:
-		if err := h.readModel.AddStudentToPeriod(ctx, PeriodStudentAddedProjection{
+	case StudentAddedToPeriod:
+		var event StudentAddedToPeriodEvent
+		if err := json.Unmarshal([]byte(resolved.Event.RawData), &event); err != nil {
+			return err
+		}
+		periodID = event.PeriodID
+		studentID = event.StudentID
+		if err := h.readModel.AddStudentToPeriod(ctx, StudentAddedToPeriodProjection{
 			Position:  resolved.Position,
-			PeriodID:  periodID,
-			StudentID: studentID,
-			AddedAt:   parseTime(data[PeriodStudentAddedAtField]),
+			PeriodID:  event.PeriodID,
+			StudentID: event.StudentID,
+			AddedAt:   event.AddedAt,
 		}); err != nil {
 			return err
 		}
-	case PeriodStudentRemoved:
-		if err := h.readModel.RemoveStudentFromPeriod(ctx, PeriodStudentRemovedProjection{
+	case StudentRemovedFromPeriod:
+		var event StudentRemovedFromPeriodEvent
+		if err := json.Unmarshal([]byte(resolved.Event.RawData), &event); err != nil {
+			return err
+		}
+		periodID = event.PeriodID
+		studentID = event.StudentID
+		if err := h.readModel.RemoveStudentFromPeriod(ctx, StudentRemovedFromPeriodProjection{
 			Position:  resolved.Position,
-			PeriodID:  periodID,
-			StudentID: studentID,
-			RemovedAt: parseTime(data[PeriodStudentAddedAtField]),
+			PeriodID:  event.PeriodID,
+			StudentID: event.StudentID,
+			RemovedAt: event.RemovedAt,
 		}); err != nil {
 			return err
 		}

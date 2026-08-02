@@ -12,11 +12,11 @@ type EducatorView struct {
 	URL                 string `json:"url"`
 }
 
-func NewEducatorView(s *models.Educator) *EducatorView {
+func NewEducatorView(s *models.Educator) EducatorView {
 	if s == nil {
-		return nil
+		return EducatorView{}
 	}
-	return &EducatorView{
+	return EducatorView{
 		ID:     s.ID,
 		Person: s.Person,
 		Role:   s.Role,

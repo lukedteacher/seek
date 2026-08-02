@@ -21,6 +21,8 @@ func NewReadModel(db *appdb.DB) *ReadModel {
 	return &ReadModel{db: db}
 }
 
+// period read model reader functions
+
 func (m *ReadModel) Get(ctx context.Context, id string) (*models.Period, error) {
 	var row *dbsql.GetPeriodRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
@@ -53,6 +55,58 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Period, error) {
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
 		rows, err = dbsql.OnceListPeriods(conn)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+	periods := make([]models.Period, 0, len(rows))
+	for _, row := range rows {
+		periods = append(periods, models.Period{
+			ID:          row.Id,
+			Title:       row.Title,
+			ServiceType: sharedmodels.ServiceType(row.ServiceType),
+			StartTime:   parseDBTimeOnly(row.StartTime),
+			EndTime:     parseDBTimeOnly(row.StartTime).Add(int(row.Duration)),
+			Duration:    int(row.Duration),
+			DaysBitmask: sharedmodels.DaysBitmask(row.DaysBitmask),
+			CreatedAt:   row.CreatedAt,
+			UpdatedAt:   row.UpdatedAt,
+		})
+	}
+	return periods, nil
+}
+
+func (m *ReadModel) ListPeriodsForEducator(ctx context.Context, educatorID string) ([]models.Period, error) {
+	var rows []dbsql.ListPeriodsForEducatorRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceListPeriodsForEducator(conn, educatorID)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+	periods := make([]models.Period, 0, len(rows))
+	for _, row := range rows {
+		periods = append(periods, models.Period{
+			ID:          row.Id,
+			Title:       row.Title,
+			ServiceType: sharedmodels.ServiceType(row.ServiceType),
+			StartTime:   parseDBTimeOnly(row.StartTime),
+			EndTime:     parseDBTimeOnly(row.StartTime).Add(int(row.Duration)),
+			Duration:    int(row.Duration),
+			DaysBitmask: sharedmodels.DaysBitmask(row.DaysBitmask),
+			CreatedAt:   row.CreatedAt,
+			UpdatedAt:   row.UpdatedAt,
+		})
+	}
+	return periods, nil
+}
+
+func (m *ReadModel) ListPeriodsForStudent(ctx context.Context, studentID string) ([]models.Period, error) {
+	var rows []dbsql.ListPeriodsForStudentRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceListPeriodsForStudent(conn, studentID)
 		return err
 	}); err != nil {
 		return nil, err

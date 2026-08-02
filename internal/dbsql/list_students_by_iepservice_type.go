@@ -48,10 +48,10 @@ SELECT
     s.archived_at
 FROM students s
 WHERE EXISTS (
-    SELECT 1 FROM iep_services ieps
-    WHERE ieps.student_id = s.id
-      AND ieps.service_type = ?1
-      AND ieps.archived_at IS NULL
+	SELECT 1 FROM iep_services ieps
+	WHERE ieps.student_id = s.id
+		AND ieps.service_type = ?1
+		AND ieps.archived_at IS NULL
 )
     `
 

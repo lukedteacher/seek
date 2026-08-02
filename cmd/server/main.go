@@ -19,6 +19,7 @@ import (
 	"seek/internal/eventcatalog"
 	"seek/internal/eventstore"
 	educatorEvents "seek/internal/features/educators/events"
+	educatorPeriodEvents "seek/internal/features/educators_periods/events"
 	iepService "seek/internal/features/iepservices/events"
 	period "seek/internal/features/periods/events"
 	periodStudent "seek/internal/features/periods_students/events"
@@ -40,20 +41,21 @@ type runOptions struct {
 }
 
 type appComponents struct {
-	sessionManager         *auth.SessionManager
-	authUsers              *auth.AuthUserStore
-	verifications          *auth.VerificationStore
-	educatorReadModel      *educatorEvents.ReadModel
-	iepServiceReadModel    *iepService.ReadModel
-	periodReadModel        *period.ReadModel
-	profileReadModel       *profile.ReadModel
-	studentReadModel       *student.ReadModel
-	periodStudentReadModel *periodStudent.ReadModel
-	checkpointer           eventstore.Checkpointer
-	emailSender            email.Sender
-	profileStorage         profile.ObjectStore
-	piiKeys                *auth.SubjectPiiKeyStore
-	accountDeletion        *auth.AccountDataDeletionStore
+	sessionManager           *auth.SessionManager
+	authUsers                *auth.AuthUserStore
+	verifications            *auth.VerificationStore
+	educatorReadModel        *educatorEvents.ReadModel
+	educatorPeriodsReadModel *educatorPeriodEvents.ReadModel
+	iepServiceReadModel      *iepService.ReadModel
+	periodReadModel          *period.ReadModel
+	profileReadModel         *profile.ReadModel
+	studentReadModel         *student.ReadModel
+	periodStudentReadModel   *periodStudent.ReadModel
+	checkpointer             eventstore.Checkpointer
+	emailSender              email.Sender
+	profileStorage           profile.ObjectStore
+	piiKeys                  *auth.SubjectPiiKeyStore
+	accountDeletion          *auth.AccountDataDeletionStore
 }
 
 func main() {
@@ -126,6 +128,7 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		PasswordCredentials: components.authUsers,
 		Verifications:       components.verifications,
 		Educators:           components.educatorReadModel,
+		EducatorsPeriods:    components.educatorPeriodsReadModel,
 		IEPServices:         components.iepServiceReadModel,
 		Profiles:            components.profileReadModel,
 		Periods:             components.periodReadModel,
@@ -212,6 +215,7 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 	sessionManager := auth.NewSessionManager(db, authUsers, !cfg.DevelopmentCookie)
 	verifications := auth.NewVerificationStore(db)
 	educatorReadModel := educatorEvents.NewReadModel(db)
+	educatorPeriodReadModel := educatorPeriodEvents.NewReadModel(db)
 	iepServiceReadModel := iepService.NewReadModel(db)
 	profileReadModel := profile.NewReadModel(db)
 	periodReadModel := period.NewReadModel(db)
@@ -222,20 +226,21 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 	accountDeletion := auth.NewAccountDataDeletionStore(db, profileStorage)
 
 	return appComponents{
-		sessionManager:         sessionManager,
-		authUsers:              authUsers,
-		verifications:          verifications,
-		educatorReadModel:      educatorReadModel,
-		iepServiceReadModel:    iepServiceReadModel,
-		profileReadModel:       profileReadModel,
-		periodReadModel:        periodReadModel,
-		studentReadModel:       studentReadModel,
-		periodStudentReadModel: periodStudentReadModel,
-		checkpointer:           eventstore.NewSQLiteCheckpointer(db),
-		emailSender:            email.LogSender{Logger: logger},
-		profileStorage:         profileStorage,
-		piiKeys:                piiKeys,
-		accountDeletion:        accountDeletion,
+		sessionManager:           sessionManager,
+		authUsers:                authUsers,
+		verifications:            verifications,
+		educatorReadModel:        educatorReadModel,
+		educatorPeriodsReadModel: educatorPeriodReadModel,
+		iepServiceReadModel:      iepServiceReadModel,
+		profileReadModel:         profileReadModel,
+		periodReadModel:          periodReadModel,
+		studentReadModel:         studentReadModel,
+		periodStudentReadModel:   periodStudentReadModel,
+		checkpointer:             eventstore.NewSQLiteCheckpointer(db),
+		emailSender:              email.LogSender{Logger: logger},
+		profileStorage:           profileStorage,
+		piiKeys:                  piiKeys,
+		accountDeletion:          accountDeletion,
 	}
 }
 

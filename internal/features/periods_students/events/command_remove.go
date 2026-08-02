@@ -10,28 +10,27 @@ import (
 	"seek/pkg/uuidv7"
 )
 
-type PeriodStudentRemoveCommand struct {
-	EventID   string
+type RemoveStudentFromPeriodCommand struct {
 	PeriodID  string
 	StudentID string
 	Metadata  CommandMetadata
 }
 
-type PeriodStudentRemoveResult struct {
+type RemoveStudentFromPeriodResult struct {
 	EventID string
 	Skipped bool
 }
 
-func PeriodStudentRemoveCommandHandler(
+func RemoveStudentFromPeriodCommandHandler(
 	ctx context.Context,
-	command PeriodStudentRemoveCommand,
+	command RemoveStudentFromPeriodCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
-	*PeriodStudentRemoveResult,
+	*RemoveStudentFromPeriodResult,
 	error,
 ) {
-	model, err := loadPeriodStudentRemoveContext(ctx, retriever, command.PeriodID, command.StudentID)
+	model, err := loadRemoveStudentFromPeriodContext(ctx, retriever, command.PeriodID, command.StudentID)
 	if err != nil {
 		return nil, err
 	}
@@ -42,37 +41,39 @@ func PeriodStudentRemoveCommandHandler(
 		return nil, err
 	}
 
-	skip := !model.studentAdded
+	skip := !model.added
 	if skip {
-		return &PeriodStudentRemoveResult{Skipped: skip}, nil
+		return &RemoveStudentFromPeriodResult{Skipped: skip}, nil
 	}
 	eventID := uuidv7.NewString()
-	event := NewPeriodStudentRemovedEvent(eventID, command.PeriodID, command.StudentID, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewStudentRemovedFromPeriodEvent(eventID, command.PeriodID, command.StudentID, time.Now(), metadataWithQuery(command.Metadata, model.query))
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return nil, err
 	}
-	return &PeriodStudentRemoveResult{EventID: eventID, Skipped: false}, nil
+	return &RemoveStudentFromPeriodResult{EventID: eventID, Skipped: false}, nil
 }
 
-type periodStudentRemoveContext struct {
-	periodCreated  bool
-	periodDeleted  bool
-	studentCreated bool
-	studentDeleted bool
-	studentAdded   bool
-	position       eventstore.Position
-	events         []eventstore.ResolvedEvent
-	query          eventstore.Query
+type removeStudentFromPeriodContext struct {
+	periodCreated   bool
+	periodArchived  bool
+	periodDeleted   bool
+	studentCreated  bool
+	studentArchived bool
+	studentDeleted  bool
+	added           bool
+	position        eventstore.Position
+	events          []eventstore.ResolvedEvent
+	query           eventstore.Query
 }
 
-func loadPeriodStudentRemoveContext(
+func loadRemoveStudentFromPeriodContext(
 	ctx context.Context,
 	retriever eventstore.Retriever,
 	periodID string,
 	studentID string,
 ) (
-	*periodStudentRemoveContext,
+	*removeStudentFromPeriodContext,
 	error,
 ) {
 	query := streamQuery(periodID, studentID)
@@ -81,7 +82,7 @@ func loadPeriodStudentRemoveContext(
 		return nil, err
 	}
 
-	model := &periodStudentRemoveContext{position: eventstore.NoEventPosition, events: events, query: query}
+	model := &removeStudentFromPeriodContext{position: eventstore.NoEventPosition, events: events, query: query}
 	for _, event := range events {
 		model.handle(event)
 	}
@@ -89,38 +90,40 @@ func loadPeriodStudentRemoveContext(
 	return model, nil
 }
 
-func (c *periodStudentRemoveContext) isPeriodActive() error {
-	if !c.periodCreated || c.periodDeleted {
+func (m *removeStudentFromPeriodContext) isPeriodActive() error {
+	if !m.periodCreated || m.periodArchived || m.periodDeleted {
 		return eventstore.ErrPeriodNotFound
 	}
 	return nil
 }
 
-func (c *periodStudentRemoveContext) isStudentActive() error {
-	if !c.studentCreated || c.studentDeleted {
+func (m *removeStudentFromPeriodContext) isStudentActive() error {
+	if !m.studentCreated || m.studentArchived || m.studentDeleted {
 		return eventstore.ErrStudentNotFound
 	}
 	return nil
 }
 
-func (c *periodStudentRemoveContext) handle(resolved eventstore.ResolvedEvent) {
+func (m *removeStudentFromPeriodContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case pe.PeriodCreated:
-		c.periodCreated = true
-		c.periodDeleted = false
+		m.periodCreated = true
+	case pe.PeriodArchived:
+		m.periodArchived = true
 	case pe.PeriodDeleted:
-		c.periodDeleted = true
+		m.periodDeleted = true
 	case se.StudentCreated:
-		c.studentCreated = true
-		c.studentDeleted = false
+		m.studentCreated = true
+	case se.StudentArchived:
+		m.studentArchived = true
 	case se.StudentDeleted:
-		c.studentDeleted = true
-	case PeriodStudentAdded:
-		c.studentAdded = true
-	case PeriodStudentRemoved:
-		c.studentAdded = false
+		m.studentDeleted = true
+	case StudentAddedToPeriod:
+		m.added = true
+	case StudentRemovedFromPeriod:
+		m.added = false
 	}
-	if resolved.Position.After(c.position) {
-		c.position = resolved.Position
+	if resolved.Position.After(m.position) {
+		m.position = resolved.Position
 	}
 }
