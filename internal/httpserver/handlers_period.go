@@ -506,6 +506,15 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			// convert the form view to a model
 			period := periodFormView.Period.ToPeriod()
 
+			// get the periods for the selected students
+			periods := make([]models.Period, 0)
+			periods = append(periods, period)
+			for _, studentID := range period.StudentIDs {
+				s.Logger.Debug("period edit stream", "student ID", studentID)
+				studentPeriods, _ := s.ReadModels.Periods.ListPeriodsForStudent(ctx, studentID)
+				periods = append(periods, studentPeriods...)
+			}
+
 			// get educators
 			educators, err := s.ReadModels.Educators.List(ctx)
 			if err != nil {
@@ -524,8 +533,8 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			newPeriodFormView := dto.NewPeriodFormView(&period, students, educators)
 
 			// create views for the schedule
-			psvs := dto.NewPeriodScheduleViews(period)
-
+			psvs := dto.NewPeriodScheduleViews(periods...)
+			s.Logger.Debug("edit SSE", "sv length", len(psvs))
 			// set the URL in the view
 			newPeriodFormView.URL = fmt.Sprintf("/periods/%s/edit", periodID)
 			sse.PatchElementTempl(pages.Edit(user, newPeriodFormView, psvs))

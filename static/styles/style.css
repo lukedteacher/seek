@@ -6819,6 +6819,9 @@
   .h-24 {
     height: calc(var(--spacing) * 24);
   }
+  .h-2000 {
+    height: calc(var(--spacing) * 2000);
+  }
   .h-\[1px\] {
     height: 1px;
   }
@@ -9459,12 +9462,6 @@
   }
   .text-neutral-content {
     color: var(--color-neutral-content);
-  }
-  .text-neutral-content\/60 {
-    color: var(--color-neutral-content);
-    @supports (color: color-mix(in lab, red, red)) {
-      color: color-mix(in oklab, var(--color-neutral-content) 60%, transparent);
-    }
   }
   .text-neutral-content\/70 {
     color: var(--color-neutral-content);

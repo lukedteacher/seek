@@ -21,26 +21,28 @@ type PeriodScheduleView struct {
 }
 
 func NewPeriodScheduleViews(
-	p models.Period,
+	periods ...models.Period,
 ) []PeriodScheduleView {
-	row := timeToRow(p.StartTime, 479)
-	views := make([]PeriodScheduleView, 0)
+	periodScheduleViews := make([]PeriodScheduleView, 0)
+	for _, period := range periods {
+		row := timeToRow(period.StartTime, 479)
 
-	for _, day := range sharedmodels.Days {
-		if int(p.DaysBitmask)&day.Bit() != 0 {
-			views = append(views, PeriodScheduleView{
-				ID:          p.ID,
-				Title:       p.Title,
-				ServiceType: p.ServiceType,
-				StartTime:   p.StartTime,
-				EndTime:     p.EndTime,
-				Duration:    p.Duration,
-				Row:         row,
-				Column:      day.Column(),
-			})
+		for _, day := range sharedmodels.Days {
+			if int(period.DaysBitmask)&day.Bit() != 0 {
+				periodScheduleViews = append(periodScheduleViews, PeriodScheduleView{
+					ID:          period.ID,
+					Title:       period.Title,
+					ServiceType: period.ServiceType,
+					StartTime:   period.StartTime,
+					EndTime:     period.EndTime,
+					Duration:    period.Duration,
+					Row:         row,
+					Column:      day.Column(),
+				})
+			}
 		}
 	}
-	return views
+	return periodScheduleViews
 }
 
 func timeToRow(t sharedmodels.TimeOnly, offset int) int {

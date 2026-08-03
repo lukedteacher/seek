@@ -40,7 +40,7 @@ func ScheduleComponent(periods []dto.PeriodScheduleView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"schedule-component\" class=\"w-full h-full bg-linear-1\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"schedule-component\" class=\"w-full h-full bg-transparent\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -412,7 +412,7 @@ func ScheduleStyle() templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<style>\n\t\t#schedule-component {\n\t\t\tdisplay: grid;\n\t\t\tgrid-template-rows: 4rem 1fr;\n\t\t\tgrid-template-columns: 6rem repeat(5, 1fr);\n\t\t\tcolor: var(--neutral-3-on);\n\t\t\tborder-style: solid;\n\t\t\tborder-color: var(--neutral-3-dim);\n\t\t\tborder-width: var(--border-width-0);\n\t\t\tborder-radius: var(--bd-rd1);\n\t\t\tpadding-right: var(--size-4);\n\t\t\tpadding-bottom: var(--size-4);\n\n\t\t\tdiv.day-header {\n\t\t\t\twidth: 100%;\n\t\t\t\theight: 100%;\n\t\t\t\tdisplay: flex;\n\t\t\t\tjustify-content: center;\n\t\t\t\talign-items: center;\n\t\t\t}\n\n\t\t\t#schedule-times {\n\t\t\t\twidth: 100%;\n\t\t\t\theight: 100%;\n\t\t\t\tdisplay: flex;\n\t\t\t\tflex-direction: column;\n\t\t\t\tfont-size: var(--font-size--1);\n\n\t\t\t\tdiv {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: center;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tflex-grow: 1;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t#schedule-grid {\n\t\t\t\twidth: 100%;\n\t\t\t\theight: 100%;\n\t\t\t\tdisplay: grid;\n\t\t\t\tgrid-template-rows: repeat(480, 1fr);\n\t\t\t\tgrid-template-columns: repeat(5, 1fr);\n\t\t\t\tgrid-column: 2 / -1;\n\t\t\t}\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<style>\n\t\t#schedule-component {\n\t\t\tdisplay: grid;\n\t\t\tgrid-template-rows: 4rem 1fr;\n\t\t\tgrid-template-columns: 6rem repeat(5, 1fr);\n\t\t\tcolor: var(--neutral-3-on);\n\t\t\tborder-style: solid;\n\t\t\tborder-color: var(--neutral-3-dim);\n\t\t\tborder-width: var(--border-width-0);\n\t\t\tborder-radius: var(--bd-rd1);\n\t\t\tpadding-right: var(--size-4);\n\t\t\tpadding-bottom: var(--size-4);\n\t\t\toverflow: auto;\n\n\t\t\tdiv.day-header {\n\t\t\t\twidth: 100%;\n\t\t\t\theight: 100%;\n\t\t\t\tdisplay: flex;\n\t\t\t\tjustify-content: center;\n\t\t\t\talign-items: center;\n\t\t\t}\n\n\t\t\t#schedule-times {\n\t\t\t\twidth: 100%;\n\t\t\t\theight: 100%;\n\t\t\t\tdisplay: flex;\n\t\t\t\tflex-direction: column;\n\t\t\t\tfont-size: var(--font-size--1);\n\n\t\t\t\tdiv {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: center;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tflex-grow: 1;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t#schedule-grid {\n\t\t\t\twidth: 100%;\n\t\t\t\theight: 1000px;\n\t\t\t\tdisplay: grid;\n\t\t\t\tgrid-template-rows: repeat(480, 1fr);\n\t\t\t\tgrid-template-columns: repeat(5, 1fr);\n\t\t\t\tgrid-column: 2 / -1;\n\t\t\t}\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
