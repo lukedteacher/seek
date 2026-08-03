@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"seek/internal/features/students/dto"
+	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
@@ -12,7 +13,7 @@ import (
 templ Card(view dto.StudentView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("student-%s-card", view.Username),
-		Class: "student-card w-72 h-min",
+		Class: "student-card bg-linear-1 max-w-128 h-min",
 		Attributes: templ.Attributes{
 			"style": "background-color: var(--neutral-4);",
 		},
@@ -21,14 +22,18 @@ templ Card(view dto.StudentView) {
 			@card.Title() {
 				{ view.GivenName } { view.FamilyName }
 			}
-			@card.Description() {
-				a student description
-			}
 		}
-		@card.Content() {
-			<p>grade: { view.Grade }</p>
-			<p>homeroom: { view.Homeroom }</p>
-			<p>case manager: { view.CaseManager }</p>
+		@card.Content(card.ContentProps{
+			Class: "text-sm w-1/2 flex flex-col gap-2",
+		}) {
+			<p class="flex justify-between">
+				<span class="text-neutral-content/80">grade</span>
+				@badge.Badge() {
+					{ view.Grade.Ordinal() }
+				}
+			</p>
+			<p class="flex justify-between"><span class="text-neutral-content/80">homeroom</span>{ view.Homeroom }</p>
+			<p class="flex justify-between"><span class="text-neutral-content/80">case manager</span>{ view.CaseManager }</p>
 		}
 		@card.Footer() {
 			@button.Button(button.Props{

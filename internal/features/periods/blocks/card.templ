@@ -13,7 +13,7 @@ import (
 templ Card(view dto.PeriodView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("period-%s-card", view.ID),
-		Class: "period-card max-w-128",
+		Class: "period-card bg-linear-1 max-w-128",
 	}) {
 		@card.Header() {
 			@card.Title() {
@@ -37,9 +37,9 @@ templ Card(view dto.PeriodView) {
 			<p>
 				<span class="text-neutral-content/70">students ({ len(view.Students) }):</span>
 			</p>
-			<div class="flex gap-2 flex-wrap">
+			<div class="period-card-students flex gap-2 flex-wrap">
 				for _, student := range view.Students {
-					<div class="student-card border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
+					<div class="bg-linear-2 border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
 						{ student.NameInitial() }
 						@badge.Badge() {
 							{ student.Grade.Ordinal() }

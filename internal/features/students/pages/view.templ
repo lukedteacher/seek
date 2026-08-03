@@ -19,7 +19,7 @@ import (
 
 templ View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleView, services []idto.IEPServiceView, active string) {
 	@corelayouts.LayoutBase("SEEK: student", user) {
-		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
+		<main id="main" class="flex flex-col" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain(view.FullName(), view.URL)
 			@tabs.Tabs(tabs.Props{
 				ID:    "student-tabs",

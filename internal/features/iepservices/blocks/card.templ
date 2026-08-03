@@ -10,7 +10,7 @@ import (
 templ Card(view dto.IEPServiceView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("period-%s-card", view.ID),
-		Class: "iep-service-card w-full",
+		Class: "iep-service-card bg-linear-1 w-full",
 		Attributes: templ.Attributes{
 			"style": "background-color: var(--neutral-4);",
 		},

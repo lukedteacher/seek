@@ -10,6 +10,7 @@ updates for SEEK
 - added breadcrumbs to educator list
 - updated period card style and content
 - fixed a bug with table header styling
+- tweaked card styling across the board
 
 ## v0.4.4 (26.08.01) educator period read model
 

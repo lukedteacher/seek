@@ -231,7 +231,7 @@ func Card(view dto.IEPServiceView) templ.Component {
 		})
 		templ_7745c5c3_Err = card.Card(card.Props{
 			ID:    fmt.Sprintf("period-%s-card", view.ID),
-			Class: "iep-service-card w-full",
+			Class: "iep-service-card bg-linear-1 w-full",
 			Attributes: templ.Attributes{
 				"style": "background-color: var(--neutral-4);",
 			},

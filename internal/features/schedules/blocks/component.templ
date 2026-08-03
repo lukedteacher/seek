@@ -9,7 +9,7 @@ import (
 
 templ ScheduleComponent(periods []dto.PeriodScheduleView) {
 	@ScheduleStyle()
-	<div id="schedule-component">
+	<div id="schedule-component" class="w-full h-full bg-linear-1">
 		@DayHeaders()
 		@TimeColumn()
 		@GridContainer() {
@@ -84,14 +84,14 @@ templ TimeGrid(interval int, totalRows int) {
 	<style>
 		.time-grid {
 			grid-column: 1 / -1;
-			background-color: var(--clr-n4);
+			background-color: color-mix(in oklch, var(--neutral-3-on), transparent 75%);
 			height: 1px;
 		}
 	</style>
 }
 
 templ DayGrid() {
-	// this is ugly TODO: fix
+	// TODO: make this less ugly
 	<div
 		class="day-grid"
 		style="grid-column: 1 / span 1;"
@@ -105,7 +105,7 @@ templ DayGrid() {
 	<style>
 		.day-grid {
 			grid-row: 1 / -1;
-			background-color: var(--clr-n4);
+			background-color: color-mix(in oklch, var(--neutral-3-on), transparent 75%);
 			width: 1px;
 
 			&~ .day-grid {
@@ -118,15 +118,12 @@ templ DayGrid() {
 templ ScheduleStyle() {
 	<style>
 		#schedule-component {
-			width: 100%;
-			height: 100%;
 			display: grid;
 			grid-template-rows: 4rem 1fr;
 			grid-template-columns: 6rem repeat(5, 1fr);
-			background-color: transparent;
-			color: var(--clr-n4o);
+			color: var(--neutral-3-on);
 			border-style: solid;
-			border-color: var(--clr-n4d);
+			border-color: var(--neutral-3-dim);
 			border-width: var(--border-width-0);
 			border-radius: var(--bd-rd1);
 			padding-right: var(--size-4);

@@ -6997,6 +6997,9 @@
   .w-0 {
     width: 0;
   }
+  .w-1\/2 {
+    width: calc(1 / 2 * 100%);
+  }
   .w-2\.5 {
     width: calc(var(--spacing) * 2.5);
   }
@@ -7035,9 +7038,6 @@
   }
   .w-64 {
     width: calc(var(--spacing) * 64);
-  }
-  .w-72 {
-    width: calc(var(--spacing) * 72);
   }
   .w-80 {
     width: calc(var(--spacing) * 80);
@@ -8264,6 +8264,20 @@
         background-color: var(--color-warning);
       }
     }
+  }
+  .bg-linear-1 {
+    --tw-gradient-position: 1deg;
+    @supports (background-image: linear-gradient(in lab, red, red)) {
+      --tw-gradient-position: 1deg in oklab;
+    }
+    background-image: linear-gradient(var(--tw-gradient-stops));
+  }
+  .bg-linear-2 {
+    --tw-gradient-position: 2deg;
+    @supports (background-image: linear-gradient(in lab, red, red)) {
+      --tw-gradient-position: 2deg in oklab;
+    }
+    background-image: linear-gradient(var(--tw-gradient-stops));
   }
   .skeleton-text {
     @layer daisyui.l1.l2 {

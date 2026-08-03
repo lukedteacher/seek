@@ -4,10 +4,41 @@ import (
 	"seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/students/blocks"
 	"seek/internal/ui/core/coreblocks/forms"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
 )
 
 templ FormSections(view dto.PeriodFormView) {
 	<section>
+		<div>
+			@label.Label(label.Props{
+				ID:    "period-educator-select-box-label",
+				For:   "period-educator-select-box",
+				Class: "mb-3 text-neutral-content/80",
+			}) {
+				educator(s)
+			}
+			@selectbox.SelectBox() {
+				@selectbox.Trigger(selectbox.TriggerProps{
+					ID:        "period-educator-select-box",
+					ShowPills: true,
+					DataBind:  "period.educator_ids",
+				}) {
+					@selectbox.Value(selectbox.ValueProps{
+						Placeholder: "select at least one educator",
+					})
+				}
+				@selectbox.Content() {
+					for i := range view.Educators {
+						@selectbox.Item(selectbox.ItemProps{
+							Value: view.Educators[i].ID,
+						}) {
+							{ view.Educators[i].NameInitial() }
+						}
+					}
+				}
+			}
+		</div>
 		@forms.TextInputWithLabel(
 			"title",
 			"title",

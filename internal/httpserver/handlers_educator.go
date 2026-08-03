@@ -33,11 +33,6 @@ func (s Server) educatorRoutes(r chi.Router) {
 	r.Post("/educators/{username}/edit/validate", s.postEducatorEditValidate)
 	r.Post("/educators/{username}/edit", s.postEducatorEdit)
 	r.Delete("/educators/{username}", s.deleteEducator)
-	r.Get("/e", s.Test)
-}
-
-func (s Server) Test(w http.ResponseWriter, r *http.Request) {
-	seedEducatorPeriods(r.Context(), s)
 }
 
 // GET request to /educators

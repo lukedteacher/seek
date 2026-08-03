@@ -15,7 +15,6 @@ func (s Server) coreRoutes(r chi.Router) {
 	r.Get("/stream", s.getIndexSSE)
 	r.Get("/components", s.components)
 	r.Post("/sort", s.sort)
-	r.Get("/seed", s.seedData)
 }
 
 func (s Server) index(w http.ResponseWriter, r *http.Request) {

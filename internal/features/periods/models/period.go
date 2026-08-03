@@ -13,6 +13,7 @@ type Period struct {
 	EndTime     sharedmodels.TimeOnly    `json:"end_time"`
 	Duration    int                      `json:"duration"`
 	DaysBitmask sharedmodels.DaysBitmask `json:"days_bitmask"`
+	EducatorIDs string                   `json:"educator_ids"`
 	StudentIDs  string                   `json:"student_ids"`
 	CreatedAt   string
 	UpdatedAt   string

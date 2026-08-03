@@ -8,6 +8,7 @@ import (
 
 	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
+	edto "seek/internal/features/educators/dto"
 	"seek/internal/features/periods/dto"
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
@@ -400,33 +401,37 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	periodID := chi.URLParam(r, "id")
 
 	// get period model
-	model, err := s.ReadModels.Periods.Get(ctx, periodID)
+	period, err := s.ReadModels.Periods.Get(ctx, periodID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// set studentIDs for model (because they are not loaded in the get function... TODO change that?)
-	selected, _ := s.ReadModels.StudentPeriods.ListStudentIDsForPeriod(ctx, model.ID)
-	model.StudentIDs = strings.Join(selected, ",")
+	selectedEducators, _ := s.ReadModels.EducatorPeriods.ListEducatorIDsForPeriod(ctx, period.ID)
+	period.EducatorIDs = strings.Join(selectedEducators, ",")
 
-	// get student list based on service type
-	students := []smodels.Student{}
-	if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
-		students, err = s.ReadModels.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
-	} else {
-		students, err = s.ReadModels.Students.List(ctx)
-	}
+	// set studentIDs for model (because they are not loaded in the get function... TODO change that?)
+	selectedStudents, _ := s.ReadModels.StudentPeriods.ListStudentIDsForPeriod(ctx, period.ID)
+	period.StudentIDs = strings.Join(selectedStudents, ",")
+
+	// get educators and make views
+	educators, _ := s.ReadModels.Educators.List(ctx)
+	educatorViews := edto.NewEducatorViews(educators)
+
+	// get students
+	students, err := s.ReadModels.Students.List(ctx)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "get period edit db list students by iep service", "err", err)
 		return
 	}
 
 	// create the form view
-	view := dto.NewPeriodFormView(model, students)
+	view := dto.NewPeriodFormView(period, students)
+	view.Educators = educatorViews
 
 	// create views for schedule
-	psvs := dto.NewPeriodScheduleViews(*model)
+	psvs := dto.NewPeriodScheduleViews(*period)
 
 	// set the URL in the view
 	view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
@@ -507,8 +512,13 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			// get educators and make views
+			educators, _ := s.ReadModels.Educators.List(ctx)
+			educatorViews := edto.NewEducatorViews(educators)
+
 			// create the form view
 			view := dto.NewPeriodFormView(&model, students)
+			view.Educators = educatorViews
 
 			// create views for the schedule
 			psvs := dto.NewPeriodScheduleViews(model)

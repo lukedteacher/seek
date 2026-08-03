@@ -12,13 +12,21 @@ type EducatorView struct {
 	URL                 string `json:"url"`
 }
 
-func NewEducatorView(s *models.Educator) EducatorView {
-	if s == nil {
+func NewEducatorView(e *models.Educator) EducatorView {
+	if e == nil {
 		return EducatorView{}
 	}
 	return EducatorView{
-		ID:     s.ID,
-		Person: s.Person,
-		Role:   s.Role,
+		ID:     e.ID,
+		Person: e.Person,
+		Role:   e.Role,
 	}
+}
+
+func NewEducatorViews(educators []models.Educator) []EducatorView {
+	views := make([]EducatorView, len(educators))
+	for i := range educators {
+		views[i] = NewEducatorView(&educators[i])
+	}
+	return views
 }

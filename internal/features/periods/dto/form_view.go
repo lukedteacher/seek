@@ -3,6 +3,7 @@ package dto
 import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
+	edto "seek/internal/features/educators/dto"
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
 	sdto "seek/internal/features/students/dto"
@@ -18,10 +19,12 @@ type PeriodFormView struct {
 	EndTime     sharedmodels.TimeOnly    `json:"end_time"`
 	Duration    int                      `json:"duration"`
 	Days        shareddto.DaysFormView   `json:"days"`
+	EducatorIDs string                   `json:"educator_ids"`
 	StudentIDs  string                   `json:"student_ids"`
 	URL         string                   `json:"url"`
 	Validation  map[string]events.Validation
 	StudentList []sdto.StudentSelectBoxView
+	Educators   []edto.EducatorView
 }
 
 func NewPeriodFormView(
@@ -40,6 +43,7 @@ func NewPeriodFormView(
 		EndTime:     p.EndTime,
 		Duration:    p.Duration,
 		Days:        shareddto.DaysBitmaskToFormView(p.DaysBitmask),
+		EducatorIDs: p.EducatorIDs,
 		StudentIDs:  p.StudentIDs,
 		Validation:  events.Validate(p),
 		StudentList: sdto.NewStudentSelectBoxViews(allStudents, ssids),
@@ -55,6 +59,7 @@ func (v PeriodFormView) ToPeriod() models.Period {
 		EndTime:     v.EndTime,
 		Duration:    v.Duration,
 		DaysBitmask: v.Days.ToBitmask(),
+		EducatorIDs: v.EducatorIDs,
 		StudentIDs:  v.StudentIDs,
 	}
 }

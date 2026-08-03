@@ -504,17 +504,19 @@ func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	username := chi.URLParam(r, "username")
-	model, err := s.ReadModels.Students.GetByID(ctx, username)
+	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
 	if err != nil {
+		s.Logger.ErrorContext(ctx, "get student edit student", "err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if model == nil {
+	if student == nil {
+		s.Logger.ErrorContext(ctx, "get student edit student nil", "username", username)
 		_ = pages.NotFound(user).Render(ctx, w)
 		return
 	}
 
-	studentFormView := dto.NewStudentFormView(model)
+	studentFormView := dto.NewStudentFormView(student)
 	studentFormView.URL = fmt.Sprintf("/students/%s/edit", username)
 	_ = pages.Edit(user, studentFormView).Render(ctx, w)
 }

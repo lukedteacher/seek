@@ -13,10 +13,6 @@ templ FormEdit(view dto.PeriodFormView) {
 		class="seek-form w-full md:max-w-128 h-fit"
 		data-on:submit={ datastar.PostSSE(view.URL) }
 	>
-		<hgroup>
-			<h2>edit period</h2>
-			<p>edit the data of an existing period.</p>
-		</hgroup>
 		@FormSections(view)
 		<footer>
 			@forms.ArchiveButton("periods", view.ID)
