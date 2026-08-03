@@ -2,6 +2,15 @@
 
 updates for SEEK
 
+## v0.4.7 (26.07.03) sync period implemented
+
+- created a command to sync period status with educators
+- created a command to sync period status with students
+
+## v0.4.6 (26.08.02) style stuff
+
+- minor style tweaks
+
 ## v0.4.5 (26.08.01) read model container
 
 - refactored read models to a container for easier adjustment

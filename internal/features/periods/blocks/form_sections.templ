@@ -29,11 +29,12 @@ templ FormSections(view dto.PeriodFormView) {
 					})
 				}
 				@selectbox.Content() {
-					for i := range view.Educators {
+					for i := range view.EducatorOptions {
 						@selectbox.Item(selectbox.ItemProps{
-							Value: view.Educators[i].ID,
+							Value:    view.EducatorOptions[i].Educator.ID,
+							Selected: view.EducatorOptions[i].Selected,
 						}) {
-							{ view.Educators[i].NameInitial() }
+							{ view.EducatorOptions[i].Educator.NameInitial() }
 						}
 					}
 				}
@@ -52,6 +53,6 @@ templ FormSections(view dto.PeriodFormView) {
 			@DurationSlider(view)
 		</div>
 		@forms.DayButtons(view)
-		@sblocks.StudentMultiselect(view.StudentList)
+		@sblocks.StudentMultiselect(view.StudentOptions)
 	</section>
 }

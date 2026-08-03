@@ -10,6 +10,7 @@ func streamQuery(periodID string) eventstore.Query {
 	eventTypes := []string{
 		PeriodCreated,
 		PeriodUpdated,
+		PeriodArchived,
 		PeriodDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))

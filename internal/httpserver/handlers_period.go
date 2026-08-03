@@ -7,15 +7,13 @@ import (
 	"strings"
 
 	"seek/internal/eventstore"
-	"seek/internal/features/_shared/sharedmodels"
-	edto "seek/internal/features/educators/dto"
+	epevents "seek/internal/features/educators_periods/events"
 	"seek/internal/features/periods/dto"
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
 	"seek/internal/features/periods/pages"
 	sdto "seek/internal/features/students/dto"
-	smodels "seek/internal/features/students/models"
-	psevents "seek/internal/features/students_periods/events"
+	spevents "seek/internal/features/students_periods/events"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -98,6 +96,13 @@ func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	// create an empty model
 	empty, _ := models.NewPeriod()
 
+	// list all educators
+	educators, err := s.ReadModels.Educators.List(ctx)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "get period create db list educators", "err", err)
+		return
+	}
+
 	// list all students
 	students, err := s.ReadModels.Students.List(ctx)
 	if err != nil {
@@ -106,7 +111,7 @@ func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create the form view
-	view := dto.NewPeriodFormView(empty, students)
+	view := dto.NewPeriodFormView(empty, students, educators)
 
 	// create blank views for the schedule
 	psvs := []dto.PeriodScheduleView{}
@@ -156,20 +161,22 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 			// convert the form view to a model
 			model := signals.Period.ToPeriod()
 
-			// get student list based on service type
-			students := []smodels.Student{}
-			if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
-				students, err = s.ReadModels.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
-			} else {
-				students, err = s.ReadModels.Students.List(ctx)
+			// list all educators
+			educators, err := s.ReadModels.Educators.List(ctx)
+			if err != nil {
+				s.Logger.ErrorContext(ctx, "get period create db list educators", "err", err)
+				return
 			}
+
+			// get student list
+			students, err := s.ReadModels.Students.List(ctx)
 			if err != nil {
 				s.Logger.ErrorContext(ctx, "get period create stream db list students by iep service", "err", err)
 				return
 			}
 
 			// create the form view
-			view := dto.NewPeriodFormView(&model, students)
+			view := dto.NewPeriodFormView(&model, students, educators)
 
 			// create views for the schedule
 			psvs := dto.NewPeriodScheduleViews(model)
@@ -277,12 +284,12 @@ func (s Server) postPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	// create period student associations
 	studentIDs := strings.Split(signals.Period.StudentIDs, ",")
 	for _, studentID := range studentIDs {
-		periodStudentAddCommand := psevents.AddStudentToPeriodCommand{
+		periodStudentAddCommand := spevents.AddStudentToPeriodCommand{
 			PeriodID:  result.EventID,
 			StudentID: studentID,
 			Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
-		_, err := psevents.AddStudentToPeriodCommandHandler(
+		_, err := spevents.AddStudentToPeriodCommandHandler(
 			ctx,
 			periodStudentAddCommand,
 			s.EventSaver,
@@ -407,35 +414,34 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// set studentIDs for model (because they are not loaded in the get function... TODO change that?)
+	// set educatorIDs for model (because they are not loaded in the get function... TODO change that?)
 	selectedEducators, _ := s.ReadModels.EducatorPeriods.ListEducatorIDsForPeriod(ctx, period.ID)
-	period.EducatorIDs = strings.Join(selectedEducators, ",")
+	period.EducatorIDs = selectedEducators
 
 	// set studentIDs for model (because they are not loaded in the get function... TODO change that?)
 	selectedStudents, _ := s.ReadModels.StudentPeriods.ListStudentIDsForPeriod(ctx, period.ID)
-	period.StudentIDs = strings.Join(selectedStudents, ",")
+	period.StudentIDs = selectedStudents
 
 	// get educators and make views
-	educators, _ := s.ReadModels.Educators.List(ctx)
-	educatorViews := edto.NewEducatorViews(educators)
+	educators, err := s.ReadModels.Educators.List(ctx)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "period edit db list educators", "err", err)
+		return
+	}
 
 	// get students
 	students, err := s.ReadModels.Students.List(ctx)
 	if err != nil {
-		s.Logger.ErrorContext(ctx, "get period edit db list students by iep service", "err", err)
+		s.Logger.ErrorContext(ctx, "period edit db list students", "err", err)
 		return
 	}
 
 	// create the form view
-	view := dto.NewPeriodFormView(period, students)
-	view.Educators = educatorViews
-
-	// create views for schedule
-	psvs := dto.NewPeriodScheduleViews(*period)
+	view := dto.NewPeriodFormView(period, students, educators)
 
 	// set the URL in the view
 	view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
-	_ = pages.Edit(user, view, psvs).Render(ctx, w)
+	_ = pages.Edit(user, view, []dto.PeriodScheduleView{}).Render(ctx, w)
 }
 
 // GET request to /period/{id}/stream
@@ -489,43 +495,40 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			signals := &struct {
+			periodFormView := &struct {
 				Period dto.PeriodFormView `json:"period"`
 			}{}
-			if err := entry.JSON(signals); err != nil {
+			if err := entry.JSON(periodFormView); err != nil {
 				s.Logger.Error("period edit stream json", "err", err)
 				return
 			}
 
 			// convert the form view to a model
-			model := signals.Period.ToPeriod()
+			period := periodFormView.Period.ToPeriod()
 
-			// get student list based on service type
-			students := []smodels.Student{}
-			if model.ServiceType != sharedmodels.ServiceTypeUnassigned {
-				students, err = s.ReadModels.Students.ListByIEPServiceType(ctx, model.ServiceType.ShortString())
-			} else {
-				students, err = s.ReadModels.Students.List(ctx)
-			}
+			// get educators
+			educators, err := s.ReadModels.Educators.List(ctx)
 			if err != nil {
-				s.Logger.ErrorContext(ctx, "period edit stream db list students by iep service", "err", err)
+				s.Logger.ErrorContext(ctx, "period edit stream db list educators", "err", err)
 				return
 			}
 
-			// get educators and make views
-			educators, _ := s.ReadModels.Educators.List(ctx)
-			educatorViews := edto.NewEducatorViews(educators)
+			// get students
+			students, err := s.ReadModels.Students.List(ctx)
+			if err != nil {
+				s.Logger.ErrorContext(ctx, "period edit stream db list students", "err", err)
+				return
+			}
 
 			// create the form view
-			view := dto.NewPeriodFormView(&model, students)
-			view.Educators = educatorViews
+			newPeriodFormView := dto.NewPeriodFormView(&period, students, educators)
 
 			// create views for the schedule
-			psvs := dto.NewPeriodScheduleViews(model)
+			psvs := dto.NewPeriodScheduleViews(period)
 
 			// set the URL in the view
-			view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
-			sse.PatchElementTempl(pages.Edit(user, view, psvs))
+			newPeriodFormView.URL = fmt.Sprintf("/periods/%s/edit", periodID)
+			sse.PatchElementTempl(pages.Edit(user, newPeriodFormView, psvs))
 		}
 	}
 }
@@ -580,56 +583,24 @@ func (s Server) postPeriodEdit(w http.ResponseWriter, r *http.Request) {
 		s.Logger.InfoContext(ctx, "post period edit command handler", "skipped", result.Skipped)
 	}
 
-	// compare the current student list and the proposed one
-	// updates period student associations (delete or add)
-	// TODO move this logic to its own function?
-	current, _ := s.ReadModels.StudentPeriods.ListStudentIDsForPeriod(ctx, periodID)
-	proposed := strings.Split(signals.Period.StudentIDs, ",")
-	if len(current) != 0 || len(proposed) != 0 {
-		// build maps for O(1) lookups
-		currentMap := make(map[string]bool)
-		for _, v := range current {
-			currentMap[v] = true
-		}
+	// sync the educators
+	secmd := epevents.SyncEducatorsInPeriodCommand{
+		PeriodID:            periodID,
+		ProposedEducatorIDs: strings.Split(signals.Period.EducatorIDs, ","),
+	}
+	_, err = epevents.SyncEducatorsInPeriodCommandHandler(ctx, secmd, s.EventSaver, s.EventRetriever)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "post period edit sync educators", "err", err)
+	}
 
-		proposedMap := make(map[string]bool)
-		for _, v := range proposed {
-			proposedMap[v] = true
-		}
-
-		// find deletions
-		for _, studentID := range current {
-			if !proposedMap[studentID] {
-				result, err := psevents.RemoveStudentFromPeriodCommandHandler(ctx, psevents.RemoveStudentFromPeriodCommand{
-					PeriodID:  periodID,
-					StudentID: studentID,
-					Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-				}, s.EventSaver, s.EventRetriever)
-				if result != nil {
-					s.Logger.InfoContext(ctx, "post period edit delete student command handler", "result", result.EventID)
-				}
-				if err != nil {
-					s.Logger.ErrorContext(ctx, "post period edit delete student command handler", "err", err)
-				}
-			}
-		}
-
-		// find additions
-		for _, studentID := range proposed {
-			if !currentMap[studentID] {
-				result, err := psevents.AddStudentToPeriodCommandHandler(ctx, psevents.AddStudentToPeriodCommand{
-					PeriodID:  periodID,
-					StudentID: studentID,
-					Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-				}, s.EventSaver, s.EventRetriever)
-				if result != nil {
-					s.Logger.InfoContext(ctx, "post period edit add student command handler", "result", result.EventID)
-				}
-				if err != nil {
-					s.Logger.ErrorContext(ctx, "post period edit add student command handler", "err", err)
-				}
-			}
-		}
+	// sync the students
+	spcmd := spevents.SyncStudentsInPeriodCommand{
+		PeriodID:           periodID,
+		ProposedStudentIDs: strings.Split(signals.Period.StudentIDs, ","),
+	}
+	_, err = spevents.SyncStudentsInPeriodCommandHandler(ctx, spcmd, s.EventSaver, s.EventRetriever)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "post period edit sync students", "err", err)
 	}
 
 	// redirect the view page after editing

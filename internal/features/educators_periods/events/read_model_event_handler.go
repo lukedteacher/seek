@@ -85,7 +85,6 @@ func ScheduleReadModelEventHandlerQuery() eventstore.Query {
 
 func (h *PeriodEducatorReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	var periodID, educatorID string
-	println("**********")
 	switch resolved.Event.EventType {
 	case EducatorAddedToPeriod:
 		var event EducatorAddedToPeriodEvent

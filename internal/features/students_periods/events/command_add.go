@@ -88,7 +88,7 @@ func loadAddStudentToPeriodContext(
 	*addStudentToPeriodContext,
 	error,
 ) {
-	query := streamQuery(periodID, studentID)
+	query := studentPeriodStreamQuery(periodID, studentID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err

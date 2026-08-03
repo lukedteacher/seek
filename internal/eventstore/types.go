@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 	"sort"
 )
@@ -184,6 +185,7 @@ func MergeScope(events []ResolvedEvent, target DomainEvent) (DomainEvent, error)
 	for _, resolved := range sortedEvents {
 		for key, value := range Scope(resolved.Event.Data) {
 			if existing, ok := targetScope[key]; ok && !reflect.DeepEqual(existing, value) {
+				fmt.Printf("Scope conflict: key=%s, existing=%v, new=%v\n", key, existing, value)
 				return target, ErrConflict
 			}
 			targetScope[key] = value
