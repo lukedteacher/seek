@@ -7,202 +7,153 @@ import (
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/separator"
 )
 
 templ Index(user models.User) {
 	@corelayouts.LayoutBase("SEEK", user) {
-		<div class="flex flex-col w-full h-[2000px] row-2" data-init={ sse.LongRunningGetSSE("/stream") }>
-			<main>
-				<section style="margin-bottom: var(--size-2)">
-					<p>welcome to SEEK (aka shared educational environment knowledge)</p>
-					<p>there many features to come</p>
-					<p>below are some of the current ones</p>
+		<div class="flex flex-col w-full h-full row-2" data-init={ sse.LongRunningGetSSE("/stream") }>
+			<main class="flex flex-col gap-2">
+				<section class="w-full flex justify-center">
+					@card.Card(card.Props{
+						Class: "border-muted bg-linear-23 accent-blue flex flex-col md:flex-row w-fit",
+					}) {
+						<div class="overflow-hidden w-128">
+							<img
+								src="/static/images/cc.jpg"
+								alt="charlie in the throws of apophenia"
+								class="h-full w-full object-cover"
+							/>
+						</div>
+						<div class="w-128">
+							@card.Header() {
+								@card.Title() {
+									SEEK
+								}
+								@card.Description() {
+									aka shared educational environment knowledge
+								}
+								@separator.Separator(separator.Props{
+									Class: "mt-1",
+								})
+							}
+							@card.Content(card.ContentProps{
+								Class: "text-sm flex flex-col gap-2",
+							}) {
+								<p>stop using eight different spreadsheets that are somehow all both updated and out of date to manage your schedule.</p>
+								<p>give yourself more time to focus on the important stuff: naps--er... teaching.</p>
+							}
+						</div>
+					}
 				</section>
-				<section style="display: grid; gap: var(--size-2); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); width: 100%;">
-					@card.Card(card.Props{
-						Class: "flex flex-col",
-					}) {
-						@card.Header() {
-							@card.Title() {
-								@icon.Clock(icon.Props{
-									Size: "20",
-								})
-								periods
-							}
-							@card.Description() {
-								periods make up schedules.
-							}
-						}
-						@card.Content(card.ContentProps{
-							Class: "text-sm",
-						}) {
-							<p>features (coming soon)</p>
-							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
-								<li>notifications on change</li>
-								<li>assign students with relevant goals</li>
-								<li>take attendance</li>
-								<li>lesson plans</li>
-							</ul>
-						}
-						@card.Footer(card.FooterProps{
-							Class: "justify-end gap-4 mt-auto",
-						}) {
-							@button.Button(button.Props{
-								Href: "/periods",
-							}) {
-								@icon.List(icon.Props{
-									Size: "16",
-								})
-								<span>list</span>
-							}
-							@button.Button(button.Props{
-								Href: "/periods/create",
-							}) {
-								@icon.Plus(icon.Props{
-									Size: "16",
-								})
-								<span>create</span>
-							}
-						}
-					}
-					@card.Card(card.Props{
-						Class: "flex flex-col",
-					}) {
-						@card.Header() {
-							@card.Title() {
-								@icon.GraduationCap(icon.Props{
-									Size: "20",
-								})
-								students
-							}
-							@card.Description() {
-								can't live with them, can't live without their funding.
-							}
-						}
-						@card.Content(card.ContentProps{
-							Class: "text-sm",
-						}) {
-							<p>features (coming soon)</p>
-							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
-								<li>pictures?</li>
-								<li>SPED data</li>
-								<li>schedule view</li>
-							</ul>
-						}
-						@card.Footer(card.FooterProps{
-							Class: "justify-end gap-4 mt-auto",
-						}) {
-							@button.Button(button.Props{
-								Href: "/students",
-							}) {
-								@icon.List(icon.Props{
-									Size: "16",
-								})
-								<span>list</span>
-							}
-							@button.Button(button.Props{
-								Href: "/students/create",
-							}) {
-								@icon.Plus(icon.Props{
-									Size: "16",
-								})
-								<span>create</span>
-							}
-						}
-					}
-					@card.Card(card.Props{
-						Class: "flex flex-col",
-					}) {
-						@card.Header() {
-							@card.Title() {
-								@icon.BookCopy(icon.Props{
-									Size: "20",
-								})
-								services
-							}
-							@card.Description() {
-								service minutes indicated by a student's IEP.
-							}
-						}
-						@card.Content(card.ContentProps{
-							Class: "text-sm",
-						}) {
-							<p>features (coming soon)</p>
-							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
-								<li>charts</li>
-								<li>schedule integration</li>
-								<li>audits</li>
-							</ul>
-						}
-						@card.Footer(card.FooterProps{
-							Class: "justify-end gap-4 mt-auto",
-						}) {
-							@button.Button(button.Props{
-								Href: "/iepservices",
-							}) {
-								@icon.List(icon.Props{
-									Size: "16",
-								})
-								<span>list</span>
-							}
-							@button.Button(button.Props{
-								Href: "/iepservices/create",
-							}) {
-								@icon.Plus(icon.Props{
-									Size: "16",
-								})
-								<span>create</span>
-							}
-						}
-					}
-					@card.Card(card.Props{
-						Class: "flex flex-col",
-					}) {
-						@card.Header() {
-							@card.Title() {
-								@icon.Apple(icon.Props{
-									Size: "20",
-								})
-								educators
-							}
-							@card.Description() {
-								they do the work of learning the students.
-							}
-						}
-						@card.Content(card.ContentProps{
-							Class: "text-sm",
-						}) {
-							<p>features (coming soon)</p>
-							<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
-								<li>profiles!</li>
-								<li>view their schedule</li>
-								<li>caseloads</li>
-								<li>idk</li>
-							</ul>
-						}
-						@card.Footer(card.FooterProps{
-							Class: "justify-end gap-4 mt-auto",
-						}) {
-							@button.Button(button.Props{
-								Href: "/educators",
-							}) {
-								@icon.List(icon.Props{
-									Size: "16",
-								})
-								<span>list</span>
-							}
-							@button.Button(button.Props{
-								Href: "/educators/create",
-							}) {
-								@icon.Plus(icon.Props{
-									Size: "16",
-								})
-								<span>create</span>
-							}
-						}
-					}
+				<section class="grid gap-2 w-full" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+					@IndexCard(IndexCardProps{
+						icon:        "calendar-range",
+						title:       "periods",
+						description: "kind of like a calendar event",
+						features: []string{
+							"synced with schedules",
+							"notifications on change",
+							"student filter by service type",
+							"attendance",
+						},
+						url: "/periods",
+					})
+					@IndexCard(IndexCardProps{
+						icon:        "apple",
+						title:       "educators",
+						description: "they do the work of learning the students",
+						features: []string{
+							"profiles",
+							"schedules",
+							"caseloads",
+							"idk",
+						},
+						url: "/educators",
+					})
+					@IndexCard(IndexCardProps{
+						icon:        "graduation-cap",
+						title:       "students",
+						description: "can't live with 'em, can't live without their funding",
+						features: []string{
+							"basic info",
+							"schedules",
+							"assessment data",
+							"goals & objectives",
+						},
+						url: "/students",
+					})
+					@IndexCard(IndexCardProps{
+						icon:        "blocks",
+						title:       "services",
+						description: "minutes as indicated by an IEP",
+						features: []string{
+							"synced with SPEDforms",
+							"schedule auditing",
+							"links with goals",
+							"idk",
+						},
+						url: "/iepservices",
+					})
 				</section>
 			</main>
 		</div>
+	}
+}
+
+type IndexCardProps struct {
+	icon        string
+	title       string
+	description string
+	features    []string
+	url         string
+}
+
+templ IndexCard(props IndexCardProps) {
+	@card.Card(card.Props{
+		Class: "flex flex-col border-muted bg-linear-23 accent-blue",
+	}) {
+		@card.Header() {
+			@card.Title() {
+				@icon.Icon(props.icon)(icon.Props{Size: "20"})
+				{ props.title }
+			}
+			@card.Description() {
+				{ props.description }
+			}
+			@separator.Separator(separator.Props{
+				Class: "mt-1",
+			})
+		}
+		@card.Content(card.ContentProps{
+			Class: "text-sm py-5",
+		}) {
+			<p>features (coming soon)</p>
+			<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+				for _, feature := range props.features {
+					<li>{ feature }</li>
+				}
+			</ul>
+		}
+		@card.Footer(card.FooterProps{
+			Class: "justify-end gap-4 mt-auto",
+		}) {
+			@button.Button(button.Props{
+				Href: props.url,
+			}) {
+				@icon.List(icon.Props{
+					Size: "16",
+				})
+				<span>list</span>
+			}
+			@button.Button(button.Props{
+				Href: props.url + "/create",
+			}) {
+				@icon.Plus(icon.Props{
+					Size: "16",
+				})
+				<span>create</span>
+			}
+		}
 	}
 }

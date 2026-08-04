@@ -21,7 +21,7 @@ import (
 	"seek/pkg/sse"
 )
 
-func Create(user models.User, view dto.PeriodFormView, psvs []dto.PeriodScheduleView) templ.Component {
+func Create(user models.User, view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -79,18 +79,11 @@ func Create(user models.User, view dto.PeriodFormView, psvs []dto.PeriodSchedule
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.FormCreate(view).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.FormCreate(view, schedules).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = sblocks.ScheduleComponent(
-				[]sdto.ScheduleView{
-					sdto.ScheduleView{
-						Periods: psvs,
-						Color:   "blue",
-					},
-				},
-			).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = sblocks.ScheduleComponent(schedules).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

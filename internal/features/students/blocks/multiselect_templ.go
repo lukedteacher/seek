@@ -9,12 +9,13 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"fmt"
 	"seek/internal/features/students/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-func StudentMultiselect(views []dto.StudentSelectBoxView) templ.Component {
+func StudentMultiselect(url, object string, views []dto.StudentSelectBoxView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -97,11 +98,10 @@ func StudentMultiselect(views []dto.StudentSelectBoxView) templ.Component {
 				return nil
 			})
 			templ_7745c5c3_Err = selectbox.Trigger(selectbox.TriggerProps{
-				ID:        "student-multiselect",
-				ShowPills: true,
-				Attributes: templ.Attributes{
-					"data-bind:period.student_ids": "",
-				},
+				ID:           "student-multiselect",
+				ShowPills:    true,
+				DataBind:     fmt.Sprintf("%s.student_ids", object),
+				DataOnChange: fmt.Sprintf("@post('%s/validate')", url),
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

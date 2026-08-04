@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
 	epevents "seek/internal/features/educators_periods/events"
 	"seek/internal/features/periods/dto"
 	"seek/internal/features/periods/events"
@@ -114,12 +115,22 @@ func (s Server) getPeriodCreate(w http.ResponseWriter, r *http.Request) {
 	// create the form view
 	view := dto.NewPeriodFormView(empty, students, educators)
 
-	// create blank views for the schedule
-	psvs := []dto.PeriodScheduleView{}
+	scheduleViews := []scheduleDTO.PersonWithScheduleView{}
+
+	// add base period
+	scheduleViews = append(scheduleViews, scheduleDTO.NewPersonScheduleView(
+		sharedmodels.Person{
+			GivenName:  "test",
+			FamilyName: "last",
+		},
+		[]models.Period{*empty},
+		true,
+		0,
+	))
 
 	// set the URL
 	view.URL = "/periods/create"
-	_ = pages.Create(user, view, psvs).Render(ctx, w)
+	_ = pages.Create(user, view, scheduleViews).Render(ctx, w)
 }
 
 // GET request to /periods/create/stream
@@ -152,7 +163,8 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			signals := &struct {
-				Period dto.PeriodFormView `json:"period"`
+				Period    dto.PeriodFormView `json:"period"`
+				Schedules map[string]bool    `json:"schedules"`
 			}{}
 			if err := entry.JSON(signals); err != nil {
 				s.Logger.Error("get period create json", "err", err)
@@ -160,8 +172,47 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// convert the form view to a model
-			model := signals.Period.ToPeriod()
+			period := signals.Period.ToPeriod()
+			// create slice for schedule views
+			scheduleViews := []scheduleDTO.PersonWithScheduleView{}
 
+			// add base period
+			scheduleViews = append(scheduleViews, scheduleDTO.NewPersonScheduleView(
+				sharedmodels.Person{
+					GivenName:  "test",
+					FamilyName: "last",
+				},
+				[]models.Period{period},
+				true,
+				0,
+			))
+
+			for index, studentID := range period.StudentIDs {
+				if studentID == "" {
+					continue
+				}
+				student, err := s.ReadModels.Students.GetByID(ctx, studentID)
+				if err != nil {
+					s.Logger.ErrorContext(ctx, "period create stream get student", "err", err)
+					return
+				}
+				studentPeriods, err := s.ReadModels.Periods.ListPeriodsForStudent(ctx, studentID)
+				if err != nil {
+					s.Logger.ErrorContext(ctx, "period create stream list periods", "err", err)
+					return
+				}
+				studentPeriods = filterOutPeriod(studentPeriods, period.ID)
+				visible, ok := signals.Schedules[student.Username]
+				if !ok {
+					visible = true
+				}
+				scheduleViews = append(scheduleViews, scheduleDTO.NewPersonScheduleView(
+					student.Person,
+					studentPeriods,
+					visible,
+					index+1,
+				))
+			}
 			// list all educators
 			educators, err := s.ReadModels.Educators.List(ctx)
 			if err != nil {
@@ -177,14 +228,11 @@ func (s Server) getPeriodCreateStream(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// create the form view
-			view := dto.NewPeriodFormView(&model, students, educators)
-
-			// create views for the schedule
-			psvs := dto.NewPeriodScheduleViews(model)
+			view := dto.NewPeriodFormView(&period, students, educators)
 
 			// set the URL in the view
 			view.URL = "/periods/create"
-			sse.PatchElementTempl(pages.Create(user, view, psvs))
+			sse.PatchElementTempl(pages.Create(user, view, scheduleViews))
 		}
 	}
 }
@@ -423,6 +471,31 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 	selectedStudents, _ := s.ReadModels.StudentPeriods.ListStudentIDsForPeriod(ctx, period.ID)
 	period.StudentIDs = selectedStudents
 
+	scheduleViews := []scheduleDTO.PersonWithScheduleView{}
+
+	// add base period
+	scheduleViews = append(scheduleViews, scheduleDTO.NewPersonScheduleView(
+		sharedmodels.Person{
+			GivenName:  "test",
+			FamilyName: "last",
+		},
+		[]models.Period{*period},
+		true,
+		0,
+	))
+
+	for index, studentID := range period.StudentIDs {
+		student, _ := s.ReadModels.Students.GetByID(ctx, studentID)
+		studentPeriods, _ := s.ReadModels.Periods.ListPeriodsForStudent(ctx, studentID)
+		studentPeriods = filterOutPeriod(studentPeriods, periodID)
+		scheduleViews = append(scheduleViews, scheduleDTO.NewPersonScheduleView(
+			student.Person,
+			studentPeriods,
+			true,
+			index+1,
+		))
+	}
+
 	// get educators and make views
 	educators, err := s.ReadModels.Educators.List(ctx)
 	if err != nil {
@@ -439,13 +512,10 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 
 	// create the form view
 	view := dto.NewPeriodFormView(period, students, educators)
-	periodScheduleViews := dto.NewPeriodScheduleViews(*period)
-	scheduleView := scheduleDTO.ScheduleView{
-		Periods: periodScheduleViews,
-	}
+
 	// set the URL in the view
 	view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
-	_ = pages.Edit(user, view, []scheduleDTO.ScheduleView{scheduleView}).Render(ctx, w)
+	_ = pages.Edit(user, view, scheduleViews).Render(ctx, w)
 }
 
 // GET request to /period/{id}/stream
@@ -499,26 +569,46 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			periodFormView := &struct {
-				Period dto.PeriodFormView `json:"period"`
+			signals := &struct {
+				Period    dto.PeriodFormView `json:"period"`
+				Schedules map[string]bool    `json:"schedules"`
 			}{}
-			if err := entry.JSON(periodFormView); err != nil {
+			if err := entry.JSON(signals); err != nil {
 				s.Logger.Error("period edit stream json", "err", err)
 				return
 			}
 
 			// convert the form view to a model
-			period := periodFormView.Period.ToPeriod()
+			period := signals.Period.ToPeriod()
 
-			// get the periods for the selected students
-			scheduleViews := []scheduleDTO.ScheduleView{}
-			for _, studentID := range period.StudentIDs {
-				s.Logger.Debug("period edit stream", "student ID", studentID)
+			// create slice for schedule views
+			scheduleViews := []scheduleDTO.PersonWithScheduleView{}
+
+			// add base period
+			scheduleViews = append(scheduleViews, scheduleDTO.NewPersonScheduleView(
+				sharedmodels.Person{
+					GivenName:  "test",
+					FamilyName: "last",
+				},
+				[]models.Period{period},
+				true,
+				0,
+			))
+
+			for index, studentID := range period.StudentIDs {
+				student, _ := s.ReadModels.Students.GetByID(ctx, studentID)
 				studentPeriods, _ := s.ReadModels.Periods.ListPeriodsForStudent(ctx, studentID)
-				scheduleViews = append(scheduleViews, scheduleDTO.ScheduleView{
-					Periods: dto.NewPeriodScheduleViews(studentPeriods...),
-					Color:   "blue",
-				})
+				studentPeriods = filterOutPeriod(studentPeriods, periodID)
+				visible, ok := signals.Schedules[student.Username]
+				if !ok {
+					visible = true
+				}
+				scheduleViews = append(scheduleViews, scheduleDTO.NewPersonScheduleView(
+					student.Person,
+					studentPeriods,
+					visible,
+					index+1,
+				))
 			}
 
 			// get educators
@@ -535,16 +625,9 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			// create the form view
+			// create form view from model
 			newPeriodFormView := dto.NewPeriodFormView(&period, students, educators)
 
-			// create views for the schedule
-			psvs := dto.NewPeriodScheduleViews(period)
-			scheduleViews = append(scheduleViews, scheduleDTO.ScheduleView{
-				Periods: psvs,
-				Color:   "red",
-			})
-			s.Logger.Debug("edit SSE", "sv length", len(psvs))
 			// set the URL in the view
 			newPeriodFormView.URL = fmt.Sprintf("/periods/%s/edit", periodID)
 			sse.PatchElementTempl(pages.Edit(user, newPeriodFormView, scheduleViews))
@@ -557,14 +640,13 @@ func (s Server) postPeriodEditValidate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	periodID := chi.URLParam(r, "id")
 	signals := &struct {
-		FormView dto.PeriodFormView `json:"period"`
+		FormView  dto.PeriodFormView `json:"period"`
+		Schedules map[string]bool    `json:"schedules"`
 	}{}
 	if err := datastar.ReadSignals(r, signals); err != nil {
 		s.Logger.ErrorContext(ctx, "period edit validate signals", "err", err)
 		return
 	}
-	// ensures signal gets the ID
-	signals.FormView.ID = periodID
 
 	// saves the view in a nats kv so the SSE can update
 	if err := viewstore.PutState(ctx, s.ViewStore, periodID+".edit", signals); err != nil {
@@ -675,4 +757,14 @@ func (s Server) refreshPeriodEditState(ctx context.Context, periodID string) err
 		return err
 	}
 	return viewstore.PutState(ctx, s.ViewStore, period.ID+".edit", period)
+}
+
+func filterOutPeriod(periods []models.Period, excludeID string) []models.Period {
+	filtered := make([]models.Period, 0, len(periods))
+	for _, p := range periods {
+		if p.ID != excludeID {
+			filtered = append(filtered, p)
+		}
+	}
+	return filtered
 }

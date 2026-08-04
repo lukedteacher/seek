@@ -10,12 +10,13 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/features/periods/dto"
+	sdto "seek/internal/features/schedules/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-func FormEdit(view dto.PeriodFormView) templ.Component {
+func FormEdit(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -36,14 +37,14 @@ func FormEdit(view dto.PeriodFormView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"edit-period-form\" class=\"seek-form w-full md:max-w-128 h-fit\" data-on:submit=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"edit-period-form\" class=\"seek-form w-full md:max-w-150 h-fit\" data-on:submit=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE(view.URL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_edit.templ`, Line: 14, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_edit.templ`, Line: 15, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -53,7 +54,7 @@ func FormEdit(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = FormSections(view).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = FormSections(view, schedules).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

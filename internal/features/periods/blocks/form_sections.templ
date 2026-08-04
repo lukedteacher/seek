@@ -1,15 +1,21 @@
 package blocks
 
 import (
+	"fmt"
 	"seek/internal/features/periods/dto"
+	scheduledto "seek/internal/features/schedules/dto"
 	sblocks "seek/internal/features/students/blocks"
 	"seek/internal/ui/core/coreblocks/forms"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/checkbox"
+	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ FormSections(view dto.PeriodFormView) {
+templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithScheduleView) {
 	<section>
+		<input class="hidden" data-bind:period.id value={ view.ID }/>
 		<div>
 			@label.Label(label.Props{
 				ID:    "period-educator-select-box-label",
@@ -40,19 +46,48 @@ templ FormSections(view dto.PeriodFormView) {
 				}
 			}
 		</div>
-		@forms.TextInputWithLabel(
-			"title",
-			"title",
-			view.URL+"/validate",
-			"period.title",
-			view.Title,
-		)
-		@forms.SelectboxServiceType(view.URL, "period", view.ServiceType)
-		<div class="flex justify-between">
+		<div class="flex justify-between h-min">
 			@FormTimePickers(view)
 			@DurationSlider(view)
+			@forms.DayButtons(view)
 		</div>
-		@forms.DayButtons(view)
-		@sblocks.StudentMultiselect(view.StudentOptions)
+		@forms.SelectboxServiceType(view.URL, "period", view.ServiceType)
+		@sblocks.StudentMultiselect(view.URL, "period", view.StudentOptions)
+		if len(schedules) > 1 {
+			@SelectedScheduleList(view.URL, schedules)
+		}
 	</section>
+}
+
+// only renders when the passed value includes more than just the base schedule
+templ SelectedScheduleList(url string, students []scheduledto.PersonWithScheduleView) {
+	<ul>
+		for _, student := range students {
+			@SelectedScheduleItem(url, student)
+		}
+	</ul>
+}
+
+templ SelectedScheduleItem(url string, student scheduledto.PersonWithScheduleView) {
+	<li
+		class="flex items-center rounded-md py-[0.3rem] px-3 hover:bg-primary/20 group"
+		style={ fmt.Sprintf("background-color: %s", student.Color) }
+	>
+		@checkbox.Checkbox(checkbox.Props{
+			Checked: student.IsVisible,
+			Name:    "schedules",
+			Attributes: templ.Attributes{
+				"data-bind":      fmt.Sprintf("schedules.%s", student.Person.Username),
+				"data-on:change": fmt.Sprintf("@post('%s/validate')", url),
+			},
+		})
+		<span class="ml-4">{ student.Person.FullName() }</span>
+		@button.Button(button.Props{
+			Class:   "ml-auto opacity-0 group-hover:opacity-100",
+			Variant: button.VariantGhost,
+			Size:    button.SizeIcon,
+		}) {
+			@icon.X()
+		}
+	</li>
 }

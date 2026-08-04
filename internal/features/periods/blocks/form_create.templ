@@ -2,22 +2,19 @@ package blocks
 
 import (
 	"seek/internal/features/periods/dto"
+	sdto "seek/internal/features/schedules/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ FormCreate(view dto.PeriodFormView) {
+templ FormCreate(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) {
 	<form
 		id="create-period-form"
 		class="seek-form w-full md:max-w-128 h-fit"
 		data-on:submit={ datastar.PostSSE(view.URL) }
 	>
-		<hgroup>
-			<h2>create period</h2>
-			<p>create a new period.</p>
-		</hgroup>
-		@FormSections(view)
+		@FormSections(view, schedules)
 		<footer>
 			@forms.CancelButton()
 			@forms.SaveButton()

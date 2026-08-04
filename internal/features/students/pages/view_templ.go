@@ -277,8 +277,8 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 							return templ_7745c5c3_Err
 						}
 						templ_7745c5c3_Err = sblocks.ScheduleComponent(
-							[]sdto.ScheduleView{
-								sdto.ScheduleView{
+							[]sdto.PersonWithScheduleView{
+								sdto.PersonWithScheduleView{
 									Person:  view.Person,
 									Periods: periods,
 									Color:   "orange",

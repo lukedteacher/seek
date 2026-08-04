@@ -7,7 +7,7 @@ import (
 	"seek/internal/features/schedules/dto"
 )
 
-templ ScheduleComponent(schedules []dto.ScheduleView) {
+templ ScheduleComponent(schedules []dto.PersonWithScheduleView) {
 	@ScheduleStyle()
 	<div id="schedule-component" class="w-full h-full">
 		@DayHeaders()
@@ -15,10 +15,13 @@ templ ScheduleComponent(schedules []dto.ScheduleView) {
 		@GridContainer() {
 			@TimeGrid(30, 480)
 			@DayGrid()
-			if len(schedules) > 1 {
-				for _, schedule := range schedules {
-					for i := range schedule.Periods {
-						@PeriodCard(schedule.Periods[i], schedule.Color)
+			if len(schedules) > 0 {
+				for i := len(schedules) - 1; i >= 0; i-- {
+					{{ schedule := schedules[i] }}
+					if schedule.IsVisible {
+						for j := range schedule.Periods {
+							@PeriodCard(schedule.Periods[j], schedule.Color)
+						}
 					}
 				}
 			}
@@ -79,45 +82,47 @@ templ GridContainer() {
 }
 
 templ TimeGrid(interval int, totalRows int) {
-	for index := 1; index < totalRows; index++ {
-		if index%interval == 1 {
-			<div
-				class="time-grid"
-				style={ fmt.Sprintf("grid-row: %d / span 1;", index) }
-			></div>
+	<div
+		id="schedule-time-grid"
+		class="grid grid-cols-subgrid grid-rows-subgrid col-span-full row-span-full"
+	>
+		for index := 1; index < totalRows; index++ {
+			if index%interval == 1 {
+				<div
+					class="time-grid h-[1px] col-span-full row-span-1"
+					style={ fmt.Sprintf("grid-row: %d;", index) }
+				></div>
+			}
 		}
-	}
-	<div class="time-grid" style="grid-row: -1 / span 1;"></div>
+		<div
+			class="time-grid h-[1px] col-span-full -row-start-1 row-span-1"
+		></div>
+	</div>
 	<style>
 		.time-grid {
-			grid-column: 1 / -1;
 			background-color: color-mix(in oklch, var(--neutral-3-on), transparent 75%);
-			height: 1px;
 		}
 	</style>
 }
 
 templ DayGrid() {
-	// TODO: make this less ugly
 	<div
-		class="day-grid"
-		style="grid-column: 1 / span 1;"
-	></div>
-	for index := 1; index < 6; index++ {
+		id="schedule-day-grid"
+		class="grid grid-cols-subgrid grid-rows-subgrid col-span-full row-span-full"
+	>
 		<div
-			class="day-grid"
-			style={ fmt.Sprintf("grid-column: %d / span 1;", index) }
+			class="day-grid w-[1px] col-start-1 col-span-1 row-span-full"
 		></div>
-	}
+		for index := 1; index < 6; index++ {
+			<div
+				class="day-grid w-[1px] col-span-1 row-span-full justify-self-end"
+				style={ fmt.Sprintf("grid-column: %d;", index) }
+			></div>
+		}
+	</div>
 	<style>
 		.day-grid {
-			grid-row: 1 / -1;
 			background-color: color-mix(in oklch, var(--neutral-3-on), transparent 75%);
-			width: 1px;
-
-			&~ .day-grid {
-				justify-self: end;
-			}
 		}
 	</style>
 }
@@ -133,7 +138,7 @@ templ ScheduleStyle() {
 			border-style: solid;
 			border-color: var(--neutral-3-dim);
 			border-width: var(--border-width-0);
-			border-radius: var(--bd-rd1);
+			border-radius: var(--border-radius-0);
 			padding-right: var(--size-4);
 			padding-bottom: var(--size-4);
 			overflow: auto;
@@ -175,7 +180,6 @@ templ ScheduleStyle() {
 			}
 
 			#schedule-grid-container {
-				height: 2000px;
 				grid-template-rows: repeat(480, 1fr);
 				grid-template-columns: repeat(5, 1fr);
 				grid-column: 2 / -1;

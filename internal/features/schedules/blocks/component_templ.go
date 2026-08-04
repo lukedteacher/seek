@@ -15,7 +15,7 @@ import (
 	"seek/internal/features/schedules/dto"
 )
 
-func ScheduleComponent(schedules []dto.ScheduleView) templ.Component {
+func ScheduleComponent(schedules []dto.PersonWithScheduleView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -80,12 +80,15 @@ func ScheduleComponent(schedules []dto.ScheduleView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if len(schedules) > 1 {
-				for _, schedule := range schedules {
-					for i := range schedule.Periods {
-						templ_7745c5c3_Err = PeriodCard(schedule.Periods[i], schedule.Color).Render(ctx, templ_7745c5c3_Buffer)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
+			if len(schedules) > 0 {
+				for i := len(schedules) - 1; i >= 0; i-- {
+					schedule := schedules[i]
+					if schedule.IsVisible {
+						for j := range schedule.Periods {
+							templ_7745c5c3_Err = PeriodCard(schedule.Periods[j], schedule.Color).Render(ctx, templ_7745c5c3_Buffer)
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
 						}
 					}
 				}
@@ -146,7 +149,7 @@ func DayHeaders() templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-column: %d / span 1;", index+2))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 36, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 39, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -159,7 +162,7 @@ func DayHeaders() templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(day.Name())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 38, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 41, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -172,7 +175,7 @@ func DayHeaders() templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(day.Short())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 39, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 42, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -185,7 +188,7 @@ func DayHeaders() templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(day.Initial())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 40, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 43, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -247,7 +250,7 @@ func TimeColumn() templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(time)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 63, Col: 11}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 66, Col: 11}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -334,28 +337,32 @@ func TimeGrid(interval int, totalRows int) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div id=\"schedule-time-grid\" class=\"grid grid-cols-subgrid grid-rows-subgrid col-span-full row-span-full\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		for index := 1; index < totalRows; index++ {
 			if index%interval == 1 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"time-grid\" style=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"time-grid h-[1px] col-span-full row-span-1\" style=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var12 string
-				templ_7745c5c3_Var12, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-row: %d / span 1;", index))
+				templ_7745c5c3_Var12, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-row: %d;", index))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 86, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 93, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\"></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"time-grid\" style=\"grid-row: -1 / span 1;\"></div><style>\r\n\t\t.time-grid {\r\n\t\t\tgrid-column: 1 / -1;\r\n\t\t\tbackground-color: color-mix(in oklch, var(--neutral-3-on), transparent 75%);\r\n\t\t\theight: 1px;\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"time-grid h-[1px] col-span-full -row-start-1 row-span-1\"></div></div><style>\n\t\t.time-grid {\n\t\t\tbackground-color: color-mix(in oklch, var(--neutral-3-on), transparent 75%);\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -384,30 +391,30 @@ func DayGrid() templ.Component {
 			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"day-grid\" style=\"grid-column: 1 / span 1;\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div id=\"schedule-day-grid\" class=\"grid grid-cols-subgrid grid-rows-subgrid col-span-full row-span-full\"><div class=\"day-grid w-[1px] col-start-1 col-span-1 row-span-full\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for index := 1; index < 6; index++ {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"day-grid\" style=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"day-grid w-[1px] col-span-1 row-span-full justify-self-end\" style=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
-			templ_7745c5c3_Var14, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-column: %d / span 1;", index))
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-column: %d;", index))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 109, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/component.templ`, Line: 119, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<style>\r\n\t\t.day-grid {\r\n\t\t\tgrid-row: 1 / -1;\r\n\t\t\tbackground-color: color-mix(in oklch, var(--neutral-3-on), transparent 75%);\r\n\t\t\twidth: 1px;\r\n\r\n\t\t\t&~ .day-grid {\r\n\t\t\t\tjustify-self: end;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><style>\n\t\t.day-grid {\n\t\t\tbackground-color: color-mix(in oklch, var(--neutral-3-on), transparent 75%);\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -436,7 +443,7 @@ func ScheduleStyle() templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<style>\r\n\t\t#schedule-component {\r\n\t\t\tdisplay: grid;\r\n\t\t\tgrid-template-rows: 4rem 1fr;\r\n\t\t\tgrid-template-columns: 6rem repeat(5, 1fr);\r\n\t\t\tbackground-color: var(--neutral-1);\r\n\t\t\tcolor: var(--neutral-3-on);\r\n\t\t\tborder-style: solid;\r\n\t\t\tborder-color: var(--neutral-3-dim);\r\n\t\t\tborder-width: var(--border-width-0);\r\n\t\t\tborder-radius: var(--bd-rd1);\r\n\t\t\tpadding-right: var(--size-4);\r\n\t\t\tpadding-bottom: var(--size-4);\r\n\t\t\toverflow: auto;\r\n\r\n\t\t\t#schedule-day-header {\r\n\t\t\t\tdisplay: grid;\r\n\t\t\t\tgrid-template-columns: subgrid;\r\n\t\t\t\tgrid-column: 1 / -1;\r\n\t\t\t\tgrid-row: 1 / span 1;\r\n\t\t\t\tposition: sticky;\r\n\t\t\t\ttop: 0;\r\n\t\t\t\tbackground-color: var(--neutral-1);\r\n\t\t\t\tz-index: 1;\r\n\r\n\t\t\t\t.day-header-box {\r\n\t\t\t\t\twidth: 100%;\r\n\t\t\t\t\theight: 100%;\r\n\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\tjustify-content: center;\r\n\t\t\t\t\talign-items: center;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t#schedule-time-column {\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\theight: 100%;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: column;\r\n\t\t\t\tgrid-column: 1 / span 1;\r\n\t\t\t\tgrid-row: 2 / -1;\r\n\t\t\t\tfont-size: var(--font-size--1);\r\n\r\n\t\t\t\tdiv {\r\n\t\t\t\t\tdisplay: flex;\r\n\t\t\t\t\tjustify-content: center;\r\n\t\t\t\t\talign-items: center;\r\n\t\t\t\t\tflex-grow: 1;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t#schedule-grid-container {\r\n\t\t\t\theight: 2000px;\r\n\t\t\t\tgrid-template-rows: repeat(480, 1fr);\r\n\t\t\t\tgrid-template-columns: repeat(5, 1fr);\r\n\t\t\t\tgrid-column: 2 / -1;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<style>\n\t\t#schedule-component {\n\t\t\tdisplay: grid;\n\t\t\tgrid-template-rows: 4rem 1fr;\n\t\t\tgrid-template-columns: 6rem repeat(5, 1fr);\n\t\t\tbackground-color: var(--neutral-1);\n\t\t\tcolor: var(--neutral-3-on);\n\t\t\tborder-style: solid;\n\t\t\tborder-color: var(--neutral-3-dim);\n\t\t\tborder-width: var(--border-width-0);\n\t\t\tborder-radius: var(--border-radius-0);\n\t\t\tpadding-right: var(--size-4);\n\t\t\tpadding-bottom: var(--size-4);\n\t\t\toverflow: auto;\n\n\t\t\t#schedule-day-header {\n\t\t\t\tdisplay: grid;\n\t\t\t\tgrid-template-columns: subgrid;\n\t\t\t\tgrid-column: 1 / -1;\n\t\t\t\tgrid-row: 1 / span 1;\n\t\t\t\tposition: sticky;\n\t\t\t\ttop: 0;\n\t\t\t\tbackground-color: var(--neutral-1);\n\t\t\t\tz-index: 1;\n\n\t\t\t\t.day-header-box {\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\theight: 100%;\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: center;\n\t\t\t\t\talign-items: center;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t#schedule-time-column {\n\t\t\t\twidth: 100%;\n\t\t\t\theight: 100%;\n\t\t\t\tdisplay: flex;\n\t\t\t\tflex-direction: column;\n\t\t\t\tgrid-column: 1 / span 1;\n\t\t\t\tgrid-row: 2 / -1;\n\t\t\t\tfont-size: var(--font-size--1);\n\n\t\t\t\tdiv {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: center;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tflex-grow: 1;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t#schedule-grid-container {\n\t\t\t\tgrid-template-rows: repeat(480, 1fr);\n\t\t\t\tgrid-template-columns: repeat(5, 1fr);\n\t\t\t\tgrid-column: 2 / -1;\n\t\t\t}\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -2,18 +2,19 @@ package blocks
 
 import (
 	"seek/internal/features/periods/dto"
+	sdto "seek/internal/features/schedules/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ FormEdit(view dto.PeriodFormView) {
+templ FormEdit(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) {
 	<form
 		id="edit-period-form"
-		class="seek-form w-full md:max-w-128 h-fit"
+		class="seek-form w-full md:max-w-150 h-fit"
 		data-on:submit={ datastar.PostSSE(view.URL) }
 	>
-		@FormSections(view)
+		@FormSections(view, schedules)
 		<footer>
 			@forms.ArchiveButton("periods", view.ID)
 			@forms.CancelButton()

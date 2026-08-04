@@ -14,7 +14,7 @@ templ PeriodCard(view dto.PeriodScheduleView, color string) {
 	>
 		<button
 			id={ fmt.Sprintf("period-schedule-%s-card", view.ID) }
-			data-color={ color }
+			style={ fmt.Sprintf("background-color: %s;", color) }
 			data-service={ view.ServiceType.ShortString() }
 			class="@container period-card w-full h-full flex flex-row gap-2 items-center justify-center rounded-md border border-solid border-muted"
 		>

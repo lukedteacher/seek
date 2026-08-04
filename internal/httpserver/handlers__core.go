@@ -14,6 +14,7 @@ func (s Server) coreRoutes(r chi.Router) {
 	r.Get("/", s.index)
 	r.Get("/stream", s.getIndexSSE)
 	r.Get("/components", s.components)
+	r.Get("/hub", s.getHub)
 	r.Post("/sort", s.sort)
 }
 
@@ -21,6 +22,12 @@ func (s Server) index(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user := currentUser(r)
 	_ = corepages.Index(user).Render(ctx, w)
+}
+
+func (s Server) getHub(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := currentUser(r)
+	_ = corepages.Hub(user).Render(ctx, w)
 }
 
 func (s Server) getIndexSSE(w http.ResponseWriter, r *http.Request) {

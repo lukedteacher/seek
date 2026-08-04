@@ -64,7 +64,7 @@ func DayButtons(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"days-selector flex justify-center items-center radius-md\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"days-selector flex justify-center items-center radius-md h-full\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -82,7 +82,7 @@ func DayButtons(view dto.PeriodFormView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"first:rounded-l-md last:rounded-r-md flex border border-muted bg-neutral hover:bg-primary/80 active:bg-primary/90 justify-center items-center text-xs has-checked:bg-primary has-checked:hover:bg-primary/50 flex-grow basis-1 aspect-square\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"first:rounded-l-md last:rounded-r-md flex border border-muted bg-neutral hover:bg-primary/80 active:bg-primary/90 justify-center items-center text-xs has-checked:bg-primary has-checked:hover:bg-primary/50 h-10 aspect-square\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -78,8 +78,8 @@ templ View(user models.User, view dto.StudentView, periods []pdto.PeriodSchedule
 						@tabs.Content(tabs.ContentProps{Value: "schedule", IsActive: true}) {
 							<section class="w-full">
 								@sblocks.ScheduleComponent(
-									[]sdto.ScheduleView{
-										sdto.ScheduleView{
+									[]sdto.PersonWithScheduleView{
+										sdto.PersonWithScheduleView{
 											Person:  view.Person,
 											Periods: periods,
 											Color:   "orange",

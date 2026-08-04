@@ -13,20 +13,13 @@ import (
 	"seek/pkg/sse"
 )
 
-templ Create(user models.User, view dto.PeriodFormView, psvs []dto.PeriodScheduleView) {
+templ Create(user models.User, view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) {
 	@corelayouts.LayoutBase("SEEK: create period", user) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain("create period", view.URL)
 			<section class="w-full flex flex-col md:flex-row gap-4 h-full">
-				@blocks.FormCreate(view)
-				@sblocks.ScheduleComponent(
-					[]sdto.ScheduleView{
-						sdto.ScheduleView{
-							Periods: psvs,
-							Color:   "blue",
-						},
-					},
-				)
+				@blocks.FormCreate(view, schedules)
+				@sblocks.ScheduleComponent(schedules)
 			</section>
 		</main>
 	}

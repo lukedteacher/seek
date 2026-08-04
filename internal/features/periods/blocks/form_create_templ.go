@@ -10,12 +10,13 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"seek/internal/features/periods/dto"
+	sdto "seek/internal/features/schedules/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-func FormCreate(view dto.PeriodFormView) templ.Component {
+func FormCreate(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -43,17 +44,17 @@ func FormCreate(view dto.PeriodFormView) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE(view.URL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_create.templ`, Line: 14, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_create.templ`, Line: 15, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><hgroup><h2>create period</h2><p>create a new period.</p></hgroup>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = FormSections(view).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = FormSections(view, schedules).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -13,12 +13,12 @@ import (
 	"seek/pkg/sse"
 )
 
-templ Edit(user models.User, view dto.PeriodFormView, schedules []sdto.ScheduleView) {
+templ Edit(user models.User, view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) {
 	@corelayouts.LayoutBase("SEEK: edit period", user) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain("edit period", view.URL)
 			<section class="w-full flex flex-col md:flex-row gap-4 h-full">
-				@blocks.FormEdit(view)
+				@blocks.FormEdit(view, schedules)
 				@sblocks.ScheduleComponent(schedules)
 			</section>
 		</main>

@@ -1,0 +1,236 @@
+package corepages
+
+import (
+	"seek/internal/features/users/models"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+	"seek/pkg/templui/components/card"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/separator"
+)
+
+templ Hub(user models.User) {
+	@corelayouts.LayoutBase("SEEK: hub", user) {
+		<main class="flex flex-col gap-2" data-init={ sse.LongRunningGetSSE("/stream") }>
+			<section class="grid gap-2 w-full" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+				@HubCard(HubCardProps{
+					icon:        "link",
+					title:       "general",
+					description: "links to commonly used resources",
+					links: []linkProps{
+						linkProps{
+							text: "procedures manual",
+							href: "https://docs.google.com/document/d/1P8pOVz5AlJAnMj9ZTo9MBXpvtSXYVcg8KEqP1EHCBDE",
+						},
+						linkProps{
+							text: "reserve shared spaces",
+							href: "https://docs.google.com/spreadsheets/d/1B8ZWpCNEWhXfld1nFAsvguc5uVWkloNKkCvS7iRzmLk",
+						},
+						linkProps{
+							text: "assessment calendar",
+							href: "https://docs.google.com/spreadsheets/d/1jKirAxquNph05tyMYW5BFQKNSKcIRPURi92z38GcyIA",
+						},
+						linkProps{
+							text: "field trip permission form (make a copy)",
+							href: "https://docs.google.com/forms/d/1xHUDrXFiP5BqtaCmZpgKNht8Eyigy1rxP9FQrXzz_YI",
+						},
+					},
+				})
+				@HubCard(HubCardProps{
+					icon:        "link",
+					title:       "sprights",
+					description: "resources specific to special education",
+					links: []linkProps{
+						linkProps{
+							text: "friday meeting agenda",
+							href: "https://docs.google.com/document/d/1BiqEpjzugP0_tA49-XdzAdrlWYsOvVv9IhM2MufsR1k",
+						},
+						linkProps{
+							text: "services at a glance",
+							href: "https://docs.google.com/spreadsheets/d/1e9cq_x-7b59FNiizvsfSeCerRqClFqNvY9spg7XdbJM",
+						},
+						linkProps{
+							text: "placement decision flowchart",
+							href: "https://docs.google.com/document/d/1gUvcgQr07-AH41XtzOroFbmZnxLwKHQvnn9UXXUIqaM",
+						},
+						linkProps{
+							text: "dashboard (2025-26)",
+							href: "https://docs.google.com/spreadsheets/d/1dF8OIyaSjSJ4LjCoRiVw3tqCBUOSdE9dodDir26bayA",
+						},
+					},
+				})
+				@HubCard(HubCardProps{
+					icon:        "link",
+					title:       "due process",
+					description: "case manager resources for due process information",
+					links: []linkProps{
+						linkProps{
+							text: "sped forms",
+							href: "https://16.spedforms.org/1000/",
+						},
+						linkProps{
+							text: "due process timelines",
+							href: "https://drive.google.com/file/d/1yVur100FHtOwlBunMqrDQJvTpDELTJCu",
+						},
+						linkProps{
+							text: "due process planner (make a copy)",
+							href: "https://docs.google.com/spreadsheets/d/1M_V4WgK4nfbly-4TR3f2A_61KHUPhAnyACPj7w1Muwk/",
+						},
+						linkProps{
+							text: "purchase requests",
+							href: "https://docs.google.com/forms/d/e/1FAIpQLSeR-y2QYHjT5vxxkCJa2e2dTWhlzzUQqYsTaanoW5VhOSpiZA",
+						},
+						linkProps{
+							text: "service log (make a copy)",
+							href: "https://docs.google.com/spreadsheets/d/1OVrqUmr309dgq9MfVbCO_loJ3ix6qGo1IQ-sH7cdXrA/",
+						},
+						linkProps{
+							text: "end of year checklist",
+							href: "https://docs.google.com/document/d/1bnYQpDp1oTRzugooYGLUvKNP-d0hFcdJe1hAmupWZ-Q",
+						},
+					},
+				})
+				@HubCard(HubCardProps{
+					icon:        "link",
+					title:       "IEP",
+					description: "links for IEP specific resources",
+					links: []linkProps{
+						linkProps{
+							text: "IEP writing and meeting checklist (make a copy)",
+							href: "https://docs.google.com/document/d/1dcPJrJ6H7FYVy3BIAEw7raZ86QKJ-8mNWOAt9YKVHy8",
+						},
+						linkProps{
+							text: "IEP meeting agenda (make a copy)",
+							href: "https://docs.google.com/document/d/14RVfW35gT2CE_D2oF3iSfNvXfSEzMCWIhswwCKUR0F0",
+						},
+						linkProps{
+							text: "special rights one pager",
+							href: "https://docs.google.com/document/d/11DULOWt62-_mVZ1kIyOCkM5YhwArT8oEPPl-3gJ7v-I",
+						},
+						linkProps{
+							text: "procedural safeguards",
+							href: "https://docs.google.com/document/d/1tOkcgvV3g8uFykzyjBvfef96w8mMHo12UtvGr7fkGcM",
+						},
+						linkProps{
+							text: "federal setting calculator",
+							href: "https://docs.google.com/spreadsheets/d/1EBMkYRqSwaBVHAg705hOFQIikb82SaPr",
+						},
+						linkProps{
+							text: "goal and objective guidelines",
+							href: "https://drive.google.com/file/d/1ldFMdH4zhIv6l-T_yTyf3k-9R8ewa6zp",
+						},
+					},
+				})
+				@HubCard(HubCardProps{
+					icon:        "link",
+					title:       "progress reporting",
+					description: "progress reporting stuff",
+					links: []linkProps{
+						linkProps{
+							text: "guidelines",
+							href: "https://docs.google.com/document/d/1U3q0l6m02RSTCfpydxpIlyzBUMhkVgduURdY1Rh5qgI",
+						},
+						linkProps{
+							text: "sample statements",
+							href: "https://docs.google.com/document/d/142lGDmEDkyXZTIDSchmPGgNuhbbWO84lt_5h5bkF1Ug",
+						},
+						linkProps{
+							text: "checklist (make a copy)",
+							href: "https://docs.google.com/spreadsheets/d/1BvFksKXzryXqnVah-pSvUcNLe15A_L9eQqWh6xk2mws",
+						},
+						linkProps{
+							text: "note cards (make a copy)",
+							href: "https://docs.google.com/presentation/d/1woOswh_WLoT_eU9O_zXaT1WYFz8GBGip",
+						},
+						linkProps{
+							text: "goal data tracking sheets",
+							href: "https://docs.google.com/presentation/d/16n5NhJKG053lBwDW9NEP_i8ZdxbJ85D912zQlzwQC4o",
+						},
+					},
+				})
+				@HubCard(HubCardProps{
+					icon:        "link",
+					title:       "other resources",
+					description: "other useful resources",
+					links: []linkProps{
+						linkProps{
+							text: "SEL framework",
+							href: "https://docs.google.com/spreadsheets/d/1oXaCt6desKygHQPh_OY-luihJ4pO2tTlOnvcZdGwGdo",
+						},
+						linkProps{
+							text: "behavior reflection sheets",
+							href: "https://drive.google.com/file/d/1INumao5KYCWT34Csyjc0nyWMwAQU4YKE",
+						},
+						linkProps{
+							text: "check-in / check-out sheets (make a copy)",
+							href: "https://docs.google.com/presentation/d/1loyR07cbRM33M7Ei2AqbUwM8k9MKyqde",
+						},
+						linkProps{
+							text: "social stories (drive folder)",
+							href: "https://drive.google.com/drive/folders/1WprNiUYHd8b0bKb2Gy1ed-VRSaewECLX",
+						},
+					},
+				})
+				@HubCard(HubCardProps{
+					icon:        "link",
+					title:       "read aloud",
+					description: "resources for reading materials",
+					links: []linkProps{
+						linkProps{
+							text: "social justice (website)",
+							href: "https://www.socialjusticebooks.org/booklists/",
+						},
+						linkProps{
+							text: "SEL (pdf)",
+							href: "https://drive.google.com/file/d/1Zw58wjQTiXEcmBSKJ-dbz82zHJT8fTs2/view",
+						},
+					},
+				})
+			</section>
+		</main>
+	}
+}
+
+type HubCardProps struct {
+	icon        string
+	title       string
+	description string
+	links       []linkProps
+}
+
+type linkProps struct {
+	href string
+	text string
+}
+
+templ HubCard(props HubCardProps) {
+	@card.Card(card.Props{
+		Class: "flex flex-col border-muted bg-linear-23 accent-blue",
+	}) {
+		@card.Header() {
+			@card.Title() {
+				@icon.Icon(props.icon)(icon.Props{Size: "20"})
+				{ props.title }
+			}
+			@card.Description() {
+				{ props.description }
+			}
+			@separator.Separator(separator.Props{
+				Class: "mt-1",
+			})
+		}
+		@card.Content(card.ContentProps{
+			Class: "text-sm py-5",
+		}) {
+			<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+				for _, link := range props.links {
+					<li>
+						<a href={ link.href } target="_blank">
+							{ link.text }
+						</a>
+					</li>
+				}
+			</ul>
+		}
+	}
+}

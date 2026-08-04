@@ -2,6 +2,17 @@
 
 updates for SEEK
 
+## v0.4.8 (26.07.04) student schedules visible during period stuff, hub page
+
+- created a new component that lists selected students while creating / editing a period
+- pass signals to the validator that show whether the student's schedule should be rendered or not
+- colors are indexed based on the order
+- reformatted period form for better visibility
+  - removed title
+  - added hidden ID input
+  - moved days buttons to time / duration line
+- added a hub page that recreates special rights hub document
+
 ## v0.4.7 (26.07.03) sync period implemented
 
 - created a command to sync period status with educators

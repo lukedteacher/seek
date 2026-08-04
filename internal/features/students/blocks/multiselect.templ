@@ -1,12 +1,13 @@
 package blocks
 
 import (
+	"fmt"
 	"seek/internal/features/students/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ StudentMultiselect(views []dto.StudentSelectBoxView) {
+templ StudentMultiselect(url, object string, views []dto.StudentSelectBoxView) {
 	@selectbox.SelectBox(selectbox.Props{
 		ID: "student-multiselect-container",
 	}) {
@@ -17,11 +18,10 @@ templ StudentMultiselect(views []dto.StudentSelectBoxView) {
 			student(s)
 		}
 		@selectbox.Trigger(selectbox.TriggerProps{
-			ID:        "student-multiselect",
-			ShowPills: true,
-			Attributes: templ.Attributes{
-				"data-bind:period.student_ids": "",
-			},
+			ID:           "student-multiselect",
+			ShowPills:    true,
+			DataBind:     fmt.Sprintf("%s.student_ids", object),
+			DataOnChange: fmt.Sprintf("@post('%s/validate')", url),
 		}) {
 			@selectbox.Value(selectbox.ValueProps{
 				Placeholder: "no students selected",
