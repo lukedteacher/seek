@@ -6819,9 +6819,6 @@
   .h-24 {
     height: calc(var(--spacing) * 24);
   }
-  .h-2000 {
-    height: calc(var(--spacing) * 2000);
-  }
   .h-\[1px\] {
     height: 1px;
   }

@@ -6,6 +6,7 @@ import (
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/schedules/blocks"
+	sdto "seek/internal/features/schedules/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
@@ -18,7 +19,14 @@ templ Create(user models.User, view dto.PeriodFormView, psvs []dto.PeriodSchedul
 			@coreblocks.HeaderMain("create period", view.URL)
 			<section class="w-full flex flex-col md:flex-row gap-4 h-full">
 				@blocks.FormCreate(view)
-				@sblocks.ScheduleComponent(psvs)
+				@sblocks.ScheduleComponent(
+					[]sdto.ScheduleView{
+						sdto.ScheduleView{
+							Periods: psvs,
+							Color:   "blue",
+						},
+					},
+				)
 			</section>
 		</main>
 	}

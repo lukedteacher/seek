@@ -7,6 +7,7 @@ import (
 	"seek/internal/features/educators/dto"
 	pdto "seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/schedules/blocks"
+	sdto "seek/internal/features/schedules/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
@@ -63,7 +64,15 @@ templ View(user models.User, view dto.EducatorView, periods []pdto.PeriodSchedul
 					case "schedule":
 						@tabs.Content(tabs.ContentProps{Value: "schedule", IsActive: true}) {
 							<section class="w-full">
-								@sblocks.ScheduleComponent(periods)
+								@sblocks.ScheduleComponent(
+									[]sdto.ScheduleView{
+										sdto.ScheduleView{
+											Person:  view.Person,
+											Periods: periods,
+											Color:   "red",
+										},
+									},
+								)
 							</section>
 						}
 				}

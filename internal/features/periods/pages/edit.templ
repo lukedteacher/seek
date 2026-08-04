@@ -6,19 +6,20 @@ import (
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/schedules/blocks"
+	sdto "seek/internal/features/schedules/dto"
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-templ Edit(user models.User, view dto.PeriodFormView, psvs []dto.PeriodScheduleView) {
+templ Edit(user models.User, view dto.PeriodFormView, schedules []sdto.ScheduleView) {
 	@corelayouts.LayoutBase("SEEK: edit period", user) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain("edit period", view.URL)
 			<section class="w-full flex flex-col md:flex-row gap-4 h-full">
 				@blocks.FormEdit(view)
-				@sblocks.ScheduleComponent(psvs)
+				@sblocks.ScheduleComponent(schedules)
 			</section>
 		</main>
 	}

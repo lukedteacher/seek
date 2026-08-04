@@ -7,14 +7,16 @@ import (
 	"seek/pkg/templui/components/icon"
 )
 
-templ PeriodCard(view dto.PeriodScheduleView) {
+templ PeriodCard(view dto.PeriodScheduleView, color string) {
 	<div
 		class="w-full h-full p-[1px] text-xs"
 		style={ fmt.Sprintf("grid-column: %d; grid-row: %d / span %d;", view.Column, view.Row, view.Duration) }
 	>
 		<button
 			id={ fmt.Sprintf("period-schedule-%s-card", view.ID) }
-			class="@container period-card w-full h-full flex flex-row gap-2 items-center justify-center rounded-md border border-solid bg-neutral"
+			data-color={ color }
+			data-service={ view.ServiceType.ShortString() }
+			class="@container period-card w-full h-full flex flex-row gap-2 items-center justify-center rounded-md border border-solid border-muted"
 		>
 			@icon.Icon(view.ServiceType.IconName())(icon.Props{
 				Size: "14",
@@ -22,23 +24,4 @@ templ PeriodCard(view dto.PeriodScheduleView) {
 			<span class="hidden @5xs:flex">{ view.ServiceType.ShortString() }</span>
 		</button>
 	</div>
-	@PeriodCardStyles()
-}
-
-templ PeriodCardStyles() {
-	<style>
-		.period-card {
-			--_border-color: var(--neutral-4-dim);
-			background-color: var(--neutral-4);
-			background: linear-gradient(to right bottom, var(--neutral-4) 8%, var(--neutral-3));
-			border-color: var(--_border-color);
-			font-size: var(--font-size--2);
-			box-shadow: 
-				0 1px var(--_border-color) inset,
-				0 -2px oklch(100% 0 0 / 0) inset;
-      @supports (color: color-mix(in lab, red, red)) {
-        box-shadow: 0 1px color-mix(in oklch, var(--_border-color) 80%, white) inset, 0 -1px oklch(100% 0 0 / 0) inset;
-      }
-		}
-	</style>
 }

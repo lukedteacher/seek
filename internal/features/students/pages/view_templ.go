@@ -14,6 +14,7 @@ import (
 	idto "seek/internal/features/iepservices/dto"
 	pdto "seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/schedules/blocks"
+	sdto "seek/internal/features/schedules/dto"
 	"seek/internal/features/students/blocks"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/users/models"
@@ -65,7 +66,7 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/view.templ`, Line: 22, Col: 109}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/view.templ`, Line: 23, Col: 109}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -275,7 +276,15 @@ func View(user models.User, view dto.StudentView, periods []pdto.PeriodScheduleV
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = sblocks.ScheduleComponent(periods).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = sblocks.ScheduleComponent(
+							[]sdto.ScheduleView{
+								sdto.ScheduleView{
+									Person:  view.Person,
+									Periods: periods,
+									Color:   "orange",
+								},
+							},
+						).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

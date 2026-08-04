@@ -4,36 +4,43 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/sharedmodels"
-	"seek/internal/features/periods/dto"
+	"seek/internal/features/schedules/dto"
 )
 
-templ ScheduleComponent(periods []dto.PeriodScheduleView) {
+templ ScheduleComponent(schedules []dto.ScheduleView) {
 	@ScheduleStyle()
-	<div id="schedule-component" class="w-full h-full bg-transparent">
+	<div id="schedule-component" class="w-full h-full">
 		@DayHeaders()
 		@TimeColumn()
 		@GridContainer() {
 			@TimeGrid(30, 480)
 			@DayGrid()
-			for i := range periods {
-				@PeriodCard(periods[i])
+			if len(schedules) > 1 {
+				for _, schedule := range schedules {
+					for i := range schedule.Periods {
+						@PeriodCard(schedule.Periods[i], schedule.Color)
+					}
+				}
 			}
+			{ children... }
 		}
 	</div>
 }
 
 templ DayHeaders() {
 	{{ days := sharedmodels.Days }}
-	for index, day := range days {
-		<div
-			class="day-header @container"
-			style={ fmt.Sprintf("grid-column: %d / span 1;", index+2) }
-		>
-			<span class="hidden @4xs:inline-block">{ day.Name() }</span>
-			<span class="hidden @5xs:inline-block @4xs:hidden">{ day.Short() }</span>
-			<span class="@5xs:hidden">{ day.Initial() }</span>
-		</div>
-	}
+	<header id="schedule-day-header">
+		for index, day := range days {
+			<div
+				class="day-header-box @container"
+				style={ fmt.Sprintf("grid-column: %d / span 1;", index+2) }
+			>
+				<span class="hidden @4xs:inline-block">{ day.Name() }</span>
+				<span class="hidden @5xs:inline-block @4xs:hidden">{ day.Short() }</span>
+				<span class="@5xs:hidden">{ day.Initial() }</span>
+			</div>
+		}
+	</header>
 }
 
 templ TimeColumn() {
@@ -49,7 +56,7 @@ templ TimeColumn() {
 			"3:00",
 		}
 	}}
-	<div id="schedule-times">
+	<div id="schedule-time-column">
 		for i, time := range times {
 			<div class="flex relative">
 				<span class="absolute top-0 translate-y-[-50%]">
@@ -66,7 +73,7 @@ templ TimeColumn() {
 }
 
 templ GridContainer() {
-	<div id="schedule-grid">
+	<div id="schedule-grid-container" class="w-full grid">
 		{ children... }
 	</div>
 }
@@ -121,6 +128,7 @@ templ ScheduleStyle() {
 			display: grid;
 			grid-template-rows: 4rem 1fr;
 			grid-template-columns: 6rem repeat(5, 1fr);
+			background-color: var(--neutral-1);
 			color: var(--neutral-3-on);
 			border-style: solid;
 			border-color: var(--neutral-3-dim);
@@ -130,19 +138,32 @@ templ ScheduleStyle() {
 			padding-bottom: var(--size-4);
 			overflow: auto;
 
-			div.day-header {
-				width: 100%;
-				height: 100%;
-				display: flex;
-				justify-content: center;
-				align-items: center;
+			#schedule-day-header {
+				display: grid;
+				grid-template-columns: subgrid;
+				grid-column: 1 / -1;
+				grid-row: 1 / span 1;
+				position: sticky;
+				top: 0;
+				background-color: var(--neutral-1);
+				z-index: 1;
+
+				.day-header-box {
+					width: 100%;
+					height: 100%;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				}
 			}
 
-			#schedule-times {
+			#schedule-time-column {
 				width: 100%;
 				height: 100%;
 				display: flex;
 				flex-direction: column;
+				grid-column: 1 / span 1;
+				grid-row: 2 / -1;
 				font-size: var(--font-size--1);
 
 				div {
@@ -153,10 +174,8 @@ templ ScheduleStyle() {
 				}
 			}
 
-			#schedule-grid {
-				width: 100%;
-				height: 1000px;
-				display: grid;
+			#schedule-grid-container {
+				height: 2000px;
 				grid-template-rows: repeat(480, 1fr);
 				grid-template-columns: repeat(5, 1fr);
 				grid-column: 2 / -1;

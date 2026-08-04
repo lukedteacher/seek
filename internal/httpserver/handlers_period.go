@@ -12,6 +12,7 @@ import (
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
 	"seek/internal/features/periods/pages"
+	scheduleDTO "seek/internal/features/schedules/dto"
 	sdto "seek/internal/features/students/dto"
 	spevents "seek/internal/features/students_periods/events"
 	"seek/internal/viewstore"
@@ -438,10 +439,13 @@ func (s Server) getPeriodEdit(w http.ResponseWriter, r *http.Request) {
 
 	// create the form view
 	view := dto.NewPeriodFormView(period, students, educators)
-
+	periodScheduleViews := dto.NewPeriodScheduleViews(*period)
+	scheduleView := scheduleDTO.ScheduleView{
+		Periods: periodScheduleViews,
+	}
 	// set the URL in the view
 	view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
-	_ = pages.Edit(user, view, []dto.PeriodScheduleView{}).Render(ctx, w)
+	_ = pages.Edit(user, view, []scheduleDTO.ScheduleView{scheduleView}).Render(ctx, w)
 }
 
 // GET request to /period/{id}/stream
@@ -507,12 +511,14 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			period := periodFormView.Period.ToPeriod()
 
 			// get the periods for the selected students
-			periods := make([]models.Period, 0)
-			periods = append(periods, period)
+			scheduleViews := []scheduleDTO.ScheduleView{}
 			for _, studentID := range period.StudentIDs {
 				s.Logger.Debug("period edit stream", "student ID", studentID)
 				studentPeriods, _ := s.ReadModels.Periods.ListPeriodsForStudent(ctx, studentID)
-				periods = append(periods, studentPeriods...)
+				scheduleViews = append(scheduleViews, scheduleDTO.ScheduleView{
+					Periods: dto.NewPeriodScheduleViews(studentPeriods...),
+					Color:   "blue",
+				})
 			}
 
 			// get educators
@@ -533,11 +539,15 @@ func (s Server) getPeriodEditStream(w http.ResponseWriter, r *http.Request) {
 			newPeriodFormView := dto.NewPeriodFormView(&period, students, educators)
 
 			// create views for the schedule
-			psvs := dto.NewPeriodScheduleViews(periods...)
+			psvs := dto.NewPeriodScheduleViews(period)
+			scheduleViews = append(scheduleViews, scheduleDTO.ScheduleView{
+				Periods: psvs,
+				Color:   "red",
+			})
 			s.Logger.Debug("edit SSE", "sv length", len(psvs))
 			// set the URL in the view
 			newPeriodFormView.URL = fmt.Sprintf("/periods/%s/edit", periodID)
-			sse.PatchElementTempl(pages.Edit(user, newPeriodFormView, psvs))
+			sse.PatchElementTempl(pages.Edit(user, newPeriodFormView, scheduleViews))
 		}
 	}
 }
