@@ -5,10 +5,8 @@ import (
 
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
-	pdto "seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/schedules/blocks"
 	sdto "seek/internal/features/schedules/dto"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
@@ -17,8 +15,8 @@ import (
 	"seek/pkg/templui/components/tabs"
 )
 
-templ View(user models.User, view dto.EducatorView, periods []pdto.PeriodScheduleView, active string) {
-	@corelayouts.LayoutBase("SEEK: educator", user) {
+templ View(view dto.EducatorView, schedule sdto.PersonWithScheduleView, active string) {
+	@corelayouts.LayoutBase("SEEK: educator") {
 		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain(view.FullName(), view.URL)
 			@tabs.Tabs(tabs.Props{
@@ -64,15 +62,7 @@ templ View(user models.User, view dto.EducatorView, periods []pdto.PeriodSchedul
 					case "schedule":
 						@tabs.Content(tabs.ContentProps{Value: "schedule", IsActive: true}) {
 							<section class="w-full">
-								@sblocks.ScheduleComponent(
-									[]sdto.PersonWithScheduleView{
-										sdto.PersonWithScheduleView{
-											Person:  view.Person,
-											Periods: periods,
-											Color:   "red",
-										},
-									},
-								)
+								@sblocks.ScheduleComponent([]sdto.PersonWithScheduleView{schedule})
 							</section>
 						}
 				}

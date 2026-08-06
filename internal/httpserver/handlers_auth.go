@@ -6,7 +6,6 @@ import (
 
 	"seek/internal/auth"
 	"seek/internal/eventstore"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/corepages"
 
 	"github.com/go-chi/chi/v5"
@@ -14,19 +13,19 @@ import (
 )
 
 func (s Server) authRoutes(r chi.Router) {
-	r.With(noCache).Get("/register", render(corepages.Register(models.User{}, nil)))
+	r.With(noCache).Get("/register", render(corepages.Register(nil)))
 	r.With(noCache, signupRateLimit).Post("/register", s.register)
-	r.With(noCache).Get("/login", render(corepages.Login(models.User{}, nil)))
+	r.With(noCache).Get("/login", render(corepages.Login(nil)))
 	r.With(noCache, loginRateLimit).Post("/login", s.login)
 	r.Post("/logout", s.logout)
-	r.With(noCache).Get("/forgot-password", render(corepages.ForgotPassword(models.User{}, nil)))
+	r.With(noCache).Get("/forgot-password", render(corepages.ForgotPassword(nil)))
 	r.With(noCache, forgotPasswordRateLimit).Post("/forgot-password", s.forgotPassword)
 	r.With(noCache).Get("/reset-password/{token}", func(w http.ResponseWriter, r *http.Request) {
-		_ = corepages.ResetPassword(models.User{}, chi.URLParam(r, "token"), nil).Render(r.Context(), w)
+		_ = corepages.ResetPassword(chi.URLParam(r, "token"), nil).Render(r.Context(), w)
 	})
 	r.With(noCache, resetPasswordRateLimit).Post("/reset-password/{token}", s.resetPassword)
 	r.With(noCache).Get("/register/{userID}/validate-email", func(w http.ResponseWriter, r *http.Request) {
-		_ = corepages.ValidateEmail(models.User{}, chi.URLParam(r, "userID"), nil).Render(r.Context(), w)
+		_ = corepages.ValidateEmail(chi.URLParam(r, "userID"), nil).Render(r.Context(), w)
 	})
 	r.With(noCache, otpValidateRateLimit).Post("/register/{userID}/validate-email", s.validateEmail)
 	r.With(noCache, otpResendRateLimit).Post("/register/{userID}/send-email-validation-otp", s.sendOTP)

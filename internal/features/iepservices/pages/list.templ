@@ -3,14 +3,13 @@ package pages
 import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/iepservices/blocks"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	sse "seek/pkg/sse"
 )
 
-templ List(user models.User, view shareddto.TableView) {
-	@corelayouts.LayoutBase("SEEK: IEP services", user) {
+templ List(view shareddto.TableView) {
+	@corelayouts.LayoutBase("SEEK: IEP services") {
 		<main data-signals:view={ view } data-init={ sse.LongRunningGetSSE(view.URL) }>
 			@coreblocks.HeaderMain("IEP services", view.URL)
 			@blocks.List(view)

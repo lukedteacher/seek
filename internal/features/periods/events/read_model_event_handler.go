@@ -15,6 +15,7 @@ const PeriodReadModelEventHandlerName = "period_read_model_event_handler"
 
 type PeriodReadModelReader interface {
 	Get(ctx context.Context, periodID string) (*models.Period, error)
+	GetWithIDs(ctx context.Context, periodID string) (*models.Period, error)
 	List(ctx context.Context) ([]models.Period, error)
 	ListPeriodsForStudent(ctx context.Context, studentID string) ([]models.Period, error)
 	ListPeriodsForEducator(ctx context.Context, educatorID string) ([]models.Period, error)

@@ -42,6 +42,13 @@ templ StudentCreateForm(view dto.StudentFormView) {
 				"student.family_name",
 				view.Student.FamilyName,
 			)
+			@forms.TextInputWithLabel(
+				"email-label",
+				"email",
+				"/students/create/validate",
+				"student.email",
+				view.Student.Email,
+			)
 		</section>
 		<section>
 			@label.Label(label.Props{

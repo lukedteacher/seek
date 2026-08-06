@@ -3,6 +3,7 @@ package httpserver
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"seek/internal/eventstore"
@@ -11,7 +12,7 @@ import (
 	"seek/internal/features/educators/events"
 	"seek/internal/features/educators/models"
 	"seek/internal/features/educators/pages"
-	pdto "seek/internal/features/periods/dto"
+	scheduledto "seek/internal/features/schedules/dto"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -19,7 +20,7 @@ import (
 )
 
 func (s Server) educatorRoutes(r chi.Router) {
-	r.Get("/educators", s.getEducatorsList)
+	r.Get("/educators", getEducatorsList(s.Logger, s.ReadModels.Educators))
 	r.Get("/educators/stream", s.getEducatorsListStream)
 	r.Get("/educators/create", s.getEducatorCreate)
 	r.Get("/educators/create/stream", s.getEducatorCreateStream)
@@ -36,23 +37,26 @@ func (s Server) educatorRoutes(r chi.Router) {
 }
 
 // GET request to /educators
-func (s Server) getEducatorsList(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user := currentUser(r)
-	educators, err := s.ReadModels.Educators.List(ctx)
-	if err != nil {
-		s.Logger.ErrorContext(ctx, "educators list db list", "err", err)
-		return
+func getEducatorsList(
+	l *slog.Logger,
+	rm *events.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		educators, err := rm.List(ctx)
+		if err != nil {
+			l.ErrorContext(ctx, "educators list db list", "err", err)
+			return
+		}
+		view := dto.NewEducatorTableView(educators)
+		view.URL = "/educators"
+		_ = pages.List(view).Render(ctx, w)
 	}
-	view := dto.NewEducatorTableView(educators)
-	view.URL = "/educators"
-	_ = pages.List(user, view).Render(ctx, w)
 }
 
 // GET request to /educators/stream
 func (s Server) getEducatorsListStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	sse := newSSE(w, r)
 	notifier := NewDedupeNotifier()
 	// subscribes to the channel which publishes changes to any educators
@@ -79,7 +83,7 @@ func (s Server) getEducatorsListStream(w http.ResponseWriter, r *http.Request) {
 			}
 			view := dto.NewEducatorTableView(educators)
 			view.URL = "/educators"
-			sse.PatchElementTempl(pages.List(user, view))
+			sse.PatchElementTempl(pages.List(view))
 		}
 	}
 }
@@ -87,17 +91,15 @@ func (s Server) getEducatorsListStream(w http.ResponseWriter, r *http.Request) {
 // GET request to /educators/create
 func (s Server) getEducatorCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	empty := models.Educator{}
 	view := dto.NewEducatorView(&empty)
 	view.URL = "/educators/create"
-	_ = pages.Create(user, view).Render(ctx, w)
+	_ = pages.Create(view).Render(ctx, w)
 }
 
 // GET request to /educators/create/stream
 func (s Server) getEducatorCreateStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	sse := newSSE(w, r)
 
 	watcher, err := s.ViewStore.Watch(
@@ -129,7 +131,7 @@ func (s Server) getEducatorCreateStream(w http.ResponseWriter, r *http.Request) 
 			}
 			view := dto.NewEducatorView(model)
 			view.URL = "/educators/create"
-			sse.PatchElementTempl(pages.Create(user, view))
+			sse.PatchElementTempl(pages.Create(view))
 		}
 	}
 }
@@ -191,11 +193,10 @@ func (s Server) postEducatorCreate(w http.ResponseWriter, r *http.Request) {
 // GET request to /educators/{username}
 func (s Server) getEducatorView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	username := chi.URLParam(r, "username")
 	educator, err := s.ReadModels.Educators.GetByUsername(ctx, username)
 	if educator == nil {
-		_ = pages.NotFound(user).Render(ctx, w)
+		_ = pages.NotFound().Render(ctx, w)
 		return
 	}
 	if err != nil {
@@ -204,19 +205,18 @@ func (s Server) getEducatorView(w http.ResponseWriter, r *http.Request) {
 	}
 	view := dto.NewEducatorView(educator)
 	view.URL = fmt.Sprintf("/educators/%s", username)
-	_ = pages.View(user, view, []pdto.PeriodScheduleView{}, "info").Render(ctx, w)
+	_ = pages.View(view, scheduledto.PersonWithScheduleView{}, "info").Render(ctx, w)
 }
 
 // GET request to /educators/{username}/schedule
 func (s Server) getEducatorViewSchedule(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 
 	// get the username from the URL and get the educator from the db
 	username := chi.URLParam(r, "username")
 	educator, err := s.ReadModels.Educators.GetByUsername(ctx, username)
 	if educator == nil {
-		_ = pages.NotFound(user).Render(ctx, w)
+		_ = pages.NotFound().Render(ctx, w)
 		return
 	}
 	if err != nil {
@@ -234,18 +234,14 @@ func (s Server) getEducatorViewSchedule(w http.ResponseWriter, r *http.Request) 
 		s.Logger.ErrorContext(ctx, "get educator view schedule db list periods", "err", err)
 		return
 	}
-	periodViews := []pdto.PeriodScheduleView{}
-	for _, period := range periods {
-		periodViews = append(periodViews, pdto.NewPeriodScheduleViews(period)...)
-	}
 
-	_ = pages.View(user, educatorView, periodViews, "schedule").Render(ctx, w)
+	scheduleView := scheduledto.NewPersonScheduleView(educator.Person, periods, true, 1)
+	_ = pages.View(educatorView, scheduleView, "schedule").Render(ctx, w)
 }
 
 // GET request to /educators/{username}/stream
 func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	username := chi.URLParam(r, "username")
 	sse := newSSE(w, r)
 
@@ -287,7 +283,7 @@ func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 		case <-notifier.Signal(): // triggers when the read model publishes
 			if err := s.refreshEducatorViewState(ctx, username); err != nil {
 				if err.Error() == "educator not found" {
-					sse.PatchElementTempl(pages.NotFound(user))
+					sse.PatchElementTempl(pages.NotFound())
 				}
 				s.Logger.ErrorContext(ctx, "educator view stream refresh in select", "err", err)
 				return
@@ -296,14 +292,16 @@ func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 			if !ok {
 				return
 			}
-			model := &models.Educator{}
-			if err := entry.JSON(model); err != nil {
+			educator := &models.Educator{}
+			if err := entry.JSON(educator); err != nil {
 				s.Logger.ErrorContext(ctx, "educator view stream json read in select", "err", err)
 				return
 			}
-			view := dto.NewEducatorView(model)
+			view := dto.NewEducatorView(educator)
+			periods, _ := s.ReadModels.Periods.ListPeriodsForEducator(ctx, educator.ID)
 			view.URL = fmt.Sprintf("/educatorst/%s", username)
-			sse.PatchElementTempl(pages.View(user, view, []pdto.PeriodScheduleView{}, "info"))
+			scheduleView := scheduledto.NewPersonScheduleView(educator.Person, periods, true, 1)
+			sse.PatchElementTempl(pages.View(view, scheduleView, "info"))
 		}
 	}
 }
@@ -311,7 +309,6 @@ func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 // GET request to /educators/{username}/edit
 func (s Server) getEducatorEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	username := chi.URLParam(r, "username")
 	educator, err := s.ReadModels.Educators.GetByUsername(ctx, username)
 	if err != nil {
@@ -319,19 +316,18 @@ func (s Server) getEducatorEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if educator == nil {
-		_ = pages.NotFound(user).Render(ctx, w)
+		_ = pages.NotFound().Render(ctx, w)
 		return
 	}
 
 	view := dto.NewEducatorView(educator)
 	view.URL = fmt.Sprintf("/educators/%s/edit", username)
-	_ = pages.Edit(user, view).Render(ctx, w)
+	_ = pages.Edit(view).Render(ctx, w)
 }
 
 // GET request to /educator/{username}/stream
 func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	username := chi.URLParam(r, "username")
 	sse := newSSE(w, r)
 
@@ -367,7 +363,7 @@ func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 		case <-notifier.Signal():
 			if err := s.refreshEducatorEditState(ctx, username); err != nil {
 				if err.Error() == "educator not found" {
-					sse.PatchElementTempl(pages.NotFound(user))
+					sse.PatchElementTempl(pages.NotFound())
 				}
 				s.Logger.ErrorContext(ctx, "educator edit stream refresh", "err", err)
 				return
@@ -383,7 +379,7 @@ func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			view := dto.NewEducatorView(model)
 			view.URL = fmt.Sprintf("/educators/%s/edit", username)
-			sse.PatchElementTempl(pages.Edit(user, view))
+			sse.PatchElementTempl(pages.Edit(view))
 		}
 	}
 }

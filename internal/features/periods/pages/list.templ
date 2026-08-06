@@ -3,14 +3,13 @@ package pages
 import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/periods/blocks"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	sse "seek/pkg/sse"
 )
 
-templ List(user models.User, view shareddto.TableView) {
-	@corelayouts.LayoutBase("SEEK: periods", user) {
+templ List(view shareddto.TableView) {
+	@corelayouts.LayoutBase("SEEK: periods") {
 		<main class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE("/periods/stream") }>
 			@coreblocks.HeaderMain("all periods", "/periods")
 			@blocks.List(view)

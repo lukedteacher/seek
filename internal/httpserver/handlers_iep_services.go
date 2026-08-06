@@ -38,7 +38,6 @@ func (s Server) iepServiceRoutes(r chi.Router) {
 // GET request to /iepservices
 func (s Server) getIEPServicesList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	services, err := s.ReadModels.IEPServices.List(ctx)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "iep services list db list", "err", err)
@@ -46,13 +45,12 @@ func (s Server) getIEPServicesList(w http.ResponseWriter, r *http.Request) {
 	}
 	view := dto.NewIEPServiceTableView(services)
 	view.URL = "/iepservices"
-	_ = pages.List(user, view).Render(ctx, w)
+	_ = pages.List(view).Render(ctx, w)
 }
 
 // GET request to /iepservices/stream
 func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	sse := newSSE(w, r)
 	notifier := NewDedupeNotifier()
 	// subscribes to the channel which publishes changes to any iepServices
@@ -79,7 +77,7 @@ func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request)
 			}
 			view := dto.NewIEPServiceTableView(services)
 			view.URL = "/iepservices"
-			sse.PatchElementTempl(pages.List(user, view))
+			sse.PatchElementTempl(pages.List(view))
 		}
 	}
 }
@@ -88,18 +86,16 @@ func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request)
 // TODO figure out if there's a way to have this use the same form as edit?
 func (s Server) getIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	empty := models.NewIEPService()
 	students, _ := s.ReadModels.Students.List(ctx)
 	view := dto.NewIEPServiceFormView(empty, students)
 	view.URL = "/iepservices/create"
-	_ = pages.Create(user, view).Render(ctx, w)
+	_ = pages.Create(view).Render(ctx, w)
 }
 
 // GET request to /iepservices/create/stream
 func (s Server) getIEPServiceCreateStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	sse := newSSE(w, r)
 
 	// watches the key value stream for ephemeral changes
@@ -133,7 +129,7 @@ func (s Server) getIEPServiceCreateStream(w http.ResponseWriter, r *http.Request
 			students, _ := s.ReadModels.Students.List(ctx)
 			view := dto.NewIEPServiceFormView(model, students)
 			view.URL = "/iepservices/create"
-			sse.PatchElementTempl(pages.Create(user, view))
+			sse.PatchElementTempl(pages.Create(view))
 		}
 	}
 }
@@ -197,11 +193,10 @@ func (s Server) postIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 // GET request to /iepservices/{id}
 func (s Server) getIEPServiceView(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	iepServiceID := chi.URLParam(r, "id")
 	model, err := s.ReadModels.IEPServices.Get(ctx, iepServiceID)
 	if model == nil {
-		_ = pages.NotFound(user).Render(ctx, w)
+		_ = pages.NotFound().Render(ctx, w)
 		return
 	}
 	if err != nil {
@@ -211,13 +206,12 @@ func (s Server) getIEPServiceView(w http.ResponseWriter, r *http.Request) {
 
 	view := dto.NewIEPServiceView(model)
 	view.URL = fmt.Sprintf("/iepservices/%s", iepServiceID)
-	_ = pages.View(user, view).Render(ctx, w)
+	_ = pages.View(view).Render(ctx, w)
 }
 
 // GET request to /iepservices/{id}/stream
 func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	iepServiceID := chi.URLParam(r, "id")
 	sse := newSSE(w, r)
 
@@ -259,7 +253,7 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 		case <-notifier.Signal(): // triggers when the read model publishes
 			if err := s.refreshIEPServiceViewState(ctx, iepServiceID); err != nil {
 				if err.Error() == "iepService not found" {
-					sse.PatchElementTempl(pages.NotFound(user))
+					sse.PatchElementTempl(pages.NotFound())
 				}
 				s.Logger.ErrorContext(ctx, "iep service view stream refresh in select", "err", err)
 				return
@@ -275,7 +269,7 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 			}
 			view := dto.NewIEPServiceView(model)
 			view.URL = fmt.Sprintf("/iepservices/%s", iepServiceID)
-			sse.PatchElementTempl(pages.View(user, view))
+			sse.PatchElementTempl(pages.View(view))
 		}
 	}
 }
@@ -283,7 +277,6 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 // GET request to /iepservices/{id}/edit
 func (s Server) getIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	iepServiceID := chi.URLParam(r, "id")
 	model, err := s.ReadModels.IEPServices.Get(ctx, iepServiceID)
 	if err != nil {
@@ -293,13 +286,12 @@ func (s Server) getIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	students, _ := s.ReadModels.Students.List(ctx)
 	view := dto.NewIEPServiceFormView(model, students)
 	view.URL = fmt.Sprintf("/iepservices/%s/edit", iepServiceID)
-	_ = pages.Edit(user, view).Render(ctx, w)
+	_ = pages.Edit(view).Render(ctx, w)
 }
 
 // GET request to /iepService/{id}/stream
 func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	iepServiceID := chi.URLParam(r, "id")
 	sse := newSSE(w, r)
 
@@ -335,7 +327,7 @@ func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) 
 		case <-notifier.Signal():
 			if err := s.refreshIEPServiceEditState(ctx, iepServiceID); err != nil {
 				if err.Error() == "iepService not found" {
-					sse.PatchElementTempl(pages.NotFound(user))
+					sse.PatchElementTempl(pages.NotFound())
 				}
 				s.Logger.ErrorContext(ctx, "iep service edit stream refresh", "err", err)
 				return
@@ -352,7 +344,7 @@ func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) 
 			students, _ := s.ReadModels.Students.List(ctx)
 			view := dto.NewIEPServiceFormView(model, students)
 			view.URL = fmt.Sprintf("/iepservices/%s/edit", iepServiceID)
-			sse.PatchElementTempl(pages.Edit(user, view))
+			sse.PatchElementTempl(pages.Edit(view))
 		}
 	}
 }
@@ -431,7 +423,6 @@ func (s Server) deleteIEPService(w http.ResponseWriter, r *http.Request) {
 // GET request to /iepservices/csv
 func (s Server) ReadCSV(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 
 	file, err := os.OpenFile("iep_services.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
@@ -477,7 +468,7 @@ func (s Server) ReadCSV(w http.ResponseWriter, r *http.Request) {
 
 	// render view
 	view := dto.NewIEPServiceDiffTableView(diffs)
-	pages.CSV(user, view).Render(ctx, w)
+	pages.CSV(view).Render(ctx, w)
 }
 
 func (s Server) refreshIEPServiceViewState(ctx context.Context, iepServiceID string) error {

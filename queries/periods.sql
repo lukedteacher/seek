@@ -12,6 +12,31 @@ FROM periods
 WHERE archived_at IS NULL
 	AND id = @id;
 
+-- name: GetPeriodWithIDs :one
+SELECT
+    p.id,
+    p.title,
+    p.service_type,
+    p.start_time,
+    p.duration,
+    p.days_bitmask,
+    p.created_at,
+    p.updated_at,
+    CAST(
+        COALESCE(
+            (SELECT json_group_array(ps.student_id) FROM periods_students ps WHERE ps.period_id = p.id),
+            '[]'
+        ) AS TEXT
+    ) AS student_ids,
+    CAST(
+        COALESCE(
+            (SELECT json_group_array(ep.educator_id) FROM educators_periods ep WHERE ep.period_id = p.id),
+            '[]'
+        ) AS TEXT
+    ) AS educator_ids
+FROM periods p
+WHERE p.id = @id;
+
 -- name: ListPeriods :many
 SELECT
 	id, 

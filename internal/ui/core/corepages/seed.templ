@@ -1,0 +1,48 @@
+package corepages
+
+import (
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/templui/components/button"
+)
+
+templ Seed() {
+	@corelayouts.LayoutBase("SEEK: seed") {
+		<main style="display: flex; flex-direction: column; gap: 1rem;">
+			@coreblocks.HeaderMain("seed data", "/seed")
+			<section>
+				<h3>buttons</h3>
+				<div class="mt-4 grid grid-cols-4 gap-2">
+					@button.Button(button.Props{
+						Attributes: templ.Attributes{
+							"data-on:click": "@post('/seed/students')",
+						},
+					}) {
+						seed students
+					}
+					@button.Button(button.Props{
+						Attributes: templ.Attributes{
+							"data-on:click": "@post('/seed/periods')",
+						},
+					}) {
+						seed periods
+					}
+					@button.Button(button.Props{
+						Attributes: templ.Attributes{
+							"data-on:click": "@post('/seed/educators')",
+						},
+					}) {
+						seed educators
+					}
+					@button.Button(button.Props{
+						Attributes: templ.Attributes{
+							"data-on:click": "@post('/seed/users')",
+						},
+					}) {
+						seed users
+					}
+				</div>
+			</section>
+		</main>
+	}
+}

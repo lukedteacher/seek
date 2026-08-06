@@ -5,14 +5,13 @@ import (
 
 	"seek/internal/features/iepservices/blocks"
 	"seek/internal/features/iepservices/dto"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-templ View(user models.User, view dto.IEPServiceView) {
-	@corelayouts.LayoutBase("SEEK: IEP service", user) {
+templ View(view dto.IEPServiceView) {
+	@corelayouts.LayoutBase("SEEK: IEP service") {
 		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain("view IEP service", view.URL)
 			<section class="w-full flex flex-col items-center">

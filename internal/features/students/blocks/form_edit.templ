@@ -16,7 +16,7 @@ templ StudentEditForm(view dto.StudentFormView) {
 	{{ url := fmt.Sprintf("/students/%s/edit", view.Student.ID) }}
 	<form
 		id="student-edit-form"
-		class="seek-form"
+		class="seek-form w-128"
 		data-on:submit={ datastar.PostSSE(url) }
 	>
 		<hgroup>
@@ -44,6 +44,13 @@ templ StudentEditForm(view dto.StudentFormView) {
 				url+"/validate",
 				"student.family_name",
 				view.Student.FamilyName,
+			)
+			@forms.TextInputWithLabel(
+				"email-label",
+				"email",
+				"/students/create/validate",
+				"student.email",
+				view.Student.Email,
 			)
 		</section>
 		<section>

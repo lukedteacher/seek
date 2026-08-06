@@ -2,16 +2,15 @@ package pages
 
 import (
 	"seek/internal/features/profiles/blocks"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/corelayouts"
 	sse "seek/pkg/sse"
 )
 
-templ EditProfile(user models.User, view any) {
-	@corelayouts.LayoutBase("SEEK: edit your profile", user) {
+templ EditProfile(view any) {
+	@corelayouts.LayoutBase("SEEK: edit your profile") {
 		<main data-init={ sse.LongRunningGetSSE("/profile/edit/stream") }>
 			<section style="width: 100%; max-width: 52rem;">
-				@blocks.EditProfileForm(user)
+				@blocks.EditProfileForm()
 			</section>
 		</main>
 	}

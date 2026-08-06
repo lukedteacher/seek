@@ -1,12 +1,11 @@
 package pages
 
 import (
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/corelayouts"
 )
 
-templ NotFound(user models.User) {
-	@corelayouts.LayoutBase("SEEK: period not found", user) {
+templ NotFound() {
+	@corelayouts.LayoutBase("SEEK: IEP service not found") {
 		<main id="main">
 			<section>
 				<h3>not found</h3>

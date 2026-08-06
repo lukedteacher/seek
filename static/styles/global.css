@@ -509,3 +509,31 @@ button[data-service='SEL'] {
 button[data-service='speech'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-aqua-neutral-0);
 }
+
+span[data-service='reading'].bg-primary {
+  background-color: var(--gruvbox-red-faded-0);
+}
+
+span[data-service='writing'] {
+  background-color: var(--gruvbox-orange-faded-0);
+}
+
+span[data-service='EF'] {
+  background-color: var(--gruvbox-green-faded-0);
+}
+
+span[data-service='math'] {
+  background-color: var(--gruvbox-blue-faded-0);
+}
+
+span[data-service='SEL'] {
+  background-color: var(--gruvbox-purple-faded-0);
+}
+
+span[data-service='speech'] {
+  background-color: var(--gruvbox-aqua-faded-0);
+}
+
+span[data-service='OT'] {
+  background-color: var(--gruvbox-yellow-faded-0);
+}

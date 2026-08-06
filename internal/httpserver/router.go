@@ -19,10 +19,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type contextKey string
-
-const userKey contextKey = "user"
-
 type MessageSubscriber interface {
 	Subscribe(ctx context.Context, subject string, handle func(context.Context, []byte)) (eventstore.MessageSubscription, error)
 }
@@ -120,7 +116,7 @@ func (s Server) addUserInfoToContext(next http.Handler) http.Handler {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, userKey, user)))
+		next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, models.UserKey, user)))
 	})
 }
 
@@ -141,12 +137,12 @@ func (s Server) requireVerifiedEmail(next http.Handler) http.Handler {
 			http.Redirect(w, r, "/register/"+user.ID+"/validate-email", http.StatusFound)
 			return
 		}
-		next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, userKey, user)))
+		next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, models.UserKey, user)))
 	})
 }
 
 func currentUser(r *http.Request) models.User {
-	user, _ := r.Context().Value(userKey).(models.User)
+	user, _ := r.Context().Value(models.UserKey).(models.User)
 	return user
 }
 

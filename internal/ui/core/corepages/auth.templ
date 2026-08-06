@@ -1,14 +1,13 @@
 package corepages
 
 import (
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-templ Login(user models.User, errors map[string]string) {
-	@corelayouts.LayoutBase("SEEK: login", user) {
+templ Login(errors map[string]string) {
+	@corelayouts.LayoutBase("SEEK: login") {
 		@LoginForm(errors)
 	}
 }
@@ -23,8 +22,8 @@ templ LoginForm(errors map[string]string) {
 	}
 }
 
-templ Register(user models.User, errors map[string]string) {
-	@corelayouts.LayoutBase("SEEK: register", user) {
+templ Register(errors map[string]string) {
+	@corelayouts.LayoutBase("SEEK: register") {
 		@RegisterForm(errors)
 	}
 }
@@ -38,8 +37,8 @@ templ RegisterForm(errors map[string]string) {
 	}
 }
 
-templ ForgotPassword(user models.User, errors map[string]string) {
-	@corelayouts.LayoutBase("SEEK: forgot password", user) {
+templ ForgotPassword(errors map[string]string) {
+	@corelayouts.LayoutBase("SEEK: forgot password") {
 		@ForgotPasswordForm(errors)
 	}
 }
@@ -52,8 +51,8 @@ templ ForgotPasswordForm(errors map[string]string) {
 	}
 }
 
-templ ResetPassword(user models.User, token string, errors map[string]string) {
-	@corelayouts.LayoutBase("SEEK: reset password", user) {
+templ ResetPassword(token string, errors map[string]string) {
+	@corelayouts.LayoutBase("SEEK: reset password") {
 		@ResetPasswordForm(token, errors)
 	}
 }
@@ -65,8 +64,8 @@ templ ResetPasswordForm(token string, errors map[string]string) {
 	}
 }
 
-templ ValidateEmail(user models.User, userID string, errors map[string]string) {
-	@corelayouts.LayoutBase("SEEK: validate email", user) {
+templ ValidateEmail(userID string, errors map[string]string) {
+	@corelayouts.LayoutBase("SEEK: validate email") {
 		@ValidateEmailForm(userID, errors)
 	}
 }

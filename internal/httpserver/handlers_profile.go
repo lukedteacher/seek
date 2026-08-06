@@ -89,12 +89,7 @@ func (s Server) getProfileStream(w http.ResponseWriter, r *http.Request) {
 // GET request to /profile/edit
 func (s Server) getEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := s.profileUser(ctx, currentUser(r))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	_ = pages.EditProfile(user, nil).Render(ctx, w)
+	_ = pages.EditProfile(nil).Render(ctx, w)
 }
 
 // POST request to /profile/edit

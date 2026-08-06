@@ -7,7 +7,8 @@ import (
 	"seek/pkg/sse"
 )
 
-templ LayoutBase(title string, user models.User) {
+templ LayoutBase(title string) {
+	{{ user := models.GetUserFromContext(ctx) }}
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -15,7 +16,6 @@ templ LayoutBase(title string, user models.User) {
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ title }</title>
 			<script type="module" src={ resources.StaticPath("scripts/datastar.js") }></script>
-			<script type="module" src={ resources.StaticPath("scripts/datastar-inspector.js") }></script>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/style.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/stellar.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/global.css") }/>

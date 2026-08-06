@@ -93,12 +93,13 @@ templ UserHeaderDropdown(user models.User) {
 					</div>
 				}
 				@dropdown.Item(dropdown.ItemProps{
-					Class: "px-4 py-2 hover:text-accent-foreground",
+					Class: "px-4 py-2 flex items-center justify-start gap-3",
+					Attributes: templ.Attributes{
+						"data-on:click": "@post('/logout')",
+					},
 				}) {
-					<div class="flex items-center space-x-3">
-						@icon.LogOut(icon.Props{Class: "size-4 text-destructive"})
-						<span class="text-sm text-destructive">sign out</span>
-					</div>
+					@icon.LogOut(icon.Props{Class: "size-4 text-destructive"})
+					<span class="text-sm text-destructive">sign out</span>
 				}
 			</div>
 		}

@@ -13,10 +13,8 @@ import (
 
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
-	pdto "seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/schedules/blocks"
 	sdto "seek/internal/features/schedules/dto"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
@@ -25,7 +23,7 @@ import (
 	"seek/pkg/templui/components/tabs"
 )
 
-func View(user models.User, view dto.EducatorView, periods []pdto.PeriodScheduleView, active string) templ.Component {
+func View(view dto.EducatorView, schedule sdto.PersonWithScheduleView, active string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -65,7 +63,7 @@ func View(user models.User, view dto.EducatorView, periods []pdto.PeriodSchedule
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/view.templ`, Line: 22, Col: 115}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/view.templ`, Line: 20, Col: 115}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -237,15 +235,7 @@ func View(user models.User, view dto.EducatorView, periods []pdto.PeriodSchedule
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = sblocks.ScheduleComponent(
-							[]sdto.PersonWithScheduleView{
-								sdto.PersonWithScheduleView{
-									Person:  view.Person,
-									Periods: periods,
-									Color:   "red",
-								},
-							},
-						).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = sblocks.ScheduleComponent([]sdto.PersonWithScheduleView{schedule}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -275,7 +265,7 @@ func View(user models.User, view dto.EducatorView, periods []pdto.PeriodSchedule
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: educator", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: educator").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

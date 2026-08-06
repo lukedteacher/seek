@@ -18,6 +18,11 @@ tasks:
     cmds:
       - go build -o .tmp/bin/main.exe ./cmd/server
 
+  build-linux:
+    deps: [sqlc, templ, css]
+    cmds:
+      - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -tags=prod -o bin/main ./cmd/server
+
   test:
     deps: [sqlc, templ]
     cmds:

@@ -7,7 +7,7 @@ import (
 
 	"seek/internal/eventstore"
 	idto "seek/internal/features/iepservices/dto"
-	pdto "seek/internal/features/periods/dto"
+	scheduledto "seek/internal/features/schedules/dto"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/students/events"
 	"seek/internal/features/students/models"
@@ -43,7 +43,6 @@ func (s Server) studentRoutes(r chi.Router) {
 // GET request to /students
 func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	students, err := s.ReadModels.Students.List(ctx)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "students list db list", "err", err)
@@ -51,13 +50,12 @@ func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	}
 	studentTableView := dto.NewStudentTableView(students)
 	studentTableView.URL = "/students"
-	_ = pages.List(user, studentTableView).Render(ctx, w)
+	_ = pages.List(studentTableView).Render(ctx, w)
 }
 
 // GET request to /students/stream
 func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	sse := newSSE(w, r)
 	notifier := NewDedupeNotifier()
 	// subscribes to the channel which publishes changes to any students
@@ -84,7 +82,7 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 			}
 			studentTableView := dto.NewStudentTableView(students)
 			studentTableView.URL = "/students"
-			sse.PatchElementTempl(pages.List(user, studentTableView))
+			sse.PatchElementTempl(pages.List(studentTableView))
 		}
 	}
 }
@@ -92,17 +90,15 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 // GET request to /students/create
 func (s Server) getStudentCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	empty := models.NewStudent()
 	studentFormView := dto.NewStudentFormView(empty)
 	studentFormView.URL = "/students/create"
-	_ = pages.Create(user, studentFormView).Render(ctx, w)
+	_ = pages.Create(studentFormView).Render(ctx, w)
 }
 
 // GET request to /students/create/stream
 func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	sse := newSSE(w, r)
 
 	// watches the key value stream for ephemeral changes
@@ -135,7 +131,7 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 			}
 			studentFormView := dto.NewStudentFormView(student)
 			studentFormView.URL = "/students/create"
-			sse.PatchElementTempl(pages.Create(user, studentFormView))
+			sse.PatchElementTempl(pages.Create(studentFormView))
 		}
 	}
 }
@@ -198,7 +194,6 @@ func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
 // GET request to /students/{username}/info
 func (s Server) getStudentViewInfo(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 
 	// get the username from the URL and pull the data from the db
 	username := chi.URLParam(r, "username")
@@ -212,13 +207,12 @@ func (s Server) getStudentViewInfo(w http.ResponseWriter, r *http.Request) {
 	studentView := dto.NewStudentView(student)
 	studentView.URL = fmt.Sprintf("/students/%s/info", student.Username)
 
-	_ = pages.View(user, studentView, []pdto.PeriodScheduleView{}, []idto.IEPServiceView{}, "info").Render(ctx, w)
+	_ = pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "info").Render(ctx, w)
 }
 
 // GET request to /students/{username}/info/stream
 func (s Server) getStudentViewInfoStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	username := chi.URLParam(r, "username")
 	sse := newSSE(w, r)
 
@@ -261,7 +255,7 @@ func (s Server) getStudentViewInfoStream(w http.ResponseWriter, r *http.Request)
 			if err := s.refreshStudentViewState(ctx, username); err != nil {
 				s.Logger.ErrorContext(ctx, "student view info stream refresh in select", "err", err)
 				if err.Error() == "student not found" {
-					sse.PatchElementTempl(pages.NotFound(user))
+					sse.PatchElementTempl(pages.NotFound())
 				}
 				return
 			}
@@ -276,7 +270,7 @@ func (s Server) getStudentViewInfoStream(w http.ResponseWriter, r *http.Request)
 			}
 			studentView := dto.NewStudentView(student)
 			studentView.URL = fmt.Sprintf("/students/%s/info", username)
-			sse.PatchElementTempl(pages.View(user, studentView, []pdto.PeriodScheduleView{}, []idto.IEPServiceView{}, "info"))
+			sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "info"))
 		}
 	}
 }
@@ -284,13 +278,12 @@ func (s Server) getStudentViewInfoStream(w http.ResponseWriter, r *http.Request)
 // GET request to /students/{username}/schedule
 func (s Server) getStudentViewSchedule(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 
 	// get the username from the URL and get the student from the db
 	username := chi.URLParam(r, "username")
 	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
 	if student == nil {
-		_ = pages.NotFound(user).Render(ctx, w)
+		_ = pages.NotFound().Render(ctx, w)
 		return
 	}
 	if err != nil {
@@ -308,18 +301,15 @@ func (s Server) getStudentViewSchedule(w http.ResponseWriter, r *http.Request) {
 		s.Logger.ErrorContext(ctx, "get student view schedule db list periods", "err", err)
 		return
 	}
-	periodViews := []pdto.PeriodScheduleView{}
-	for _, period := range periods {
-		periodViews = append(periodViews, pdto.NewPeriodScheduleViews(period)...)
-	}
 
-	_ = pages.View(user, studentView, periodViews, []idto.IEPServiceView{}, "schedule").Render(ctx, w)
+	personScheduleView := scheduledto.NewPersonScheduleView(student.Person, periods, true, 1)
+	s.Logger.Debug("student view", "period view length", len(personScheduleView.Periods))
+	_ = pages.View(studentView, personScheduleView, []idto.IEPServiceView{}, "schedule").Render(ctx, w)
 }
 
 // GET request to /students/{username}/schedule/stream
 func (s Server) getStudentViewScheduleStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	username := chi.URLParam(r, "username")
 	sse := newSSE(w, r)
 
@@ -362,7 +352,7 @@ func (s Server) getStudentViewScheduleStream(w http.ResponseWriter, r *http.Requ
 			if err := s.refreshStudentViewState(ctx, username); err != nil {
 				s.Logger.ErrorContext(ctx, "student schedule info stream refresh in select", "err", err)
 				if err.Error() == "student not found" {
-					sse.PatchElementTempl(pages.NotFound(user))
+					sse.PatchElementTempl(pages.NotFound())
 				}
 				return
 			}
@@ -384,11 +374,8 @@ func (s Server) getStudentViewScheduleStream(w http.ResponseWriter, r *http.Requ
 				s.Logger.ErrorContext(ctx, "get student view schedule db list periods", "err", err)
 				return
 			}
-			periodViews := []pdto.PeriodScheduleView{}
-			for _, period := range periods {
-				periodViews = append(periodViews, pdto.NewPeriodScheduleViews(period)...)
-			}
-			sse.PatchElementTempl(pages.View(user, studentView, periodViews, []idto.IEPServiceView{}, "schedule"))
+			personScheduleView := scheduledto.NewPersonScheduleView(student.Person, periods, true, 1)
+			sse.PatchElementTempl(pages.View(studentView, personScheduleView, []idto.IEPServiceView{}, "schedule"))
 		}
 	}
 }
@@ -396,7 +383,6 @@ func (s Server) getStudentViewScheduleStream(w http.ResponseWriter, r *http.Requ
 // GET request to /students/{username}/services
 func (s Server) getStudentViewServices(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 
 	// get the id from the URL and pull the data from the db
 	username := chi.URLParam(r, "username")
@@ -419,13 +405,12 @@ func (s Server) getStudentViewServices(w http.ResponseWriter, r *http.Request) {
 	for i, service := range services {
 		serviceViews[i] = idto.NewIEPServiceView(&service)
 	}
-	_ = pages.View(user, studentView, []pdto.PeriodScheduleView{}, serviceViews, "services").Render(ctx, w)
+	_ = pages.View(studentView, scheduledto.PersonWithScheduleView{}, serviceViews, "services").Render(ctx, w)
 }
 
 // GET request to /students/{username}/services/stream
 func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	username := chi.URLParam(r, "username")
 	sse := newSSE(w, r)
 
@@ -468,7 +453,7 @@ func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Requ
 			if err := s.refreshStudentViewState(ctx, username); err != nil {
 				s.Logger.ErrorContext(ctx, "student view services stream refresh in select", "err", err)
 				if err.Error() == "student not found" {
-					sse.PatchElementTempl(pages.NotFound(user))
+					sse.PatchElementTempl(pages.NotFound())
 				}
 				return
 			}
@@ -494,7 +479,7 @@ func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Requ
 				serviceViews[i] = idto.NewIEPServiceView(&service)
 			}
 
-			sse.PatchElementTempl(pages.View(user, studentView, []pdto.PeriodScheduleView{}, serviceViews, "services"))
+			sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, serviceViews, "services"))
 		}
 	}
 }
@@ -502,7 +487,7 @@ func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Requ
 // GET request to /students/{username}/edit
 func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
+
 	username := chi.URLParam(r, "username")
 	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
 	if err != nil {
@@ -512,19 +497,18 @@ func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	if student == nil {
 		s.Logger.ErrorContext(ctx, "get student edit student nil", "username", username)
-		_ = pages.NotFound(user).Render(ctx, w)
+		_ = pages.NotFound().Render(ctx, w)
 		return
 	}
 
 	studentFormView := dto.NewStudentFormView(student)
 	studentFormView.URL = fmt.Sprintf("/students/%s/edit", username)
-	_ = pages.Edit(user, studentFormView).Render(ctx, w)
+	_ = pages.Edit(studentFormView).Render(ctx, w)
 }
 
 // GET request to /student/{username}/edit/stream
 func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := currentUser(r)
 	username := chi.URLParam(r, "username")
 	sse := newSSE(w, r)
 
@@ -560,7 +544,7 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 		case <-notifier.Signal():
 			if err := s.refreshStudentEditState(ctx, username); err != nil {
 				if err.Error() == "student not found" {
-					sse.PatchElementTempl(pages.NotFound(user))
+					sse.PatchElementTempl(pages.NotFound())
 				}
 				s.Logger.ErrorContext(ctx, "student edit stream refresh in select", "err", err)
 				return
@@ -576,7 +560,7 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 			}
 			studentFormView := dto.NewStudentFormView(student)
 			studentFormView.URL = fmt.Sprintf("/students/%s/edit", username)
-			sse.PatchElementTempl(pages.Edit(user, studentFormView))
+			sse.PatchElementTempl(pages.Edit(studentFormView))
 		}
 	}
 }

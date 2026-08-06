@@ -3,14 +3,16 @@ package blocks
 import (
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks/forms"
-
-	"github.com/starfederation/datastar-go/datastar"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 	"seek/pkg/templui/components/textarea"
+
+
+	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ EditProfileForm(user models.User) {
+templ EditProfileForm() {
+	{{ user := models.GetUserFromContext(ctx) }}
 	<form
 		id="edit-profile-form"
 		class="seek-form"

@@ -4,15 +4,14 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/shareddto"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/tables"
 	"seek/internal/ui/core/corelayouts"
 	sse "seek/pkg/sse"
 )
 
-templ List(user models.User, view shareddto.TableView) {
-	@corelayouts.LayoutBase("SEEK: students", user) {
+templ List(view shareddto.TableView) {
+	@corelayouts.LayoutBase("SEEK: students") {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain("student list", view.URL)
 			@tables.DataTable(view)

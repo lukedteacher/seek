@@ -22,22 +22,22 @@ func SeedData(
 	piiKeys *auth.SubjectPiiKeyStore,
 	logger *slog.Logger,
 ) error {
-	err := seedUsers(ctx, saver, retriever, piiKeys)
+	err := SeedUsers(ctx, saver, retriever, piiKeys)
 	if err != nil {
 		logger.ErrorContext(ctx, "seed data user", "err", err)
 		return err
 	}
-	studentIDs, err := seedStudents(ctx, saver)
+	studentIDs, err := SeedStudents(ctx, saver)
 	if err != nil {
 		logger.ErrorContext(ctx, "seed students", "err", err)
 		return err
 	}
-	periodIDs, err := seedPeriods(ctx, saver)
+	periodIDs, err := SeedPeriods(ctx, saver)
 	if err != nil {
 		logger.ErrorContext(ctx, "seed periods", "err", err)
 		return err
 	}
-	educatorIDs, err := seedEducators(ctx, saver)
+	educatorIDs, err := SeedEducators(ctx, saver)
 	if err != nil {
 		logger.ErrorContext(ctx, "seed educators", "err", err)
 		return err
@@ -45,7 +45,7 @@ func SeedData(
 	if len(educatorIDs) > 0 && len(periodIDs) > 0 {
 		for i, eduID := range educatorIDs {
 			periodIdx := i % len(periodIDs)
-			if err := seedEducatorPeriods(ctx, saver, retriever, eduID, periodIDs[periodIdx]); err != nil {
+			if err := SeedEducatorPeriods(ctx, saver, retriever, eduID, periodIDs[periodIdx]); err != nil {
 				logger.ErrorContext(ctx, "seed educator period", "err", err, "educator", eduID, "period", periodIDs[periodIdx])
 				return err
 			}
@@ -53,11 +53,11 @@ func SeedData(
 	}
 	if len(studentIDs) > 0 && len(periodIDs) > 1 {
 		for _, stuID := range studentIDs {
-			if err := seedStudentPeriods(ctx, saver, retriever, stuID, periodIDs[0]); err != nil {
+			if err := SeedStudentPeriods(ctx, saver, retriever, stuID, periodIDs[0]); err != nil {
 				logger.ErrorContext(ctx, "seed student period 1", "err", err, "student", stuID)
 				return err
 			}
-			if err := seedStudentPeriods(ctx, saver, retriever, stuID, periodIDs[1]); err != nil {
+			if err := SeedStudentPeriods(ctx, saver, retriever, stuID, periodIDs[1]); err != nil {
 				logger.ErrorContext(ctx, "seed student period 2", "err", err, "student", stuID)
 				return err
 			}
@@ -66,7 +66,7 @@ func SeedData(
 	return nil
 }
 
-func seedUsers(
+func SeedUsers(
 	ctx context.Context,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
@@ -82,7 +82,7 @@ func seedUsers(
 	return nil
 }
 
-func seedStudents(ctx context.Context, saver eventstore.Saver) ([]string, error) {
+func SeedStudents(ctx context.Context, saver eventstore.Saver) ([]string, error) {
 	data := []struct {
 		GivenName   string
 		ChosenName  string
@@ -124,7 +124,7 @@ func seedStudents(ctx context.Context, saver eventstore.Saver) ([]string, error)
 	return ids, nil
 }
 
-func seedPeriods(ctx context.Context, saver eventstore.Saver) ([]string, error) {
+func SeedPeriods(ctx context.Context, saver eventstore.Saver) ([]string, error) {
 	data := []struct {
 		Title       string
 		ServiceType sharedmodels.ServiceType
@@ -162,7 +162,7 @@ func seedPeriods(ctx context.Context, saver eventstore.Saver) ([]string, error) 
 	return ids, nil
 }
 
-func seedEducators(ctx context.Context, saver eventstore.Saver) ([]string, error) {
+func SeedEducators(ctx context.Context, saver eventstore.Saver) ([]string, error) {
 	data := []struct {
 		GivenName  string
 		ChosenName string
@@ -200,7 +200,7 @@ func seedEducators(ctx context.Context, saver eventstore.Saver) ([]string, error
 	return ids, nil
 }
 
-func seedEducatorPeriods(
+func SeedEducatorPeriods(
 	ctx context.Context,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
@@ -215,7 +215,7 @@ func seedEducatorPeriods(
 	return err
 }
 
-func seedStudentPeriods(
+func SeedStudentPeriods(
 	ctx context.Context,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,

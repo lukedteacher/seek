@@ -33,6 +33,16 @@ templ Card(view dto.PeriodView) {
 			<p>
 				<span class="text-neutral-content/80">teachers ({ len(view.Educators) }):</span>
 			</p>
+			<div class="period-card-educators flex gap-2 flex-wrap">
+				for _, educator := range view.Educators {
+					<div class="bg-linear-2 border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
+						{ educator.NameInitial() }
+						@badge.Badge() {
+							{ educator.Role }
+						}
+					</div>
+				}
+			</div>
 			<p>location: ...</p>
 			<p>
 				<span class="text-neutral-content/70">students ({ len(view.Students) }):</span>

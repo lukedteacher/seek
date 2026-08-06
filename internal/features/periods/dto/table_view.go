@@ -13,6 +13,8 @@ var PeriodColumns = []shareddto.ColumnView{
 	{Field: "EndTime", Display: "end", Group: "time", Alignment: "center"},
 	{Field: "Duration", Display: "duration", Alignment: "center"},
 	{Field: "Days", Display: "days", Alignment: "center"},
+	{Field: "EducatorIDs", Display: "educators", Alignment: "center"},
+	{Field: "StudentIDs", Display: "students", Alignment: "center"},
 }
 
 func valueExtractor(m *models.Period, field string) string {
@@ -34,6 +36,10 @@ func valueExtractor(m *models.Period, field string) string {
 		return strconv.Itoa(m.Duration)
 	case "Days":
 		return m.DaysBitmask.String()
+	case "EducatorIDs":
+		return strconv.Itoa(len(m.EducatorIDs))
+	case "StudentIDs":
+		return strconv.Itoa(len(m.StudentIDs))
 	default:
 		return ""
 	}

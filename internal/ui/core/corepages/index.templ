@@ -10,95 +10,107 @@ import (
 	"seek/pkg/templui/components/separator"
 )
 
-templ Index(user models.User) {
-	@corelayouts.LayoutBase("SEEK", user) {
+templ Index() {
+	{{ user := models.GetUserFromContext(ctx) }}
+	@corelayouts.LayoutBase("SEEK") {
 		<div class="flex flex-col w-full h-full row-2" data-init={ sse.LongRunningGetSSE("/stream") }>
-			<main class="flex flex-col gap-2">
-				<section class="w-full flex justify-center">
-					@card.Card(card.Props{
-						Class: "border-muted bg-linear-23 accent-blue flex flex-col md:flex-row w-fit",
-					}) {
-						<div class="overflow-hidden w-128">
-							<img
-								src="/static/images/cc.jpg"
-								alt="charlie in the throws of apophenia"
-								class="h-full w-full object-cover"
-							/>
-						</div>
-						<div class="w-128">
-							@card.Header() {
-								@card.Title() {
-									SEEK
-								}
-								@card.Description() {
-									aka shared educational environment knowledge
-								}
-								@separator.Separator(separator.Props{
-									Class: "mt-1",
-								})
-							}
-							@card.Content(card.ContentProps{
-								Class: "text-sm flex flex-col gap-2",
-							}) {
-								<p>stop using eight different spreadsheets that are somehow all both updated and out of date to manage your schedule.</p>
-								<p>give yourself more time to focus on the important stuff: naps--er... teaching.</p>
-							}
-						</div>
-					}
-				</section>
-				<section class="grid gap-2 w-full" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-					@IndexCard(IndexCardProps{
-						icon:        "calendar-range",
-						title:       "periods",
-						description: "kind of like a calendar event",
-						features: []string{
-							"synced with schedules",
-							"notifications on change",
-							"student filter by service type",
-							"attendance",
-						},
-						url: "/periods",
-					})
-					@IndexCard(IndexCardProps{
-						icon:        "apple",
-						title:       "educators",
-						description: "they do the work of learning the students",
-						features: []string{
-							"profiles",
-							"schedules",
-							"caseloads",
-							"idk",
-						},
-						url: "/educators",
-					})
-					@IndexCard(IndexCardProps{
-						icon:        "graduation-cap",
-						title:       "students",
-						description: "can't live with 'em, can't live without their funding",
-						features: []string{
-							"basic info",
-							"schedules",
-							"assessment data",
-							"goals & objectives",
-						},
-						url: "/students",
-					})
-					@IndexCard(IndexCardProps{
-						icon:        "blocks",
-						title:       "services",
-						description: "minutes as indicated by an IEP",
-						features: []string{
-							"synced with SPEDforms",
-							"schedule auditing",
-							"links with goals",
-							"idk",
-						},
-						url: "/iepservices",
-					})
-				</section>
+			<main>
+				if user.Email == "" {
+					@HeroCard()
+				} else {
+					@FeatureCards()
+				}
 			</main>
 		</div>
 	}
+}
+
+templ HeroCard() {
+	<section class="w-full flex justify-center">
+		@card.Card(card.Props{
+			Class: "border-muted bg-linear-23 accent-blue flex flex-col md:flex-row w-fit",
+		}) {
+			<div class="overflow-hidden w-128">
+				<img
+					src="/static/images/cc.jpg"
+					alt="charlie in the throws of apophenia"
+					class="h-full w-full object-cover"
+				/>
+			</div>
+			<div class="w-128">
+				@card.Header() {
+					@card.Title() {
+						SEEK
+					}
+					@card.Description() {
+						aka shared educational environment knowledge
+					}
+					@separator.Separator(separator.Props{
+						Class: "mt-1",
+					})
+				}
+				@card.Content(card.ContentProps{
+					Class: "text-sm flex flex-col gap-2",
+				}) {
+					<p>stop using eight different spreadsheets that are somehow all both updated and out of date to manage your schedule.</p>
+					<p>give yourself more time to focus on the important stuff: naps--er... teaching.</p>
+				}
+			</div>
+		}
+	</section>
+}
+
+templ FeatureCards() {
+	<section class="grid gap-2 w-full" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+		@IndexCard(IndexCardProps{
+			icon:        "calendar-range",
+			title:       "periods",
+			description: "kind of like a calendar event",
+			features: []string{
+				"synced with schedules",
+				"notifications on change",
+				"student filter by service type",
+				"attendance",
+			},
+			url: "/periods",
+		})
+		@IndexCard(IndexCardProps{
+			icon:        "apple",
+			title:       "educators",
+			description: "they do the work of learning the students",
+			features: []string{
+				"profiles",
+				"schedules",
+				"caseloads",
+				"idk",
+			},
+			url: "/educators",
+		})
+		@IndexCard(IndexCardProps{
+			icon:        "graduation-cap",
+			title:       "students",
+			description: "can't live with 'em, can't live without their funding",
+			features: []string{
+				"basic info",
+				"schedules",
+				"assessment data",
+				"goals & objectives",
+			},
+			url: "/students",
+		})
+		@IndexCard(IndexCardProps{
+			icon:        "blocks",
+			title:       "services",
+			description: "minutes as indicated by an IEP",
+			features: []string{
+				"synced with SPEDforms",
+				"schedule auditing",
+				"links with goals",
+				"idk",
+			},
+			url: "/iepservices",
+		})
+	</section>
 }
 
 type IndexCardProps struct {
@@ -128,8 +140,8 @@ templ IndexCard(props IndexCardProps) {
 		@card.Content(card.ContentProps{
 			Class: "text-sm py-5",
 		}) {
-			<p>features (coming soon)</p>
-			<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);">
+			<p>features</p>
+			<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size--1);">
 				for _, feature := range props.features {
 					<li>{ feature }</li>
 				}

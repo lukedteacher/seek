@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -23,11 +24,11 @@ func NewReadModel(db *appdb.DB) *ReadModel {
 
 // period read model reader functions
 
-func (m *ReadModel) Get(ctx context.Context, id string) (*models.Period, error) {
+func (m *ReadModel) Get(ctx context.Context, periodID string) (*models.Period, error) {
 	var row *dbsql.GetPeriodRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
-		row, err = dbsql.OnceGetPeriod(conn, id)
+		row, err = dbsql.OnceGetPeriod(conn, periodID)
 		return err
 	}); err != nil {
 		return nil, err
@@ -43,6 +44,43 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.Period, error) 
 		EndTime:     parseDBTimeOnly(row.StartTime).Add(int(row.Duration)),
 		Duration:    int(row.Duration),
 		DaysBitmask: sharedmodels.DaysBitmask(row.DaysBitmask),
+		CreatedAt:   row.CreatedAt,
+		UpdatedAt:   row.UpdatedAt,
+	}
+
+	return period, nil
+}
+
+func (m *ReadModel) GetWithIDs(ctx context.Context, periodID string) (*models.Period, error) {
+	var row *dbsql.GetPeriodWithIdsRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		row, err = dbsql.OnceGetPeriodWithIds(conn, periodID)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+	if row == nil {
+		return nil, fmt.Errorf("period not found")
+	}
+	var educatorIDs []string
+	if err := json.Unmarshal([]byte(row.EducatorIds), &educatorIDs); err != nil {
+		return nil, err
+	}
+	var studentIDs []string
+	if err := json.Unmarshal([]byte(row.StudentIds), &studentIDs); err != nil {
+		return nil, err
+	}
+	period := &models.Period{
+		ID:          row.Id,
+		Title:       row.Title,
+		ServiceType: sharedmodels.ServiceType(row.ServiceType),
+		StartTime:   parseDBTimeOnly(row.StartTime),
+		EndTime:     parseDBTimeOnly(row.StartTime).Add(int(row.Duration)),
+		Duration:    int(row.Duration),
+		DaysBitmask: sharedmodels.DaysBitmask(row.DaysBitmask),
+		EducatorIDs: educatorIDs,
+		StudentIDs:  studentIDs,
 		CreatedAt:   row.CreatedAt,
 		UpdatedAt:   row.UpdatedAt,
 	}

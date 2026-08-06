@@ -7,14 +7,13 @@ import (
 	"seek/internal/features/periods/dto"
 	sblocks "seek/internal/features/schedules/blocks"
 	sdto "seek/internal/features/schedules/dto"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-templ Create(user models.User, view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) {
-	@corelayouts.LayoutBase("SEEK: create period", user) {
+templ Create(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) {
+	@corelayouts.LayoutBase("SEEK: create period") {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain("create period", view.URL)
 			<section class="w-full flex flex-col md:flex-row gap-4 h-full">

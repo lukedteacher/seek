@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.4.9 (26.08.06) period httpserver refactor
+
+- changed signature of handers to use dependency injection
+- streamlined initial load and SSE pattern
+- created helpers to populate period views
+- added an educator and student count to table view
+
 ## v0.4.8 (26.07.04) student schedules visible during period stuff, hub page
 
 - created a new component that lists selected students while creating / editing a period

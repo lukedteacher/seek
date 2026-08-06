@@ -2,13 +2,13 @@ package pages
 
 import (
 	"seek/internal/features/profiles/blocks"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/corelayouts"
+	"seek/internal/features/users/models"
 	sse "seek/pkg/sse"
 )
 
 templ Profile(user models.User, view any) {
-	@corelayouts.LayoutBase("SEEK: your profile", user) {
+	@corelayouts.LayoutBase("SEEK: your profile") {
 		<main data-init={ sse.LongRunningGetSSE("/profile/stream") }>
 			<section style="width: 100%; max-width: 52rem;">
 				@blocks.ProfileOverview(user)

@@ -5,14 +5,13 @@ import (
 
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-templ Create(user models.User, view dto.EducatorView) {
-	@corelayouts.LayoutBase("SEEK: create educator", user) {
+templ Create(view dto.EducatorView) {
+	@corelayouts.LayoutBase("SEEK: create educator") {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
 			@coreblocks.HeaderMain("create educator", view.URL)
 			<section class="w-full flex items-center justify-center">

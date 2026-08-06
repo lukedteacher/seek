@@ -9,7 +9,6 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/features/users/models"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 	"seek/pkg/templui/components/card"
@@ -17,7 +16,20 @@ import (
 	"seek/pkg/templui/components/separator"
 )
 
-func Hub(user models.User) templ.Component {
+type HubCardProps struct {
+	icon        string
+	title       string
+	description string
+	links       []linkProps
+}
+
+type linkProps struct {
+	href     string
+	text     string
+	linkType string
+}
+
+func Hub() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -50,43 +62,47 @@ func Hub(user models.User) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex flex-col gap-2\" data-init=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex flex-col gap-2 row-2\" data-init=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE("/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/hub.templ`, Line: 14, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/hub.templ`, Line: 26, Col: 86}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><section class=\"grid gap-2 w-full\" style=\"grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><section class=\"grid gap-2 w-full\" style=\"grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = HubCard(HubCardProps{
-				icon:        "link",
+				icon:        "school",
 				title:       "general",
 				description: "links to commonly used resources",
 				links: []linkProps{
 					linkProps{
-						text: "procedures manual",
-						href: "https://docs.google.com/document/d/1P8pOVz5AlJAnMj9ZTo9MBXpvtSXYVcg8KEqP1EHCBDE",
+						text:     "procedures manual",
+						href:     "https://docs.google.com/document/d/1P8pOVz5AlJAnMj9ZTo9MBXpvtSXYVcg8KEqP1EHCBDE",
+						linkType: "file-type-corner",
 					},
 					linkProps{
-						text: "reserve shared spaces",
-						href: "https://docs.google.com/spreadsheets/d/1B8ZWpCNEWhXfld1nFAsvguc5uVWkloNKkCvS7iRzmLk",
+						text:     "reserve shared spaces",
+						href:     "https://docs.google.com/spreadsheets/d/1B8ZWpCNEWhXfld1nFAsvguc5uVWkloNKkCvS7iRzmLk",
+						linkType: "file-spreadsheet",
 					},
 					linkProps{
-						text: "assessment calendar",
-						href: "https://docs.google.com/spreadsheets/d/1jKirAxquNph05tyMYW5BFQKNSKcIRPURi92z38GcyIA",
+						text:     "assessment calendar",
+						href:     "https://docs.google.com/spreadsheets/d/1jKirAxquNph05tyMYW5BFQKNSKcIRPURi92z38GcyIA",
+						linkType: "file-spreadsheet",
 					},
 					linkProps{
-						text: "field trip permission form (make a copy)",
-						href: "https://docs.google.com/forms/d/1xHUDrXFiP5BqtaCmZpgKNht8Eyigy1rxP9FQrXzz_YI",
+						text:     "field trip permission form",
+						href:     "https://docs.google.com/forms/d/1xHUDrXFiP5BqtaCmZpgKNht8Eyigy1rxP9FQrXzz_YI",
+						linkType: "file-input",
 					},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -94,25 +110,34 @@ func Hub(user models.User) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = HubCard(HubCardProps{
-				icon:        "link",
+				icon:        "hand-helping",
 				title:       "sprights",
 				description: "resources specific to special education",
 				links: []linkProps{
 					linkProps{
-						text: "friday meeting agenda",
-						href: "https://docs.google.com/document/d/1BiqEpjzugP0_tA49-XdzAdrlWYsOvVv9IhM2MufsR1k",
+						text:     "friday meeting agenda",
+						href:     "https://docs.google.com/document/d/1BiqEpjzugP0_tA49-XdzAdrlWYsOvVv9IhM2MufsR1k",
+						linkType: "file-type-corner",
 					},
 					linkProps{
-						text: "services at a glance",
-						href: "https://docs.google.com/spreadsheets/d/1e9cq_x-7b59FNiizvsfSeCerRqClFqNvY9spg7XdbJM",
+						text:     "purchase requests",
+						href:     "https://docs.google.com/forms/d/e/1FAIpQLSeR-y2QYHjT5vxxkCJa2e2dTWhlzzUQqYsTaanoW5VhOSpiZA",
+						linkType: "file-input",
 					},
 					linkProps{
-						text: "placement decision flowchart",
-						href: "https://docs.google.com/document/d/1gUvcgQr07-AH41XtzOroFbmZnxLwKHQvnn9UXXUIqaM",
+						text:     "services at a glance",
+						href:     "https://docs.google.com/spreadsheets/d/1e9cq_x-7b59FNiizvsfSeCerRqClFqNvY9spg7XdbJM",
+						linkType: "file-spreadsheet",
 					},
 					linkProps{
-						text: "dashboard (2025-26)",
-						href: "https://docs.google.com/spreadsheets/d/1dF8OIyaSjSJ4LjCoRiVw3tqCBUOSdE9dodDir26bayA",
+						text:     "placement decision flowchart",
+						href:     "https://docs.google.com/document/d/1gUvcgQr07-AH41XtzOroFbmZnxLwKHQvnn9UXXUIqaM",
+						linkType: "file-type-corner",
+					},
+					linkProps{
+						text:     "dashboard (2025-26)",
+						href:     "https://docs.google.com/spreadsheets/d/1dF8OIyaSjSJ4LjCoRiVw3tqCBUOSdE9dodDir26bayA",
+						linkType: "file-spreadsheet",
 					},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -120,33 +145,34 @@ func Hub(user models.User) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = HubCard(HubCardProps{
-				icon:        "link",
+				icon:        "calendar-clock",
 				title:       "due process",
 				description: "case manager resources for due process information",
 				links: []linkProps{
 					linkProps{
-						text: "sped forms",
-						href: "https://16.spedforms.org/1000/",
+						text:     "sped forms",
+						href:     "https://16.spedforms.org/1000/",
+						linkType: "link",
 					},
 					linkProps{
-						text: "due process timelines",
-						href: "https://drive.google.com/file/d/1yVur100FHtOwlBunMqrDQJvTpDELTJCu",
+						text:     "timelines",
+						href:     "https://drive.google.com/file/d/1yVur100FHtOwlBunMqrDQJvTpDELTJCu",
+						linkType: "file-text",
 					},
 					linkProps{
-						text: "due process planner (make a copy)",
-						href: "https://docs.google.com/spreadsheets/d/1M_V4WgK4nfbly-4TR3f2A_61KHUPhAnyACPj7w1Muwk/",
+						text:     "planner",
+						href:     "https://docs.google.com/spreadsheets/d/1M_V4WgK4nfbly-4TR3f2A_61KHUPhAnyACPj7w1Muwk/",
+						linkType: "file-spreadsheet",
 					},
 					linkProps{
-						text: "purchase requests",
-						href: "https://docs.google.com/forms/d/e/1FAIpQLSeR-y2QYHjT5vxxkCJa2e2dTWhlzzUQqYsTaanoW5VhOSpiZA",
+						text:     "service log",
+						href:     "https://docs.google.com/spreadsheets/d/1OVrqUmr309dgq9MfVbCO_loJ3ix6qGo1IQ-sH7cdXrA/",
+						linkType: "file-spreadsheet",
 					},
 					linkProps{
-						text: "service log (make a copy)",
-						href: "https://docs.google.com/spreadsheets/d/1OVrqUmr309dgq9MfVbCO_loJ3ix6qGo1IQ-sH7cdXrA/",
-					},
-					linkProps{
-						text: "end of year checklist",
-						href: "https://docs.google.com/document/d/1bnYQpDp1oTRzugooYGLUvKNP-d0hFcdJe1hAmupWZ-Q",
+						text:     "end of year checklist",
+						href:     "https://docs.google.com/document/d/1bnYQpDp1oTRzugooYGLUvKNP-d0hFcdJe1hAmupWZ-Q",
+						linkType: "file-type-corner",
 					},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -154,33 +180,39 @@ func Hub(user models.User) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = HubCard(HubCardProps{
-				icon:        "link",
-				title:       "IEP",
+				icon:        "file-type-corner",
+				title:       "IEPs",
 				description: "links for IEP specific resources",
 				links: []linkProps{
 					linkProps{
-						text: "IEP writing and meeting checklist (make a copy)",
-						href: "https://docs.google.com/document/d/1dcPJrJ6H7FYVy3BIAEw7raZ86QKJ-8mNWOAt9YKVHy8",
+						text:     "writing and meeting checklist",
+						href:     "https://docs.google.com/document/d/1dcPJrJ6H7FYVy3BIAEw7raZ86QKJ-8mNWOAt9YKVHy8",
+						linkType: "file-type-corner",
 					},
 					linkProps{
-						text: "IEP meeting agenda (make a copy)",
-						href: "https://docs.google.com/document/d/14RVfW35gT2CE_D2oF3iSfNvXfSEzMCWIhswwCKUR0F0",
+						text:     "meeting agenda template",
+						href:     "https://docs.google.com/document/d/14RVfW35gT2CE_D2oF3iSfNvXfSEzMCWIhswwCKUR0F0",
+						linkType: "file-type-corner",
 					},
 					linkProps{
-						text: "special rights one pager",
-						href: "https://docs.google.com/document/d/11DULOWt62-_mVZ1kIyOCkM5YhwArT8oEPPl-3gJ7v-I",
+						text:     "special rights one pager",
+						href:     "https://docs.google.com/document/d/11DULOWt62-_mVZ1kIyOCkM5YhwArT8oEPPl-3gJ7v-I",
+						linkType: "file-type-corner",
 					},
 					linkProps{
-						text: "procedural safeguards",
-						href: "https://docs.google.com/document/d/1tOkcgvV3g8uFykzyjBvfef96w8mMHo12UtvGr7fkGcM",
+						text:     "procedural safeguards",
+						href:     "https://docs.google.com/document/d/1tOkcgvV3g8uFykzyjBvfef96w8mMHo12UtvGr7fkGcM",
+						linkType: "file-type-corner",
 					},
 					linkProps{
-						text: "federal setting calculator",
-						href: "https://docs.google.com/spreadsheets/d/1EBMkYRqSwaBVHAg705hOFQIikb82SaPr",
+						text:     "federal setting calculator",
+						href:     "https://docs.google.com/spreadsheets/d/1EBMkYRqSwaBVHAg705hOFQIikb82SaPr",
+						linkType: "file-spreadsheet",
 					},
 					linkProps{
-						text: "goal and objective guidelines",
-						href: "https://drive.google.com/file/d/1ldFMdH4zhIv6l-T_yTyf3k-9R8ewa6zp",
+						text:     "goal and objective guidelines",
+						href:     "https://drive.google.com/file/d/1ldFMdH4zhIv6l-T_yTyf3k-9R8ewa6zp",
+						linkType: "file-text",
 					},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -188,29 +220,54 @@ func Hub(user models.User) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = HubCard(HubCardProps{
-				icon:        "link",
+				icon:        "chart-line",
 				title:       "progress reporting",
 				description: "progress reporting stuff",
 				links: []linkProps{
 					linkProps{
-						text: "guidelines",
-						href: "https://docs.google.com/document/d/1U3q0l6m02RSTCfpydxpIlyzBUMhkVgduURdY1Rh5qgI",
+						text:     "guidelines",
+						href:     "https://docs.google.com/document/d/1U3q0l6m02RSTCfpydxpIlyzBUMhkVgduURdY1Rh5qgI",
+						linkType: "file-type-corner",
 					},
 					linkProps{
-						text: "sample statements",
-						href: "https://docs.google.com/document/d/142lGDmEDkyXZTIDSchmPGgNuhbbWO84lt_5h5bkF1Ug",
+						text:     "sample statements",
+						href:     "https://docs.google.com/document/d/142lGDmEDkyXZTIDSchmPGgNuhbbWO84lt_5h5bkF1Ug",
+						linkType: "file-type-corner",
 					},
 					linkProps{
-						text: "checklist (make a copy)",
-						href: "https://docs.google.com/spreadsheets/d/1BvFksKXzryXqnVah-pSvUcNLe15A_L9eQqWh6xk2mws",
+						text:     "checklist",
+						href:     "https://docs.google.com/spreadsheets/d/1BvFksKXzryXqnVah-pSvUcNLe15A_L9eQqWh6xk2mws",
+						linkType: "file-spreadsheet",
 					},
 					linkProps{
-						text: "note cards (make a copy)",
-						href: "https://docs.google.com/presentation/d/1woOswh_WLoT_eU9O_zXaT1WYFz8GBGip",
+						text:     "note cards",
+						href:     "https://docs.google.com/presentation/d/1woOswh_WLoT_eU9O_zXaT1WYFz8GBGip",
+						linkType: "presentation",
 					},
 					linkProps{
-						text: "goal data tracking sheets",
-						href: "https://docs.google.com/presentation/d/16n5NhJKG053lBwDW9NEP_i8ZdxbJ85D912zQlzwQC4o",
+						text:     "goal data tracking sheets",
+						href:     "https://docs.google.com/presentation/d/16n5NhJKG053lBwDW9NEP_i8ZdxbJ85D912zQlzwQC4o",
+						linkType: "presentation",
+					},
+				},
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = HubCard(HubCardProps{
+				icon:        "book-open-text",
+				title:       "read aloud",
+				description: "resources for reading materials",
+				links: []linkProps{
+					linkProps{
+						text:     "social justice",
+						href:     "https://www.socialjusticebooks.org/booklists/",
+						linkType: "link",
+					},
+					linkProps{
+						text:     "SEL",
+						href:     "https://drive.google.com/file/d/1Zw58wjQTiXEcmBSKJ-dbz82zHJT8fTs2/view",
+						linkType: "file-text",
 					},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -223,38 +280,24 @@ func Hub(user models.User) templ.Component {
 				description: "other useful resources",
 				links: []linkProps{
 					linkProps{
-						text: "SEL framework",
-						href: "https://docs.google.com/spreadsheets/d/1oXaCt6desKygHQPh_OY-luihJ4pO2tTlOnvcZdGwGdo",
+						text:     "SEL framework",
+						href:     "https://docs.google.com/spreadsheets/d/1oXaCt6desKygHQPh_OY-luihJ4pO2tTlOnvcZdGwGdo",
+						linkType: "file-spreadsheet",
 					},
 					linkProps{
-						text: "behavior reflection sheets",
-						href: "https://drive.google.com/file/d/1INumao5KYCWT34Csyjc0nyWMwAQU4YKE",
+						text:     "behavior reflection sheets",
+						href:     "https://drive.google.com/file/d/1INumao5KYCWT34Csyjc0nyWMwAQU4YKE",
+						linkType: "file-text",
 					},
 					linkProps{
-						text: "check-in / check-out sheets (make a copy)",
-						href: "https://docs.google.com/presentation/d/1loyR07cbRM33M7Ei2AqbUwM8k9MKyqde",
+						text:     "check-in / check-out sheets",
+						href:     "https://docs.google.com/presentation/d/1loyR07cbRM33M7Ei2AqbUwM8k9MKyqde",
+						linkType: "presentation",
 					},
 					linkProps{
-						text: "social stories (drive folder)",
-						href: "https://drive.google.com/drive/folders/1WprNiUYHd8b0bKb2Gy1ed-VRSaewECLX",
-					},
-				},
-			}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = HubCard(HubCardProps{
-				icon:        "link",
-				title:       "read aloud",
-				description: "resources for reading materials",
-				links: []linkProps{
-					linkProps{
-						text: "social justice (website)",
-						href: "https://www.socialjusticebooks.org/booklists/",
-					},
-					linkProps{
-						text: "SEL (pdf)",
-						href: "https://drive.google.com/file/d/1Zw58wjQTiXEcmBSKJ-dbz82zHJT8fTs2/view",
+						text:     "social stories",
+						href:     "https://drive.google.com/drive/folders/1WprNiUYHd8b0bKb2Gy1ed-VRSaewECLX",
+						linkType: "folder-open",
 					},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -267,24 +310,12 @@ func Hub(user models.User) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: hub", user).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: hub").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return nil
 	})
-}
-
-type HubCardProps struct {
-	icon        string
-	title       string
-	description string
-	links       []linkProps
-}
-
-type linkProps struct {
-	href string
-	text string
 }
 
 func HubCard(props HubCardProps) templ.Component {
@@ -355,7 +386,7 @@ func HubCard(props HubCardProps) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(props.title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/hub.templ`, Line: 213, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/hub.templ`, Line: 244, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -386,7 +417,7 @@ func HubCard(props HubCardProps) templ.Component {
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(props.description)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/hub.templ`, Line: 216, Col: 23}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/hub.templ`, Line: 247, Col: 23}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -430,43 +461,53 @@ func HubCard(props HubCardProps) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<ul style=\"list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size-0);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<ul class=\"flex flex-col gap-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, link := range props.links {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<li><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var12 templ.SafeURL
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(link.href)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/hub.templ`, Line: 228, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/hub.templ`, Line: 258, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" target=\"_blank\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" target=\"_blank\"><li class=\"flex justify-between items-center hover:bg-primary/20 py-1 px-2 rounded-md\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(link.text)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/hub.templ`, Line: 229, Col: 18}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/hub.templ`, Line: 260, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</a></li>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span> ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if link.linkType != "" {
+						templ_7745c5c3_Err = icon.Icon(link.linkType)(icon.Props{Class: "size-4"}).Render(ctx, templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</li></a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</ul>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</ul>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

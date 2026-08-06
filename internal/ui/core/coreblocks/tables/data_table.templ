@@ -4,9 +4,11 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/shareddto"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/skeleton"
 	"seek/pkg/templui/components/table"
 )
 
@@ -31,8 +33,15 @@ templ Table(view shareddto.TableView) {
 	}) {
 		@Header(view)
 		@table.Body() {
-			for i := range view.Rows {
-				@Row(view.Name, view.Columns, view.Rows[i])
+			if len(view.Rows) > 0 {
+				for i := range view.Rows {
+					@Row(view.Name, view.Columns, view.Rows[i])
+				}
+			} else {
+				// skeleton rows – adjust count as needed
+				for i := 0; i < 5; i++ {
+					@SkeletonRow(view.Columns)
+				}
 			}
 		}
 	}
@@ -102,6 +111,32 @@ templ Header(view shareddto.TableView) {
 	}
 }
 
+templ SkeletonRow(columns []shareddto.ColumnView) {
+	@table.Row(table.RowProps{
+		Class: "hover:bg-primary/20 border-1 border-muted",
+	}) {
+		for i := range columns {
+			@table.Cell(table.CellProps{
+				Class: fmt.Sprintf("not-first:border-l border-dashed border-muted text-%s", columns[i].Alignment),
+			}) {
+				<div class="flex justify-center items-center">
+					@skeleton.Skeleton(skeleton.Props{
+						Class: "h-4 w-full max-w-24",
+					})
+				</div>
+			}
+		}
+		@table.Cell(table.CellProps{
+			Class: "border-l border-dashed border-muted text-center w-min",
+		}) {
+			<div class="flex gap-2 justify-center">
+				@skeleton.Skeleton(skeleton.Props{Class: "size-8 rounded-md"})
+				@skeleton.Skeleton(skeleton.Props{Class: "size-8 rounded-md"})
+			</div>
+		}
+	}
+}
+
 templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) {
 	@table.Row(table.RowProps{
 		Class: "hover:bg-primary/20 border-1 border-muted",
@@ -111,7 +146,7 @@ templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) 
 				Class: fmt.Sprintf("not-first:border-l border-dashed border-muted text-%s", columns[i].Alignment),
 			}) {
 				if columns[i].Renderer == "badge" && row.Cells[i] != "" {
-					@BadgeCellContent(row.Cells[i])
+					@BadgeCellContent(columns[i].Field, row.Cells[i])
 				} else {
 					{ row.Cells[i] }
 				}
@@ -121,9 +156,20 @@ templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) 
 	}
 }
 
-templ BadgeCellContent(value shareddto.CellView) {
-	@badge.Badge() {
-		{ value }
+templ BadgeCellContent(field string, value shareddto.CellView) {
+	if field == "ServiceType" {
+		@badge.Badge(badge.Props{
+			Attributes: templ.Attributes{
+				"data-service": value.String(),
+			},
+		}) {
+			@icon.Icon(sharedmodels.ServiceType(value.String()).IconName())(icon.Props{Class: "mr-1 size-12"})
+			{ value }
+		}
+	} else {
+		@badge.Badge() {
+			{ value }
+		}
 	}
 }
 

@@ -16,6 +16,7 @@ import (
 templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithScheduleView) {
 	<section>
 		<input class="hidden" data-bind:period.id value={ view.ID }/>
+		<input class="hidden" data-bind:period.title value={ view.Title }/>
 		<div>
 			@label.Label(label.Props{
 				ID:    "period-educator-select-box-label",
