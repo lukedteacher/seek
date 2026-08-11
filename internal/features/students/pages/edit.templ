@@ -2,6 +2,8 @@ package pages
 
 import (
 	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/students/blocks"
 	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
@@ -10,9 +12,10 @@ import (
 )
 
 templ Edit(view dto.StudentFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: edit student") {
-		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
-			@coreblocks.HeaderMain("edit student", view.URL)
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain("edit student")
 			<section>
 				@blocks.StudentEditForm(view)
 			</section>

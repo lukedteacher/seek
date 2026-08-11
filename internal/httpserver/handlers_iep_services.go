@@ -44,7 +44,6 @@ func (s Server) getIEPServicesList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view := dto.NewIEPServiceTableView(services)
-	view.URL = "/iepservices"
 	_ = pages.List(view).Render(ctx, w)
 }
 
@@ -76,7 +75,6 @@ func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request)
 				return
 			}
 			view := dto.NewIEPServiceTableView(services)
-			view.URL = "/iepservices"
 			sse.PatchElementTempl(pages.List(view))
 		}
 	}
@@ -89,7 +87,6 @@ func (s Server) getIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 	empty := models.NewIEPService()
 	students, _ := s.ReadModels.Students.List(ctx)
 	view := dto.NewIEPServiceFormView(empty, students)
-	view.URL = "/iepservices/create"
 	_ = pages.Create(view).Render(ctx, w)
 }
 
@@ -128,7 +125,6 @@ func (s Server) getIEPServiceCreateStream(w http.ResponseWriter, r *http.Request
 			}
 			students, _ := s.ReadModels.Students.List(ctx)
 			view := dto.NewIEPServiceFormView(model, students)
-			view.URL = "/iepservices/create"
 			sse.PatchElementTempl(pages.Create(view))
 		}
 	}
@@ -205,7 +201,6 @@ func (s Server) getIEPServiceView(w http.ResponseWriter, r *http.Request) {
 	}
 
 	view := dto.NewIEPServiceView(model)
-	view.URL = fmt.Sprintf("/iepservices/%s", iepServiceID)
 	_ = pages.View(view).Render(ctx, w)
 }
 
@@ -268,7 +263,6 @@ func (s Server) getIEPServiceViewStream(w http.ResponseWriter, r *http.Request) 
 				return
 			}
 			view := dto.NewIEPServiceView(model)
-			view.URL = fmt.Sprintf("/iepservices/%s", iepServiceID)
 			sse.PatchElementTempl(pages.View(view))
 		}
 	}
@@ -285,7 +279,6 @@ func (s Server) getIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	students, _ := s.ReadModels.Students.List(ctx)
 	view := dto.NewIEPServiceFormView(model, students)
-	view.URL = fmt.Sprintf("/iepservices/%s/edit", iepServiceID)
 	_ = pages.Edit(view).Render(ctx, w)
 }
 
@@ -343,7 +336,6 @@ func (s Server) getIEPServiceEditStream(w http.ResponseWriter, r *http.Request) 
 			}
 			students, _ := s.ReadModels.Students.List(ctx)
 			view := dto.NewIEPServiceFormView(model, students)
-			view.URL = fmt.Sprintf("/iepservices/%s/edit", iepServiceID)
 			sse.PatchElementTempl(pages.Edit(view))
 		}
 	}

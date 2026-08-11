@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/dto"
 	sdto "seek/internal/features/schedules/dto"
 	"seek/internal/ui/core/coreblocks/forms"
@@ -9,10 +10,11 @@ import (
 )
 
 templ FormEdit(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
 		id="edit-period-form"
 		class="seek-form w-full md:max-w-150 h-fit"
-		data-on:submit={ datastar.PostSSE(view.URL) }
+		data-on:submit={ datastar.PostSSE(url) }
 	>
 		@FormSections(view, schedules)
 		<footer>

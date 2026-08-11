@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
 	"seek/internal/ui/core/coreblocks"
@@ -11,9 +12,10 @@ import (
 )
 
 templ View(view dto.PeriodView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: period") {
-		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
-			@coreblocks.HeaderMain("view period", view.URL)
+		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain("view period")
 			<section class="w-full">
 				@blocks.Card(view)
 			</section>

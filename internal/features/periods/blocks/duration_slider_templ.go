@@ -11,6 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/slider"
@@ -37,6 +38,7 @@ func DurationSlider(view dto.PeriodFormView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		url := sharedmodels.GetURLFromContext(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -73,7 +75,7 @@ func DurationSlider(view dto.PeriodFormView) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(view.Duration)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/duration_slider.templ`, Line: 29, Col: 25}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/duration_slider.templ`, Line: 31, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -91,7 +93,7 @@ func DurationSlider(view dto.PeriodFormView) templ.Component {
 			Class:       "w-full px-[0.1rem]",
 			Value:       view.Duration,
 			DataBind:    "period.duration",
-			DataOnInput: fmt.Sprintf("@post('%s/validate/duration')", view.URL),
+			DataOnInput: fmt.Sprintf("@post('%s/validate/duration')", url),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.4.10 (26.08.11) added URL to context instead of views
+
+- removed URL field from every view type
+- added a shared model for URL storage and retrieval from context
+- used the shared model in contexts where the URL was necessary
+- minor style changes and experiments with period edit / creation
+
 ## v0.4.9 (26.08.06) period httpserver refactor
 
 - changed signature of handers to use dependency injection

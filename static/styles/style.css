@@ -10168,6 +10168,9 @@
   .\[--cell-size\:2rem\] {
     --cell-size: 2rem;
   }
+  .\[text-shadow\:_0_1px_4px_rgba\(0\,0\,0\,0\.7\)\] {
+    text-shadow:  0 1px 4px rgba(0,0,0,0.7);
+  }
   .card-border {
     @layer daisyui.l1.l2 {
       border: var(--border) solid var(--color-base-200);

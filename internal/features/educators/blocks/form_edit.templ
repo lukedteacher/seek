@@ -5,13 +5,15 @@ import (
 	"seek/internal/ui/core/coreblocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/features/_shared/sharedmodels"
 )
 
 templ EducatorEditForm(view dto.EducatorView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
 		id="educator-edit-form"
 		class="seek-form w-128"
-		data-on:submit={ datastar.PostSSE(view.URL) }
+		data-on:submit={ datastar.PostSSE(url) }
 	>
 		<hgroup>
 			<h2>edit educator</h2>

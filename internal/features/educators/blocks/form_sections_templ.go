@@ -11,6 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 	"seek/pkg/templui/components/label"
@@ -38,6 +39,7 @@ func FormSections(view dto.EducatorView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		url := sharedmodels.GetURLFromContext(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -45,7 +47,7 @@ func FormSections(view dto.EducatorView) templ.Component {
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
 			"given-name-label",
 			"given name",
-			fmt.Sprintf("%s/validate", view.URL),
+			fmt.Sprintf("%s/validate", url),
 			"educator.given_name",
 			view.GivenName,
 		).Render(ctx, templ_7745c5c3_Buffer)
@@ -55,7 +57,7 @@ func FormSections(view dto.EducatorView) templ.Component {
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
 			"chosen-name-label",
 			"chosen name",
-			fmt.Sprintf("%s/validate", view.URL),
+			fmt.Sprintf("%s/validate", url),
 			"educator.chosen_name",
 			view.ChosenName,
 		).Render(ctx, templ_7745c5c3_Buffer)
@@ -65,7 +67,7 @@ func FormSections(view dto.EducatorView) templ.Component {
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
 			"family-name-label",
 			"family name",
-			fmt.Sprintf("%s/validate", view.URL),
+			fmt.Sprintf("%s/validate", url),
 			"educator.family_name",
 			view.FamilyName,
 		).Render(ctx, templ_7745c5c3_Buffer)
@@ -79,7 +81,7 @@ func FormSections(view dto.EducatorView) templ.Component {
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
 			"email-label",
 			"email",
-			fmt.Sprintf("%s/validate", view.URL),
+			fmt.Sprintf("%s/validate", url),
 			"educator.email",
 			view.Email,
 		).Render(ctx, templ_7745c5c3_Buffer)

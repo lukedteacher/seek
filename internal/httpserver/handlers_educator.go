@@ -49,7 +49,6 @@ func getEducatorsList(
 			return
 		}
 		view := dto.NewEducatorTableView(educators)
-		view.URL = "/educators"
 		_ = pages.List(view).Render(ctx, w)
 	}
 }
@@ -82,7 +81,6 @@ func (s Server) getEducatorsListStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			view := dto.NewEducatorTableView(educators)
-			view.URL = "/educators"
 			sse.PatchElementTempl(pages.List(view))
 		}
 	}
@@ -93,7 +91,6 @@ func (s Server) getEducatorCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	empty := models.Educator{}
 	view := dto.NewEducatorView(&empty)
-	view.URL = "/educators/create"
 	_ = pages.Create(view).Render(ctx, w)
 }
 
@@ -130,7 +127,6 @@ func (s Server) getEducatorCreateStream(w http.ResponseWriter, r *http.Request) 
 				return
 			}
 			view := dto.NewEducatorView(model)
-			view.URL = "/educators/create"
 			sse.PatchElementTempl(pages.Create(view))
 		}
 	}
@@ -204,7 +200,6 @@ func (s Server) getEducatorView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view := dto.NewEducatorView(educator)
-	view.URL = fmt.Sprintf("/educators/%s", username)
 	_ = pages.View(view, scheduledto.PersonWithScheduleView{}, "info").Render(ctx, w)
 }
 
@@ -226,7 +221,6 @@ func (s Server) getEducatorViewSchedule(w http.ResponseWriter, r *http.Request) 
 
 	// create the educator view and set the URL
 	educatorView := dto.NewEducatorView(educator)
-	educatorView.URL = fmt.Sprintf("/educators/%s", username)
 
 	// get periods for the educator and make views
 	periods, err := s.ReadModels.Periods.ListPeriodsForEducator(ctx, educator.ID)
@@ -299,7 +293,6 @@ func (s Server) getEducatorViewStream(w http.ResponseWriter, r *http.Request) {
 			}
 			view := dto.NewEducatorView(educator)
 			periods, _ := s.ReadModels.Periods.ListPeriodsForEducator(ctx, educator.ID)
-			view.URL = fmt.Sprintf("/educatorst/%s", username)
 			scheduleView := scheduledto.NewPersonScheduleView(educator.Person, periods, true, 1)
 			sse.PatchElementTempl(pages.View(view, scheduleView, "info"))
 		}
@@ -321,7 +314,6 @@ func (s Server) getEducatorEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	view := dto.NewEducatorView(educator)
-	view.URL = fmt.Sprintf("/educators/%s/edit", username)
 	_ = pages.Edit(view).Render(ctx, w)
 }
 
@@ -378,7 +370,6 @@ func (s Server) getEducatorEditStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			view := dto.NewEducatorView(model)
-			view.URL = fmt.Sprintf("/educators/%s/edit", username)
 			sse.PatchElementTempl(pages.Edit(view))
 		}
 	}

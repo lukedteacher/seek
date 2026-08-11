@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iepservices/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 	"seek/pkg/templui/components/datepicker"
@@ -9,25 +10,26 @@ import (
 )
 
 templ FormSections(view dto.IEPServiceFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<section>
 		@IEPServiceStudentSelectBox(view.Students)
 	</section>
 	<section>
-		@forms.SelectboxServiceType(view.URL, "iepservice", view.IEPService.ServiceType)
+		@forms.SelectboxServiceType(url, "iepservice", view.IEPService.ServiceType)
 		<div>
 			<p>minutes</p>
 			<div style="display:flex; gap:var(--size-1);">
 				@forms.NumberInputWithLabel(
 					"iep-service-indirect-minutes",
 					"indirect",
-					view.URL+"/validate",
+					url+"/validate",
 					"iepservice.indirect_minutes",
 					view.IEPService.IndirectMinutes,
 				)
 				@forms.NumberInputWithLabel(
 					"iep-service-direct-minutes",
 					"direct",
-					view.URL+"/validate",
+					url+"/validate",
 					"iepservice.direct_minutes",
 					view.IEPService.DirectMinutes,
 				)
@@ -39,7 +41,7 @@ templ FormSections(view dto.IEPServiceFormView) {
 				@forms.NumberInputWithLabel(
 					"iep-service-frequency-count",
 					"count",
-					view.URL+"/validate",
+					url+"/validate",
 					"iepservice.frequency_count",
 					view.IEPService.FrequencyCount,
 				)
@@ -51,7 +53,7 @@ templ FormSections(view dto.IEPServiceFormView) {
 		@forms.TextInputWithLabel(
 			"iep-service-provider",
 			"provider",
-			view.URL+"/validate",
+			url+"/validate",
 			"iepservice.provider",
 			view.IEPService.Provider,
 		)

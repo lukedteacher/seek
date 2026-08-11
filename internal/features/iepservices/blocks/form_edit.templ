@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iepservices/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 
@@ -8,10 +9,11 @@ import (
 )
 
 templ EditServiceForm(view dto.IEPServiceFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
 		id="edit-iep-service-form"
 		class="seek-form"
-		data-on:submit={ datastar.PostSSE(view.URL) }
+		data-on:submit={ datastar.PostSSE(url) }
 	>
 		<hgroup>
 			<h2>edit IEP service</h2>

@@ -25,7 +25,7 @@ templ Card(view dto.EducatorView) {
 		}
 		@card.Footer() {
 			@button.Button(button.Props{
-				Href: fmt.Sprintf("%s/edit", view.URL),
+				Href: fmt.Sprintf("/educators/%s/edit", view.Username),
 			}) {
 				@icon.Pencil(icon.Props{
 					Size: "16",

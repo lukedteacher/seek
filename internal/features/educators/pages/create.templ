@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
 	"seek/internal/ui/core/coreblocks"
@@ -11,9 +12,10 @@ import (
 )
 
 templ Create(view dto.EducatorView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: create educator") {
-		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
-			@coreblocks.HeaderMain("create educator", view.URL)
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain("create educator")
 			<section class="w-full flex items-center justify-center">
 				@blocks.EducatorCreateForm(view)
 			</section>

@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"seek/internal/features/_shared/sharedmodels"
 	idto "seek/internal/features/iepservices/dto"
 	sblocks "seek/internal/features/schedules/blocks"
 	sdto "seek/internal/features/schedules/dto"
@@ -10,16 +11,17 @@ import (
 	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
-	sse "seek/pkg/sse"
+	"seek/pkg/sse"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/tabs"
 )
 
 templ View(view dto.StudentView, scheduleView sdto.PersonWithScheduleView, services []idto.IEPServiceView, active string) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: student") {
-		<main id="main" class="flex flex-col" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
-			@coreblocks.HeaderMain(view.FullName(), view.URL)
+		<main id="main" class="flex flex-col" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain(view.FullName())
 			@tabs.Tabs(tabs.Props{
 				ID:    "student-tabs",
 				Class: "w-full md:px-3 flex flex-col gap-3",

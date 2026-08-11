@@ -3,12 +3,14 @@ package blocks
 import (
 	"fmt"
 
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/slider"
 )
 
 templ DurationSlider(view dto.PeriodFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<div class="flex flex-col">
 		@label.Label(label.Props{
 			For:   "period-duration-slider-trigger",
@@ -37,7 +39,7 @@ templ DurationSlider(view dto.PeriodFormView) {
 					Class:       "w-full px-[0.1rem]",
 					Value:       view.Duration,
 					DataBind:    "period.duration",
-					DataOnInput: fmt.Sprintf("@post('%s/validate/duration')", view.URL),
+					DataOnInput: fmt.Sprintf("@post('%s/validate/duration')", url),
 				})
 				<div class="period-duration-slider-marks w-full flex justify-between font-xs">
 					<span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span>

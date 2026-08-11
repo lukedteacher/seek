@@ -9,6 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iepservices/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 	"seek/pkg/templui/components/datepicker"
@@ -37,6 +38,7 @@ func FormSections(view dto.IEPServiceFormView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		url := sharedmodels.GetURLFromContext(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -49,7 +51,7 @@ func FormSections(view dto.IEPServiceFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = forms.SelectboxServiceType(view.URL, "iepservice", view.IEPService.ServiceType).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = forms.SelectboxServiceType(url, "iepservice", view.IEPService.ServiceType).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -60,7 +62,7 @@ func FormSections(view dto.IEPServiceFormView) templ.Component {
 		templ_7745c5c3_Err = forms.NumberInputWithLabel(
 			"iep-service-indirect-minutes",
 			"indirect",
-			view.URL+"/validate",
+			url+"/validate",
 			"iepservice.indirect_minutes",
 			view.IEPService.IndirectMinutes,
 		).Render(ctx, templ_7745c5c3_Buffer)
@@ -70,7 +72,7 @@ func FormSections(view dto.IEPServiceFormView) templ.Component {
 		templ_7745c5c3_Err = forms.NumberInputWithLabel(
 			"iep-service-direct-minutes",
 			"direct",
-			view.URL+"/validate",
+			url+"/validate",
 			"iepservice.direct_minutes",
 			view.IEPService.DirectMinutes,
 		).Render(ctx, templ_7745c5c3_Buffer)
@@ -84,7 +86,7 @@ func FormSections(view dto.IEPServiceFormView) templ.Component {
 		templ_7745c5c3_Err = forms.NumberInputWithLabel(
 			"iep-service-frequency-count",
 			"count",
-			view.URL+"/validate",
+			url+"/validate",
 			"iepservice.frequency_count",
 			view.IEPService.FrequencyCount,
 		).Render(ctx, templ_7745c5c3_Buffer)
@@ -110,7 +112,7 @@ func FormSections(view dto.IEPServiceFormView) templ.Component {
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
 			"iep-service-provider",
 			"provider",
-			view.URL+"/validate",
+			url+"/validate",
 			"iepservice.provider",
 			view.IEPService.Provider,
 		).Render(ctx, templ_7745c5c3_Buffer)

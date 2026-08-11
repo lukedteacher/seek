@@ -22,7 +22,6 @@ type PeriodFormView struct {
 	Days            shareddto.DaysFormView   `json:"days"`
 	EducatorIDs     string                   `json:"educator_ids"`
 	StudentIDs      string                   `json:"student_ids"`
-	URL             string                   `json:"url"`
 	Validation      map[string]events.Validation
 	StudentOptions  []sdto.StudentSelectBoxView
 	EducatorOptions []edto.EducatorSelectBoxView

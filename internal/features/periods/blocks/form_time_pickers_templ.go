@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"fmt"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/timepicker"
@@ -38,6 +39,7 @@ func FormTimePickers(view dto.PeriodFormView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		url := sharedmodels.GetURLFromContext(ctx)
 		// create min and max times for scool hours (8 AM to 4 PM)
 		now := time.Now()
 		minTime := time.Date(now.Year(), now.Month(), now.Day(), 8, 0, 0, 0, now.Location())
@@ -80,7 +82,7 @@ func FormTimePickers(view dto.PeriodFormView) templ.Component {
 			Class:       "input min-w-24 text-right",
 			Value:       view.StartTime.Time(),
 			DataBind:    "period.start_time",
-			DataOnInput: fmt.Sprintf("@post('%s/validate/starttime')", view.URL),
+			DataOnInput: fmt.Sprintf("@post('%s/validate/starttime')", url),
 			DataText:    "$period.start_time",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -124,7 +126,7 @@ func FormTimePickers(view dto.PeriodFormView) templ.Component {
 			Class:       "input",
 			Value:       view.EndTime.Time(),
 			DataBind:    "period.end_time",
-			DataOnInput: fmt.Sprintf("@post('%s/validate/endtime')", view.URL),
+			DataOnInput: fmt.Sprintf("@post('%s/validate/endtime')", url),
 			DataText:    "$period.end_time",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

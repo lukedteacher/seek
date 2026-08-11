@@ -11,7 +11,7 @@ import (
 templ List(view shareddto.TableView) {
 	@corelayouts.LayoutBase("SEEK: periods") {
 		<main class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE("/periods/stream") }>
-			@coreblocks.HeaderMain("all periods", "/periods")
+			@coreblocks.HeaderMain("all periods")
 			@blocks.List(view)
 		</main>
 	}

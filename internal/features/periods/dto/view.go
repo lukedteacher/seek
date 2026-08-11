@@ -15,7 +15,6 @@ type PeriodView struct {
 	EndTime     sharedmodels.TimeOnly    `json:"end_time"`
 	Duration    int                      `json:"duration"`
 	DaysBitmask sharedmodels.DaysBitmask `json:"days_bitmask"`
-	URL         string                   `json:"url"`
 	Educators   []edto.EducatorView
 	Students    []sdto.StudentView
 }

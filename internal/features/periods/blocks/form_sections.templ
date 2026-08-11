@@ -2,6 +2,8 @@ package blocks
 
 import (
 	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/dto"
 	scheduledto "seek/internal/features/schedules/dto"
 	sblocks "seek/internal/features/students/blocks"
@@ -14,6 +16,7 @@ import (
 )
 
 templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithScheduleView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<section>
 		<input class="hidden" data-bind:period.id value={ view.ID }/>
 		<input class="hidden" data-bind:period.title value={ view.Title }/>
@@ -52,10 +55,10 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 			@DurationSlider(view)
 			@forms.DayButtons(view)
 		</div>
-		@forms.SelectboxServiceType(view.URL, "period", view.ServiceType)
-		@sblocks.StudentMultiselect(view.URL, "period", view.StudentOptions)
+		@forms.SelectboxServiceType(url, "period", view.ServiceType)
+		@sblocks.StudentMultiselect(url, "period", view.StudentOptions)
 		if len(schedules) > 1 {
-			@SelectedScheduleList(view.URL, schedules)
+			@SelectedScheduleList(url, schedules)
 		}
 	</section>
 }
@@ -72,7 +75,7 @@ templ SelectedScheduleList(url string, students []scheduledto.PersonWithSchedule
 templ SelectedScheduleItem(url string, student scheduledto.PersonWithScheduleView) {
 	<li
 		class="flex items-center rounded-md py-[0.3rem] px-3 hover:bg-primary/20 group"
-		style={ fmt.Sprintf("background-color: %s", student.Color) }
+		data-color={ student.Color }
 	>
 		@checkbox.Checkbox(checkbox.Props{
 			Checked: student.IsVisible,

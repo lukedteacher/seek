@@ -4,12 +4,14 @@ import (
 	"time"
 
 	"fmt"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/timepicker"
 )
 
 templ FormTimePickers(view dto.PeriodFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	{{
 		// create min and max times for scool hours (8 AM to 4 PM)
 		now := time.Now()
@@ -32,7 +34,7 @@ templ FormTimePickers(view dto.PeriodFormView) {
 			Class:       "input min-w-24 text-right",
 			Value:       view.StartTime.Time(),
 			DataBind:    "period.start_time",
-			DataOnInput: fmt.Sprintf("@post('%s/validate/starttime')", view.URL),
+			DataOnInput: fmt.Sprintf("@post('%s/validate/starttime')", url),
 			DataText:    "$period.start_time",
 		})
 	</div>
@@ -52,7 +54,7 @@ templ FormTimePickers(view dto.PeriodFormView) {
 			Class:       "input",
 			Value:       view.EndTime.Time(),
 			DataBind:    "period.end_time",
-			DataOnInput: fmt.Sprintf("@post('%s/validate/endtime')", view.URL),
+			DataOnInput: fmt.Sprintf("@post('%s/validate/endtime')", url),
 			DataText:    "$period.end_time",
 		})
 	</div>

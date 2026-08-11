@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 
@@ -8,10 +9,11 @@ import (
 )
 
 templ EducatorCreateForm(view dto.EducatorView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
 		id="educator-create-form"
 		class="seek-form w-128"
-		data-on:submit={ datastar.PostSSE(view.URL) }
+		data-on:submit={ datastar.PostSSE(url) }
 	>
 		<hgroup>
 			<h2>create educator</h2>

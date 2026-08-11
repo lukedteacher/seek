@@ -462,27 +462,57 @@ table {
   );
 }
 
-button[data-color='red'] {
+button[data-color='default'] {
+  background: linear-gradient(
+    to bottom right,
+    var(--neutral-3),
+    var(--neutral-4) 75%
+  );
+  animation-name: pulse;
+  animation-duration: 1s;
+  animation-timing-function: var(--anim-ease-pulse);
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+}
+
+@keyframes pulse {
+  100% {
+    opacity: var(--anim-opacity-muted);
+  }
+}
+
+button[data-color='red'],
+li[data-color='red'] {
   background-color: var(--gruvbox-red-faded-0);
 }
 
-button[data-color='orange'] {
+button[data-color='orange'],
+li[data-color='orange'] {
   background-color: var(--gruvbox-orange-faded-0);
 }
 
-button[data-color='yellow'] {
+button[data-color='yellow'],
+li[data-color='yellow'] {
   background-color: var(--gruvbox-yellow-faded-0);
 }
 
-button[data-color='green'] {
+button[data-color='green'],
+li[data-color='green'] {
   background-color: var(--gruvbox-green-faded-0);
 }
 
-button[data-color='blue'] {
+button[data-color='aqua'],
+li[data-color='aqua'] {
+  background-color: var(--gruvbox-aqua-faded-0);
+}
+
+button[data-color='blue'],
+li[data-color='blue'] {
   background-color: var(--gruvbox-blue-faded-0);
 }
 
-button[data-color='purple'] {
+button[data-color='purple'],
+li[data-color='purple'] {
   background-color: var(--gruvbox-purple-faded-0);
 }
 
@@ -494,8 +524,17 @@ button[data-service='writing'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-orange-neutral-0);
 }
 
+button[data-service='OT'],
+button[data-service='SW'] {
+  box-shadow: inset 4px 0 0 var(--gruvbox-yellow-neutral-0);
+}
+
 button[data-service='EF'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-green-neutral-0);
+}
+
+button[data-service='speech'] {
+  box-shadow: inset 4px 0 0 var(--gruvbox-aqua-neutral-0);
 }
 
 button[data-service='math'] {
@@ -506,11 +545,7 @@ button[data-service='SEL'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-purple-neutral-0);
 }
 
-button[data-service='speech'] {
-  box-shadow: inset 4px 0 0 var(--gruvbox-aqua-neutral-0);
-}
-
-span[data-service='reading'].bg-primary {
+span[data-service='reading'] {
   background-color: var(--gruvbox-red-faded-0);
 }
 

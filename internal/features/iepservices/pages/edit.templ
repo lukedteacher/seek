@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iepservices/blocks"
 	"seek/internal/features/iepservices/dto"
 	"seek/internal/ui/core/coreblocks"
@@ -11,9 +12,10 @@ import (
 )
 
 templ Edit(view dto.IEPServiceFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: edit IEP service") {
-		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
-			@coreblocks.HeaderMain("edit IEP service", view.URL)
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain("edit IEP service")
 			<section>
 				@blocks.EditServiceForm(view)
 			</section>

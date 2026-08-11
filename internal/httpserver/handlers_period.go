@@ -30,31 +30,35 @@ import (
 func (s Server) periodRoutes(r chi.Router) {
 	r.Get(
 		"/periods",
-		getPeriodsList(s.Logger),
+		getPeriodsList(
+			s.Logger,
+		),
 	)
 	r.Get(
 		"/periods/stream",
 		getPeriodsListStream(
 			s.Logger,
+			s.Subscriber,
 			s.ReadModels.Periods,
 			s.ReadModels.EducatorPeriods,
 			s.ReadModels.StudentPeriods,
-			s.Subscriber,
 		),
 	)
 	r.Get(
 		"/periods/create",
-		getPeriodCreate(s.Logger),
+		getPeriodCreate(
+			s.Logger,
+		),
 	)
 	r.Get(
 		"/periods/create/stream",
 		getPeriodCreateStream(
 			s.Logger,
-			s.ReadModels.Periods,
-			s.ReadModels.StudentPeriods,
-			s.ReadModels.Students,
-			s.ReadModels.Educators,
 			s.ViewStore,
+			s.ReadModels.Periods,
+			s.ReadModels.Students,
+			s.ReadModels.StudentPeriods,
+			s.ReadModels.Educators,
 		),
 	)
 	r.Post(
@@ -81,7 +85,9 @@ func (s Server) periodRoutes(r chi.Router) {
 	)
 	r.Get(
 		"/periods/{id}",
-		getPeriodView(s.Logger),
+		getPeriodView(
+			s.Logger,
+		),
 	)
 	r.Get(
 		"/periods/{id}/stream",
@@ -96,34 +102,51 @@ func (s Server) periodRoutes(r chi.Router) {
 	)
 	r.Get(
 		"/periods/{id}/edit",
-		getPeriodEdit(s.Logger),
+		getPeriodEdit(
+			s.Logger,
+		),
 	)
 	r.Get(
 		"/periods/{id}/edit/stream",
 		getPeriodEditStream(
 			s.Logger,
+			s.Subscriber,
+			s.ViewStore,
 			s.ReadModels.Periods,
 			s.ReadModels.Students,
 			s.ReadModels.Educators,
-			s.Subscriber,
-			s.ViewStore,
 		),
 	)
 	r.Post(
 		"/periods/{id}/edit/validate",
-		postPeriodEditValidate(s.Logger, s.ViewStore),
+		postPeriodEditValidate(
+			s.Logger,
+			s.ViewStore,
+		),
 	)
 	r.Post(
 		"/periods/{id}/edit",
-		postPeriodEdit(s.Logger, s.EventSaver, s.EventRetriever),
+		postPeriodEdit(
+			s.Logger,
+			s.EventSaver,
+			s.EventRetriever,
+		),
 	)
 	r.Post(
 		"/periods/{id}/archive",
-		postPeriodArchive(s.Logger, s.EventSaver, s.EventRetriever),
+		postPeriodArchive(
+			s.Logger,
+			s.EventSaver,
+			s.EventRetriever,
+		),
 	)
 	r.Delete(
 		"/periods/{id}",
-		deletePeriod(s.Logger, s.EventSaver, s.EventRetriever),
+		deletePeriod(
+			s.Logger,
+			s.EventSaver,
+			s.EventRetriever,
+		),
 	)
 }
 
@@ -136,27 +159,26 @@ func getPeriodsList(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		view := dto.NewPeriodTableView([]models.Period{})
-		view.URL = "/periods"
 		_ = pages.List(view).Render(ctx, w)
 	}
 }
 
 // GET request to /periods/stream
-// populates data
+// populates data and keeps it updated with changes pushed from server
 func getPeriodsListStream(
 	l *slog.Logger,
+	subscriber MessageSubscriber,
 	periodReadModel *events.ReadModel,
 	educatorPeriodReadModel *epevents.ReadModel,
 	studentPeriodReadModel *spevents.ReadModel,
-	sub MessageSubscriber,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		sse := newSSE(w, r)
 
-		notifier := NewDedupeNotifier()
 		// subscribes to the channel which publishes changes to any periods
-		sub, err := sub.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {
+		notifier := NewDedupeNotifier()
+		sub, err := subscriber.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {
 			notifier.Notify()
 		})
 		if err != nil {
@@ -183,7 +205,6 @@ func getPeriodsListStream(
 				periods[i].StudentIDs = ids
 			}
 			view := dto.NewPeriodTableView(periods)
-			view.URL = "/periods"
 			return view, nil
 		}
 		view, err := buildView()
@@ -216,7 +237,7 @@ func getPeriodsListStream(
 func getPeriodCreate(l *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		view := dto.PeriodFormView{URL: "/periods/create"}
+		view := dto.PeriodFormView{}
 		_ = pages.Create(view, nil).Render(ctx, w)
 	}
 }
@@ -224,11 +245,11 @@ func getPeriodCreate(l *slog.Logger) http.HandlerFunc {
 // GET request to /periods/create/stream
 func getPeriodCreateStream(
 	l *slog.Logger,
-	prm *events.ReadModel,
-	sprm *spevents.ReadModel,
-	srm *sevents.ReadModel,
-	erm *eevents.ReadModel,
 	vs viewstore.Store,
+	periodReadModel *events.ReadModel,
+	studentReadModel *sevents.ReadModel,
+	studentPeriodReadModel *spevents.ReadModel,
+	educatorReadModel *eevents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -241,9 +262,8 @@ func getPeriodCreateStream(
 			return
 		}
 
-		scheduleViews := buildScheduleViews(ctx, *empty, nil, prm, srm, l)
-		view := buildPeriodFormView(ctx, empty, erm, srm, l)
-		view.URL = "/periods/create"
+		scheduleViews := buildScheduleViews(ctx, *empty, nil, periodReadModel, studentReadModel, l)
+		view := buildPeriodFormView(ctx, empty, educatorReadModel, studentReadModel, l)
 		sse.PatchElementTempl(pages.Create(view, scheduleViews))
 
 		// watch for view store changes
@@ -271,9 +291,8 @@ func getPeriodCreateStream(
 					return
 				}
 				period := signals.Period.ToPeriod()
-				scheduleViews := buildScheduleViews(ctx, period, signals.Schedules, prm, srm, l)
-				view := buildPeriodFormView(ctx, &period, erm, srm, l)
-				view.URL = "/periods/create"
+				scheduleViews := buildScheduleViews(ctx, period, signals.Schedules, periodReadModel, studentReadModel, l)
+				view := buildPeriodFormView(ctx, &period, educatorReadModel, studentReadModel, l)
 				sse.PatchElementTempl(pages.Create(view, scheduleViews))
 			}
 		}
@@ -306,7 +325,10 @@ func postPeriodCreateValidate(
 	}
 }
 
-func postPeriodCreateValidateField(l *slog.Logger, vs viewstore.Store) http.HandlerFunc {
+func postPeriodCreateValidateField(
+	l *slog.Logger,
+	vs viewstore.Store,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		signals := &struct {
@@ -420,13 +442,13 @@ func postPeriodCreate(
 }
 
 // GET request to /periods/{id}
-func getPeriodView(l *slog.Logger) http.HandlerFunc {
+func getPeriodView(
+	l *slog.Logger,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		periodID := chi.URLParam(r, "id")
-
-		// minimal empty view with URL for SSE
-		view := dto.PeriodView{URL: fmt.Sprintf("/periods/%s", periodID)}
+		// minimal empty view
+		view := dto.PeriodView{}
 		_ = pages.View(view).Render(ctx, w)
 	}
 }
@@ -465,7 +487,7 @@ func getPeriodViewStream(
 			},
 		)
 
-		if err := refreshPeriodViewState(ctx, l, periodID, "view", periodReadModel, educatorReadModel, studentReadModel, vs); err != nil {
+		if err := refreshPeriodViewState(ctx, l, periodID, periodReadModel, vs); err != nil {
 			l.ErrorContext(ctx, "get period view stream refresh", "err", err)
 			return
 		}
@@ -481,7 +503,7 @@ func getPeriodViewStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal(): // triggers when the read model publishes
-				if err := refreshPeriodViewState(ctx, l, periodID, "view", periodReadModel, educatorReadModel, studentReadModel, vs); err != nil {
+				if err := refreshPeriodViewState(ctx, l, periodID, periodReadModel, vs); err != nil {
 					// the period was deleted or archived
 					if err.Error() == "period not found" {
 						sse.PatchElementTempl(pages.NotFound())
@@ -499,7 +521,6 @@ func getPeriodViewStream(
 					return
 				}
 				view := dto.NewPeriodView(period)
-				view.URL = fmt.Sprintf("/periods/%s", periodID)
 				for i := range period.EducatorIDs {
 					educator, _ := educatorReadModel.GetByID(ctx, period.EducatorIDs[i])
 					educatorView := edto.NewEducatorView(educator)
@@ -516,12 +537,13 @@ func getPeriodViewStream(
 	}
 }
 
-func getPeriodEdit(l *slog.Logger) http.HandlerFunc {
+func getPeriodEdit(
+	l *slog.Logger,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		periodID := chi.URLParam(r, "id")
-		// creates a minimal view and sets the URL
-		view := dto.PeriodFormView{URL: fmt.Sprintf("/periods/%s/edit", periodID)}
+		// creates a minimal view
+		view := dto.PeriodFormView{}
 		_ = pages.Edit(view, nil).Render(ctx, w)
 	}
 }
@@ -530,11 +552,11 @@ func getPeriodEdit(l *slog.Logger) http.HandlerFunc {
 // establishes an SSE connection that updates the edit form when the period or view state changes.
 func getPeriodEditStream(
 	l *slog.Logger,
+	subscriber MessageSubscriber,
+	vs viewstore.Store,
 	periodsReadModel *events.ReadModel,
 	studentsReadModel *sevents.ReadModel,
 	educatorsReadModel *eevents.ReadModel,
-	subscriber MessageSubscriber,
-	viewStore viewstore.Store,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -552,32 +574,31 @@ func getPeriodEditStream(
 		}
 		defer sub.Close()
 
-		// --- watch the view store for form validations ---
-		watcher, err := viewStore.Watch(ctx, periodID+".edit", viewstore.WatchOptions{IgnoreDeletes: true})
+		// check if the kv store has an edit view already created
+		// aka someone else is editing the period
+		// if not, populate the view with data from the db
+		_, ok, err := vs.Get(ctx, periodID+".edit")
+		if !ok {
+			if err := refreshPeriodEditState(ctx, l, periodID, periodsReadModel, educatorsReadModel, studentsReadModel, vs); err != nil {
+				if err.Error() == "period not found" {
+					sse.PatchElementTempl(pages.NotFound())
+				} else {
+					l.ErrorContext(ctx, "refresh period view state", "err", err)
+				}
+				return
+			}
+		}
+		if err != nil {
+			l.ErrorContext(ctx, "period edit stream", "vs get err", err)
+		}
+
+		// subscribe to the kv store for changes to the edit view state
+		watcher, err := vs.Watch(ctx, periodID+".edit", viewstore.WatchOptions{IgnoreDeletes: true})
 		if err != nil {
 			l.ErrorContext(ctx, "edit view stream watcher", "err", err)
 			return
 		}
 		defer watcher.Stop()
-
-		period, _ := periodsReadModel.GetWithIDs(ctx, periodID)
-		scheduleViews := buildScheduleViews(
-			ctx,
-			*period,
-			map[string]bool{},
-			periodsReadModel,
-			studentsReadModel,
-			l,
-		)
-		view := buildPeriodFormView(
-			ctx,
-			period,
-			educatorsReadModel,
-			studentsReadModel,
-			l,
-		)
-		view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
-		sse.PatchElementTempl(pages.Edit(view, scheduleViews))
 
 		for {
 			select {
@@ -586,7 +607,7 @@ func getPeriodEditStream(
 
 			case <-notifier.Signal():
 				// period changed via event – refresh the view state and re‑render
-				if err := refreshPeriodViewState(ctx, l, periodID, "edit", periodsReadModel, educatorsReadModel, studentsReadModel, viewStore); err != nil {
+				if err := refreshPeriodEditState(ctx, l, periodID, periodsReadModel, educatorsReadModel, studentsReadModel, vs); err != nil {
 					if err.Error() == "period not found" {
 						sse.PatchElementTempl(pages.NotFound())
 					} else {
@@ -594,9 +615,9 @@ func getPeriodEditStream(
 					}
 					return
 				}
-
 			case entry, ok := <-watcher.Updates():
 				if !ok {
+					l.Debug("edit sse channel closed")
 					return
 				}
 				signals := &struct {
@@ -624,7 +645,6 @@ func getPeriodEditStream(
 					studentsReadModel,
 					l,
 				)
-				view.URL = fmt.Sprintf("/periods/%s/edit", periodID)
 				sse.PatchElementTempl(pages.Edit(view, scheduleViews))
 			}
 		}
@@ -775,7 +795,21 @@ func refreshPeriodViewState(
 	ctx context.Context,
 	l *slog.Logger,
 	periodID string,
-	keySuffix string,
+	periods *events.ReadModel,
+	vs viewstore.Store,
+) error {
+	period, err := periods.GetWithIDs(ctx, periodID)
+	if err != nil {
+		return err
+	}
+	return viewstore.PutState(ctx, vs, period.ID+".view", period)
+}
+
+// gets period data from the db, converts it to a form view, and saves it to the store
+func refreshPeriodEditState(
+	ctx context.Context,
+	l *slog.Logger,
+	periodID string,
 	periods *events.ReadModel,
 	educators *eevents.ReadModel,
 	students *sevents.ReadModel,
@@ -785,8 +819,25 @@ func refreshPeriodViewState(
 	if err != nil {
 		return err
 	}
-	buildPeriodFormView(ctx, period, educators, students, l)
-	return viewstore.PutState(ctx, vs, period.ID+"."+keySuffix, period)
+	formView := buildPeriodFormView(ctx, period, educators, students, l)
+	// build default schedules map (all students visible)
+	schedules := make(map[string]bool)
+	for _, sid := range period.StudentIDs {
+		student, err := students.GetByID(ctx, sid)
+		if err != nil {
+			l.ErrorContext(ctx, "get student for default schedules", "err", err)
+			continue
+		}
+		schedules[student.Username] = true
+	}
+	signals := struct {
+		Period    dto.PeriodFormView `json:"period"`
+		Schedules map[string]bool    `json:"schedules"`
+	}{
+		Period:    formView,
+		Schedules: schedules,
+	}
+	return viewstore.PutState(ctx, vs, period.ID+".edit", signals)
 }
 
 func filterOutPeriod(periods []models.Period, excludeID string) []models.Period {
@@ -819,7 +870,8 @@ func buildPeriodFormView(
 }
 
 // buildScheduleViews constructs the schedule preview for a period.
-// it includes a base view and one view per assigned student, with visibility from the schedules map.
+// it includes a base view and one view per assigned student, with visibility from the schedules map
+// if the map is empty, default visibility is true
 func buildScheduleViews(
 	ctx context.Context,
 	period models.Period,

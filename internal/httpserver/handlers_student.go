@@ -92,7 +92,6 @@ func (s Server) getStudentCreate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	empty := models.NewStudent()
 	studentFormView := dto.NewStudentFormView(empty)
-	studentFormView.URL = "/students/create"
 	_ = pages.Create(studentFormView).Render(ctx, w)
 }
 
@@ -130,7 +129,6 @@ func (s Server) getStudentCreateStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			studentFormView := dto.NewStudentFormView(student)
-			studentFormView.URL = "/students/create"
 			sse.PatchElementTempl(pages.Create(studentFormView))
 		}
 	}
@@ -205,7 +203,6 @@ func (s Server) getStudentViewInfo(w http.ResponseWriter, r *http.Request) {
 
 	// create the student view and set the URL
 	studentView := dto.NewStudentView(student)
-	studentView.URL = fmt.Sprintf("/students/%s/info", student.Username)
 
 	_ = pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "info").Render(ctx, w)
 }
@@ -269,7 +266,6 @@ func (s Server) getStudentViewInfoStream(w http.ResponseWriter, r *http.Request)
 				return
 			}
 			studentView := dto.NewStudentView(student)
-			studentView.URL = fmt.Sprintf("/students/%s/info", username)
 			sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "info"))
 		}
 	}
@@ -293,7 +289,6 @@ func (s Server) getStudentViewSchedule(w http.ResponseWriter, r *http.Request) {
 
 	// create the student view and set the URL
 	studentView := dto.NewStudentView(student)
-	studentView.URL = fmt.Sprintf("/students/%s/schedule", username)
 
 	// get the periods for the student and make views
 	periods, err := s.ReadModels.Periods.ListPeriodsForStudent(ctx, student.ID)
@@ -303,7 +298,6 @@ func (s Server) getStudentViewSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	personScheduleView := scheduledto.NewPersonScheduleView(student.Person, periods, true, 1)
-	s.Logger.Debug("student view", "period view length", len(personScheduleView.Periods))
 	_ = pages.View(studentView, personScheduleView, []idto.IEPServiceView{}, "schedule").Render(ctx, w)
 }
 
@@ -366,7 +360,6 @@ func (s Server) getStudentViewScheduleStream(w http.ResponseWriter, r *http.Requ
 				return
 			}
 			studentView := dto.NewStudentView(student)
-			studentView.URL = fmt.Sprintf("/students/%s/schedule", username)
 
 			// get the periods for the student and make views
 			periods, err := s.ReadModels.Periods.ListPeriodsForStudent(ctx, student.ID)
@@ -394,7 +387,6 @@ func (s Server) getStudentViewServices(w http.ResponseWriter, r *http.Request) {
 
 	// create the student view and set the URL
 	studentView := dto.NewStudentView(student)
-	studentView.URL = fmt.Sprintf("/students/%s/services", username)
 
 	// get the list of services for the student and make views
 	services, err := s.ReadModels.IEPServices.ListIEPServicesForStudent(ctx, student.ID)
@@ -467,7 +459,6 @@ func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Requ
 				return
 			}
 			studentView := dto.NewStudentView(student)
-			studentView.URL = fmt.Sprintf("/students/%s/services", username)
 
 			// get the list of services for the student and make views
 			services, err := s.ReadModels.IEPServices.ListIEPServicesForStudent(ctx, studentView.ID)
@@ -502,7 +493,6 @@ func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	studentFormView := dto.NewStudentFormView(student)
-	studentFormView.URL = fmt.Sprintf("/students/%s/edit", username)
 	_ = pages.Edit(studentFormView).Render(ctx, w)
 }
 
@@ -559,7 +549,6 @@ func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			studentFormView := dto.NewStudentFormView(student)
-			studentFormView.URL = fmt.Sprintf("/students/%s/edit", username)
 			sse.PatchElementTempl(pages.Edit(studentFormView))
 		}
 	}

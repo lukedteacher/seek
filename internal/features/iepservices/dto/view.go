@@ -18,7 +18,6 @@ type IEPServiceView struct {
 	EndDate         sharedmodels.DateOnly    `json:"end_date"`
 	Provider        string                   `json:"provider"`
 	StudentID       string                   `json:"student_id"`
-	URL             string                   `json:"url"`
 	StudentView     sdto.StudentView
 }
 

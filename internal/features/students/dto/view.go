@@ -12,7 +12,6 @@ type StudentView struct {
 	Grade               sharedmodels.Grade `json:"grade"`
 	Homeroom            string             `json:"homeroom"`
 	CaseManager         string             `json:"case_manager"`
-	URL                 string             `json:"url"`
 }
 
 func NewStudentView(s *models.Student) StudentView {

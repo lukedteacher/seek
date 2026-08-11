@@ -5,13 +5,15 @@ import (
 	"seek/internal/ui/core/coreblocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
+	"seek/internal/features/_shared/sharedmodels"
 )
 
 templ CreateServiceForm(view dto.IEPServiceFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
 		id="form-create-iep-service"
 		class="seek-form"
-		data-on:submit={ datastar.PostSSE(view.URL) }
+		data-on:submit={ datastar.PostSSE(url) }
 	>
 		<hgroup>
 			<h2>create IEP service</h2>

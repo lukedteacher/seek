@@ -4,16 +4,18 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/shareddto"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/tables"
 	"seek/internal/ui/core/corelayouts"
-	sse "seek/pkg/sse"
+	"seek/pkg/sse"
 )
 
 templ List(view shareddto.TableView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: students") {
-		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
-			@coreblocks.HeaderMain("student list", view.URL)
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain("student list")
 			@tables.DataTable(view)
 		</main>
 	}

@@ -23,16 +23,14 @@ func NewPersonScheduleView(person sharedmodels.Person, periods []models.Period, 
 }
 
 var colorPalette = []string{
-	"#f4433680",
-	"#e91e63",
-	"#9c27b0",
-	"#3f51b5",
-	"#2196f3",
-	"#009688",
-	"#4caf50",
-	"#ffeb3b",
-	"#ff9800",
-	"#795548",
+	"default",
+	"red",
+	"orange",
+	"yellow",
+	"green",
+	"aqua",
+	"blue",
+	"purple",
 }
 
 func nextColor(index int) string {

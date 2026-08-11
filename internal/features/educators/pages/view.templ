@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
 	sblocks "seek/internal/features/schedules/blocks"
@@ -16,9 +17,10 @@ import (
 )
 
 templ View(view dto.EducatorView, schedule sdto.PersonWithScheduleView, active string) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: educator") {
-		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", view.URL)) }>
-			@coreblocks.HeaderMain(view.FullName(), view.URL)
+		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain(view.FullName())
 			@tabs.Tabs(tabs.Props{
 				ID:    "educator-tabs",
 				Class: "w-full md:px-3 flex flex-col gap-3",

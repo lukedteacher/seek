@@ -13,7 +13,7 @@ import (
 templ Edit(view dto.EducatorView) {
 	@corelayouts.LayoutBase("SEEK: edit educator") {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("/educators/%s/edit/stream", view.ID)) }>
-			@coreblocks.HeaderMain("edit educator", view.URL)
+			@coreblocks.HeaderMain("edit educator")
 			<section class="w-full flex items-center justify-center">
 				@blocks.EducatorEditForm(view)
 			</section>

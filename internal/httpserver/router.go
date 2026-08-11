@@ -2,15 +2,15 @@ package httpserver
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 	"log/slog"
 	"net/http"
-	"time"
+	"strings"
 
 	"seek/internal/appcore"
 	"seek/internal/auth"
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
 	profile "seek/internal/features/profiles/events"
 	"seek/internal/features/users/models"
 	"seek/internal/resources"
@@ -76,20 +76,19 @@ func (s Server) Routes() http.Handler {
 	// 	"image/svg+xml",
 	// ))
 
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok", "timestamp": time.Now().UTC().Format(time.RFC3339)})
-	})
 	if s.Development {
 		setupReload(r)
 	}
 	r.Handle("/static/*", resources.Handler())
 	r.Group(func(r chi.Router) {
 		r.Use(s.addUserInfoToContext)
+		r.Use(addPathToContext(s.Logger))
 		s.authRoutes(r)
 		s.coreRoutes(r)
 	})
 	r.Group(func(r chi.Router) {
 		r.Use(s.requireVerifiedEmail)
+		r.Use(addPathToContext(s.Logger))
 		s.educatorRoutes(r)
 		s.iepServiceRoutes(r)
 		s.periodRoutes(r)
@@ -118,6 +117,19 @@ func (s Server) addUserInfoToContext(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, models.UserKey, user)))
 	})
+}
+
+func addPathToContext(logger *slog.Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			// logger.DebugContext(ctx, "request path", "url", r.RequestURI)
+			// strips the url of "/stream" and any parameters
+			baseURL := strings.TrimSuffix(r.URL.Path, "/stream")
+			ctx = sharedmodels.WithURL(ctx, baseURL)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
 
 func (s Server) requireVerifiedEmail(next http.Handler) http.Handler {
