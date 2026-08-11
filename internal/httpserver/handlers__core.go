@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"log/slog"
 	"net/http"
 
 	"seek/internal/seed"
@@ -21,6 +22,24 @@ func (s Server) coreRoutes(r chi.Router) {
 	r.Post("/seed/students", s.postSeedStudents)
 	r.Get("/hub", s.getHub)
 	r.Post("/sort", s.sort)
+	r.Post("/theme", postTheme(s.Logger))
+}
+
+func postTheme(
+	l *slog.Logger,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		signals := &struct {
+			Theme bool `json:"theme"`
+		}{}
+
+		err := datastar.ReadSignals(r, signals)
+		if err != nil {
+			l.ErrorContext(ctx, "theme signals", "err", err)
+		}
+		l.Debug("theme", "theme", signals.Theme)
+	}
 }
 
 func (s Server) index(w http.ResponseWriter, r *http.Request) {

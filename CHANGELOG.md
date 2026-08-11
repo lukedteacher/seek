@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.4.11 (26.08.11) dark mode toggle with persistence
+
+- added dark mode toggle
+- saves to local storage
+- consider having it save with user in db
+
 ## v0.4.10 (26.08.11) added URL to context instead of views
 
 - removed URL field from every view type

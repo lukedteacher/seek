@@ -37,14 +37,14 @@ func LayoutBase(title string) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		user := models.GetUserFromContext(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\" data-attr:data-theme=\"$theme\"><head><script>\n\t\t\t\tif (localStorage.getItem('theme') === null) {\n\t\t\t\t\tconsole.log(\"no value found\")\n\t\t\t\t\t//document.documentElement.setAttribute('data-theme', 'light');\n\t\t\t\t} else {\n\t\t\t\t\tconsole.log(localStorage.getItem('theme'))\n\t\t\t\t\tdocument.documentElement.setAttribute(\n\t\t\t\t\t\t'data-theme',\n\t\t\t\t\t\tlocalStorage.getItem('theme')\n\t\t\t\t\t);\n\t\t\t\t}\n\t\t\t</script><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 17, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 29, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -57,7 +57,7 @@ func LayoutBase(title string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(resources.StaticPath("scripts/datastar.js"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 18, Col: 74}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 30, Col: 74}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -70,7 +70,7 @@ func LayoutBase(title string) templ.Component {
 		var templ_7745c5c3_Var4 templ.SafeURL
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(resources.StaticPath("styles/style.css"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 19, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 31, Col: 73}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -83,7 +83,7 @@ func LayoutBase(title string) templ.Component {
 		var templ_7745c5c3_Var5 templ.SafeURL
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(resources.StaticPath("styles/stellar.css"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 20, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 32, Col: 75}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func LayoutBase(title string) templ.Component {
 		var templ_7745c5c3_Var6 templ.SafeURL
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(resources.StaticPath("styles/global.css"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 21, Col: 74}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 33, Col: 74}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -114,7 +114,7 @@ func LayoutBase(title string) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.HotReloadSSE())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 26, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corelayouts/layout_base.templ`, Line: 38, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {

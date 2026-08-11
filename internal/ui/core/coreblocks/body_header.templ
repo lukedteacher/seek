@@ -15,6 +15,7 @@ templ HeaderBody(user models.User) {
 		</hgroup>
 		@Nav()
 		{ children... }
+		@ThemeToggle()
 		if user.UserRegisteredID != "" {
 			@blocks.UserHeader(user)
 		} else {

@@ -1,0 +1,22 @@
+package coreblocks
+
+import "seek/pkg/templui/components/icon"
+
+templ ThemeToggle() {
+	<label class="flex  items-center cursor-pointer gap-2 mr-4">
+		@icon.Sun(icon.Props{
+			Class: "size-4",
+		})
+		<input
+			type="checkbox"
+			class="toggle animate-none"
+			data-signals:dark="localStorage.getItem('theme') == 'dark'"
+			data-bind:dark
+			data-signals:theme="localStorage.getItem('theme')"
+			data-on:click="$theme == 'light' ? $theme = 'dark' : $theme = 'light'; localStorage.setItem('theme', $theme);"
+		/>
+		@icon.Moon(icon.Props{
+			Class: "size-4",
+		})
+	</label>
+}

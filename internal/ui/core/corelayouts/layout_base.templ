@@ -10,8 +10,20 @@ import (
 templ LayoutBase(title string) {
 	{{ user := models.GetUserFromContext(ctx) }}
 	<!DOCTYPE html>
-	<html lang="en">
+	<html lang="en" data-attr:data-theme="$theme">
 		<head>
+			<script>
+				if (localStorage.getItem('theme') === null) {
+					console.log("no value found")
+					//document.documentElement.setAttribute('data-theme', 'light');
+				} else {
+					console.log(localStorage.getItem('theme'))
+					document.documentElement.setAttribute(
+						'data-theme',
+						localStorage.getItem('theme')
+					);
+				}
+			</script>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ title }</title>

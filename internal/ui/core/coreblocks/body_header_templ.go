@@ -48,6 +48,10 @@ func HeaderBody(user models.User) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = ThemeToggle().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		if user.UserRegisteredID != "" {
 			templ_7745c5c3_Err = blocks.UserHeader(user).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
