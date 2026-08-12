@@ -78,6 +78,41 @@ WHERE EXISTS (
 		AND ieps.archived_at IS NULL
 );
 
+-- name: ListStudentsWithIEPServices :many
+SELECT
+    s.id AS student_id,
+    s.marss_id,
+    s.given_name,
+    s.chosen_name,
+    s.family_name,
+    s.email,
+    s.username,
+    s.grade,
+    s.homeroom,
+    s.case_manager,
+    s.created_at,
+    s.updated_at,
+    s.archived_at,
+    i.id AS service_id,
+    i.service_name,
+    i.service_type,
+    i.indirect_minutes,
+    i.direct_minutes,
+    i.frequency_count,
+    i.frequency_type,
+    i.location,
+    i.start_date,
+    i.end_date,
+    i.provider,
+    i.created_at AS service_created_at,
+    i.updated_at AS service_updated_at,
+    i.archived_at AS service_archived_at
+FROM students s
+INNER JOIN iep_services i ON s.id = i.student_id
+WHERE s.archived_at IS NULL
+  AND i.archived_at IS NULL
+ORDER BY s.family_name DESC, s.chosen_name DESC, s.given_name DESC, i.service_type ASC;
+
 -- name: ListStudentsForPeriod :many
 SELECT
 	students.id, 

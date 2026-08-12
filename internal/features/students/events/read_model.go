@@ -8,6 +8,7 @@ import (
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
 	"seek/internal/features/_shared/sharedmodels"
+	smodels "seek/internal/features/iepservices/models"
 	"seek/internal/features/students/models"
 
 	"zombiezen.com/go/sqlite"
@@ -84,7 +85,32 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 	return student, nil
 }
 
-func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
+type listConfig struct {
+	withServices bool
+}
+
+type ListOption func(*listConfig)
+
+// WithServices returns an option that tells List to include each student's IEP services.
+func WithServices() ListOption {
+	return func(c *listConfig) {
+		c.withServices = true
+	}
+}
+
+func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Student, error) {
+	cfg := &listConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	if cfg.withServices {
+		return m.listWithServices(ctx)
+	}
+	return m.listAll(ctx)
+}
+
+func (m *ReadModel) listAll(ctx context.Context) ([]models.Student, error) {
 	var rows []dbsql.ListStudentsRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
@@ -111,6 +137,67 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Student, error) {
 		}
 	}
 	return students, nil
+}
+
+func (m *ReadModel) listWithServices(ctx context.Context) ([]models.Student, error) {
+	var rows []dbsql.ListStudentsWithIepservicesRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceListStudentsWithIepservices(conn)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	// map student ID -> index in the final slice
+	studentMap := make(map[string]int)
+	var students []models.Student
+
+	for _, row := range rows {
+		idx, ok := studentMap[row.StudentId]
+		if !ok {
+			// create a new student entry
+			student := models.Student{
+				ID: row.StudentId,
+				Person: sharedmodels.Person{
+					GivenName:  row.GivenName,
+					ChosenName: row.ChosenName,
+					FamilyName: row.FamilyName,
+					Email:      row.Email,
+					Username:   row.Username,
+				},
+				Grade:       sharedmodels.Grade(row.Grade),
+				Homeroom:    row.Homeroom,
+				CaseManager: row.CaseManager,
+				CreatedAt:   parseDBTime(row.CreatedAt),
+				UpdatedAt:   parseDBTime(row.UpdatedAt),
+			}
+			studentMap[row.StudentId] = len(students)
+			students = append(students, student)
+			idx = len(students) - 1
+		}
+
+		// append the service to the existing student
+		service := smodels.IEPService{
+			ID:              row.ServiceId,
+			StudentID:       row.StudentId,
+			ServiceType:     sharedmodels.ServiceType(row.ServiceType),
+			IndirectMinutes: int(row.IndirectMinutes),
+			DirectMinutes:   int(row.DirectMinutes),
+			FrequencyCount:  int(row.FrequencyCount),
+			FrequencyType:   row.FrequencyType,
+			Location:        row.Location,
+			StartDate:       sharedmodels.DateOnly(parseDBTime(row.StartDate)),
+			EndDate:         sharedmodels.DateOnly(parseDBTime(row.EndDate)),
+			Provider:        row.Provider,
+			CreatedAt:       parseDBTime(row.ServiceCreatedAt),
+			UpdatedAt:       parseDBTime(row.ServiceUpdatedAt),
+		}
+		students[idx].Services = append(students[idx].Services, service)
+	}
+
+	return students, nil
+
 }
 
 func (m *ReadModel) ListByIEPServiceType(ctx context.Context, serviceType string) ([]models.Student, error) {

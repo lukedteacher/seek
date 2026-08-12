@@ -5,6 +5,7 @@ type TableConfig[T any] struct {
 	Columns         []ColumnView
 	ValueExtractor  func(item *T, field string) string // for cell values
 	TargetExtractor func(item *T) string               // for row link target
+	SubTableBuilder func(item T) TableView
 }
 
 type TableView struct {
@@ -25,8 +26,9 @@ type ColumnView struct {
 }
 
 type RowView struct {
-	Target string
-	Cells  []CellView
+	Target   string
+	Cells    []CellView
+	SubTable *TableView
 }
 
 type CellView string
@@ -51,7 +53,18 @@ func NewTableView[T any](items []T, cfg TableConfig[T]) TableView {
 		for j, col := range cfg.Columns {
 			cells[j] = CellView(cfg.ValueExtractor(item, col.Field))
 		}
-		rows[i] = RowView{Target: target, Cells: cells}
+
+		var subTable *TableView
+		if cfg.SubTableBuilder != nil {
+			st := cfg.SubTableBuilder(*item)
+			subTable = &st
+		}
+
+		rows[i] = RowView{
+			Target:   target,
+			Cells:    cells,
+			SubTable: subTable,
+		}
 	}
 
 	return TableView{

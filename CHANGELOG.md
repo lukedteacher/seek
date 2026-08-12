@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.4.12 (26.08.12) students with services
+
+- added subtable to row in tableview
+- optional parameter that specifies a table builder function
+- implemented students with services table draft
+
 ## v0.4.11 (26.08.11) dark mode toggle with persistence
 
 - added dark mode toggle

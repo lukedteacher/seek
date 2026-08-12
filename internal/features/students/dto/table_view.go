@@ -16,6 +16,20 @@ var StudentColumns = []shareddto.ColumnView{
 	{Field: "CaseManager", Display: "case manager"},
 }
 
+var StudentTableConfig = shareddto.TableConfig[models.Student]{
+	Name:            "students",
+	Columns:         StudentColumns,
+	ValueExtractor:  valueExtractor,
+	TargetExtractor: targetExtractor,
+	SubTableBuilder: func(student models.Student) shareddto.TableView {
+		return NewIEPServiceTableView(student.Services)
+	},
+}
+
+func NewStudentTableView(students []models.Student) shareddto.TableView {
+	return shareddto.NewTableView(students, StudentTableConfig)
+}
+
 func valueExtractor(m *models.Student, field string) string {
 	if m == nil {
 		return ""
@@ -46,15 +60,4 @@ func valueExtractor(m *models.Student, field string) string {
 
 func targetExtractor(m *models.Student) string {
 	return m.Username
-}
-
-var StudentTableConfig = shareddto.TableConfig[models.Student]{
-	Name:            "students",
-	Columns:         StudentColumns,
-	ValueExtractor:  valueExtractor,
-	TargetExtractor: targetExtractor,
-}
-
-func NewStudentTableView(students []models.Student) shareddto.TableView {
-	return shareddto.NewTableView(students, StudentTableConfig)
 }

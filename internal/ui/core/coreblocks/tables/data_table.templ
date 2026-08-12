@@ -36,6 +36,13 @@ templ Table(view shareddto.TableView) {
 			if len(view.Rows) > 0 {
 				for i := range view.Rows {
 					@Row(view.Name, view.Columns, view.Rows[i])
+					if view.Rows[i].SubTable != nil {
+						<tr>
+							<td colspan={ len(view.Columns) + 1 } class="p-0 bg-muted/20">
+								@Table(*view.Rows[i].SubTable)
+							</td>
+						</tr>
+					}
 				}
 			} else {
 				// skeleton rows – adjust count as needed

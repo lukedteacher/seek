@@ -43,9 +43,12 @@ func (s Server) studentRoutes(r chi.Router) {
 // GET request to /students
 func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	students, err := s.ReadModels.Students.List(ctx)
+	students, err := s.ReadModels.Students.List(ctx, events.WithServices())
+	for _, student := range students {
+		s.Logger.Debug("testing", "student", student.FullName(), "service length", len(student.Services))
+	}
 	if err != nil {
-		s.Logger.ErrorContext(ctx, "students list db list", "err", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	studentTableView := dto.NewStudentTableView(students)
@@ -75,7 +78,10 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 		case <-notifier.Signal(): // triggers when the read model publishes
 			// for now just reloads the page
 			// consider adding a view store for the list
-			students, err := s.ReadModels.Students.List(ctx)
+			students, err := s.ReadModels.Students.List(ctx, events.WithServices())
+			for _, student := range students {
+				s.Logger.Debug("testing", "student", student.FullName(), "service length", len(student.Services))
+			}
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
