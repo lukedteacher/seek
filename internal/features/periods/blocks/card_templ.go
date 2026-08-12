@@ -382,7 +382,7 @@ func Card(view dto.PeriodView) templ.Component {
 		})
 		templ_7745c5c3_Err = card.Card(card.Props{
 			ID:    fmt.Sprintf("period-%s-card", view.ID),
-			Class: "period-card bg-linear-1 max-w-128",
+			Class: "period-card bg-linear-1 max-w-128 bg-neutral",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

@@ -2,6 +2,11 @@
 
 updates for SEEK
 
+## v0.4.13 (26.08.12) first pass for filter ui
+
+- added filters at the top of the student table
+- added collapsible elements to hide services
+
 ## v0.4.12 (26.08.12) students with services
 
 - added subtable to row in tableview

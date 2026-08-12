@@ -13,7 +13,7 @@ import (
 	"seek/internal/features/periods/blocks"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
-	sse "seek/pkg/sse"
+	"seek/pkg/sse"
 )
 
 func List(view shareddto.TableView) templ.Component {

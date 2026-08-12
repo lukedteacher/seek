@@ -7,6 +7,7 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/collapsible"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/skeleton"
 	"seek/pkg/templui/components/table"
@@ -39,7 +40,26 @@ templ Table(view shareddto.TableView) {
 					if view.Rows[i].SubTable != nil {
 						<tr>
 							<td colspan={ len(view.Columns) + 1 } class="p-0 bg-muted/20">
-								@Table(*view.Rows[i].SubTable)
+								@collapsible.Script()
+								@collapsible.Collapsible() {
+									@collapsible.Trigger(collapsible.TriggerProps{
+										Class: "flex gap-2 items-center px-4 py-2 justify-end",
+									}) {
+										services
+										@button.Button(button.Props{
+											Size:    button.SizeIcon,
+											Variant: button.VariantGhost,
+											Class:   "size-8",
+										}) {
+											@icon.ChevronDown(icon.Props{
+												Class: "size-4",
+											})
+										}
+									}
+									@collapsible.Content() {
+										@Table(*view.Rows[i].SubTable)
+									}
+								}
 							</td>
 						</tr>
 					}

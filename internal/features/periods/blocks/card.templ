@@ -13,7 +13,7 @@ import (
 templ Card(view dto.PeriodView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("period-%s-card", view.ID),
-		Class: "period-card bg-linear-1 max-w-128",
+		Class: "period-card bg-linear-1 max-w-128 bg-neutral",
 	}) {
 		@card.Header() {
 			@card.Title() {

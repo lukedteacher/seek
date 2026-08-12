@@ -395,9 +395,9 @@ func Item(props ...ItemProps) templ.Component {
 		}
 		var templ_7745c5c3_Var15 = []any{utils.TwMerge(
 			"select-item group relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 px-2 text-sm font-light outline-none",
-			"hover:bg-accent hover:text-accent-foreground",
-			"focus-visible:bg-accent focus-visible:text-accent-foreground",
-			"data-[tui-selectbox-selected=true]:bg-accent data-[tui-selectbox-selected=true]:text-accent-foreground",
+			"hover:bg-primary hover:text-primary-foreground",
+			"focus-visible:bg-primary focus-visible:text-primary-foreground",
+			"data-[tui-selectbox-selected=true]:bg-primary data-[tui-selectbox-selected=true]:text-primary-foreground",
 			utils.If(p.Disabled, "pointer-events-none opacity-50"),
 			p.Class,
 		),

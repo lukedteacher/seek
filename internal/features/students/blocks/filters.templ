@@ -1,0 +1,90 @@
+package blocks
+
+import (
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/collapsible"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
+)
+
+templ StudentFilters() {
+	@selectbox.Script()
+	<div class="mb-3 w-full">
+		@collapsible.Collapsible(collapsible.Props{
+			Class: "w-full flex flex-col gap-2",
+		}) {
+			@collapsible.Trigger(collapsible.TriggerProps{
+				Class: "flex justify-end",
+			}) {
+				@button.Button() {
+					<span>filters</span>
+					@icon.ListFilter(icon.Props{
+						Class: "size-4",
+					})
+				}
+			}
+			@collapsible.Content() {
+				@StudentGradeFilter()
+				@StudentHomeroomFilter()
+			}
+		}
+	</div>
+}
+
+templ StudentGradeFilter() {
+	<div>
+		@label.Label(label.Props{
+			Class: "mb-3 text-primary-content/80",
+		}) {
+			grade
+		}
+		@selectbox.SelectBox() {
+			@selectbox.Trigger(selectbox.TriggerProps{
+				Multiple: true,
+			}) {
+				@selectbox.Value()
+			}
+			@selectbox.Content(selectbox.ContentProps{
+				NoSearch: true,
+			}) {
+				for _, grade := range sharedmodels.GradeList {
+					@selectbox.Item(selectbox.ItemProps{
+						Value: grade.Str(),
+					}) {
+						{ grade.Ordinal() }
+					}
+				}
+			}
+		}
+	</div>
+}
+
+templ StudentHomeroomFilter() {
+	<div>
+		@label.Label(label.Props{
+			Class: "mb-3 text-primary-content/80",
+		}) {
+			homeroom
+		}
+		@selectbox.SelectBox() {
+			@selectbox.Trigger(selectbox.TriggerProps{
+				Multiple: true,
+			}) {
+				@selectbox.Value()
+			}
+			@selectbox.Content(selectbox.ContentProps{
+				NoSearch: true,
+			}) {
+				for _, grade := range sharedmodels.GradeList {
+					@selectbox.Item(selectbox.ItemProps{
+						Value: grade.Str(),
+					}) {
+						{ grade.Ordinal() }
+					}
+				}
+			}
+		}
+	</div>
+}
