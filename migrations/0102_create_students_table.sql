@@ -17,10 +17,10 @@ CREATE TABLE IF NOT EXISTS
 		archived_at TEXT
 	);
 
-CREATE INDEX IF NOT EXISTS students_marss_id_idx ON students (marss_id);
-CREATE INDEX IF NOT EXISTS students_given_name_idx ON students (given_name);
-CREATE INDEX IF NOT EXISTS students_chosen_name_idx ON students (chosen_name);
-CREATE INDEX IF NOT EXISTS students_family_name_idx ON students (family_name);
-CREATE INDEX IF NOT EXISTS students_email_idx ON students (email);
-CREATE INDEX IF NOT EXISTS students_username_idx ON students (username);
-CREATE INDEX IF NOT EXISTS students_grade_idx ON students (grade);
+CREATE INDEX IF NOT EXISTS students_marss_id_idx ON students(marss_id);
+CREATE INDEX IF NOT EXISTS students_given_name_idx ON students(given_name);
+CREATE INDEX IF NOT EXISTS students_chosen_name_idx ON students(chosen_name);
+CREATE INDEX IF NOT EXISTS students_family_name_idx ON students(family_name);
+CREATE INDEX IF NOT EXISTS students_email_idx ON students(email);
+CREATE INDEX IF NOT EXISTS students_username_idx ON students(username);
+CREATE INDEX IF NOT EXISTS students_grade_idx ON students(grade);

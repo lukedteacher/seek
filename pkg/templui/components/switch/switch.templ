@@ -30,7 +30,7 @@ templ Switch(props ...Props) {
 			utils.If(p.Disabled, "cursor-not-allowed"),
 		) }
 	>
-		<!-- Actual checkbox switch -->
+		<!-- actual checkbox switch -->
 		<input
 			id={ p.ID }
 			if p.Name != "" {
@@ -51,31 +51,31 @@ templ Switch(props ...Props) {
 			role="switch"
 			{ p.Attributes... }
 		/>
-		<!-- Visual switch UI -->
+		<!-- visual switch UI -->
 		<div
 			class={
 				utils.TwMerge(
-					// Container
+					// container
 					"relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center",
 					"rounded-full border-2 border-transparent",
 					"transition-colors",
-					// Background colors
+					// background colors
 					"bg-input",
 					"peer-checked:bg-primary",
-					// Focus styles
+					// focus styles
 					"peer-focus-visible:outline-none peer-focus-visible:ring-2",
 					"peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
 					"peer-focus-visible:ring-offset-background",
-					// Disabled state
+					// disabled state
 					"peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
-					// Thumb
+					// thumb
 					"after:pointer-events-none after:block",
 					"after:h-4 after:w-4",
 					"after:rounded-full after:bg-background",
 					"after:shadow-lg after:ring-0",
 					"after:transition-transform",
 					"after:content-['']",
-					// Thumb position
+					// thumb position
 					"peer-checked:after:translate-x-4",
 					p.Class,
 				),

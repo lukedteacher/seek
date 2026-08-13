@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS educators_periods (
 	FOREIGN KEY (educator_id) REFERENCES educators(id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS educators_periods_educator_id_idx ON educators_periods (educator_id);
+CREATE INDEX IF NOT EXISTS educators_periods_educator_id_idx ON educators_periods(educator_id);

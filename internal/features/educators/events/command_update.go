@@ -16,7 +16,7 @@ type UpdateEducatorCommand struct {
 	ChosenName string
 	FamilyName string
 	Email      string
-	Role       string
+	Roles       []string
 	Metadata   CommandMetadata
 }
 
@@ -55,7 +55,7 @@ func UpdateEducatorCommandHandler(
 			FamilyName: command.FamilyName,
 			Email:      command.Email,
 			Username:   deriveUsername(command.Email),
-			Role:       command.Role,
+			Roles:       command.Roles,
 		},
 		UpdatedAt: time.Now(),
 		Scope:     educatorScope(model.id),

@@ -16,7 +16,7 @@ type CreateEducatorCommand struct {
 	ChosenName string
 	FamilyName string
 	Email      string
-	Role       string
+	Roles      []string
 	Metadata   CommandMetadata
 }
 
@@ -47,7 +47,7 @@ func CreateEducatorCommandHandler(
 			FamilyName: model.familyName,
 			Email:      model.email,
 			Username:   model.username,
-			Role:       model.role,
+			Roles:      model.roles,
 		},
 		CreatedAt: time.Now(),
 		Scope:     educatorScope(model.id),
@@ -81,7 +81,7 @@ type createEducatorContext struct {
 	familyName string
 	email      string
 	username   string
-	role       string
+	roles      []string
 	query      eventstore.Query
 }
 
@@ -96,7 +96,7 @@ func newCreateEducatorContext(command CreateEducatorCommand, eventID string) (*c
 		familyName: command.FamilyName,
 		email:      command.Email,
 		username:   username,
-		role:       command.Role,
+		roles:      command.Roles,
 		query:      streamQuery(eventID),
 	}, nil
 }

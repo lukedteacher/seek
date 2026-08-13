@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+
 	"seek/internal/features/_shared/sharedmodels"
 )
 
@@ -13,22 +14,17 @@ var (
 type Educator struct {
 	sharedmodels.Person //embeds given, chosen, family name & email, username fields
 	ID                  string
-	Role                string
+	Roles               []sharedmodels.EducatorRole
 }
 
-func NewEducator(id, given, chosen, family, email, role string) (Educator, error) {
+func NewEducator(id, given, chosen, family, email string, roles []string) (Educator, error) {
 	person, err := sharedmodels.NewPerson(given, chosen, family, email)
 	if err != nil {
 		return Educator{}, err
 	}
 
-	if role == "" {
-		return Educator{}, ErrRoleRequired
-	}
-
 	return Educator{
 		Person: person,
 		ID:     id,
-		Role:   role,
 	}, nil
 }

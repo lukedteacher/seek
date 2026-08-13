@@ -3,7 +3,6 @@ package corepages
 import (
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/corelayouts"
-	"seek/pkg/sse"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
@@ -13,7 +12,7 @@ import (
 templ Index() {
 	{{ user := models.GetUserFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK") {
-		<div class="flex flex-col w-full h-full row-2" data-init={ sse.LongRunningGetSSE("/stream") }>
+		<div class="flex flex-col w-full h-full row-2">
 			<main>
 				if user.Email == "" {
 					@HeroCard()

@@ -19,6 +19,6 @@ CREATE TABLE IF NOT EXISTS iep_services (
 	FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS iep_services_student_id_idx ON iep_services (student_id);
-CREATE INDEX IF NOT EXISTS iep_services_service_type_idx ON iep_services (service_type);
-CREATE INDEX IF NOT EXISTS iep_services_provider_idx ON iep_services (provider);
+CREATE INDEX IF NOT EXISTS iep_services_student_id_idx ON iep_services(student_id);
+CREATE INDEX IF NOT EXISTS iep_services_service_type_idx ON iep_services(service_type);
+CREATE INDEX IF NOT EXISTS iep_services_provider_idx ON iep_services(provider);

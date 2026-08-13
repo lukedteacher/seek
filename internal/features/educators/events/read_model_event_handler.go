@@ -34,7 +34,7 @@ type EducatorCreatedProjection struct {
 	FamilyName string
 	Email      string
 	Username   string
-	Role       string
+	Roles      []string
 	CreatedAt  time.Time
 }
 
@@ -46,7 +46,7 @@ type EducatorUpdatedProjection struct {
 	FamilyName string
 	Email      string
 	Username   string
-	Role       string
+	Roles      []string
 	UpdatedAt  time.Time
 }
 
@@ -139,7 +139,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 			FamilyName: event.FamilyName,
 			Email:      event.Email,
 			Username:   event.Username,
-			Role:       event.Role,
+			Roles:      event.Roles,
 			CreatedAt:  event.CreatedAt,
 		}); err != nil {
 			return err
@@ -157,7 +157,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 			FamilyName: event.FamilyName,
 			Email:      event.Email,
 			Username:   event.Username,
-			Role:       event.Role,
+			Roles:      event.Roles,
 			UpdatedAt:  parseTime(data[FieldEducatorUpdatedAt]),
 		}); err != nil {
 			return err

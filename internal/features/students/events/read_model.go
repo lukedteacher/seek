@@ -85,11 +85,11 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 	return student, nil
 }
 
+type ListOption func(*listConfig)
+
 type listConfig struct {
 	withServices bool
 }
-
-type ListOption func(*listConfig)
 
 // WithServices returns an option that tells List to include each student's IEP services.
 func WithServices() ListOption {
@@ -148,7 +148,7 @@ func (m *ReadModel) listWithServices(ctx context.Context) ([]models.Student, err
 	}); err != nil {
 		return nil, err
 	}
-
+	println("l: ", len(rows))
 	// map student ID -> index in the final slice
 	studentMap := make(map[string]int)
 	var students []models.Student
@@ -177,27 +177,28 @@ func (m *ReadModel) listWithServices(ctx context.Context) ([]models.Student, err
 			idx = len(students) - 1
 		}
 
-		// append the service to the existing student
-		service := smodels.IEPService{
-			ID:              row.ServiceId,
-			StudentID:       row.StudentId,
-			ServiceType:     sharedmodels.ServiceType(row.ServiceType),
-			IndirectMinutes: int(row.IndirectMinutes),
-			DirectMinutes:   int(row.DirectMinutes),
-			FrequencyCount:  int(row.FrequencyCount),
-			FrequencyType:   row.FrequencyType,
-			Location:        row.Location,
-			StartDate:       sharedmodels.DateOnly(parseDBTime(row.StartDate)),
-			EndDate:         sharedmodels.DateOnly(parseDBTime(row.EndDate)),
-			Provider:        row.Provider,
-			CreatedAt:       parseDBTime(row.ServiceCreatedAt),
-			UpdatedAt:       parseDBTime(row.ServiceUpdatedAt),
+		if row.ServiceId != nil {
+			// append the service to the existing student
+			service := smodels.IEPService{
+				ID:              *row.ServiceId,
+				StudentID:       row.StudentId,
+				ServiceType:     sharedmodels.ServiceType(*row.ServiceType),
+				IndirectMinutes: int(*row.IndirectMinutes),
+				DirectMinutes:   int(*row.DirectMinutes),
+				FrequencyCount:  int(*row.FrequencyCount),
+				FrequencyType:   *row.FrequencyType,
+				Location:        *row.Location,
+				StartDate:       sharedmodels.DateOnly(parseDBTime(*row.StartDate)),
+				EndDate:         sharedmodels.DateOnly(parseDBTime(*row.EndDate)),
+				Provider:        *row.Provider,
+				CreatedAt:       parseDBTime(*row.ServiceCreatedAt),
+				UpdatedAt:       parseDBTime(*row.ServiceUpdatedAt),
+			}
+			students[idx].Services = append(students[idx].Services, service)
 		}
-		students[idx].Services = append(students[idx].Services, service)
 	}
 
 	return students, nil
-
 }
 
 func (m *ReadModel) ListByIEPServiceType(ctx context.Context, serviceType string) ([]models.Student, error) {

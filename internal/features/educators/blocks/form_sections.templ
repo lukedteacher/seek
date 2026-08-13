@@ -10,7 +10,7 @@ import (
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ FormSections(view dto.EducatorView) {
+templ FormSections(view dto.EducatorFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<section>
 		@forms.TextInputWithLabel(
@@ -50,44 +50,29 @@ templ FormSections(view dto.EducatorView) {
 				Class: "text-neutral-content/70 mb-3",
 				For:   "educator-role-select",
 			}) {
-				role
+				role(s)
 			}
 			@selectbox.Trigger(selectbox.TriggerProps{
-				ID: "educator-role-select",
+				ID:        "educator-role-select",
+				ShowPills: true,
 				Attributes: templ.Attributes{
 					"data-bind:educator.role": "",
 				},
 			}) {
 				@selectbox.Value(selectbox.ValueProps{
-					Placeholder: "select a role",
+					Placeholder: "select at least one role",
 				})
 			}
 			@selectbox.Content(selectbox.ContentProps{
 				NoSearch: true,
 			}) {
-				@selectbox.Item(selectbox.ItemProps{
-					Value:    "coteacher",
-					Selected: view.Role == "coteacher",
-				}) {
-					co-teacher
-				}
-				@selectbox.Item(selectbox.ItemProps{
-					Value:    "ea",
-					Selected: view.Role == "ea",
-				}) {
-					EA
-				}
-				@selectbox.Item(selectbox.ItemProps{
-					Value:    "teacher",
-					Selected: view.Role == "teacher",
-				}) {
-					teacher
-				}
-				@selectbox.Item(selectbox.ItemProps{
-					Value:    "admin",
-					Selected: view.Role == "admin",
-				}) {
-					admin
+				for _, role := range view.Roles {
+					@selectbox.Item(selectbox.ItemProps{
+						Value:    role.String,
+						Selected: role.IsSelected,
+					}) {
+						{ role.String }
+					}
 				}
 			}
 		}

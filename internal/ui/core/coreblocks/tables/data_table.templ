@@ -2,6 +2,7 @@ package tables
 
 import (
 	"fmt"
+	"strings"
 
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
@@ -38,30 +39,32 @@ templ Table(view shareddto.TableView) {
 				for i := range view.Rows {
 					@Row(view.Name, view.Columns, view.Rows[i])
 					if view.Rows[i].SubTable != nil {
-						<tr>
-							<td colspan={ len(view.Columns) + 1 } class="p-0 bg-muted/20">
-								@collapsible.Script()
-								@collapsible.Collapsible() {
-									@collapsible.Trigger(collapsible.TriggerProps{
-										Class: "flex gap-2 items-center px-4 py-2 justify-end",
-									}) {
-										services
-										@button.Button(button.Props{
-											Size:    button.SizeIcon,
-											Variant: button.VariantGhost,
-											Class:   "size-8",
+						if len(view.Rows[i].SubTable.Rows) > 0 {
+							<tr>
+								<td colspan={ len(view.Columns) + 1 } class="p-0 bg-muted/20">
+									@collapsible.Script()
+									@collapsible.Collapsible() {
+										@collapsible.Trigger(collapsible.TriggerProps{
+											Class: "flex gap-2 items-center px-4 py-2 justify-end",
 										}) {
-											@icon.ChevronDown(icon.Props{
-												Class: "size-4",
-											})
+											services
+											@button.Button(button.Props{
+												Size:    button.SizeIcon,
+												Variant: button.VariantGhost,
+												Class:   "size-8",
+											}) {
+												@icon.ChevronDown(icon.Props{
+													Class: "size-4",
+												})
+											}
+										}
+										@collapsible.Content() {
+											@Table(*view.Rows[i].SubTable)
 										}
 									}
-									@collapsible.Content() {
-										@Table(*view.Rows[i].SubTable)
-									}
-								}
-							</td>
-						</tr>
+								</td>
+							</tr>
+						}
 					}
 				}
 			} else {
@@ -193,6 +196,15 @@ templ BadgeCellContent(field string, value shareddto.CellView) {
 			@icon.Icon(sharedmodels.ServiceType(value.String()).IconName())(icon.Props{Class: "mr-1 size-12"})
 			{ value }
 		}
+	} else if field == "Roles" {
+		{{ roles := strings.Split(string(value), ",") }}
+		<span class="inline-flex items-center gap-2">
+			for _, role := range roles {
+				@badge.Badge() {
+					{ role }
+				}
+			}
+		</span>
 	} else {
 		@badge.Badge() {
 			{ value }

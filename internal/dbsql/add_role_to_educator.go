@@ -7,34 +7,26 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type CreateEducatorParams struct {
-	Id                       string `json:"id"`
-	GivenName                string `json:"given_name"`
-	ChosenName               string `json:"chosen_name"`
-	FamilyName               string `json:"family_name"`
-	Email                    string `json:"email"`
-	Username                 string `json:"username"`
+type AddRoleToEducatorParams struct {
+	EducatorId               string `json:"educator_id"`
+	Role                     string `json:"role"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	CreatedAt                string `json:"created_at"`
 }
 
-type CreateEducatorStmt struct {
+type AddRoleToEducatorStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func CreateEducator(tx *sqlite.Conn) *CreateEducatorStmt {
+func AddRoleToEducator(tx *sqlite.Conn) *AddRoleToEducatorStmt {
 	const querySQL = `
-INSERT INTO educators (
-	id, 
-	given_name, 
-	chosen_name, 
-	family_name, 
-	email,
-	username,
+INSERT INTO educator_roles ( 
+	educator_id, 
+	role,
 	last_event_commit_position, 
 	last_event_prepare_position,
 	created_at, 
@@ -42,20 +34,16 @@ INSERT INTO educators (
 )
 VALUES (
 	?1, 
-	?2, 
+	?2,
 	?3, 
-	?4, 
-	?5,
-	?6,
-	?7, 
-	?8,
-	?9, 
-	?9
+	?4,
+	?5, 
+	?5
 )
-ON CONFLICT (id) DO NOTHING
+ON CONFLICT (educator_id, role) DO NOTHING
     `
 
-	ps := &CreateEducatorStmt{
+	ps := &AddRoleToEducatorStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -68,8 +56,8 @@ ON CONFLICT (id) DO NOTHING
 	return ps
 }
 
-func (ps *CreateEducatorStmt) Run(
-	params CreateEducatorParams,
+func (ps *AddRoleToEducatorStmt) Run(
+	params AddRoleToEducatorParams,
 ) (
 	err error,
 ) {
@@ -89,22 +77,10 @@ func (ps *CreateEducatorStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, params.Id)
+	stmt.BindText(bindIndex, params.EducatorId)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.GivenName)
-
-	bindIndex++
-	stmt.BindText(bindIndex, params.ChosenName)
-
-	bindIndex++
-	stmt.BindText(bindIndex, params.FamilyName)
-
-	bindIndex++
-	stmt.BindText(bindIndex, params.Email)
-
-	bindIndex++
-	stmt.BindText(bindIndex, params.Username)
+	stmt.BindText(bindIndex, params.Role)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
@@ -119,19 +95,19 @@ func (ps *CreateEducatorStmt) Run(
 
 	// Execute the query
 	if _, err := stmt.Step(); err != nil {
-		return fmt.Errorf("failed to execute createeducator SQL: %w", err)
+		return fmt.Errorf("failed to execute addroletoeducator SQL: %w", err)
 	}
 
 	return nil
 }
 
-func OnceCreateEducator(
+func OnceAddRoleToEducator(
 	tx *sqlite.Conn,
-	params CreateEducatorParams,
+	params AddRoleToEducatorParams,
 ) (
 	err error,
 ) {
-	ps := CreateEducator(tx)
+	ps := AddRoleToEducator(tx)
 
 	return ps.Run(
 		params,

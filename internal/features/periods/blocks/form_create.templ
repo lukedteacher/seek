@@ -1,12 +1,12 @@
 package blocks
 
 import (
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/dto"
 	sdto "seek/internal/features/schedules/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
-	"seek/internal/features/_shared/sharedmodels"
 )
 
 templ FormCreate(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) {
@@ -14,7 +14,7 @@ templ FormCreate(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleVie
 	<form
 		id="create-period-form"
 		class="seek-form w-full md:max-w-128 h-fit"
-		data-on:submit={ datastar.PostSSE(url) }
+		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
 		@FormSections(view, schedules)
 		<footer>

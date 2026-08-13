@@ -14,4 +14,4 @@ CREATE TABLE IF NOT EXISTS auth_account (
 	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS account_user_id_idx ON auth_account (user_id);
+CREATE INDEX IF NOT EXISTS account_user_id_idx ON auth_account(user_id);

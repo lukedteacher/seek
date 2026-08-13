@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS auth_user (
 	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS auth_user_email_idx ON auth_user (email);
-CREATE INDEX IF NOT EXISTS auth_user_user_registered_id_idx ON auth_user (user_registered_id);
+CREATE INDEX IF NOT EXISTS auth_user_email_idx ON auth_user(email);
+CREATE INDEX IF NOT EXISTS auth_user_user_registered_id_idx ON auth_user(user_registered_id);

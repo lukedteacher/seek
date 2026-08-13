@@ -2,6 +2,15 @@
 
 updates for SEEK
 
+## v0.4.14 (26.08.12) educator roles, bux fixes, style tweaks
+
+- educator roles added to events
+- parsing and spliting of strings
+- various role display updated to handle multiple values
+- refactored core handlers to use di
+- added some templui components to theme toggle
+- started addition of case manager select for students
+
 ## v0.4.13 (26.08.12) first pass for filter ui
 
 - added filters at the top of the student table

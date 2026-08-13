@@ -21,19 +21,19 @@ type ListStudentsWithIepservicesRes struct {
 	CreatedAt         string  `json:"created_at"`
 	UpdatedAt         string  `json:"updated_at"`
 	ArchivedAt        *string `json:"archived_at"`
-	ServiceId         string  `json:"service_id"`
-	ServiceName       string  `json:"service_name"`
-	ServiceType       string  `json:"service_type"`
-	IndirectMinutes   int64   `json:"indirect_minutes"`
-	DirectMinutes     int64   `json:"direct_minutes"`
-	FrequencyCount    int64   `json:"frequency_count"`
-	FrequencyType     string  `json:"frequency_type"`
-	Location          string  `json:"location"`
-	StartDate         string  `json:"start_date"`
-	EndDate           string  `json:"end_date"`
-	Provider          string  `json:"provider"`
-	ServiceCreatedAt  string  `json:"service_created_at"`
-	ServiceUpdatedAt  string  `json:"service_updated_at"`
+	ServiceId         *string `json:"service_id"`
+	ServiceName       *string `json:"service_name"`
+	ServiceType       *string `json:"service_type"`
+	IndirectMinutes   *int64  `json:"indirect_minutes"`
+	DirectMinutes     *int64  `json:"direct_minutes"`
+	FrequencyCount    *int64  `json:"frequency_count"`
+	FrequencyType     *string `json:"frequency_type"`
+	Location          *string `json:"location"`
+	StartDate         *string `json:"start_date"`
+	EndDate           *string `json:"end_date"`
+	Provider          *string `json:"provider"`
+	ServiceCreatedAt  *string `json:"service_created_at"`
+	ServiceUpdatedAt  *string `json:"service_updated_at"`
 	ServiceArchivedAt *string `json:"service_archived_at"`
 }
 
@@ -75,7 +75,7 @@ SELECT
     i.updated_at AS service_updated_at,
     i.archived_at AS service_archived_at
 FROM students s
-INNER JOIN iep_services i ON s.id = i.student_id
+LEFT JOIN iep_services i ON s.id = i.student_id
 WHERE s.archived_at IS NULL
   AND i.archived_at IS NULL
 ORDER BY s.family_name DESC, s.chosen_name DESC, s.given_name DESC, i.service_type ASC
@@ -138,19 +138,71 @@ func (ps *ListStudentsWithIepservicesStmt) Run() (
 			tmp := stmt.ColumnText(12)
 			row.ArchivedAt = &tmp
 		}
-		row.ServiceId = stmt.ColumnText(13)
-		row.ServiceName = stmt.ColumnText(14)
-		row.ServiceType = stmt.ColumnText(15)
-		row.IndirectMinutes = stmt.ColumnInt64(16)
-		row.DirectMinutes = stmt.ColumnInt64(17)
-		row.FrequencyCount = stmt.ColumnInt64(18)
-		row.FrequencyType = stmt.ColumnText(19)
-		row.Location = stmt.ColumnText(20)
-		row.StartDate = stmt.ColumnText(21)
-		row.EndDate = stmt.ColumnText(22)
-		row.Provider = stmt.ColumnText(23)
-		row.ServiceCreatedAt = stmt.ColumnText(24)
-		row.ServiceUpdatedAt = stmt.ColumnText(25)
+		isNullServiceId := stmt.ColumnIsNull(13)
+		if !isNullServiceId {
+			tmp := stmt.ColumnText(13)
+			row.ServiceId = &tmp
+		}
+		isNullServiceName := stmt.ColumnIsNull(14)
+		if !isNullServiceName {
+			tmp := stmt.ColumnText(14)
+			row.ServiceName = &tmp
+		}
+		isNullServiceType := stmt.ColumnIsNull(15)
+		if !isNullServiceType {
+			tmp := stmt.ColumnText(15)
+			row.ServiceType = &tmp
+		}
+		isNullIndirectMinutes := stmt.ColumnIsNull(16)
+		if !isNullIndirectMinutes {
+			tmp := stmt.ColumnInt64(16)
+			row.IndirectMinutes = &tmp
+		}
+		isNullDirectMinutes := stmt.ColumnIsNull(17)
+		if !isNullDirectMinutes {
+			tmp := stmt.ColumnInt64(17)
+			row.DirectMinutes = &tmp
+		}
+		isNullFrequencyCount := stmt.ColumnIsNull(18)
+		if !isNullFrequencyCount {
+			tmp := stmt.ColumnInt64(18)
+			row.FrequencyCount = &tmp
+		}
+		isNullFrequencyType := stmt.ColumnIsNull(19)
+		if !isNullFrequencyType {
+			tmp := stmt.ColumnText(19)
+			row.FrequencyType = &tmp
+		}
+		isNullLocation := stmt.ColumnIsNull(20)
+		if !isNullLocation {
+			tmp := stmt.ColumnText(20)
+			row.Location = &tmp
+		}
+		isNullStartDate := stmt.ColumnIsNull(21)
+		if !isNullStartDate {
+			tmp := stmt.ColumnText(21)
+			row.StartDate = &tmp
+		}
+		isNullEndDate := stmt.ColumnIsNull(22)
+		if !isNullEndDate {
+			tmp := stmt.ColumnText(22)
+			row.EndDate = &tmp
+		}
+		isNullProvider := stmt.ColumnIsNull(23)
+		if !isNullProvider {
+			tmp := stmt.ColumnText(23)
+			row.Provider = &tmp
+		}
+		isNullServiceCreatedAt := stmt.ColumnIsNull(24)
+		if !isNullServiceCreatedAt {
+			tmp := stmt.ColumnText(24)
+			row.ServiceCreatedAt = &tmp
+		}
+		isNullServiceUpdatedAt := stmt.ColumnIsNull(25)
+		if !isNullServiceUpdatedAt {
+			tmp := stmt.ColumnText(25)
+			row.ServiceUpdatedAt = &tmp
+		}
 		isNullServiceArchivedAt := stmt.ColumnIsNull(26)
 		if !isNullServiceArchivedAt {
 			tmp := stmt.ColumnText(26)

@@ -17,7 +17,7 @@ templ StudentEditForm(view dto.StudentFormView) {
 	<form
 		id="student-edit-form"
 		class="seek-form w-128"
-		data-on:submit={ datastar.PostSSE(url) }
+		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
 		<hgroup>
 			<h2>edit student</h2>
@@ -98,6 +98,30 @@ templ StudentEditForm(view dto.StudentFormView) {
 				"student.case_manager",
 				view.Student.CaseManager,
 			)
+			@selectbox.SelectBox() {
+				@label.Label(label.Props{
+					For:   "student-case-manager-select-box",
+					Class: "mb-3 text-neutral-content/80",
+				}) {
+					case manager
+				}
+				@selectbox.Trigger() {
+					@selectbox.Value()
+				}
+				@selectbox.Content(selectbox.ContentProps{
+					NoSearch: true,
+				}) {
+					@selectbox.Item() {
+						test1
+					}
+					@selectbox.Item() {
+						test2
+					}
+					@selectbox.Item() {
+						test3
+					}
+				}
+			}
 		</section>
 		<footer>
 			@forms.CancelButton()

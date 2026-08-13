@@ -21,3 +21,23 @@ var EducatorRoleList = []EducatorRole{
 	EducatorRoleServiceProvider,
 	EducatorRoleAdmin,
 }
+
+func (er EducatorRole) String() string {
+	return string(er)
+}
+
+func (er EducatorRole) ShortString() string {
+	short := map[EducatorRole]string{
+		EducatorRoleCaseManager:          "CM",
+		EducatorRoleRResRoomTeacher:      "RR",
+		EducatorRoleGenEdTeacher:         "GenEd",
+		EducatorRoleServiceProvider:      "SP",
+		EducatorRoleCoTeacher:            "CoT",
+		EducatorRoleEducationalAssistant: "EA",
+		EducatorRoleAdmin:                "admin",
+	}
+	if s, ok := short[er]; ok {
+		return s
+	}
+	return string(er)
+}

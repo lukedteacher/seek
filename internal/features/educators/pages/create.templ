@@ -11,7 +11,7 @@ import (
 	"seek/pkg/sse"
 )
 
-templ Create(view dto.EducatorView) {
+templ Create(view dto.EducatorFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: create educator") {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>

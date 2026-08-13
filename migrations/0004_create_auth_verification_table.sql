@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS auth_verification (
 	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS verification_identifier_idx ON auth_verification (identifier);
+CREATE INDEX IF NOT EXISTS verification_identifier_idx ON auth_verification(identifier);

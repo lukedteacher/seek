@@ -3,6 +3,7 @@ package seed
 import (
 	"context"
 	"log/slog"
+	"strings"
 	"time"
 
 	"seek/internal/auth"
@@ -170,16 +171,16 @@ func SeedEducators(ctx context.Context, saver eventstore.Saver) ([]string, error
 		Email      string
 		Role       string
 	}{
-		{"James", "Jim", "Peterson", "james.p@schoolofnorthernlights.org", "teacher"},
-		{"Sarah", "Sally", "Chen", "sarah.c@schoolofnorthernlights.org", "co-teacher"},
-		{"Michael", "Mike", "O'Brien", "michael.o@schoolofnorthernlights.org", "EA"},
+		{"James", "Jim", "Peterson", "james.p@schoolofnorthernlights.org", "service provider,co-teacher,case manager"},
+		{"Sarah", "Sally", "Chen", "sarah.c@schoolofnorthernlights.org", "co-teacher,case manager"},
+		{"Michael", "Mike", "O'Brien", "michael.o@schoolofnorthernlights.org", "educational assistant"},
 		{"Emily", "Em", "Kim", "emily.k@schoolofnorthernlights.org", "admin"},
-		{"David", "Dave", "Singh", "david.s@schoolofnorthernlights.org", "teacher"},
-		{"Jessica", "Jess", "Taylor", "jessica.t@schoolofnorthernlights.org", "co-teacher"},
-		{"Daniel", "Dan", "Martinez", "daniel.m@schoolofnorthernlights.org", "EA"},
-		{"Ashley", "Ash", "Johnson", "ashley.j@schoolofnorthernlights.org", "teacher"},
+		{"David", "Dave", "Singh", "david.s@schoolofnorthernlights.org", "general education teacher"},
+		{"Jessica", "Jess", "Taylor", "jessica.t@schoolofnorthernlights.org", "service provider,co-teacher,case manager"},
+		{"Daniel", "Dan", "Martinez", "daniel.m@schoolofnorthernlights.org", "educational assistant"},
+		{"Ashley", "Ash", "Johnson", "ashley.j@schoolofnorthernlights.org", "co-teacher,case manager"},
 		{"Christopher", "Chris", "Lee", "chris.l@schoolofnorthernlights.org", "admin"},
-		{"Amanda", "Mandy", "Garcia", "amanda.g@schoolofnorthernlights.org", "co-teacher"},
+		{"Amanda", "Mandy", "Garcia", "amanda.g@schoolofnorthernlights.org", "service provider,co-teacher,case manager"},
 	}
 
 	ids := make([]string, 0, len(data))
@@ -189,7 +190,7 @@ func SeedEducators(ctx context.Context, saver eventstore.Saver) ([]string, error
 			ChosenName: d.ChosenName,
 			FamilyName: d.FamilyName,
 			Email:      d.Email,
-			Role:       d.Role,
+			Roles:      strings.Split(d.Role, ","),
 		}
 		res, err := ee.CreateEducatorCommandHandler(ctx, cmd, saver)
 		if err != nil {

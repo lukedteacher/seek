@@ -87,7 +87,7 @@ func Switch(props ...Props) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><!-- Actual checkbox switch --><input id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><!-- actual checkbox switch --><input id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -190,32 +190,32 @@ func Switch(props ...Props) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "><!-- Visual switch UI -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "><!-- visual switch UI -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 = []any{utils.TwMerge(
-			// Container
+			// container
 			"relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center",
 			"rounded-full border-2 border-transparent",
 			"transition-colors",
-			// Background colors
+			// background colors
 			"bg-input",
 			"peer-checked:bg-primary",
-			// Focus styles
+			// focus styles
 			"peer-focus-visible:outline-none peer-focus-visible:ring-2",
 			"peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
 			"peer-focus-visible:ring-offset-background",
-			// Disabled state
+			// disabled state
 			"peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
-			// Thumb
+			// thumb
 			"after:pointer-events-none after:block",
 			"after:h-4 after:w-4",
 			"after:rounded-full after:bg-background",
 			"after:shadow-lg after:ring-0",
 			"after:transition-transform",
 			"after:content-['']",
-			// Thumb position
+			// thumb position
 			"peer-checked:after:translate-x-4",
 			p.Class,
 		),

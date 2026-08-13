@@ -108,7 +108,7 @@ SELECT
     i.updated_at AS service_updated_at,
     i.archived_at AS service_archived_at
 FROM students s
-INNER JOIN iep_services i ON s.id = i.student_id
+LEFT JOIN iep_services i ON s.id = i.student_id
 WHERE s.archived_at IS NULL
   AND i.archived_at IS NULL
 ORDER BY s.family_name DESC, s.chosen_name DESC, s.given_name DESC, i.service_type ASC;

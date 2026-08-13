@@ -119,11 +119,13 @@ func (s Server) addUserInfoToContext(next http.Handler) http.Handler {
 	})
 }
 
-func addPathToContext(logger *slog.Logger) func(next http.Handler) http.Handler {
+func addPathToContext(
+	_ *slog.Logger,
+) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			// logger.DebugContext(ctx, "request path", "url", r.RequestURI)
+			// l.InfoContext(ctx, "add path to context", "uri", r.RequestURI, "path", r.URL.Path)
 			// strips the url of "/stream" and any parameters
 			baseURL := strings.TrimSuffix(r.URL.Path, "/stream")
 			ctx = sharedmodels.WithURL(ctx, baseURL)

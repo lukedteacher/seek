@@ -3,6 +3,7 @@ package dto
 import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/educators/models"
+	"strings"
 )
 
 // columns for the educator table
@@ -11,27 +12,31 @@ var EducatorColumns = []shareddto.ColumnView{
 	{Field: "ChosenName", Display: "chosen", Group: "name"},
 	{Field: "FamilyName", Display: "family", Group: "name"},
 	{Field: "Email", Display: "email"},
-	{Field: "Role", Display: "role", Renderer: "badge", Alignment: "center"},
+	{Field: "Roles", Display: "role(s)", Renderer: "badge", Alignment: "center"},
 }
 
 // extract values from an educator by field name
-func valueExtractor(svc *models.Educator, field string) string {
-	if svc == nil {
+func valueExtractor(m *models.Educator, field string) string {
+	if m == nil {
 		return ""
 	}
 	switch field {
 	case "ID":
-		return svc.ID
+		return m.ID
 	case "GivenName":
-		return svc.GivenName
+		return m.GivenName
 	case "ChosenName":
-		return svc.ChosenName
+		return m.ChosenName
 	case "FamilyName":
-		return svc.FamilyName
+		return m.FamilyName
 	case "Email":
-		return svc.Email
-	case "Role":
-		return svc.Role
+		return m.Email
+	case "Roles":
+		var parts []string
+		for _, r := range m.Roles {
+			parts = append(parts, r.ShortString())
+		}
+		return strings.Join(parts, ",")
 	default:
 		return ""
 	}

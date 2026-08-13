@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS profile_stats (
 	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS profile_stats_user_id_idx ON profile_stats (user_id);
+CREATE INDEX IF NOT EXISTS profile_stats_user_id_idx ON profile_stats(user_id);

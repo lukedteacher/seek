@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"seek/internal/features/educators/dto"
+	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
@@ -12,18 +13,34 @@ import (
 templ Card(view dto.EducatorView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("educator-%s-card", view.Username),
-		Class: "educator-card w-128",
+		Class: "educator-card w-128 border-muted",
 	}) {
 		@card.Header() {
 			@card.Title() {
 				{ view.FullName() }
 			}
 		}
-		@card.Content() {
-			<p>role: { view.Role }</p>
-			<p>email: { view.Email }</p>
+		@card.Content(card.ContentProps{
+			Class: "flex flex-col gap-3",
+		}) {
+			<p class="flex justify-between">
+				<span class="text-neutral-content/80">email: </span>
+				<span>{ view.Email }</span>
+			</p>
+			<p class="flex justify-between">
+				<span class="text-neutral-content/80">roles: </span>
+				<span class="inline-flex gap-2 items-center">
+					for _, role := range view.Roles {
+						@badge.Badge() {
+							{ role.String() }
+						}
+					}
+				</span>
+			</p>
 		}
-		@card.Footer() {
+		@card.Footer(card.FooterProps{
+			Class: "flex justify-end items-center",
+		}) {
 			@button.Button(button.Props{
 				Href: fmt.Sprintf("/educators/%s/edit", view.Username),
 			}) {

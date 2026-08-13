@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS auth_session (
 	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS session_user_id_idx ON auth_session (user_id);
+CREATE INDEX IF NOT EXISTS session_user_id_idx ON auth_session(user_id);

@@ -6,9 +6,9 @@ import (
 )
 
 type EducatorView struct {
-	sharedmodels.Person        // embeds given, chosen, & family name
-	ID                  string `json:"id" display:"ID"`
-	Role                string `json:"role" display:"role"`
+	sharedmodels.Person                             // embeds given, chosen, & family name
+	ID                  string                      `json:"id"`
+	Roles               []sharedmodels.EducatorRole `json:"roles"`
 }
 
 func NewEducatorView(e *models.Educator) EducatorView {
@@ -18,7 +18,7 @@ func NewEducatorView(e *models.Educator) EducatorView {
 	return EducatorView{
 		ID:     e.ID,
 		Person: e.Person,
-		Role:   e.Role,
+		Roles:  e.Roles,
 	}
 }
 

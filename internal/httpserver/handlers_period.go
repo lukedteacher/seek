@@ -57,7 +57,6 @@ func (s Server) periodRoutes(r chi.Router) {
 			s.ViewStore,
 			s.ReadModels.Periods,
 			s.ReadModels.Students,
-			s.ReadModels.StudentPeriods,
 			s.ReadModels.Educators,
 		),
 	)
@@ -154,7 +153,7 @@ func (s Server) periodRoutes(r chi.Router) {
 // renders an empty template
 // SSE will populate data
 func getPeriodsList(
-	l *slog.Logger,
+	_ *slog.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -234,7 +233,7 @@ func getPeriodsListStream(
 }
 
 // GET request to /periods/create
-func getPeriodCreate(l *slog.Logger) http.HandlerFunc {
+func getPeriodCreate(_ *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		view := dto.PeriodFormView{}
@@ -248,7 +247,6 @@ func getPeriodCreateStream(
 	vs viewstore.Store,
 	periodReadModel *events.ReadModel,
 	studentReadModel *sevents.ReadModel,
-	studentPeriodReadModel *spevents.ReadModel,
 	educatorReadModel *eevents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -443,7 +441,7 @@ func postPeriodCreate(
 
 // GET request to /periods/{id}
 func getPeriodView(
-	l *slog.Logger,
+	_ *slog.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -486,17 +484,16 @@ func getPeriodViewStream(
 				IgnoreDeletes: true,
 			},
 		)
-
-		if err := refreshPeriodViewState(ctx, l, periodID, periodReadModel, vs); err != nil {
-			l.ErrorContext(ctx, "get period view stream refresh", "err", err)
-			return
-		}
-
 		if err != nil {
 			l.ErrorContext(ctx, "get period view stream watcher", "err", err)
 			return
 		}
 		defer watcher.Stop()
+
+		if err := refreshPeriodViewState(ctx, l, periodID, periodReadModel, vs); err != nil {
+			l.ErrorContext(ctx, "get period view stream refresh", "err", err)
+			return
+		}
 
 		for {
 			select {
@@ -538,7 +535,7 @@ func getPeriodViewStream(
 }
 
 func getPeriodEdit(
-	l *slog.Logger,
+	_ *slog.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -793,7 +790,7 @@ func deletePeriod(
 // gets period from the db and saves it to a kv store
 func refreshPeriodViewState(
 	ctx context.Context,
-	l *slog.Logger,
+	_ *slog.Logger,
 	periodID string,
 	periods *events.ReadModel,
 	vs viewstore.Store,

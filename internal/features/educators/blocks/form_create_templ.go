@@ -16,7 +16,7 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-func EducatorCreateForm(view dto.EducatorView) templ.Component {
+func EducatorCreateForm(view dto.EducatorFormView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -43,9 +43,9 @@ func EducatorCreateForm(view dto.EducatorView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE(url))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("%s", url))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/form_create.templ`, Line: 16, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/form_create.templ`, Line: 16, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {

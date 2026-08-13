@@ -8,7 +8,10 @@ package coreblocks
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "seek/pkg/templui/components/icon"
+import (
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/label"
+)
 
 func ThemeToggle() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -31,27 +34,40 @@ func ThemeToggle() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<label class=\"flex items-center cursor-pointer gap-2 mr-4\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = icon.Sun(icon.Props{
-			Class: "size-4",
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<input type=\"checkbox\" class=\"toggle animate-none\" data-signals:dark=\"localStorage.getItem('theme') == 'dark'\" data-bind:dark data-signals:theme=\"localStorage.getItem('theme')\" data-on:click=\"$theme == 'light' ? $theme = 'dark' : $theme = 'light'; localStorage.setItem('theme', $theme);\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = icon.Moon(icon.Props{
-			Class: "size-4",
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</label>")
+		templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = icon.Sun(icon.Props{
+				Class: "size-4",
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <input type=\"checkbox\" class=\"toggle animate-none\" style=\"border-color: var(--primary-4-dim);\" data-signals:dark=\"localStorage.getItem('theme') == 'dark'\" data-bind:dark data-signals:theme=\"localStorage.getItem('theme')\" data-on:click=\"$theme == 'light' ? $theme = 'dark' : $theme = 'light'; localStorage.setItem('theme', $theme);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = icon.Moon(icon.Props{
+				Class: "size-4",
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = label.Label(label.Props{
+			Class: "text-neutral-content/90 flex items-center cursor-pointer gap-2 mr-4",
+			For:   "theme-toggle",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

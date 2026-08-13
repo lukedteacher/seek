@@ -46,7 +46,6 @@ func (m *ReadModel) GetByID(ctx context.Context, educatorID string) (*models.Edu
 			Email:      row.Email,
 			Username:   row.Username,
 		},
-		Role: row.Role,
 	}
 
 	return educator, nil
@@ -75,7 +74,40 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 			Email:      row.Email,
 			Username:   row.Username,
 		},
-		Role: row.Role,
+	}
+
+	return educator, nil
+}
+
+func (m *ReadModel) GetByUsernameWithRoles(ctx context.Context, username string) (*models.Educator, error) {
+	var rows []dbsql.GetEducatorWithRolesByUsernameRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceGetEducatorWithRolesByUsername(conn, username)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	if len(rows) == 0 {
+		return nil, fmt.Errorf("educator not found")
+	}
+
+	educator := &models.Educator{
+		ID: rows[0].Id,
+		Person: sharedmodels.Person{
+			GivenName:  rows[0].GivenName,
+			ChosenName: rows[0].ChosenName,
+			FamilyName: rows[0].FamilyName,
+			Email:      rows[0].Email,
+			Username:   rows[0].Username,
+		},
+		Roles: make([]sharedmodels.EducatorRole, len(rows)),
+	}
+	for i, row := range rows {
+		if row.Role != nil {
+			educator.Roles[i] = sharedmodels.EducatorRole(*row.Role)
+		}
 	}
 
 	return educator, nil
@@ -102,9 +134,51 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Educator, error) {
 				Email:      rows[i].Email,
 				Username:   rows[i].Username,
 			},
-			Role: rows[i].Role,
 		}
 	}
+	return educators, nil
+}
+
+func (m *ReadModel) ListWithRoles(ctx context.Context) ([]models.Educator, error) {
+	var rows []dbsql.ListEducatorsWithRolesRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceListEducatorsWithRoles(conn)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	// map educator ID -> index in the result slice
+	educatorMap := make(map[string]int)
+	var educators []models.Educator
+
+	for _, row := range rows {
+		idx, ok := educatorMap[row.Id]
+		if !ok {
+			// create new educator entry
+			educator := models.Educator{
+				ID: row.Id,
+				Person: sharedmodels.Person{
+					GivenName:  row.GivenName,
+					ChosenName: row.ChosenName,
+					FamilyName: row.FamilyName,
+					Email:      row.Email,
+					Username:   row.Username,
+				},
+				Roles: []sharedmodels.EducatorRole{},
+			}
+			educatorMap[row.Id] = len(educators)
+			educators = append(educators, educator)
+			idx = len(educators) - 1
+		}
+
+		// append the role
+		if row.Role != nil {
+			educators[idx].Roles = append(educators[idx].Roles, sharedmodels.EducatorRole(*row.Role))
+		}
+	}
+
 	return educators, nil
 }
 
@@ -112,18 +186,32 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Educator, error) {
 
 func (m *ReadModel) Create(ctx context.Context, event EducatorCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceCreateEducator(conn, dbsql.CreateEducatorParams{
+		if err := dbsql.OnceCreateEducator(conn, dbsql.CreateEducatorParams{
 			Id:                       event.ID,
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
 			Email:                    event.Email,
 			Username:                 event.Username,
-			Role:                     event.Role,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			CreatedAt:                appdb.SQLTime(event.CreatedAt),
-		})
+		}); err != nil {
+			return err
+		}
+		for _, role := range event.Roles {
+			if err := dbsql.OnceAddRoleToEducator(conn, dbsql.AddRoleToEducatorParams{
+				EducatorId:               event.ID,
+				Role:                     role,
+				LastEventCommitPosition:  event.Position.Commit,
+				LastEventPreparePosition: event.Position.Prepare,
+				CreatedAt:                appdb.SQLTime(event.CreatedAt),
+			}); err != nil {
+				return err
+			}
+		}
+
+		return nil
 	})
 }
 
@@ -135,7 +223,6 @@ func (m *ReadModel) Update(ctx context.Context, event EducatorUpdatedProjection)
 			FamilyName:               event.FamilyName,
 			Email:                    event.Email,
 			Username:                 event.Username,
-			Role:                     event.Role,
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),

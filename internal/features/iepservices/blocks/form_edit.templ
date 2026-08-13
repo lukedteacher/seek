@@ -13,7 +13,7 @@ templ EditServiceForm(view dto.IEPServiceFormView) {
 	<form
 		id="edit-iep-service-form"
 		class="seek-form"
-		data-on:submit={ datastar.PostSSE(url) }
+		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
 		<hgroup>
 			<h2>edit IEP service</h2>

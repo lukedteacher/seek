@@ -4,27 +4,38 @@ import (
 	"log/slog"
 	"net/http"
 
+	"seek/internal/eventstore"
 	"seek/internal/seed"
 	"seek/internal/ui/core/corepages"
-	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/starfederation/datastar-go/datastar"
 )
 
 func (s Server) coreRoutes(r chi.Router) {
-	r.Get("/", s.index)
-	r.Get("/stream", s.getIndexSSE)
-	r.Get("/components", s.components)
-	r.Get("/seed", s.getSeed)
-	r.Post("/seed/educators", s.postSeedEducators)
-	r.Post("/seed/periods", s.postSeedPeriods)
-	r.Post("/seed/students", s.postSeedStudents)
-	r.Get("/hub", s.getHub)
-	r.Post("/sort", s.sort)
+	r.Get("/", getIndex())
 	r.Post("/theme", postTheme(s.Logger))
+	r.Get("/hub", getHub())
+	r.Get("/components", getComponents())
+	r.Get("/seed", getSeed())
+	r.Post("/seed/educators", postSeedEducators(s.Logger, s.EventSaver))
+	r.Post("/seed/students", postSeedStudents(s.Logger, s.EventSaver))
+	r.Post("/seed/periods", postSeedPeriods(s.Logger, s.EventSaver))
 }
 
+// GET request to "/"
+// serves as the landing page when not logged in
+// dashboard when logged in
+func getIndex() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_ = corepages.Index().Render(ctx, w)
+	}
+}
+
+// POST request to "/theme"
+// nothing yet
+// TODO save it to user db
 func postTheme(
 	l *slog.Logger,
 ) http.HandlerFunc {
@@ -42,84 +53,74 @@ func postTheme(
 	}
 }
 
-func (s Server) index(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	_ = corepages.Index().Render(ctx, w)
-}
-
-func (s Server) getHub(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	_ = corepages.Hub().Render(ctx, w)
-}
-
-func (s Server) getSeed(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	_ = corepages.Seed().Render(ctx, w)
-}
-
-func (s Server) postSeedStudents(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	seed.SeedStudents(ctx, s.EventSaver)
-}
-
-func (s Server) postSeedEducators(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	seed.SeedEducators(ctx, s.EventSaver)
-}
-
-func (s Server) postSeedPeriods(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	seed.SeedPeriods(ctx, s.EventSaver)
-}
-
-func (s Server) getIndexSSE(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user := currentUser(r)
-	sse := newSSE(w, r)
-	// watches the key value stream for ephemeral changes
-	// lasts 5m
-	watcher, err := s.ViewStore.Watch(
-		ctx,
-		user.ID+".view",
-		viewstore.WatchOptions{
-			IgnoreDeletes: true,
-		},
-	)
-	if err != nil {
-		s.Logger.ErrorContext(ctx, "get index sse watcher", "err", err)
-		return
+// GET request to "/hub"
+// special rights resource hub
+func getHub() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_ = corepages.Hub().Render(ctx, w)
 	}
-	defer watcher.Stop()
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case _, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
-			if !ok {
-				return
-			}
-			sse.PatchElementTempl(corepages.Index())
+}
+
+// GET request to "/components"
+// development tool for viewing components and testing
+func getComponents() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_ = corepages.Components().Render(ctx, w)
+	}
+}
+
+// GET request to "/seed"
+// development tool for seeding data after resetting the event store
+func getSeed() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_ = corepages.Seed().Render(ctx, w)
+	}
+}
+
+// POST request to "/seed/educators"
+// seeds educator data
+func postSeedEducators(
+	l *slog.Logger,
+	saver eventstore.Saver,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_, err := seed.SeedEducators(ctx, saver)
+		if err != nil {
+			l.ErrorContext(ctx, "seed educators", "err", err)
 		}
 	}
 }
 
-func (s Server) components(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	_ = corepages.Components().Render(ctx, w)
+// POST request to "/seed/students"
+// seeds student data
+func postSeedStudents(
+	l *slog.Logger,
+	saver eventstore.Saver,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_, err := seed.SeedStudents(ctx, saver)
+		if err != nil {
+			l.ErrorContext(ctx, "seed students", "err", err)
+		}
+	}
 }
 
-func (s Server) sort(w http.ResponseWriter, r *http.Request) {
-	signals := &struct {
-		Table Table `json:"table"`
-	}{}
-	datastar.ReadSignals(r, signals)
-}
-
-type Table struct {
-	GivenName   bool `json:"given_name"`
-	ChosenName  bool `json:"chosen_name"`
-	FamilyName  bool `json:"family_name"`
-	Grade       bool `json:"grade"`
-	Homeroom    bool `json:"homeroom"`
-	CaseManager bool `json:"case_manager"`
+// POST request to "/seed/educators"
+// seeds period data
+func postSeedPeriods(
+	l *slog.Logger,
+	saver eventstore.Saver,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_, err := seed.SeedPeriods(ctx, saver)
+		if err != nil {
+			l.ErrorContext(ctx, "seed periods", "err", err)
+		}
+	}
 }

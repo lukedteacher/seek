@@ -43,9 +43,9 @@ func EditServiceForm(view dto.IEPServiceFormView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE(url))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(datastar.PostSSE("%s", url))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iepservices/blocks/form_edit.templ`, Line: 16, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iepservices/blocks/form_edit.templ`, Line: 16, Col: 46}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {

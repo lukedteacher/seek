@@ -14,7 +14,6 @@ type GetEducatorByIdRes struct {
 	FamilyName string `json:"family_name"`
 	Email      string `json:"email"`
 	Username   string `json:"username"`
-	Role       string `json:"role"`
 	CreatedAt  string `json:"created_at"`
 	UpdatedAt  string `json:"updated_at"`
 }
@@ -35,7 +34,6 @@ SELECT
 	family_name, 
 	email, 
 	username,
-	role,
 	created_at, 
 	updated_at
 FROM educators
@@ -93,9 +91,8 @@ func (ps *GetEducatorByIdStmt) Run(
 		row.FamilyName = stmt.ColumnText(3)
 		row.Email = stmt.ColumnText(4)
 		row.Username = stmt.ColumnText(5)
-		row.Role = stmt.ColumnText(6)
-		row.CreatedAt = stmt.ColumnText(7)
-		row.UpdatedAt = stmt.ColumnText(8)
+		row.CreatedAt = stmt.ColumnText(6)
+		row.UpdatedAt = stmt.ColumnText(7)
 		res = &row
 	}
 

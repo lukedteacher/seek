@@ -8,12 +8,12 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ EducatorCreateForm(view dto.EducatorView) {
+templ EducatorCreateForm(view dto.EducatorFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
 		id="educator-create-form"
 		class="seek-form w-128"
-		data-on:submit={ datastar.PostSSE(url) }
+		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
 		<hgroup>
 			<h2>create educator</h2>

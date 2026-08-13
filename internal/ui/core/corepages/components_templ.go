@@ -14,6 +14,7 @@ import (
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
+	toggle "seek/pkg/templui/components/switch"
 )
 
 func Components() templ.Component {
@@ -49,7 +50,7 @@ func Components() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main style=\"display: flex; flex-direction: column; gap: 1rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"flex flex-col gap-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -57,7 +58,15 @@ func Components() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<section><h3>animated icons</h3><svg class=\"login-icon\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\" width=\"28\" height=\"28\"><path d=\"M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4\"></path> <polyline points=\"10 17 15 12 10 7\" class=\"move-part\"></polyline> <line x1=\"3\" x2=\"15\" y1=\"12\" y2=\"12\" class=\"move-part\"></line></svg> <svg class=\"blocks-icon\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\" width=\"28\" height=\"28\"><path d=\"M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3\"></path> <path class=\"block-move\" d=\"M14 3h7v7h-7z\"></path></svg><div class=\"brain-icon\" role=\"img\" aria-label=\"brain-cog\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5a3 3 0 1 0-5.997.142 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588 4 4 0 0 0 7.636 2.106 3.2 3.2 0 0 0 .164-.546c.028-.13.306-.13.335 0a3.2 3.2 0 0 0 .163.546 4 4 0 0 0 7.636-2.106 4 4 0 0 0 .556-6.588 4 4 0 0 0-2.526-5.77A3 3 0 1 0 12 5\"></path> <path d=\"M17.599 6.5a3 3 0 0 0 .399-1.375\"></path> <path d=\"M6.003 5.125A3 3 0 0 0 6.401 6.5\"></path> <path d=\"M3.477 10.896a4 4 0 0 1 .585-.396\"></path> <path d=\"M19.938 10.5a4 4 0 0 1 .585.396\"></path> <path d=\"M6 18a4 4 0 0 1-1.967-.516\"></path> <path d=\"M19.967 17.484A4 4 0 0 1 18 18\"></path> <g class=\"cog-group\"><circle cx=\"12\" cy=\"12\" r=\"3\"></circle> <path d=\"m15.7 10.4-.9.4\"></path> <path d=\"m9.2 13.2-.9.4\"></path> <path d=\"m13.6 15.7-.4-.9\"></path> <path d=\"m10.8 9.2-.4-.9\"></path> <path d=\"m15.7 13.5-.9-.4\"></path> <path d=\"m9.2 10.9-.9-.4\"></path> <path d=\"m10.5 15.7.4-.9\"></path> <path d=\"m13.1 9.2.4-.9\"></path></g></svg></div></section><style>\r\n\t\t\t\t@keyframes bounce-right {\r\n\t\t\t\t\t0%   { transform: translateX(0); }\r\n\t\t\t\t\t30%  { transform: translateX(3px); }\r\n\t\t\t\t\t70%  { transform: translateX(0); }\r\n\t\t\t\t\t100% { transform: translateX(0); }\r\n\t\t\t\t}\r\n\t\t\t\t.login-icon:hover .move-part {\r\n\t\t\t\t\tanimation: bounce-right 500ms var(--anim-ease-standard);\r\n\t\t\t\t}\r\n\t\t\t\t.block-move {\r\n\t\t\t\t\ttransition: transform 0.2s ease;\r\n\t\t\t\t}\r\n\t\t\t\t.blocks-icon:hover .block-move {\r\n\t\t\t\t\ttransform: translate(-4px, 4px);\r\n\t\t\t\t}\r\n\t\t\t\t.brain-icon {\r\n\t\t\t\t\tdisplay: inline-block;\r\n\t\t\t\t}\r\n\t\t\t\t.cog-group {\r\n\t\t\t\t\ttransform-origin: 12px 12px;\r\n\t\t\t\t\ttransition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);\r\n\t\t\t\t}\r\n\t\t\t\t.brain-icon:hover .cog-group {\r\n\t\t\t\t\ttransform: rotate(180deg);\r\n\t\t\t\t}\r\n\t\t\t</style><section><h3>buttons</h3><div style=\"margin-top: 1rem; display: grid; grid-template: repeat(4, 1fr) / repeat(4, 1fr); gap: var(--size-0);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<section><h3>toggle (doesn't work)</h3>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = toggle.Switch().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</section><section><h3>buttons</h3><div style=\"margin-top: 1rem; display: grid; grid-template: repeat(4, 1fr) / repeat(4, 1fr); gap: var(--size-0);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -73,7 +82,7 @@ func Components() templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "default")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "default")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -95,7 +104,7 @@ func Components() templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "outline")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "outline")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -119,7 +128,7 @@ func Components() templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "ghost")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "ghost")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -143,7 +152,7 @@ func Components() templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "link")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "link")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -181,7 +190,7 @@ func Components() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div></section><section><h3>icons</h3><div style=\"margin-top: 1rem; display: grid; grid-template: repeat(8, 1fr) / repeat(8, 1fr); gap: var(--size-0);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></section><section class=\"flex flex-col gap-3\"><h3>animated icons</h3><div class=\"flex gap-2\"><svg class=\"login-icon\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\" width=\"28\" height=\"28\"><path d=\"M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4\"></path> <polyline points=\"10 17 15 12 10 7\" class=\"move-part\"></polyline> <line x1=\"3\" x2=\"15\" y1=\"12\" y2=\"12\" class=\"move-part\"></line></svg> <svg class=\"blocks-icon\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\" width=\"28\" height=\"28\"><path d=\"M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3\"></path> <path class=\"block-move\" d=\"M14 3h7v7h-7z\"></path></svg><div class=\"brain-icon\" role=\"img\" aria-label=\"brain-cog\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5a3 3 0 1 0-5.997.142 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588 4 4 0 0 0 7.636 2.106 3.2 3.2 0 0 0 .164-.546c.028-.13.306-.13.335 0a3.2 3.2 0 0 0 .163.546 4 4 0 0 0 7.636-2.106 4 4 0 0 0 .556-6.588 4 4 0 0 0-2.526-5.77A3 3 0 1 0 12 5\"></path> <path d=\"M17.599 6.5a3 3 0 0 0 .399-1.375\"></path> <path d=\"M6.003 5.125A3 3 0 0 0 6.401 6.5\"></path> <path d=\"M3.477 10.896a4 4 0 0 1 .585-.396\"></path> <path d=\"M19.938 10.5a4 4 0 0 1 .585.396\"></path> <path d=\"M6 18a4 4 0 0 1-1.967-.516\"></path> <path d=\"M19.967 17.484A4 4 0 0 1 18 18\"></path> <g class=\"cog-group\"><circle cx=\"12\" cy=\"12\" r=\"3\"></circle> <path d=\"m15.7 10.4-.9.4\"></path> <path d=\"m9.2 13.2-.9.4\"></path> <path d=\"m13.6 15.7-.4-.9\"></path> <path d=\"m10.8 9.2-.4-.9\"></path> <path d=\"m15.7 13.5-.9-.4\"></path> <path d=\"m9.2 10.9-.9-.4\"></path> <path d=\"m10.5 15.7.4-.9\"></path> <path d=\"m13.1 9.2.4-.9\"></path></g></svg></div></div></section><style>\r\n\t\t\t\t@keyframes bounce-right {\r\n\t\t\t\t\t0%   { transform: translateX(0); }\r\n\t\t\t\t\t30%  { transform: translateX(3px); }\r\n\t\t\t\t\t70%  { transform: translateX(0); }\r\n\t\t\t\t\t100% { transform: translateX(0); }\r\n\t\t\t\t}\r\n\t\t\t\t.login-icon:hover .move-part {\r\n\t\t\t\t\tanimation: bounce-right 500ms var(--anim-ease-standard);\r\n\t\t\t\t}\r\n\t\t\t\t.block-move {\r\n\t\t\t\t\ttransition: transform 0.2s ease;\r\n\t\t\t\t}\r\n\t\t\t\t.blocks-icon:hover .block-move {\r\n\t\t\t\t\ttransform: translate(-4px, 4px);\r\n\t\t\t\t}\r\n\t\t\t\t.brain-icon {\r\n\t\t\t\t\tdisplay: inline-block;\r\n\t\t\t\t}\r\n\t\t\t\t.cog-group {\r\n\t\t\t\t\ttransform-origin: 12px 12px;\r\n\t\t\t\t\ttransition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);\r\n\t\t\t\t}\r\n\t\t\t\t.brain-icon:hover .cog-group {\r\n\t\t\t\t\ttransform: rotate(180deg);\r\n\t\t\t\t}\r\n\t\t\t</style><section><h3>icons</h3><div style=\"margin-top: 1rem; display: grid; grid-template: repeat(8, 1fr) / repeat(8, 1fr); gap: var(--size-0);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -203,7 +212,7 @@ func Components() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></section><section><div style=\"margin-top: 1rem; display: grid; grid-template: repeat(4, 1fr) / repeat(4, 1fr); gap: var(--size-0);\"><h3>badges</h3>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></section><section><div style=\"margin-top: 1rem; display: grid; grid-template: repeat(4, 1fr) / repeat(4, 1fr); gap: var(--size-0);\"><h3>badges</h3>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -219,7 +228,7 @@ func Components() templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "default")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "default")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -241,7 +250,7 @@ func Components() templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "secondary")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "secondary")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -265,7 +274,7 @@ func Components() templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "destructive")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "destructive")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -277,7 +286,7 @@ func Components() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></section></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></section></main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

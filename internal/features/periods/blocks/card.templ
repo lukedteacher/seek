@@ -37,9 +37,6 @@ templ Card(view dto.PeriodView) {
 				for _, educator := range view.Educators {
 					<div class="bg-linear-2 border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
 						{ educator.NameInitial() }
-						@badge.Badge() {
-							{ educator.Role }
-						}
 					</div>
 				}
 			</div>
