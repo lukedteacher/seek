@@ -3,14 +3,14 @@ package dto
 import "seek/internal/features/educators/models"
 
 type EducatorSelectBoxView struct {
-	Educator EducatorView
-	Selected bool
+	Educator   EducatorView
+	IsSelected bool
 }
 
 func NewEducatorSelectBoxView(s models.Educator, selected bool) EducatorSelectBoxView {
 	return EducatorSelectBoxView{
-		Educator: NewEducatorView(&s),
-		Selected: selected,
+		Educator:   NewEducatorView(&s),
+		IsSelected: selected,
 	}
 }
 

@@ -112,7 +112,7 @@ func (m *syncEducatorsInPeriodContext) isPeriodActive() error {
 
 func loadSyncEducatorsInPeriodContext(
 	ctx context.Context,
-	saver eventstore.Saver,
+	_ eventstore.Saver,
 	retriever eventstore.Retriever,
 	periodID string,
 ) (

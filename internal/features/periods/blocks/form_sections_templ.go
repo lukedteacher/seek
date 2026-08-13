@@ -183,7 +183,7 @@ func FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSch
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
 						Value:    view.EducatorOptions[i].Educator.ID,
-						Selected: view.EducatorOptions[i].Selected,
+						Selected: view.EducatorOptions[i].IsSelected,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

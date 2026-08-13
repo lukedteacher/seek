@@ -15,7 +15,6 @@ type UpdateStudentCommand struct {
 	ChosenName  string
 	FamilyName  string
 	Email       string
-	Username    string
 	Grade       int
 	Homeroom    string
 	CaseManager string
@@ -55,7 +54,7 @@ func UpdateStudentCommandHandler(
 		command.ChosenName,
 		command.FamilyName,
 		command.Email,
-		command.Username,
+		deriveUsername(command.Email),
 		command.Grade,
 		command.Homeroom,
 		command.CaseManager,

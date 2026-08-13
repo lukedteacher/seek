@@ -42,7 +42,7 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 					for i := range view.EducatorOptions {
 						@selectbox.Item(selectbox.ItemProps{
 							Value:    view.EducatorOptions[i].Educator.ID,
-							Selected: view.EducatorOptions[i].Selected,
+							Selected: view.EducatorOptions[i].IsSelected,
 						}) {
 							{ view.EducatorOptions[i].Educator.NameInitial() }
 						}

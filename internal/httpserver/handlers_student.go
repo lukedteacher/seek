@@ -3,9 +3,14 @@ package httpserver
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
+	csevents "seek/internal/features/caseloadstudents/events"
+	edto "seek/internal/features/educators/dto"
+	eevents "seek/internal/features/educators/events"
 	idto "seek/internal/features/iepservices/dto"
 	scheduledto "seek/internal/features/schedules/dto"
 	"seek/internal/features/students/dto"
@@ -33,7 +38,7 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students/{username}/services", s.getStudentViewServices)
 	r.Get("/students/{username}/services/stream", s.getStudentViewServicesStream)
 	r.Get("/students/{username}/edit", s.getStudentEdit)
-	r.Get("/students/{username}/edit/stream", s.getStudentEditStream)
+	r.Get("/students/{username}/edit/stream", getStudentEditStream(s.Logger, s.ViewStore, s.Subscriber, *s.ReadModels.Students, *s.ReadModels.Educators))
 	r.Post("/students/{username}/edit/validate", s.postStudentEditValidate)
 	r.Post("/students/{username}/edit", s.postStudentEdit)
 	r.Post("/students/{username}/archive", s.postStudentArchive)
@@ -44,9 +49,6 @@ func (s Server) studentRoutes(r chi.Router) {
 func (s Server) getStudentsList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	students, err := s.ReadModels.Students.List(ctx, events.WithServices())
-	for _, student := range students {
-		s.Logger.Debug("testing", "student", student.FullName(), "service length", len(student.Services))
-	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -79,9 +81,6 @@ func (s Server) getStudentsListStream(w http.ResponseWriter, r *http.Request) {
 			// for now just reloads the page
 			// consider adding a view store for the list
 			students, err := s.ReadModels.Students.List(ctx, events.WithServices())
-			for _, student := range students {
-				s.Logger.Debug("testing", "student", student.FullName(), "service length", len(student.Services))
-			}
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
@@ -503,59 +502,82 @@ func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET request to /student/{username}/edit/stream
-func (s Server) getStudentEditStream(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	username := chi.URLParam(r, "username")
-	sse := newSSE(w, r)
+func getStudentEditStream(
+	l *slog.Logger,
+	vs viewstore.Store,
+	subscriber MessageSubscriber,
+	studentReadModel events.ReadModel,
+	educatorReadModel eevents.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		username := chi.URLParam(r, "username")
+		sse := newSSE(w, r)
 
-	notifier := NewDedupeNotifier()
-	// subscribes to the channel which publishes changes to the underlying model
-	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
-		notifier.Notify()
-	})
-	if err != nil {
-		s.Logger.ErrorContext(ctx, "student edit stream subscribe", "err", err)
-		return
-	}
-	defer sub.Close()
-
-	// watches the student edit view state kv
-	watcher, err := s.ViewStore.Watch(
-		ctx,
-		username+".edit",
-		viewstore.WatchOptions{
-			IgnoreDeletes: true,
-		},
-	)
-	if err != nil {
-		s.Logger.ErrorContext(ctx, "student edit stream watcher", "err", err)
-		return
-	}
-	defer watcher.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
+		notifier := NewDedupeNotifier()
+		// subscribes to the channel which publishes changes to the underlying model
+		sub, err := subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
+			notifier.Notify()
+		})
+		if err != nil {
+			l.ErrorContext(ctx, "student edit stream subscribe", "err", err)
 			return
-		case <-notifier.Signal():
-			if err := s.refreshStudentEditState(ctx, username); err != nil {
-				if err.Error() == "student not found" {
-					sse.PatchElementTempl(pages.NotFound())
+		}
+		defer sub.Close()
+
+		// watches the student edit view state kv
+		watcher, err := vs.Watch(
+			ctx,
+			username+".edit",
+			viewstore.WatchOptions{
+				IgnoreDeletes: true,
+			},
+		)
+		if err != nil {
+			l.ErrorContext(ctx, "student edit stream watcher", "err", err)
+			return
+		}
+		defer watcher.Stop()
+
+		if err := refreshStudentEditState(l, ctx, username, vs, studentReadModel); err != nil {
+			if err.Error() == "student not found" {
+				sse.PatchElementTempl(pages.NotFound())
+			}
+			l.ErrorContext(ctx, "student edit stream refresh in select", "err", err)
+			return
+		}
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-notifier.Signal():
+				if err := refreshStudentEditState(l, ctx, username, vs, studentReadModel); err != nil {
+					if err.Error() == "student not found" {
+						sse.PatchElementTempl(pages.NotFound())
+					}
+					l.ErrorContext(ctx, "student edit stream refresh in select", "err", err)
+					return
 				}
-				s.Logger.ErrorContext(ctx, "student edit stream refresh in select", "err", err)
-				return
+			case entry, ok := <-watcher.Updates():
+				if !ok {
+					return
+				}
+				student := &models.Student{}
+				if err := entry.JSON(student); err != nil {
+					l.ErrorContext(ctx, "student edit stream json read", "err", err)
+					return
+				}
+				studentFormView := dto.NewStudentFormView(student)
+				caseManagers, _ := educatorReadModel.List(
+					ctx,
+					eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
+				)
+
+				studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{})
+
+				sse.PatchElementTempl(pages.Edit(studentFormView))
 			}
-		case entry, ok := <-watcher.Updates():
-			if !ok {
-				return
-			}
-			student := &models.Student{}
-			if err := entry.JSON(student); err != nil {
-				s.Logger.ErrorContext(ctx, "student edit stream json read", "err", err)
-				return
-			}
-			studentFormView := dto.NewStudentFormView(student)
-			sse.PatchElementTempl(pages.Edit(studentFormView))
 		}
 	}
 }
@@ -587,23 +609,36 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 		s.Logger.ErrorContext(ctx, "post student edit read signals", "err", err)
 		return
 	}
-	student, _ := s.ReadModels.Students.GetByUsername(ctx, username) // TODO see if i shouldn't just update the command to use email?
 	result, err := events.UpdateStudentCommandHandler(ctx, events.UpdateStudentCommand{
-		StudentID:   student.ID,
+		StudentID:   signals.Student.ID,
 		GivenName:   signals.Student.GivenName,
 		ChosenName:  signals.Student.ChosenName,
 		FamilyName:  signals.Student.FamilyName,
+		Email:       signals.Student.Email,
 		Grade:       int(signals.Student.Grade),
 		Homeroom:    signals.Student.Homeroom,
 		CaseManager: signals.Student.CaseManager,
 		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {
-		s.Logger.ErrorContext(ctx, "post student edit command handler", "err", err)
+		s.Logger.ErrorContext(ctx, "post student edit update command handler", "err", err)
 		return
 	}
 	if result.Skipped == true {
 		s.Logger.InfoContext(ctx, "post student edit command handler", "skipped", result.Skipped)
+		return
+	}
+	_, err = csevents.AddStudentToCaseloadCommandHandler(
+		ctx,
+		csevents.AddStudentToCaseloadCommand{
+			EducatorID: signals.Student.CaseManager,
+			StudentID:  signals.Student.ID,
+		},
+		s.EventSaver,
+		s.EventRetriever,
+	)
+	if err != nil {
+		s.Logger.ErrorContext(ctx, "post student edit case manager command handler", "err", err)
 		return
 	}
 	sse := newSSE(w, r)
@@ -668,4 +703,19 @@ func (s Server) refreshStudentEditState(ctx context.Context, username string) er
 		return err
 	}
 	return viewstore.PutState(ctx, s.ViewStore, username+".edit", student)
+}
+
+// reads the db for the given student and saves the state to a kv store for the SSE to update
+func refreshStudentEditState(
+	_ *slog.Logger,
+	ctx context.Context,
+	username string,
+	vs viewstore.Store,
+	studentReadModel events.ReadModel,
+) error {
+	student, err := studentReadModel.GetByUsername(ctx, username)
+	if err != nil {
+		return err
+	}
+	return viewstore.PutState(ctx, vs, username+".edit", student)
 }

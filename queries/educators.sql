@@ -56,6 +56,23 @@ FROM educators
 WHERE archived_at IS NULL
 ORDER BY family_name DESC, given_name DESC;
 
+-- name: ListEducatorsByRole :many
+SELECT
+    e.id,
+    e.given_name,
+    e.chosen_name,
+    e.family_name,
+    e.email,
+    e.username,
+    e.created_at,
+    e.updated_at,
+    er.role
+FROM educators e
+INNER JOIN educator_roles er ON e.id = er.educator_id AND er.archived_at IS NULL
+WHERE e.archived_at IS NULL
+  AND er.role = @role
+ORDER BY e.family_name DESC, e.given_name DESC, er.role ASC;
+
 -- name: ListEducatorsWithRoles :many
 SELECT
 	e.id,

@@ -13,7 +13,8 @@ import (
 )
 
 templ StudentEditForm(view dto.StudentFormView) {
-	{{ url := fmt.Sprintf("/students/%s/edit", view.Student.ID) }}
+	{{ url := fmt.Sprintf("/students/%s/edit", view.Student.Username) }}
+	@selectbox.Script()
 	<form
 		id="student-edit-form"
 		class="seek-form w-128"
@@ -23,6 +24,8 @@ templ StudentEditForm(view dto.StudentFormView) {
 			<h2>edit student</h2>
 			<p>edit the data of an existing student.</p>
 		</hgroup>
+		<input class="hidden" data-bind:student.id value={ view.Student.ID }/>
+		<input class="hidden" data-bind:student.email value={ view.Student.Email }/>
 		<section>
 			@forms.TextInputWithLabel(
 				"given-name-label",
@@ -54,34 +57,35 @@ templ StudentEditForm(view dto.StudentFormView) {
 			)
 		</section>
 		<section>
-			@label.Label(label.Props{
-				ID:  "student-grade-label",
-				For: "student-grade-select",
-			}) {
-				@selectbox.SelectBox() {
-					@selectbox.Trigger(selectbox.TriggerProps{
-						ID: "student-grade-select",
-						Attributes: templ.Attributes{
-							"data-bind:student.grade": "",
-						},
-					}) {
-						@selectbox.Value(selectbox.ValueProps{
-							Placeholder: "select a grade",
-						})
-					}
-					@selectbox.Content() {
-						for i := range sharedmodels.GradeList {
-							@selectbox.Item(selectbox.ItemProps{
-								Value:    sharedmodels.GradeList[i].Str(),
-								Selected: sharedmodels.GradeList[i].Str() == view.Student.Grade.Str(),
-							}) {
-								{ sharedmodels.GradeList[i].Ordinal() }
-							}
+			@selectbox.SelectBox() {
+				@label.Label(label.Props{
+					ID:    "student-grade-label",
+					For:   "student-grade-select",
+					Class: "mb-3 text-neutral-content/80",
+				}) {
+					grade 
+				}
+				@selectbox.Trigger(selectbox.TriggerProps{
+					ID: "student-grade-select",
+					Attributes: templ.Attributes{
+						"data-bind:student.grade": "",
+					},
+				}) {
+					@selectbox.Value(selectbox.ValueProps{
+						Placeholder: "select a grade",
+					})
+				}
+				@selectbox.Content() {
+					for i := range sharedmodels.GradeList {
+						@selectbox.Item(selectbox.ItemProps{
+							Value:    sharedmodels.GradeList[i].Str(),
+							Selected: sharedmodels.GradeList[i].Str() == view.Student.Grade.Str(),
+						}) {
+							{ sharedmodels.GradeList[i].Ordinal() }
 						}
 					}
 				}
 			}
-			@selectbox.Script()
 		</section>
 		<section>
 			@forms.TextInputWithLabel(
@@ -91,13 +95,6 @@ templ StudentEditForm(view dto.StudentFormView) {
 				"student.homeroom",
 				view.Student.Homeroom,
 			)
-			@forms.TextInputWithLabel(
-				"case-manager-label",
-				"case manager",
-				url+"/validate",
-				"student.case_manager",
-				view.Student.CaseManager,
-			)
 			@selectbox.SelectBox() {
 				@label.Label(label.Props{
 					For:   "student-case-manager-select-box",
@@ -105,20 +102,23 @@ templ StudentEditForm(view dto.StudentFormView) {
 				}) {
 					case manager
 				}
-				@selectbox.Trigger() {
-					@selectbox.Value()
+				@selectbox.Trigger(selectbox.TriggerProps{
+					DataBind: "student.case_manager",
+				}) {
+					@selectbox.Value(selectbox.ValueProps{
+						Placeholder: "select a case manager (optional)",
+					})
 				}
 				@selectbox.Content(selectbox.ContentProps{
 					NoSearch: true,
 				}) {
-					@selectbox.Item() {
-						test1
-					}
-					@selectbox.Item() {
-						test2
-					}
-					@selectbox.Item() {
-						test3
+					for _, cm := range view.CaseManagers {
+						@selectbox.Item(selectbox.ItemProps{
+							Value:    cm.Educator.ID,
+							Selected: cm.IsSelected,
+						}) {
+							{ cm.Educator.NameInitial() }
+						}
 					}
 				}
 			}

@@ -2,7 +2,13 @@
 
 updates for SEEK
 
-## v0.4.14 (26.08.12) educator roles, bux fixes, style tweaks
+## v0.5.0 (26.08.13) continued work on caseload student
+
+- added caseload_students table and related events
+- tweaked student edit case manager select to pass educator id
+- event is saving, read model just needs to be added to read models
+
+## v0.4.14 (26.08.13) educator roles, bux fixes, style tweaks
 
 - educator roles added to events
 - parsing and spliting of strings

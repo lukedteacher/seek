@@ -46,7 +46,13 @@ func RemoveEducatorFromPeriodCommandHandler(
 		return &RemoveEducatorFromPeriodResult{Skipped: skip}, nil
 	}
 	eventID := uuidv7.NewString()
-	event := NewEducatorRemovedFromPeriodEvent(eventID, command.PeriodID, command.EducatorID, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewEducatorRemovedFromPeriodEvent(
+		eventID,
+		command.PeriodID,
+		command.EducatorID,
+		time.Now(),
+		metadataWithQuery(command.Metadata, model.query),
+	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return nil, err

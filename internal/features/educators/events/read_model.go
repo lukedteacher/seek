@@ -113,11 +113,59 @@ func (m *ReadModel) GetByUsernameWithRoles(ctx context.Context, username string)
 	return educator, nil
 }
 
-func (m *ReadModel) List(ctx context.Context) ([]models.Educator, error) {
+type ListOption func(*listConfig)
+
+type listConfig struct {
+	roleFilter *sharedmodels.EducatorRole
+}
+
+// returns only educators with the given role
+func FilterByRole(role sharedmodels.EducatorRole) ListOption {
+	return func(c *listConfig) { c.roleFilter = &role }
+}
+
+func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Educator, error) {
+	cfg := &listConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	if cfg.roleFilter != nil {
+		return m.listByRole(ctx, *cfg.roleFilter)
+	}
+	return m.listAll(ctx)
+}
+
+func (m *ReadModel) listAll(ctx context.Context) ([]models.Educator, error) {
 	var rows []dbsql.ListEducatorsRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
 		rows, err = dbsql.OnceListEducators(conn)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	educators := make([]models.Educator, len(rows))
+	for i := range rows {
+		educators[i] = models.Educator{
+			ID: rows[i].Id,
+			Person: sharedmodels.Person{
+				GivenName:  rows[i].GivenName,
+				ChosenName: rows[i].ChosenName,
+				FamilyName: rows[i].FamilyName,
+				Email:      rows[i].Email,
+				Username:   rows[i].Username,
+			},
+		}
+	}
+	return educators, nil
+}
+
+func (m *ReadModel) listByRole(ctx context.Context, role sharedmodels.EducatorRole) ([]models.Educator, error) {
+	var rows []dbsql.ListEducatorsByRoleRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceListEducatorsByRole(conn, role.String())
 		return err
 	}); err != nil {
 		return nil, err
@@ -149,14 +197,12 @@ func (m *ReadModel) ListWithRoles(ctx context.Context) ([]models.Educator, error
 		return nil, err
 	}
 
-	// map educator ID -> index in the result slice
 	educatorMap := make(map[string]int)
 	var educators []models.Educator
 
 	for _, row := range rows {
 		idx, ok := educatorMap[row.Id]
 		if !ok {
-			// create new educator entry
 			educator := models.Educator{
 				ID: row.Id,
 				Person: sharedmodels.Person{
@@ -173,7 +219,6 @@ func (m *ReadModel) ListWithRoles(ctx context.Context) ([]models.Educator, error
 			idx = len(educators) - 1
 		}
 
-		// append the role
 		if row.Role != nil {
 			educators[idx].Roles = append(educators[idx].Roles, sharedmodels.EducatorRole(*row.Role))
 		}

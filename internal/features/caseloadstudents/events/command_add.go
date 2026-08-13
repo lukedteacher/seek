@@ -1,0 +1,141 @@
+package events
+
+import (
+	"context"
+	"time"
+
+	"seek/internal/eventstore"
+	ee "seek/internal/features/educators/events"
+	se "seek/internal/features/students/events"
+	"seek/pkg/uuidv7"
+)
+
+type AddStudentToCaseloadCommand struct {
+	EducatorID string
+	StudentID  string
+	Metadata   CommandMetadata
+}
+
+type AddStudentToCaseloadResult struct {
+	EventID string
+	Skipped bool
+}
+
+func AddStudentToCaseloadCommandHandler(
+	ctx context.Context,
+	command AddStudentToCaseloadCommand,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+) (
+	*AddStudentToCaseloadResult,
+	error,
+) {
+	model, err := loadAddStudentToCaseloadContext(ctx, retriever, command.EducatorID, command.StudentID)
+	if err != nil {
+		return nil, err
+	}
+	if err := model.isEducatorActive(); err != nil {
+		return nil, err
+	}
+	if err := model.isStudentActive(); err != nil {
+		return nil, err
+	}
+
+	skip := model.added
+	if skip {
+		return &AddStudentToCaseloadResult{Skipped: skip}, nil
+	}
+	eventID := uuidv7.NewString()
+	event := NewStudentAddedToCaseloadEvent(
+		eventID,
+		command.EducatorID,
+		command.StudentID,
+		time.Now(),
+		metadataWithQuery(command.Metadata, model.query),
+	)
+
+	if _, err := saver.SaveEvents(
+		ctx,
+		[]eventstore.DomainEvent{event},
+		model.position,
+		model.events,
+		model.query,
+	); err != nil {
+		return nil, err
+	}
+	return &AddStudentToCaseloadResult{EventID: eventID, Skipped: false}, nil
+}
+
+type addStudentToCaseloadContext struct {
+	educatorCreated  bool
+	educatorArchived bool
+	educatorDeleted  bool
+	studentCreated   bool
+	studentArchived  bool
+	studentDeleted   bool
+	added            bool
+	position         eventstore.Position
+	events           []eventstore.ResolvedEvent
+	query            eventstore.Query
+}
+
+func loadAddStudentToCaseloadContext(
+	ctx context.Context,
+	retriever eventstore.Retriever,
+	educatorID string,
+	studentID string,
+) (
+	*addStudentToCaseloadContext,
+	error,
+) {
+	query := educatorStudentStreamQuery(educatorID, studentID)
+	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
+	if err != nil {
+		return nil, err
+	}
+
+	model := &addStudentToCaseloadContext{position: eventstore.NoEventPosition, events: events, query: query}
+	for _, event := range events {
+		model.handle(event)
+	}
+
+	return model, nil
+}
+
+func (m *addStudentToCaseloadContext) isEducatorActive() error {
+	if !m.educatorCreated || m.educatorArchived || m.educatorDeleted {
+		return eventstore.ErrEducatorNotActive
+	}
+	return nil
+}
+
+func (m *addStudentToCaseloadContext) isStudentActive() error {
+	if !m.studentCreated || m.studentArchived || m.studentDeleted {
+		return eventstore.ErrStudentNotActive
+	}
+	return nil
+}
+
+func (m *addStudentToCaseloadContext) handle(resolved eventstore.ResolvedEvent) {
+	switch resolved.Event.EventType {
+	case ee.EducatorCreated:
+		m.educatorCreated = true
+	case ee.EducatorArchived:
+		m.educatorArchived = true
+	case ee.EducatorDeleted:
+		m.educatorDeleted = true
+	case se.StudentCreated:
+		m.studentCreated = true
+	case se.StudentArchived:
+		m.studentArchived = true
+	case se.StudentDeleted:
+		m.studentDeleted = true
+	case StudentAddedToCaseload:
+		m.added = true
+	case StudentRemovedFromCaseload:
+		m.added = false
+	}
+	if resolved.Position.After(m.position) {
+		m.position = resolved.Position
+	}
+}
