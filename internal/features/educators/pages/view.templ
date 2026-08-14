@@ -7,7 +7,8 @@ import (
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
 	sblocks "seek/internal/features/schedules/blocks"
-	sdto "seek/internal/features/schedules/dto"
+	scheduledto "seek/internal/features/schedules/dto"
+	studentdto "seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
@@ -16,7 +17,7 @@ import (
 	"seek/pkg/templui/components/tabs"
 )
 
-templ View(view dto.EducatorView, schedule sdto.PersonWithScheduleView, active string) {
+templ View(view dto.EducatorView, schedule scheduledto.PersonWithScheduleView, caseload []studentdto.StudentView, active string) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: educator") {
 		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
@@ -53,6 +54,20 @@ templ View(view dto.EducatorView, schedule sdto.PersonWithScheduleView, active s
 						})
 						<span class="hidden md:flex">schedule</span>
 					}
+					if view.IsCaseManager() {
+						@button.Button(button.Props{
+							Class: "basis-1 flex-grow py-1 h-auto",
+							Href:  fmt.Sprintf("/educators/%s/caseload", view.Username),
+							Attributes: templ.Attributes{
+								"data-tab-active": active == "caseload",
+							},
+						}) {
+							@icon.FolderOpen(icon.Props{
+								Class: "size-4",
+							})
+							<span class="hidden md:flex">caseload</span>
+						}
+					}
 				}
 				switch active {
 					case "info":
@@ -64,7 +79,13 @@ templ View(view dto.EducatorView, schedule sdto.PersonWithScheduleView, active s
 					case "schedule":
 						@tabs.Content(tabs.ContentProps{Value: "schedule", IsActive: true}) {
 							<section class="w-full">
-								@sblocks.ScheduleComponent([]sdto.PersonWithScheduleView{schedule})
+								@sblocks.ScheduleComponent([]scheduledto.PersonWithScheduleView{schedule})
+							</section>
+						}
+					case "caseload":
+						@tabs.Content(tabs.ContentProps{Value: "caseload", IsActive: true}) {
+							<section class="w-full">
+								@blocks.Caseload(caseload)
 							</section>
 						}
 				}

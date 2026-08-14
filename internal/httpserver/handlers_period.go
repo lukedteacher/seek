@@ -614,7 +614,6 @@ func getPeriodEditStream(
 				}
 			case entry, ok := <-watcher.Updates():
 				if !ok {
-					l.Debug("edit sse channel closed")
 					return
 				}
 				signals := &struct {
@@ -898,7 +897,6 @@ func buildScheduleViews(
 		}
 		visible, ok := schedules[student.Username]
 		if !ok {
-			logger.Debug("testing", "ok", ok)
 			visible = true
 		}
 		studentPeriods, err := periodsReadModel.ListPeriodsForStudent(ctx, studentID)

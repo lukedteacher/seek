@@ -1,0 +1,45 @@
+package blocks
+
+import (
+	"fmt"
+	"seek/internal/features/students/dto"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+)
+
+templ Caseload(caseload []dto.StudentView) {
+	<div class="flex gap-4">
+		for _, student := range caseload {
+			<div class="w-fit bg-linear-1 border border-muted rounded-md flex flex-col gap-3 items-center justify-center p-3">
+				{ student.NameInitial() }
+				@badge.Badge() {
+					{ student.Grade.Ordinal() }
+				}
+				<div class="flex gap-2">
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+						Size:    button.SizeIcon,
+						Href:    fmt.Sprintf("/students/%s/info", student.Username),
+					}) {
+						@icon.Info(icon.Props{Class: "size-4"})
+					}
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+						Size:    button.SizeIcon,
+						Href:    fmt.Sprintf("/students/%s/schedule", student.Username),
+					}) {
+						@icon.CalendarRange(icon.Props{Class: "size-4"})
+					}
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+						Size:    button.SizeIcon,
+						Href:    fmt.Sprintf("/students/%s/services", student.Username),
+					}) {
+						@icon.Blocks(icon.Props{Class: "size-4"})
+					}
+				</div>
+			</div>
+		}
+	</div>
+}

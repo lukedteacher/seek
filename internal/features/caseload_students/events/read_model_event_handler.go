@@ -12,7 +12,7 @@ import (
 	student "seek/internal/features/students/events"
 )
 
-const CaseManagerStudentReadModelEventHandlerName = "caseload_student_read_model_event_handler"
+const CaseloadStudentReadModelEventHandlerName = "caseload_student_read_model_event_handler"
 
 type StudentAddedToCaseloadProjection struct {
 	Position   eventstore.Position
@@ -34,7 +34,7 @@ type CaseManagerStudentReadModelEventHandler struct {
 	publisher eventstore.Publisher
 }
 
-func NewCaseloadStudentReadModelEventHandler(
+func NewReadModelEventHandler(
 	subscriber eventstore.Subscriber,
 	checkpointer eventstore.Checkpointer,
 	readModel CaseManagerStudentReadModelWriter,
@@ -48,7 +48,7 @@ func NewCaseloadStudentReadModelEventHandler(
 	global, err := eventstore.NewGlobalEventHandler(eventstore.GlobalEventHandlerConfig{
 		Subscriber:      subscriber,
 		Checkpointer:    checkpointer,
-		Name:            CaseManagerStudentReadModelEventHandlerName,
+		Name:            CaseloadStudentReadModelEventHandlerName,
 		Query:           CaseloadStudentReadModelEventHandlerQuery(),
 		Logger:          logger,
 		MaxEventRetries: -1,

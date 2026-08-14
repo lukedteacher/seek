@@ -37,7 +37,7 @@ func LayoutBase(title string) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		user := models.GetUserFromContext(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\" data-attr:data-theme=\"$theme\"><head><script>\r\n\t\t\t\tif (localStorage.getItem('theme') === null) {\r\n\t\t\t\t\tconsole.log(\"no value found\")\r\n\t\t\t\t\t//document.documentElement.setAttribute('data-theme', 'light');\r\n\t\t\t\t} else {\r\n\t\t\t\t\tconsole.log(localStorage.getItem('theme'))\r\n\t\t\t\t\tdocument.documentElement.setAttribute(\r\n\t\t\t\t\t\t'data-theme',\r\n\t\t\t\t\t\tlocalStorage.getItem('theme')\r\n\t\t\t\t\t);\r\n\t\t\t\t}\r\n\t\t\t</script><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\" data-attr:data-theme=\"$theme\"><head><script>\n\t\t\t\tif (localStorage.getItem('theme') === null) {\n\t\t\t\t\tconsole.log(\"no value found\")\n\t\t\t\t\t//document.documentElement.setAttribute('data-theme', 'light');\n\t\t\t\t} else {\n\t\t\t\t\tconsole.log(localStorage.getItem('theme'))\n\t\t\t\t\tdocument.documentElement.setAttribute(\n\t\t\t\t\t\t'data-theme',\n\t\t\t\t\t\tlocalStorage.getItem('theme')\n\t\t\t\t\t);\n\t\t\t\t}\n\t\t\t</script><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

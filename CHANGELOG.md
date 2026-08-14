@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.5.1 (26.08.13) more caseload features
+
+- fixed various bugs
+- implemented sync case manager for student command
+- tweaked sync students in caseload command
+- added basic view on educator for caseload students
+
 ## v0.5.0 (26.08.13) continued work on caseload student
 
 - added caseload_students table and related events

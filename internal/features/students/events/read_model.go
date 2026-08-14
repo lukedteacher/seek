@@ -148,7 +148,6 @@ func (m *ReadModel) listWithServices(ctx context.Context) ([]models.Student, err
 	}); err != nil {
 		return nil, err
 	}
-	println("l: ", len(rows))
 	// map student ID -> index in the final slice
 	studentMap := make(map[string]int)
 	var students []models.Student

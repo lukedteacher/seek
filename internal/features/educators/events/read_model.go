@@ -9,6 +9,7 @@ import (
 	"seek/internal/dbsql"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/models"
+	studentModels "seek/internal/features/students/models"
 
 	"zombiezen.com/go/sqlite"
 )
@@ -22,6 +23,43 @@ func NewReadModel(db *appdb.DB) *ReadModel {
 }
 
 // educator read model reader functions
+
+type GetOption func(*getConfig)
+
+type getConfig struct {
+	withRoles    bool
+	withCaseload bool
+}
+
+func WithCaseload() GetOption {
+	return func(c *getConfig) {
+		c.withCaseload = true
+	}
+}
+
+func WithRoles() GetOption {
+	return func(c *getConfig) {
+		c.withRoles = true
+	}
+}
+
+func (m *ReadModel) GetByUsername(
+	ctx context.Context,
+	username string,
+	opts ...GetOption,
+) (
+	*models.Educator,
+	error,
+) {
+	cfg := &getConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	if cfg.withRoles {
+		return m.getByUsernameWithRoles(ctx, username)
+	}
+	return m.getByUsername(ctx, username)
+}
 
 func (m *ReadModel) GetByID(ctx context.Context, educatorID string) (*models.Educator, error) {
 	var row *dbsql.GetEducatorByIdRes
@@ -51,7 +89,7 @@ func (m *ReadModel) GetByID(ctx context.Context, educatorID string) (*models.Edu
 	return educator, nil
 }
 
-func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models.Educator, error) {
+func (m *ReadModel) getByUsername(ctx context.Context, username string) (*models.Educator, error) {
 	var row *dbsql.GetEducatorByUsernameRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
@@ -79,7 +117,7 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 	return educator, nil
 }
 
-func (m *ReadModel) GetByUsernameWithRoles(ctx context.Context, username string) (*models.Educator, error) {
+func (m *ReadModel) getByUsernameWithRoles(ctx context.Context, username string) (*models.Educator, error) {
 	var rows []dbsql.GetEducatorWithRolesByUsernameRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
@@ -111,6 +149,54 @@ func (m *ReadModel) GetByUsernameWithRoles(ctx context.Context, username string)
 	}
 
 	return educator, nil
+}
+
+func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username string) (*models.CaseManager, error) {
+	var rows []dbsql.GetEducatorByUsernameWithCaseloadRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceGetEducatorByUsernameWithCaseload(conn, username)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	if len(rows) == 0 {
+		return nil, fmt.Errorf("educator not found")
+	}
+
+	caseManager := &models.CaseManager{
+		Educator: models.Educator{
+			ID: rows[0].EducatorId,
+			Person: sharedmodels.Person{
+				GivenName:  rows[0].GivenName,
+				ChosenName: rows[0].ChosenName,
+				FamilyName: rows[0].FamilyName,
+				Email:      rows[0].Email,
+				Username:   rows[0].Username,
+			},
+		},
+		Caseload: []studentModels.Student{}, // empty initially
+	}
+	for _, row := range rows {
+		if row.StudentId != nil {
+			student := studentModels.Student{
+				ID: *row.StudentId,
+				Person: sharedmodels.Person{
+					GivenName:  *row.StudentGivenName,
+					ChosenName: *row.StudentChosenName,
+					FamilyName: *row.StudentFamilyName,
+					Email:      *row.StudentEmail,
+					Username:   *row.StudentUsername,
+				},
+				Grade:    sharedmodels.Grade(*row.Grade),
+				Homeroom: *row.Homeroom,
+			}
+			caseManager.Caseload = append(caseManager.Caseload, student)
+		}
+	}
+
+	return caseManager, nil
 }
 
 type ListOption func(*listConfig)

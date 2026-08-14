@@ -42,6 +42,34 @@ LEFT JOIN educator_roles er ON e.id = er.educator_id AND er.archived_at IS NULL
 WHERE e.archived_at IS NULL AND e.username = @username
 ORDER BY er.role;
 
+-- name: GetEducatorByUsernameWithCaseload :many
+SELECT
+    e.id AS educator_id,
+    e.given_name,
+    e.chosen_name,
+    e.family_name,
+    e.email,
+    e.username,
+    e.created_at,
+    e.updated_at,
+    s.id AS student_id,
+    s.marss_id,
+    s.given_name as student_given_name,
+    s.chosen_name as student_chosen_name,
+    s.family_name as student_family_name,
+    s.email as student_email,
+    s.username as student_username,
+    s.grade,
+    s.homeroom,
+    s.created_at AS student_created_at,
+    s.updated_at AS student_updated_at
+FROM educators e
+LEFT JOIN caseload_students cl ON e.id = cl.educator_id
+LEFT JOIN students s ON cl.student_id = s.id AND s.archived_at IS NULL
+WHERE e.username = @username
+  AND e.archived_at IS NULL
+ORDER BY s.family_name DESC, s.given_name DESC;
+
 -- name: ListEducators :many
 SELECT 
 	id, 

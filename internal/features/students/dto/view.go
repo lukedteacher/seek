@@ -27,6 +27,20 @@ func NewStudentView(s *models.Student) StudentView {
 	}
 }
 
+func NewStudentViews(students []models.Student) []StudentView {
+	studentViews := make([]StudentView, len(students))
+	for i, s := range students {
+		studentViews[i] = StudentView{
+			ID:          s.ID,
+			Person:      s.Person,
+			Grade:       s.Grade,
+			Homeroom:    s.Homeroom,
+			CaseManager: s.CaseManager,
+		}
+	}
+	return studentViews
+}
+
 func NewStudentModelFromView(v *StudentView) models.Student {
 	if v == nil {
 		return models.Student{}

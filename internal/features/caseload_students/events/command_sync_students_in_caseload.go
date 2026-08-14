@@ -6,35 +6,39 @@ import (
 	"fmt"
 
 	"seek/internal/eventstore"
-	pe "seek/internal/features/educators/events"
+	"seek/internal/features/_shared/sharedmodels"
+	ee "seek/internal/features/educators/events"
 )
 
-type SyncStudentsInEducatorCommand struct {
+type SyncStudentsInCaseloadCommand struct {
 	EducatorID         string
 	ProposedStudentIDs []string
 	Metadata           CommandMetadata
 }
 
-type SyncStudentsInEducatorResult struct {
+type SyncStudentsInCaseloadResult struct {
 	Additions []AddStudentToCaseloadResult
 	Removals  []RemoveStudentFromCaseloadResult
 }
 
-func SyncStudentsInEducatorCommandHandler(
+func SyncStudentsInCaseloadCommandHandler(
 	ctx context.Context,
-	command SyncStudentsInEducatorCommand,
+	command SyncStudentsInCaseloadCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
-	*SyncStudentsInEducatorResult,
+	SyncStudentsInCaseloadResult,
 	error,
 ) {
-	educator, err := loadSyncStudentsInCaseloadContext(ctx, retriever, command.EducatorID)
+	model, err := loadSyncStudentsInCaseloadContext(ctx, retriever, command.EducatorID)
 	if err != nil {
-		return nil, fmt.Errorf("sync students in educator command handler: %w", err)
+		return SyncStudentsInCaseloadResult{}, fmt.Errorf("sync students in educator command handler context: %w", err)
 	}
-	if err := educator.isEducatorActive(); err != nil {
-		return nil, err
+	if err := model.isEducatorActive(); err != nil {
+		return SyncStudentsInCaseloadResult{}, err
+	}
+	if !model.educator.isCaseManager {
+		return SyncStudentsInCaseloadResult{}, fmt.Errorf("that educator is not a case manager")
 	}
 
 	// build proposed map
@@ -45,7 +49,7 @@ func SyncStudentsInEducatorCommandHandler(
 	additions := []AddStudentToCaseloadResult{}
 	for _, studentID := range command.ProposedStudentIDs {
 		proposed[studentID] = true
-		if _, ok := educator.students[studentID]; !ok {
+		if _, ok := model.students[studentID]; !ok {
 			result, err := AddStudentToCaseloadCommandHandler(
 				ctx,
 				AddStudentToCaseloadCommand{
@@ -57,7 +61,7 @@ func SyncStudentsInEducatorCommandHandler(
 				retriever,
 			)
 			if err != nil {
-				return &SyncStudentsInEducatorResult{}, nil
+				return SyncStudentsInCaseloadResult{}, err
 			}
 			additions = append(additions, *result)
 		}
@@ -65,7 +69,7 @@ func SyncStudentsInEducatorCommandHandler(
 
 	// removals: current not in proposed
 	removals := []RemoveStudentFromCaseloadResult{}
-	for studentID := range educator.students {
+	for studentID := range model.students {
 		if !proposed[studentID] {
 			result, err := RemoveStudentFromCaseloadCommandHandler(
 				ctx,
@@ -78,25 +82,26 @@ func SyncStudentsInEducatorCommandHandler(
 				retriever,
 			)
 			if err != nil {
-				return &SyncStudentsInEducatorResult{}, nil
+				return SyncStudentsInCaseloadResult{}, err
 			}
 			removals = append(removals, *result)
 		}
 	}
-	return &SyncStudentsInEducatorResult{
+	return SyncStudentsInCaseloadResult{
 		Additions: additions,
 		Removals:  removals,
 	}, nil
 }
 
-type educatorState struct {
-	created  bool
-	archived bool
-	deleted  bool
+type syncStudentInCaseloadEducatorState struct {
+	created       bool
+	archived      bool
+	deleted       bool
+	isCaseManager bool
 }
 
 type syncStudentsInEducatorContext struct {
-	educator educatorState
+	educator syncStudentInCaseloadEducatorState
 	students map[string]struct{}
 	position eventstore.Position
 	events   []eventstore.ResolvedEvent
@@ -124,7 +129,7 @@ func loadSyncStudentsInCaseloadContext(
 		return nil, err
 	}
 	model := &syncStudentsInEducatorContext{
-		educator: educatorState{},
+		educator: syncStudentInCaseloadEducatorState{},
 		students: make(map[string]struct{}),
 		position: eventstore.NoEventPosition,
 		events:   events,
@@ -140,11 +145,28 @@ func loadSyncStudentsInCaseloadContext(
 func (m *syncStudentsInEducatorContext) handle(resolved eventstore.ResolvedEvent) {
 	data := resolved.Event.RawData
 	switch resolved.Event.EventType {
-	case pe.EducatorCreated:
+	case ee.EducatorCreated:
+		var event = &ee.EducatorCreatedEvent{}
+		_ = json.Unmarshal([]byte(data), event)
 		m.educator.created = true
-	case pe.EducatorArchived:
+		m.educator.isCaseManager = false
+		for _, role := range event.Roles {
+			if role == string(sharedmodels.EducatorRoleCaseManager) {
+				m.educator.isCaseManager = true
+			}
+		}
+	case ee.EducatorUpdated:
+		var event = &ee.EducatorUpdatedEvent{}
+		_ = json.Unmarshal([]byte(data), event)
+		m.educator.isCaseManager = false
+		for _, role := range event.Roles {
+			if role == string(sharedmodels.EducatorRoleCaseManager) {
+				m.educator.isCaseManager = true
+			}
+		}
+	case ee.EducatorArchived:
 		m.educator.archived = true
-	case pe.EducatorDeleted:
+	case ee.EducatorDeleted:
 		m.educator.deleted = true
 	case StudentAddedToCaseload:
 		var event = &StudentAddedToCaseloadEvent{}

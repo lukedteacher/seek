@@ -8,7 +8,7 @@ import (
 
 	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
-	csevents "seek/internal/features/caseloadstudents/events"
+	csevents "seek/internal/features/caseload_students/events"
 	edto "seek/internal/features/educators/dto"
 	eevents "seek/internal/features/educators/events"
 	idto "seek/internal/features/iepservices/dto"
@@ -37,7 +37,7 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students/{username}/schedule/stream", s.getStudentViewScheduleStream)
 	r.Get("/students/{username}/services", s.getStudentViewServices)
 	r.Get("/students/{username}/services/stream", s.getStudentViewServicesStream)
-	r.Get("/students/{username}/edit", s.getStudentEdit)
+	r.Get("/students/{username}/edit", getStudentEdit(s.Logger, s.ReadModels.Students))
 	r.Get("/students/{username}/edit/stream", getStudentEditStream(s.Logger, s.ViewStore, s.Subscriber, *s.ReadModels.Students, *s.ReadModels.Educators))
 	r.Post("/students/{username}/edit/validate", s.postStudentEditValidate)
 	r.Post("/students/{username}/edit", s.postStudentEdit)
@@ -481,24 +481,14 @@ func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Requ
 }
 
 // GET request to /students/{username}/edit
-func (s Server) getStudentEdit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	username := chi.URLParam(r, "username")
-	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
-	if err != nil {
-		s.Logger.ErrorContext(ctx, "get student edit student", "err", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+func getStudentEdit(
+	l *slog.Logger,
+	studentReadModel *events.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_ = pages.Edit(dto.StudentFormView{}).Render(ctx, w)
 	}
-	if student == nil {
-		s.Logger.ErrorContext(ctx, "get student edit student nil", "username", username)
-		_ = pages.NotFound().Render(ctx, w)
-		return
-	}
-
-	studentFormView := dto.NewStudentFormView(student)
-	_ = pages.Edit(studentFormView).Render(ctx, w)
 }
 
 // GET request to /student/{username}/edit/stream
@@ -574,8 +564,7 @@ func getStudentEditStream(
 					eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 				)
 
-				studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{})
-
+				studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{student.CaseManager})
 				sse.PatchElementTempl(pages.Edit(studentFormView))
 			}
 		}
@@ -628,11 +617,11 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 		s.Logger.InfoContext(ctx, "post student edit command handler", "skipped", result.Skipped)
 		return
 	}
-	_, err = csevents.AddStudentToCaseloadCommandHandler(
+	_, err = csevents.SyncCaseManagerForStudentCommandHandler(
 		ctx,
-		csevents.AddStudentToCaseloadCommand{
-			EducatorID: signals.Student.CaseManager,
-			StudentID:  signals.Student.ID,
+		csevents.SyncCaseManagerForStudentCommand{
+			StudentID:          signals.Student.ID,
+			ProposedEducatorID: signals.Student.CaseManager,
 		},
 		s.EventSaver,
 		s.EventRetriever,

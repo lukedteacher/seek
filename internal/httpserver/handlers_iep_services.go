@@ -11,7 +11,6 @@ import (
 	"seek/internal/features/iepservices/events"
 	"seek/internal/features/iepservices/models"
 	"seek/internal/features/iepservices/pages"
-	sevents "seek/internal/features/students/events"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -39,10 +38,6 @@ func (s Server) iepServiceRoutes(r chi.Router) {
 // GET request to /iepservices
 func (s Server) getIEPServicesList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	students, _ := s.ReadModels.Students.List(ctx, sevents.WithServices())
-	for _, student := range students {
-		s.Logger.Debug("testing", "student", student.FullName(), "service length", len(student.Services))
-	}
 	services, err := s.ReadModels.IEPServices.List(ctx)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "iep services list db list", "err", err)
@@ -74,10 +69,6 @@ func (s Server) getIEPServicesListStream(w http.ResponseWriter, r *http.Request)
 		case <-notifier.Signal(): // triggers when the read model publishes
 			// for now just refreshes the page
 			// consider adding a view store for the list
-			students, _ := s.ReadModels.Students.List(ctx, sevents.WithServices())
-			for _, student := range students {
-				s.Logger.Debug("testing", "student", student.FullName(), "service length", len(student.Services))
-			}
 			services, err := s.ReadModels.IEPServices.List(ctx)
 			if err != nil {
 				s.Logger.ErrorContext(ctx, "iep services list stream db list", "err", err)

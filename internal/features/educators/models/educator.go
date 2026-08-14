@@ -22,7 +22,6 @@ func NewEducator(id, given, chosen, family, email string, roles []string) (Educa
 	if err != nil {
 		return Educator{}, err
 	}
-
 	return Educator{
 		Person: person,
 		ID:     id,

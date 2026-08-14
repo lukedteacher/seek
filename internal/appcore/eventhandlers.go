@@ -9,6 +9,7 @@ import (
 	"seek/internal/config"
 	"seek/internal/email"
 	"seek/internal/eventstore"
+	caseloadStudentsEvents "seek/internal/features/caseload_students/events"
 	educatorEvents "seek/internal/features/educators/events"
 	educatorPeriodEvents "seek/internal/features/educators_periods/events"
 	iepServiceEvents "seek/internal/features/iepservices/events"
@@ -106,6 +107,18 @@ func EventHandlerFactories(
 					readModels.Profiles,
 					bus,
 					piiKeys,
+					logger,
+				)
+			},
+		},
+		{
+			name: "caseload students read model",
+			create: func() (eventHandler, error) {
+				return caseloadStudentsEvents.NewReadModelEventHandler(
+					store,
+					checkpointer,
+					readModels.CaseloadStudents,
+					bus,
 					logger,
 				)
 			},

@@ -4,6 +4,7 @@ import (
 	"context"
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
+	caseloadStudentsEvents "seek/internal/features/caseload_students/events"
 	educatorEvents "seek/internal/features/educators/events"
 	educatorPeriodEvents "seek/internal/features/educators_periods/events"
 	iepServiceEvents "seek/internal/features/iepservices/events"
@@ -15,37 +16,27 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-// ReadModelContainer holds all read model instances used by the application.
-// It provides a single point of access to the various read models, reducing
-// the number of fields needed in handlers and wiring code.
 type ReadModelContainer struct {
-	// Educators provides access to educator data.
-	Educators *educatorEvents.ReadModel
-	// EducatorPeriods manages the many-to-many relationship between educators and periods.
-	EducatorPeriods *educatorPeriodEvents.ReadModel
-	// IEPServices handles IEP services data for students.
-	IEPServices *iepServiceEvents.ReadModel
-	// Periods holds period schedule data.
-	Periods *periodEvents.ReadModel
-	// Profiles stores user profile information.
-	Profiles *profileEvents.ReadModel
-	// Students provides student data.
-	Students *studentEvents.ReadModel
-	// StudentPeriods manages the many-to-many relationship between students and periods.
-	StudentPeriods *studentPeriodEvents.ReadModel
+	CaseloadStudents *caseloadStudentsEvents.ReadModel
+	Educators        *educatorEvents.ReadModel
+	EducatorPeriods  *educatorPeriodEvents.ReadModel
+	IEPServices      *iepServiceEvents.ReadModel
+	Periods          *periodEvents.ReadModel
+	Profiles         *profileEvents.ReadModel
+	Students         *studentEvents.ReadModel
+	StudentPeriods   *studentPeriodEvents.ReadModel
 }
 
-// NewReadModelContainer creates and initializes all read models using the provided
-// database connection. It returns a fully populated container ready for use.
 func NewReadModelContainer(db *appdb.DB) *ReadModelContainer {
 	return &ReadModelContainer{
-		Educators:       educatorEvents.NewReadModel(db),
-		EducatorPeriods: educatorPeriodEvents.NewReadModel(db),
-		IEPServices:     iepServiceEvents.NewReadModel(db),
-		Periods:         periodEvents.NewReadModel(db),
-		Profiles:        profileEvents.NewReadModel(db),
-		Students:        studentEvents.NewReadModel(db),
-		StudentPeriods:  studentPeriodEvents.NewReadModel(db),
+		CaseloadStudents: caseloadStudentsEvents.NewReadModel(db),
+		Educators:        educatorEvents.NewReadModel(db),
+		EducatorPeriods:  educatorPeriodEvents.NewReadModel(db),
+		IEPServices:      iepServiceEvents.NewReadModel(db),
+		Periods:          periodEvents.NewReadModel(db),
+		Profiles:         profileEvents.NewReadModel(db),
+		Students:         studentEvents.NewReadModel(db),
+		StudentPeriods:   studentPeriodEvents.NewReadModel(db),
 	}
 }
 

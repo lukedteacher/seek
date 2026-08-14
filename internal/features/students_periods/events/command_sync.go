@@ -57,7 +57,7 @@ func SyncStudentsInPeriodCommandHandler(
 				retriever,
 			)
 			if err != nil {
-				return &SyncStudentsInPeriodResult{}, nil
+				return &SyncStudentsInPeriodResult{}, err
 			}
 			additions = append(additions, *result)
 		}
@@ -78,7 +78,7 @@ func SyncStudentsInPeriodCommandHandler(
 				retriever,
 			)
 			if err != nil {
-				return &SyncStudentsInPeriodResult{}, nil
+				return &SyncStudentsInPeriodResult{}, err
 			}
 			removals = append(removals, *result)
 		}

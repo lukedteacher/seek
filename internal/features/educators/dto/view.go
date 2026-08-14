@@ -29,3 +29,12 @@ func NewEducatorViews(educators []models.Educator) []EducatorView {
 	}
 	return views
 }
+
+func (m *EducatorView) IsCaseManager() bool {
+	for _, role := range m.Roles {
+		if role == sharedmodels.EducatorRoleCaseManager {
+			return true
+		}
+	}
+	return false
+}

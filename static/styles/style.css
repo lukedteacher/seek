@@ -7437,6 +7437,9 @@
   .grid-cols-subgrid {
     grid-template-columns: subgrid;
   }
+  .grid-rows-4 {
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+  }
   .grid-rows-\[0fr\] {
     grid-template-rows: 0fr;
   }
