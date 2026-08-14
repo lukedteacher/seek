@@ -95,6 +95,8 @@ templ StudentEditForm(view dto.StudentFormView) {
 				"student.homeroom",
 				view.Student.Homeroom,
 			)
+		</section>
+		<section>
 			@selectbox.SelectBox() {
 				@label.Label(label.Props{
 					For:   "student-case-manager-select-box",
@@ -103,7 +105,7 @@ templ StudentEditForm(view dto.StudentFormView) {
 					case manager
 				}
 				@selectbox.Trigger(selectbox.TriggerProps{
-					DataBind: "student.case_manager",
+					DataBind: "student.case_manager_id",
 				}) {
 					@selectbox.Value(selectbox.ValueProps{
 						Placeholder: "select a case manager (optional)",

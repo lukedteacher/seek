@@ -3,6 +3,7 @@ package blocks
 import (
 	"fmt"
 
+	eblocks "seek/internal/features/educators/blocks"
 	"seek/internal/features/students/dto"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
@@ -13,7 +14,7 @@ import (
 templ Card(view dto.StudentView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("student-%s-card", view.Username),
-		Class: "student-card bg-linear-1 max-w-128 h-min",
+		Class: "student-card bg-neutral max-w-128 h-min border-muted",
 		Attributes: templ.Attributes{
 			"style": "background-color: var(--neutral-4);",
 		},
@@ -33,9 +34,16 @@ templ Card(view dto.StudentView) {
 				}
 			</p>
 			<p class="flex justify-between"><span class="text-neutral-content/80">homeroom</span>{ view.Homeroom }</p>
-			<p class="flex justify-between"><span class="text-neutral-content/80">case manager</span>{ view.CaseManager }</p>
+			if view.CaseManagerID != "" {
+				<div class="flex justify-between items-center">
+					<span class="text-neutral-content/80">case manager</span>
+					@eblocks.EducatorAvatar(view.CaseManagerView)
+				</div>
+			}
 		}
-		@card.Footer() {
+		@card.Footer(card.FooterProps{
+			Class: "flex justify-end items-center",
+		}) {
 			@button.Button(button.Props{
 				Href: fmt.Sprintf("/students/%s/edit", view.Username),
 			}) {

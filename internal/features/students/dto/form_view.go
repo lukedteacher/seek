@@ -14,7 +14,7 @@ type StudentFormView struct {
 }
 
 func NewStudentFormView(s *models.Student) StudentFormView {
-	student := NewStudentView(s)
+	student := NewStudentView(s, nil)
 	validation := events.Validate(s)
 	return StudentFormView{
 		Student:    student,

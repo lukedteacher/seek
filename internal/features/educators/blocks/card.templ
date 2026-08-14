@@ -13,7 +13,7 @@ import (
 templ Card(view dto.EducatorView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("educator-%s-card", view.Username),
-		Class: "educator-card w-128 border-muted",
+		Class: "educator-card w-128 bg-neutral border-muted",
 	}) {
 		@card.Header() {
 			@card.Title() {

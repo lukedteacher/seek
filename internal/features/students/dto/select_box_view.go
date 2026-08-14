@@ -9,7 +9,7 @@ type StudentSelectBoxView struct {
 
 func NewStudentSelectBoxView(s models.Student, selected bool) StudentSelectBoxView {
 	return StudentSelectBoxView{
-		Student:  NewStudentView(&s),
+		Student:  NewStudentView(&s, nil),
 		Selected: selected,
 	}
 }

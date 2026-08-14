@@ -15,7 +15,7 @@ type StudentWithPeriodsView struct {
 
 func NewStudentWithPeriodsView(student smodels.Student, periods []pmodels.Period, isSelected bool, index int) StudentWithPeriodsView {
 	return StudentWithPeriodsView{
-		Student:    sdto.NewStudentView(&student),
+		Student:    sdto.NewStudentView(&student, nil),
 		Periods:    pdto.NewPeriodScheduleViews(periods...),
 		IsSelected: isSelected,
 	}

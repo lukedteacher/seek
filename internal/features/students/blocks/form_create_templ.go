@@ -245,7 +245,7 @@ func StudentCreateForm(view dto.StudentFormView) templ.Component {
 			"case manager",
 			"/students/create/validate",
 			"student.case_manager",
-			view.Student.CaseManager,
+			view.Student.CaseManagerID,
 		).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

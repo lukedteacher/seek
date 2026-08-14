@@ -3,6 +3,7 @@ package blocks
 import (
 	"fmt"
 
+	eblocks "seek/internal/features/educators/blocks"
 	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
@@ -13,7 +14,7 @@ import (
 templ Card(view dto.PeriodView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("period-%s-card", view.ID),
-		Class: "period-card bg-linear-1 max-w-128 bg-neutral",
+		Class: "period-card max-w-128 bg-neutral",
 	}) {
 		@card.Header() {
 			@card.Title() {
@@ -24,23 +25,20 @@ templ Card(view dto.PeriodView) {
 			}
 		}
 		@card.Content(card.ContentProps{
-			Class: "flex flex-col gap-2 text-sm",
+			Class: "flex flex-col gap-4 text-sm w-1/2",
 		}) {
-			<p>
-				<span class="text-neutral-content/80">days: </span>
+			<p class="flex items-center justify-between">
+				<span class="text-neutral-content/80">days</span>
 				<span class="text-neutral-content">{ view.DaysBitmask.String() }</span>
 			</p>
-			<p>
-				<span class="text-neutral-content/80">teachers ({ len(view.Educators) }):</span>
-			</p>
-			<div class="period-card-educators flex gap-2 flex-wrap">
-				for _, educator := range view.Educators {
-					<div class="bg-linear-2 border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
-						{ educator.NameInitial() }
-					</div>
-				}
+			<div class="flex items-center justify-between">
+				<span class="text-neutral-content/80">teachers</span>
+				<div class="period-card-educators flex gap-1 flex-wrap">
+					for _, educator := range view.Educators {
+						@eblocks.EducatorAvatar(educator)
+					}
+				</div>
 			</div>
-			<p>location: ...</p>
 			<p>
 				<span class="text-neutral-content/70">students ({ len(view.Students) }):</span>
 			</p>

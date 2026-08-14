@@ -31,13 +31,13 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Post("/students/create/validate", s.postStudentCreateValidate)
 	r.Post("/students/create", s.postStudentCreate)
 	r.Get("/students/{username}", s.getStudentView)
-	r.Get("/students/{username}/info", s.getStudentViewInfo)
-	r.Get("/students/{username}/info/stream", s.getStudentViewInfoStream)
+	r.Get("/students/{username}/info", getStudentViewInfo(s.Logger))
+	r.Get("/students/{username}/info/stream", getStudentViewInfoStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.Educators))
 	r.Get("/students/{username}/schedule", s.getStudentViewSchedule)
 	r.Get("/students/{username}/schedule/stream", s.getStudentViewScheduleStream)
 	r.Get("/students/{username}/services", s.getStudentViewServices)
 	r.Get("/students/{username}/services/stream", s.getStudentViewServicesStream)
-	r.Get("/students/{username}/edit", getStudentEdit(s.Logger, s.ReadModels.Students))
+	r.Get("/students/{username}/edit", getStudentEdit(s.Logger))
 	r.Get("/students/{username}/edit/stream", getStudentEditStream(s.Logger, s.ViewStore, s.Subscriber, *s.ReadModels.Students, *s.ReadModels.Educators))
 	r.Post("/students/{username}/edit/validate", s.postStudentEditValidate)
 	r.Post("/students/{username}/edit", s.postStudentEdit)
@@ -175,7 +175,7 @@ func (s Server) postStudentCreate(w http.ResponseWriter, r *http.Request) {
 		Email:       signals.Student.Email,
 		Grade:       int(signals.Student.Grade),
 		Homeroom:    signals.Student.Homeroom,
-		CaseManager: signals.Student.CaseManager,
+		CaseManager: signals.Student.CaseManagerID,
 		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver)
 	if err != nil {
@@ -195,83 +195,94 @@ func (s Server) getStudentView(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET request to /students/{username}/info
-func (s Server) getStudentViewInfo(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// get the username from the URL and pull the data from the db
-	username := chi.URLParam(r, "username")
-	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
-	if err != nil {
-		s.Logger.ErrorContext(ctx, "get student view db get", "err", err)
-		return
+func getStudentViewInfo(
+	_ *slog.Logger,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_ = pages.View(dto.StudentView{}, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "info").Render(ctx, w)
 	}
-
-	// create the student view and set the URL
-	studentView := dto.NewStudentView(student)
-
-	_ = pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "info").Render(ctx, w)
 }
 
 // GET request to /students/{username}/info/stream
-func (s Server) getStudentViewInfoStream(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	username := chi.URLParam(r, "username")
-	sse := newSSE(w, r)
+func getStudentViewInfoStream(
+	l *slog.Logger,
+	subscriber MessageSubscriber,
+	vs viewstore.Store,
+	studentReadModel events.ReadModel,
+	educatorReadModel eevents.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		username := chi.URLParam(r, "username")
+		sse := newSSE(w, r)
 
-	notifier := NewDedupeNotifier()
-	// subscribes to the channel which publishes changes to the underlying model
-	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
-		notifier.Notify()
-	})
-	if err != nil {
-		s.Logger.ErrorContext(ctx, "student view info stream subscribe", "err", err)
-		return
-	}
-	defer sub.Close()
-
-	if err := s.refreshStudentViewState(ctx, username); err != nil {
-		s.Logger.ErrorContext(ctx, "student view info stream refresh", "err", err)
-		return
-	}
-
-	// watches the key value stream for ephemeral changes
-	// lasts 5m
-	watcher, err := s.ViewStore.Watch(
-		ctx,
-		username+".view",
-		viewstore.WatchOptions{
-			IgnoreDeletes: true,
-		},
-	)
-	if err != nil {
-		s.Logger.ErrorContext(ctx, "student view info stream watcher", "err", err)
-		return
-	}
-	defer watcher.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
+		notifier := NewDedupeNotifier()
+		// subscribes to the channel which publishes changes to the underlying model
+		sub, err := subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
+			notifier.Notify()
+		})
+		if err != nil {
+			l.ErrorContext(ctx, "student view info stream subscribe", "err", err)
 			return
-		case <-notifier.Signal(): // triggers when the read model publishes
-			if err := s.refreshStudentViewState(ctx, username); err != nil {
-				s.Logger.ErrorContext(ctx, "student view info stream refresh in select", "err", err)
-				if err.Error() == "student not found" {
-					sse.PatchElementTempl(pages.NotFound())
+		}
+		defer sub.Close()
+
+		if err := refreshStudentViewState(l, ctx, username, vs, studentReadModel); err != nil {
+			l.ErrorContext(ctx, "student view info stream refresh", "err", err)
+			return
+		}
+
+		// watches the key value stream for ephemeral changes
+		// lasts 5m
+		watcher, err := vs.Watch(
+			ctx,
+			username+".view",
+			viewstore.WatchOptions{
+				IgnoreDeletes: true,
+			},
+		)
+		if err != nil {
+			l.ErrorContext(ctx, "student view info stream watcher", "err", err)
+			return
+		}
+		defer watcher.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-notifier.Signal(): // triggers when the read model publishes
+				if err := refreshStudentViewState(l, ctx, username, vs, studentReadModel); err != nil {
+					if err.Error() == "student not found" {
+						sse.PatchElementTempl(pages.NotFound())
+						return
+					}
+					l.ErrorContext(ctx, "student view info stream refresh in select", "err", err)
+					return
 				}
-				return
+			case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
+				if !ok {
+					return
+				}
+				student := &models.Student{}
+				if err := entry.JSON(student); err != nil {
+					l.ErrorContext(ctx, "student view info stream json read", "err", err)
+					return
+				}
+				studentView := dto.StudentView{}
+				if student.CaseManager != "" {
+					caseManager, err := educatorReadModel.GetByID(ctx, student.CaseManager)
+					studentView = dto.NewStudentView(student, caseManager)
+					if err != nil {
+						l.ErrorContext(ctx, "student view info db case manager get", "err", err)
+						return
+					}
+				} else {
+					studentView = dto.NewStudentView(student, nil)
+				}
+				sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "info"))
 			}
-		case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
-			if !ok {
-				return
-			}
-			student := &models.Student{}
-			if err := entry.JSON(student); err != nil {
-				s.Logger.ErrorContext(ctx, "student view info stream json read", "err", err)
-				return
-			}
-			studentView := dto.NewStudentView(student)
-			sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "info"))
 		}
 	}
 }
@@ -292,8 +303,8 @@ func (s Server) getStudentViewSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// create the student view and set the URL
-	studentView := dto.NewStudentView(student)
+	// create the student view
+	studentView := dto.NewStudentView(student, nil)
 
 	// get the periods for the student and make views
 	periods, err := s.ReadModels.Periods.ListPeriodsForStudent(ctx, student.ID)
@@ -364,7 +375,7 @@ func (s Server) getStudentViewScheduleStream(w http.ResponseWriter, r *http.Requ
 				s.Logger.ErrorContext(ctx, "student view schedule stream json read", "err", err)
 				return
 			}
-			studentView := dto.NewStudentView(student)
+			studentView := dto.NewStudentView(student, nil)
 
 			// get the periods for the student and make views
 			periods, err := s.ReadModels.Periods.ListPeriodsForStudent(ctx, student.ID)
@@ -390,8 +401,8 @@ func (s Server) getStudentViewServices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// create the student view and set the URL
-	studentView := dto.NewStudentView(student)
+	// create the student view
+	studentView := dto.NewStudentView(student, nil)
 
 	// get the list of services for the student and make views
 	services, err := s.ReadModels.IEPServices.ListIEPServicesForStudent(ctx, student.ID)
@@ -463,7 +474,7 @@ func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Requ
 				s.Logger.ErrorContext(ctx, "student view services stream json read", "err", err)
 				return
 			}
-			studentView := dto.NewStudentView(student)
+			studentView := dto.NewStudentView(student, nil)
 
 			// get the list of services for the student and make views
 			services, err := s.ReadModels.IEPServices.ListIEPServicesForStudent(ctx, studentView.ID)
@@ -482,8 +493,7 @@ func (s Server) getStudentViewServicesStream(w http.ResponseWriter, r *http.Requ
 
 // GET request to /students/{username}/edit
 func getStudentEdit(
-	l *slog.Logger,
-	studentReadModel *events.ReadModel,
+	_ *slog.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -606,7 +616,7 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 		Email:       signals.Student.Email,
 		Grade:       int(signals.Student.Grade),
 		Homeroom:    signals.Student.Homeroom,
-		CaseManager: signals.Student.CaseManager,
+		CaseManager: signals.Student.CaseManagerID,
 		Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}, s.EventSaver, s.EventRetriever)
 	if err != nil {
@@ -621,7 +631,7 @@ func (s Server) postStudentEdit(w http.ResponseWriter, r *http.Request) {
 		ctx,
 		csevents.SyncCaseManagerForStudentCommand{
 			StudentID:          signals.Student.ID,
-			ProposedEducatorID: signals.Student.CaseManager,
+			ProposedEducatorID: signals.Student.CaseManagerID,
 		},
 		s.EventSaver,
 		s.EventRetriever,
@@ -683,6 +693,21 @@ func (s Server) refreshStudentViewState(ctx context.Context, username string) er
 		return err
 	}
 	return viewstore.PutState(ctx, s.ViewStore, username+".view", student)
+}
+
+// reads the db for the given student and saves the state to a kv store for the SSE to update
+func refreshStudentViewState(
+	_ *slog.Logger,
+	ctx context.Context,
+	username string,
+	vs viewstore.Store,
+	studentReadModel events.ReadModel,
+) error {
+	student, err := studentReadModel.GetByUsername(ctx, username)
+	if err != nil {
+		return err
+	}
+	return viewstore.PutState(ctx, vs, username+".view", student)
 }
 
 // reads the db for the given student and saves the state to a kv store for the SSE to update

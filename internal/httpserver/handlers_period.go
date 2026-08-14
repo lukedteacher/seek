@@ -525,7 +525,7 @@ func getPeriodViewStream(
 				}
 				for i := range period.StudentIDs {
 					student, _ := studentReadModel.GetByID(ctx, period.StudentIDs[i])
-					studentView := sdto.NewStudentView(student)
+					studentView := sdto.NewStudentView(student, nil)
 					view.Students = append(view.Students, studentView)
 				}
 				sse.PatchElementTempl(pages.View(view))

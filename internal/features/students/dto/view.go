@@ -2,6 +2,8 @@ package dto
 
 import (
 	"seek/internal/features/_shared/sharedmodels"
+	edto "seek/internal/features/educators/dto"
+	emodels "seek/internal/features/educators/models"
 	"seek/internal/features/students/models"
 )
 
@@ -11,19 +13,25 @@ type StudentView struct {
 	sharedmodels.Person                    // embeds given, chosen, & family name and email & username fields
 	Grade               sharedmodels.Grade `json:"grade"`
 	Homeroom            string             `json:"homeroom"`
-	CaseManager         string             `json:"case_manager"`
+	CaseManagerID       string             `json:"case_manager_id"`
+	CaseManagerView     edto.EducatorView
 }
 
-func NewStudentView(s *models.Student) StudentView {
+func NewStudentView(s *models.Student, e *emodels.Educator) StudentView {
 	if s == nil {
 		return StudentView{}
 	}
+	cmv := edto.EducatorView{}
+	if e != nil {
+		cmv = edto.NewEducatorView(e)
+	}
 	return StudentView{
-		ID:          s.ID,
-		Person:      s.Person,
-		Grade:       s.Grade,
-		Homeroom:    s.Homeroom,
-		CaseManager: s.CaseManager,
+		ID:              s.ID,
+		Person:          s.Person,
+		Grade:           s.Grade,
+		Homeroom:        s.Homeroom,
+		CaseManagerID:   s.CaseManager,
+		CaseManagerView: cmv,
 	}
 }
 
@@ -31,11 +39,11 @@ func NewStudentViews(students []models.Student) []StudentView {
 	studentViews := make([]StudentView, len(students))
 	for i, s := range students {
 		studentViews[i] = StudentView{
-			ID:          s.ID,
-			Person:      s.Person,
-			Grade:       s.Grade,
-			Homeroom:    s.Homeroom,
-			CaseManager: s.CaseManager,
+			ID:            s.ID,
+			Person:        s.Person,
+			Grade:         s.Grade,
+			Homeroom:      s.Homeroom,
+			CaseManagerID: s.CaseManager,
 		}
 	}
 	return studentViews
@@ -50,6 +58,6 @@ func NewStudentModelFromView(v *StudentView) models.Student {
 		Person:      v.Person,
 		Grade:       v.Grade,
 		Homeroom:    v.Homeroom,
-		CaseManager: v.CaseManager,
+		CaseManager: v.CaseManagerID,
 	}
 }

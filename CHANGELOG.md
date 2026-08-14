@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.5.2 (26.08.13) educator avatar
+
+- added educator avatar component
+- used that component on the student card view
+- minor style updates
+
 ## v0.5.1 (26.08.13) more caseload features
 
 - fixed various bugs

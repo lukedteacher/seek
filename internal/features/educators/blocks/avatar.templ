@@ -1,0 +1,32 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/educators/dto"
+	"seek/pkg/templui/components/avatar"
+	"seek/pkg/templui/components/tooltip"
+)
+
+templ EducatorAvatar(e dto.EducatorView) {
+	@tooltip.Tooltip() {
+		@tooltip.Trigger() {
+			@avatar.Avatar() {
+				<a class="w-full hover:bg-secondary/90 active:bg-secondary" href={ fmt.Sprintf("/educators/%s/info", e.Username) }>
+					@avatar.Fallback(avatar.FallbackProps{
+						Class: "bg-secondary/80",
+					}) {
+						{ e.Initials() }
+					}
+				</a>
+			}
+		}
+		@tooltip.Content(tooltip.ContentProps{
+			HoverDelay:    200,
+			HoverOutDelay: 50,
+			Class:         "border-muted text-sm",
+		}) {
+			{ e.FullName() }
+		}
+	}
+}
