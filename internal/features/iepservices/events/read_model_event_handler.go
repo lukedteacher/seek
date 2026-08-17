@@ -29,6 +29,7 @@ type IEPServiceAddedToStudentProjection struct {
 	Position        eventstore.Position
 	IEPServiceID    string
 	StudentID       string
+	ServiceName     string
 	ServiceType     string
 	IndirectMinutes int
 	DirectMinutes   int
@@ -45,6 +46,7 @@ type IEPServiceUpdatedProjection struct {
 	Position        eventstore.Position
 	IEPServiceID    string
 	StudentID       string
+	ServiceName     string
 	ServiceType     string
 	IndirectMinutes int
 	DirectMinutes   int
@@ -124,6 +126,7 @@ func (h *IEPServiceReadModelEventHandler) handle(ctx context.Context, resolved e
 		projection := IEPServiceAddedToStudentProjection{
 			IEPServiceID:    iepServiceID,
 			StudentID:       studentID,
+			ServiceName:     data[FieldIEPServiceServiceName].(string),
 			ServiceType:     data[FieldIEPServiceServiceType].(string),
 			IndirectMinutes: int(data[FieldIEPServiceIndirectMinutes].(float64)),
 			DirectMinutes:   int(data[FieldIEPServiceDirectMinutes].(float64)),
@@ -142,6 +145,7 @@ func (h *IEPServiceReadModelEventHandler) handle(ctx context.Context, resolved e
 		projection := IEPServiceUpdatedProjection{
 			IEPServiceID:    iepServiceID,
 			StudentID:       studentID,
+			ServiceName:     data[FieldIEPServiceServiceName].(string),
 			ServiceType:     data[FieldIEPServiceServiceType].(string),
 			IndirectMinutes: int(data[FieldIEPServiceIndirectMinutes].(float64)),
 			DirectMinutes:   int(data[FieldIEPServiceDirectMinutes].(float64)),

@@ -9,7 +9,9 @@ import (
 )
 
 templ EducatorAvatar(e dto.EducatorView) {
-	@tooltip.Tooltip() {
+	@tooltip.Tooltip(tooltip.Props{
+		Class: "w-full flex justify-center items-center",
+	}) {
 		@tooltip.Trigger() {
 			@avatar.Avatar() {
 				<a class="w-full hover:bg-secondary/90 active:bg-secondary" href={ fmt.Sprintf("/educators/%s/info", e.Username) }>

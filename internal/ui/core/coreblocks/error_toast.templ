@@ -1,0 +1,15 @@
+package coreblocks
+
+import "seek/pkg/templui/components/toast"
+
+templ ToastError(errorString string) {
+	@toast.Toast(toast.Props{
+		ID:            "toast",
+		Description:   errorString,
+		Variant:       toast.VariantError,
+		Position:      toast.PositionTopCenter,
+		Duration:      500,
+		Dismissible:   true,
+		ShowIndicator: true,
+	})
+}

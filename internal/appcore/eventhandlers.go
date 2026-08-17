@@ -44,32 +44,6 @@ func EventHandlerFactories(
 ) []eventHandlerFactory {
 	return []eventHandlerFactory{
 		{
-			name: "registration OTP",
-			create: func() (eventHandler, error) {
-				return auth.NewRegistrationOTPToBeGeneratedEventHandler(
-					store,
-					checkpointer,
-					store,
-					store,
-					logger,
-				)
-			},
-		},
-		{
-			name: "email validation OTP",
-			create: func() (eventHandler, error) {
-				return auth.NewEmailValidationOTPToBeSentEventHandler(
-					store,
-					checkpointer,
-					store,
-					store,
-					emailSender,
-					piiKeys,
-					logger,
-				)
-			},
-		},
-		{
 			name: "password reset email",
 			create: func() (eventHandler, error) {
 				return auth.NewPasswordResetEmailToBeSentEventHandler(

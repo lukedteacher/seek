@@ -30,7 +30,7 @@ func NewStudentView(s *models.Student, e *emodels.Educator) StudentView {
 		Person:          s.Person,
 		Grade:           s.Grade,
 		Homeroom:        s.Homeroom,
-		CaseManagerID:   s.CaseManager,
+		CaseManagerID:   s.CaseManagerID,
 		CaseManagerView: cmv,
 	}
 }
@@ -43,7 +43,7 @@ func NewStudentViews(students []models.Student) []StudentView {
 			Person:        s.Person,
 			Grade:         s.Grade,
 			Homeroom:      s.Homeroom,
-			CaseManagerID: s.CaseManager,
+			CaseManagerID: s.CaseManagerID,
 		}
 	}
 	return studentViews
@@ -54,10 +54,10 @@ func NewStudentModelFromView(v *StudentView) models.Student {
 		return models.Student{}
 	}
 	return models.Student{
-		ID:          v.ID,
-		Person:      v.Person,
-		Grade:       v.Grade,
-		Homeroom:    v.Homeroom,
-		CaseManager: v.CaseManagerID,
+		ID:            v.ID,
+		Person:        v.Person,
+		Grade:         v.Grade,
+		Homeroom:      v.Homeroom,
+		CaseManagerID: v.CaseManagerID,
 	}
 }

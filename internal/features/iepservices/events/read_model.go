@@ -38,6 +38,7 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.IEPService, err
 	service := &models.IEPService{
 		ID:              row.Id,
 		StudentID:       row.StudentId,
+		ServiceName:     row.ServiceName,
 		ServiceType:     sharedmodels.ServiceType(row.ServiceType),
 		IndirectMinutes: int(row.IndirectMinutes),
 		DirectMinutes:   int(row.DirectMinutes),
@@ -69,6 +70,7 @@ func (m *ReadModel) List(ctx context.Context) ([]models.IEPService, error) {
 		services[i] = models.IEPService{
 			ID:              rows[i].Id,
 			StudentID:       rows[i].StudentId,
+			ServiceName:     rows[i].ServiceName,
 			ServiceType:     sharedmodels.ServiceType(rows[i].ServiceType),
 			IndirectMinutes: int(rows[i].IndirectMinutes),
 			DirectMinutes:   int(rows[i].DirectMinutes),
@@ -100,6 +102,7 @@ func (m *ReadModel) ListIEPServicesForStudent(ctx context.Context, studentID str
 		services[i] = models.IEPService{
 			ID:              rows[i].Id,
 			StudentID:       rows[i].StudentId,
+			ServiceName:     rows[i].ServiceName,
 			ServiceType:     sharedmodels.ServiceType(rows[i].ServiceType),
 			IndirectMinutes: int(rows[i].IndirectMinutes),
 			DirectMinutes:   int(rows[i].DirectMinutes),
@@ -123,6 +126,7 @@ func (m *ReadModel) AddIEPServiceToStudent(ctx context.Context, event IEPService
 		return dbsql.OnceAddIepserviceToStudent(conn, dbsql.AddIepserviceToStudentParams{
 			Id:              event.IEPServiceID,
 			StudentId:       event.StudentID,
+			ServiceName:     event.ServiceName,
 			ServiceType:     event.ServiceType,
 			IndirectMinutes: int64(event.IndirectMinutes),
 			DirectMinutes:   int64(event.DirectMinutes),
@@ -142,6 +146,7 @@ func (m *ReadModel) UpdateIEPService(ctx context.Context, event IEPServiceUpdate
 		return dbsql.OnceUpdateIepservice(conn, dbsql.UpdateIepserviceParams{
 			Id:              event.IEPServiceID,
 			StudentId:       event.StudentID,
+			ServiceName:     event.ServiceName,
 			ServiceType:     event.ServiceType,
 			IndirectMinutes: int64(event.IndirectMinutes),
 			DirectMinutes:   int64(event.DirectMinutes),

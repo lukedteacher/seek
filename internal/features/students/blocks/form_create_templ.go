@@ -39,7 +39,7 @@ func StudentCreateForm(view dto.StudentFormView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"student-create-form\" class=\"seek-form\" data-on:submit=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form id=\"student-create-form\" class=\"seek-form w-128\" data-on:submit=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -53,6 +53,16 @@ func StudentCreateForm(view dto.StudentFormView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><hgroup><h2>create student</h2><p>create a student.</p></hgroup><section>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = forms.TextInputWithLabel(
+			"marss-id-label",
+			"MARSS ID",
+			"/students/create/validate",
+			"student.marss_id",
+			view.Student.MARSSID,
+		).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -185,7 +195,7 @@ func StudentCreateForm(view dto.StudentFormView) templ.Component {
 							var templ_7745c5c3_Var8 string
 							templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(sharedmodels.GradeList[i].Ordinal())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_create.templ`, Line: 75, Col: 45}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_create.templ`, Line: 82, Col: 45}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 							if templ_7745c5c3_Err != nil {

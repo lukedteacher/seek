@@ -288,12 +288,12 @@ span.badge-updated {
   color: var(--color-warning-content);
 }
 
-span.badge-added {
+span.badge-new {
   background-color: var(--color-success);
   color: var(--color-success-content);
 }
 
-span.badge-removed {
+span.badge-absent {
   background-color: var(--color-error);
   color: var(--color-error-content);
 }
@@ -302,11 +302,11 @@ span.span-updated {
   color: var(--color-warning);
 }
 
-span.span-added {
+span.span-new {
   color: var(--color-success);
 }
 
-span.span-removed {
+span.span-absent {
   color: var(--color-error);
 }
 
@@ -462,7 +462,7 @@ table {
   );
 }
 
-button[data-color='default'] {
+div[data-color='default'] {
   background: linear-gradient(
     to bottom right,
     var(--neutral-3),
@@ -481,67 +481,67 @@ button[data-color='default'] {
   }
 }
 
-button[data-color='red'],
+div[data-color='red'],
 li[data-color='red'] {
   background-color: var(--gruvbox-red-faded-0);
 }
 
-button[data-color='orange'],
+div[data-color='orange'],
 li[data-color='orange'] {
   background-color: var(--gruvbox-orange-faded-0);
 }
 
-button[data-color='yellow'],
+div[data-color='yellow'],
 li[data-color='yellow'] {
   background-color: var(--gruvbox-yellow-faded-0);
 }
 
-button[data-color='green'],
+div[data-color='green'],
 li[data-color='green'] {
   background-color: var(--gruvbox-green-faded-0);
 }
 
-button[data-color='aqua'],
+div[data-color='aqua'],
 li[data-color='aqua'] {
   background-color: var(--gruvbox-aqua-faded-0);
 }
 
-button[data-color='blue'],
+div[data-color='blue'],
 li[data-color='blue'] {
   background-color: var(--gruvbox-blue-faded-0);
 }
 
-button[data-color='purple'],
+div[data-color='purple'],
 li[data-color='purple'] {
   background-color: var(--gruvbox-purple-faded-0);
 }
 
-button[data-service='reading'] {
+div[data-service='reading'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-red-neutral-0);
 }
 
-button[data-service='writing'] {
+div[data-service='writing'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-orange-neutral-0);
 }
 
-button[data-service='OT'],
-button[data-service='SW'] {
+div[data-service='OT'],
+div[data-service='SW'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-yellow-neutral-0);
 }
 
-button[data-service='EF'] {
+div[data-service='EF'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-green-neutral-0);
 }
 
-button[data-service='speech'] {
+div[data-service='speech'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-aqua-neutral-0);
 }
 
-button[data-service='math'] {
+div[data-service='math'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-blue-neutral-0);
 }
 
-button[data-service='SEL'] {
+div[data-service='SEL'] {
   box-shadow: inset 4px 0 0 var(--gruvbox-purple-neutral-0);
 }
 

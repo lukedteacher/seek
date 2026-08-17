@@ -1,4 +1,4 @@
-package shareddto
+package dto
 
 import "seek/internal/features/_shared/sharedmodels"
 

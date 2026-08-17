@@ -11,6 +11,7 @@ import (
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/checkbox"
 	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/input"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
@@ -19,7 +20,23 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<section>
 		<input class="hidden" data-bind:period.id value={ view.ID }/>
-		<input class="hidden" data-bind:period.title value={ view.Title }/>
+		<div class="flex flex-col">
+			@label.Label(label.Props{
+				ID:    "period-title-label",
+				For:   "period-title-input",
+				Class: "mb-3 text-neutral-content/90",
+			}) {
+				title
+			}
+			@input.Input(input.Props{
+				ID:    "period-title-input",
+				Value: view.Title,
+				Attributes: templ.Attributes{
+					"data-bind":     "period.title",
+					"data-on:input": fmt.Sprintf("@post('%s/validate')", url),
+				},
+			})
+		</div>
 		<div>
 			@label.Label(label.Props{
 				ID:    "period-educator-select-box-label",

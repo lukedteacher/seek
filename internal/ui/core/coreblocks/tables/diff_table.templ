@@ -112,9 +112,9 @@ templ DiffRow(row shareddto.DiffRowView) {
 						<span class="line-through">{ row.OldCells[i] }</span>
 						→
 						<span class={ fmt.Sprintf("span-%s", row.Status.String()) }>{ row.NewCells[i] }</span>
-					case row.Status == sharedmodels.DiffAdded:
+					case row.Status == sharedmodels.DiffNew:
 						<span class={ fmt.Sprintf("span-%s", row.Status.String()) }>{ row.NewCells[i] }</span>
-					case row.Status == sharedmodels.DiffRemoved:
+					case row.Status == sharedmodels.DiffAbsent:
 						<span class={ fmt.Sprintf("span-%s", row.Status.String()) }>{ row.OldCells[i] }</span>
 					default:
 						{ row.NewCells[i] }

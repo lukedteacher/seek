@@ -15,7 +15,7 @@ import (
 
 type SendPasswordResetEmailCommand struct {
 	PasswordResetRequestedID string
-	Metadata                 CommandMetadata
+	Metadata                 eventstore.CommandMetadata
 }
 
 type passwordResetEmailContext struct {

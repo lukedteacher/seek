@@ -9,17 +9,14 @@ import (
 
 // user event types
 const (
-	UserRegistered                = "UserRegistered"
-	EmailVerificationOTPGenerated = "EmailVerificationOTPGenerated"
-	EmailVerificationOTPValidated = "EmailVerificationOTPValidated"
-	EmailVerificationOTPSent      = "EmailVerificationOTPSent"
-	PasswordResetRequested        = "PasswordResetRequested"
-	PasswordResetEmailSent        = "PasswordResetEmailSent"
-	PasswordResetCompleted        = "PasswordResetCompleted"
-	PasswordChanged               = "PasswordChanged"
-	AccountDeletionRequested      = "AccountDeletionRequested"
-	AccountDeleted                = "AccountDeleted"
-	LoginAttemptRecorded          = "LoginAttemptRecorded"
+	UserRegistered           = "UserRegistered"
+	PasswordResetRequested   = "PasswordResetRequested"
+	PasswordResetEmailSent   = "PasswordResetEmailSent"
+	PasswordResetCompleted   = "PasswordResetCompleted"
+	PasswordChanged          = "PasswordChanged"
+	AccountDeletionRequested = "AccountDeletionRequested"
+	AccountDeleted           = "AccountDeleted"
+	LoginAttemptRecorded     = "LoginAttemptRecorded"
 )
 
 // user event fields
@@ -28,13 +25,6 @@ const (
 	UserRegisteredEmailField                  = "email"
 	UserRegisteredEmailHashField              = "email_hash"
 	UserRegisteredPasswordHashField           = "password_hash"
-	EmailVerificationOTPGeneratedIDField      = "email_verification_otp_generated_event_id"
-	EmailVerificationOTPCodeField             = "otp_code"
-	EmailVerificationOTPExpiresAtField        = "expires_at"
-	EmailVerificationOTPValidatedIDField      = "email_verification_otp_validated_event_id"
-	EmailVerificationOTPValidatedAtField      = "validated_at"
-	EmailVerificationOTPSentIDField           = "email_verification_otp_sent_event_id"
-	EmailVerificationOTPSentAtField           = "sent_at"
 	PasswordResetRequestedIDField             = "password_reset_requested_event_id"
 	PasswordResetRequestedEmailField          = "email"
 	PasswordResetRequestedEmailHashField      = "email_hash"
@@ -68,25 +58,6 @@ type UserRegisteredEvent struct {
 	EmailHash    string             `json:"email_hash"`
 	PasswordHash string             `json:"password_hash"`
 	Scope        map[string]any     `json:"scope"`
-}
-
-type EmailVerificationOTPGeneratedEvent struct {
-	EmailVerificationOTPGeneratedID string    `json:"email_verification_otp_generated_event_id"`
-	OTPCode                         string    `json:"otp_code"`
-	ExpiresAt                       string    `json:"expires_at"`
-	Scope                           UserScope `json:"scope"`
-}
-
-type EmailVerificationOTPValidatedEvent struct {
-	EmailVerificationOTPValidatedID string                             `json:"email_verification_otp_validated_event_id"`
-	ValidatedAt                     string                             `json:"validated_at"`
-	Scope                           EmailVerificationOTPValidatedScope `json:"scope"`
-}
-
-type EmailVerificationOTPSentEvent struct {
-	EmailVerificationOTPSentID string                             `json:"email_verification_otp_sent_event_id"`
-	SentAt                     string                             `json:"sent_at"`
-	Scope                      EmailVerificationOTPGeneratedScope `json:"scope"`
 }
 
 type PasswordResetRequestedEvent struct {
@@ -149,15 +120,6 @@ type UserScope struct {
 	UserRegisteredID string `json:"user_registered_event_id"`
 }
 
-type EmailVerificationOTPGeneratedScope struct {
-	EmailVerificationOTPGeneratedID string `json:"email_verification_otp_generated_event_id"`
-}
-
-type EmailVerificationOTPValidatedScope struct {
-	EmailVerificationOTPGeneratedID string `json:"email_verification_otp_validated_event_id"`
-	UserRegisteredID                string `json:"user_registered_id"`
-}
-
 type PasswordResetRequestedScope struct {
 	PasswordResetRequestedID string `json:"password_reset_requested_event_id"`
 }
@@ -189,66 +151,6 @@ func NewUserRegisteredEvent(
 			EmailHash:    protector.BlindIndex(UserRegisteredEmailField, emailAddress),
 			PasswordHash: passwordHash,
 			Scope:        map[string]any{},
-		}),
-		Metadata: metadata,
-	}
-}
-
-func NewEmailVerificationOTPGeneratedEvent(
-	emailVerificationOTPGeneratedID,
-	otpCode string,
-	expiresAt time.Time,
-	userRegisteredID string,
-	metadata map[string]any,
-) eventstore.DomainEvent {
-	return eventstore.DomainEvent{
-		EventID:   emailVerificationOTPGeneratedID,
-		EventType: EmailVerificationOTPGenerated,
-		Data: eventstore.MustData(EmailVerificationOTPGeneratedEvent{
-			EmailVerificationOTPGeneratedID: emailVerificationOTPGeneratedID,
-			OTPCode:                         otpCode,
-			ExpiresAt:                       formatEventTime(expiresAt),
-			Scope:                           UserScope{UserRegisteredID: userRegisteredID},
-		}),
-		Metadata: metadata,
-	}
-}
-
-func NewEmailVerificationOTPValidatedEvent(
-	emailVerificationOTPValidatedID string,
-	validatedAt time.Time,
-	emailVerificationOTPGeneratedID,
-	userRegisteredID string,
-	metadata map[string]any,
-) eventstore.DomainEvent {
-	return eventstore.DomainEvent{
-		EventID:   emailVerificationOTPValidatedID,
-		EventType: EmailVerificationOTPValidated,
-		Data: eventstore.MustData(EmailVerificationOTPValidatedEvent{
-			EmailVerificationOTPValidatedID: emailVerificationOTPValidatedID,
-			ValidatedAt:                     formatEventTime(validatedAt),
-			Scope: EmailVerificationOTPValidatedScope{
-				EmailVerificationOTPGeneratedID: emailVerificationOTPGeneratedID,
-				UserRegisteredID:                userRegisteredID,
-			},
-		}),
-		Metadata: metadata,
-	}
-}
-
-func NewEmailVerificationOTPSentEvent(
-	emailVerificationOTPSentID string,
-	sentAt time.Time,
-	emailVerificationOTPGeneratedID string,
-	metadata map[string]any,
-) eventstore.DomainEvent {
-	return eventstore.DomainEvent{
-		EventID:   emailVerificationOTPSentID,
-		EventType: EmailVerificationOTPSent,
-		Data: eventstore.MustData(EmailVerificationOTPSentEvent{
-			EmailVerificationOTPSentID: emailVerificationOTPSentID,
-			SentAt:                     formatEventTime(sentAt),
-			Scope:                      EmailVerificationOTPGeneratedScope{EmailVerificationOTPGeneratedID: emailVerificationOTPGeneratedID},
 		}),
 		Metadata: metadata,
 	}

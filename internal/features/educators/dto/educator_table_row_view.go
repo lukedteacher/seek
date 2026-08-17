@@ -1,9 +1,10 @@
 package dto
 
 import (
+	"strings"
+
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/educators/models"
-	"strings"
 )
 
 // columns for the educator table

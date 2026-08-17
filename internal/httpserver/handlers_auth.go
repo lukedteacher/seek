@@ -27,8 +27,6 @@ func (s Server) authRoutes(r chi.Router) {
 	r.With(noCache).Get("/register/{userID}/validate-email", func(w http.ResponseWriter, r *http.Request) {
 		_ = corepages.ValidateEmail(chi.URLParam(r, "userID"), nil).Render(r.Context(), w)
 	})
-	r.With(noCache, otpValidateRateLimit).Post("/register/{userID}/validate-email", s.validateEmail)
-	r.With(noCache, otpResendRateLimit).Post("/register/{userID}/send-email-validation-otp", s.sendOTP)
 }
 
 func (s Server) register(w http.ResponseWriter, r *http.Request) {
@@ -114,49 +112,4 @@ func (s Server) resetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return sse.Redirect("/login") })
-}
-
-func (s Server) validateEmail(w http.ResponseWriter, r *http.Request) {
-	setRequestAction(r, "auth.validate_email", map[string]any{"userId": chi.URLParam(r, "userID")})
-	_ = r.ParseForm()
-	userID := chi.URLParam(r, "userID")
-	if err := auth.ValidateEmailVerificationOTPForUserCommandHandler(
-		r.Context(),
-		userID,
-		r.FormValue("otp"),
-		eventstore.HTTPCommandMetadata(r, ""),
-		s.AuthUsers,
-		s.EventSaver,
-		s.EventRetriever,
-	); err != nil {
-		patchTempl(w, r, corepages.ValidateEmailForm(userID, map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
-		return
-	}
-	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return sse.Redirect("/login") })
-}
-
-func (s Server) sendOTP(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	setRequestAction(r, "auth.send_email_validation_otp", map[string]any{"userId": chi.URLParam(r, "userID")})
-	userID := chi.URLParam(r, "userID")
-	user, err := s.AuthUsers.UserByIDOrRegisteredID(ctx, userID)
-	if err == nil {
-		_, _ = auth.GenerateEmailVerificationOTPCommandHandler(
-			ctx,
-			auth.GenerateEmailVerificationOTPCommand{
-				User:     user,
-				Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-			},
-			s.EventSaver,
-			s.EventRetriever,
-		)
-	} else {
-		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-			return sse.ConsoleError(fmt.Errorf("OTP validation failed with err %v", err.Error()))
-		})
-		return
-	}
-	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-		return sse.Redirect(fmt.Sprintf("/register/%s/validate-email", user.ID))
-	})
 }

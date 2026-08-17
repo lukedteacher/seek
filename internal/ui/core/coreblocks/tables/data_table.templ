@@ -175,7 +175,9 @@ templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) 
 			@table.Cell(table.CellProps{
 				Class: fmt.Sprintf("not-first:border-l border-dashed border-muted text-%s", columns[i].Alignment),
 			}) {
-				if columns[i].Renderer == "badge" && row.Cells[i] != "" {
+				if columns[i].RenderFunc != nil {
+					@columns[i].RenderFunc(row.Item)
+				} else if columns[i].Renderer == "badge" && row.Cells[i] != "" {
 					@BadgeCellContent(columns[i].Field, row.Cells[i])
 				} else {
 					{ row.Cells[i] }

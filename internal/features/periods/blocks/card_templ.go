@@ -187,7 +187,7 @@ func Card(view dto.PeriodView) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</span></p><div class=\"flex items-center justify-between\"><span class=\"text-neutral-content/80\">teachers</span><div class=\"period-card-educators flex gap-1 flex-wrap\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</span></p><div class=\"flex items-center justify-between\"><span class=\"text-neutral-content/80\">teachers</span><div class=\"period-card-educators flex gap-1 no-wrap\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

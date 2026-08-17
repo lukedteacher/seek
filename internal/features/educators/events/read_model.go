@@ -8,6 +8,7 @@ import (
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
 	"seek/internal/features/_shared/sharedmodels"
+	caseloadStudentsModels "seek/internal/features/caseload_students/models"
 	"seek/internal/features/educators/models"
 	studentModels "seek/internal/features/students/models"
 
@@ -151,7 +152,7 @@ func (m *ReadModel) getByUsernameWithRoles(ctx context.Context, username string)
 	return educator, nil
 }
 
-func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username string) (*models.CaseManager, error) {
+func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username string) (*caseloadStudentsModels.CaseManager, error) {
 	var rows []dbsql.GetEducatorByUsernameWithCaseloadRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
@@ -165,7 +166,7 @@ func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username stri
 		return nil, fmt.Errorf("educator not found")
 	}
 
-	caseManager := &models.CaseManager{
+	caseManager := &caseloadStudentsModels.CaseManager{
 		Educator: models.Educator{
 			ID: rows[0].EducatorId,
 			Person: sharedmodels.Person{

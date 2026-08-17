@@ -8,7 +8,8 @@ import (
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
 	"seek/internal/features/_shared/sharedmodels"
-	smodels "seek/internal/features/iepservices/models"
+
+	// smodels "seek/internal/features/iepservices/models"
 	"seek/internal/features/students/models"
 
 	"zombiezen.com/go/sqlite"
@@ -39,7 +40,8 @@ func (m *ReadModel) GetByID(ctx context.Context, studentID string) (*models.Stud
 	}
 
 	student := &models.Student{
-		ID: row.Id,
+		ID:      row.Id,
+		MARSSID: row.MarssId,
 		Person: sharedmodels.Person{
 			GivenName:  row.GivenName,
 			ChosenName: row.ChosenName,
@@ -47,9 +49,9 @@ func (m *ReadModel) GetByID(ctx context.Context, studentID string) (*models.Stud
 			Email:      row.Email,
 			Username:   row.Username,
 		},
-		Grade:       sharedmodels.Grade(row.Grade),
-		Homeroom:    row.Homeroom,
-		CaseManager: row.CaseManager,
+		Grade:         sharedmodels.Grade(row.Grade),
+		Homeroom:      row.Homeroom,
+		CaseManagerID: row.CaseManager,
 	}
 
 	return student, nil
@@ -69,7 +71,8 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 	}
 
 	student := &models.Student{
-		ID: row.Id,
+		ID:      row.Id,
+		MARSSID: row.MarssId,
 		Person: sharedmodels.Person{
 			GivenName:  row.GivenName,
 			ChosenName: row.ChosenName,
@@ -77,9 +80,9 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 			Email:      row.Email,
 			Username:   row.Username,
 		},
-		Grade:       sharedmodels.Grade(row.Grade),
-		Homeroom:    row.Homeroom,
-		CaseManager: row.CaseManager,
+		Grade:         sharedmodels.Grade(row.Grade),
+		Homeroom:      row.Homeroom,
+		CaseManagerID: row.CaseManager,
 	}
 
 	return student, nil
@@ -88,10 +91,16 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 type ListOption func(*listConfig)
 
 type listConfig struct {
-	withServices bool
+	withCaseManager bool
+	withServices    bool
 }
 
-// WithServices returns an option that tells List to include each student's IEP services.
+func WithCaseManager() ListOption {
+	return func(c *listConfig) {
+		c.withCaseManager = true
+	}
+}
+
 func WithServices() ListOption {
 	return func(c *listConfig) {
 		c.withServices = true
@@ -102,6 +111,9 @@ func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Stud
 	cfg := &listConfig{}
 	for _, opt := range opts {
 		opt(cfg)
+	}
+	if cfg.withCaseManager {
+
 	}
 
 	if cfg.withServices {
@@ -123,7 +135,8 @@ func (m *ReadModel) listAll(ctx context.Context) ([]models.Student, error) {
 	students := make([]models.Student, len(rows))
 	for i := range rows {
 		students[i] = models.Student{
-			ID: rows[i].Id,
+			ID:      rows[i].Id,
+			MARSSID: rows[i].MarssId,
 			Person: sharedmodels.Person{
 				GivenName:  rows[i].GivenName,
 				ChosenName: rows[i].ChosenName,
@@ -131,9 +144,9 @@ func (m *ReadModel) listAll(ctx context.Context) ([]models.Student, error) {
 				Email:      rows[i].Email,
 				Username:   rows[i].Username,
 			},
-			Grade:       sharedmodels.Grade(rows[i].Grade),
-			Homeroom:    rows[i].Homeroom,
-			CaseManager: rows[i].CaseManager,
+			Grade:         sharedmodels.Grade(rows[i].Grade),
+			Homeroom:      rows[i].Homeroom,
+			CaseManagerID: rows[i].CaseManager,
 		}
 	}
 	return students, nil
@@ -153,11 +166,12 @@ func (m *ReadModel) listWithServices(ctx context.Context) ([]models.Student, err
 	var students []models.Student
 
 	for _, row := range rows {
-		idx, ok := studentMap[row.StudentId]
+		_, ok := studentMap[row.StudentId]
 		if !ok {
 			// create a new student entry
 			student := models.Student{
-				ID: row.StudentId,
+				ID:      row.StudentId,
+				MARSSID: row.MarssId,
 				Person: sharedmodels.Person{
 					GivenName:  row.GivenName,
 					ChosenName: row.ChosenName,
@@ -165,36 +179,36 @@ func (m *ReadModel) listWithServices(ctx context.Context) ([]models.Student, err
 					Email:      row.Email,
 					Username:   row.Username,
 				},
-				Grade:       sharedmodels.Grade(row.Grade),
-				Homeroom:    row.Homeroom,
-				CaseManager: row.CaseManager,
-				CreatedAt:   parseDBTime(row.CreatedAt),
-				UpdatedAt:   parseDBTime(row.UpdatedAt),
+				Grade:         sharedmodels.Grade(row.Grade),
+				Homeroom:      row.Homeroom,
+				CaseManagerID: row.CaseManager,
+				CreatedAt:     parseDBTime(row.CreatedAt),
+				UpdatedAt:     parseDBTime(row.UpdatedAt),
 			}
 			studentMap[row.StudentId] = len(students)
 			students = append(students, student)
-			idx = len(students) - 1
+			// idx = len(students) - 1
 		}
 
-		if row.ServiceId != nil {
-			// append the service to the existing student
-			service := smodels.IEPService{
-				ID:              *row.ServiceId,
-				StudentID:       row.StudentId,
-				ServiceType:     sharedmodels.ServiceType(*row.ServiceType),
-				IndirectMinutes: int(*row.IndirectMinutes),
-				DirectMinutes:   int(*row.DirectMinutes),
-				FrequencyCount:  int(*row.FrequencyCount),
-				FrequencyType:   *row.FrequencyType,
-				Location:        *row.Location,
-				StartDate:       sharedmodels.DateOnly(parseDBTime(*row.StartDate)),
-				EndDate:         sharedmodels.DateOnly(parseDBTime(*row.EndDate)),
-				Provider:        *row.Provider,
-				CreatedAt:       parseDBTime(*row.ServiceCreatedAt),
-				UpdatedAt:       parseDBTime(*row.ServiceUpdatedAt),
-			}
-			students[idx].Services = append(students[idx].Services, service)
-		}
+		// if row.ServiceId != nil {
+		// 	// append the service to the existing student
+		// 	service := smodels.IEPService{
+		// 		ID:              *row.ServiceId,
+		// 		StudentID:       row.StudentId,
+		// 		ServiceType:     sharedmodels.ServiceType(*row.ServiceType),
+		// 		IndirectMinutes: int(*row.IndirectMinutes),
+		// 		DirectMinutes:   int(*row.DirectMinutes),
+		// 		FrequencyCount:  int(*row.FrequencyCount),
+		// 		FrequencyType:   *row.FrequencyType,
+		// 		Location:        *row.Location,
+		// 		StartDate:       sharedmodels.DateOnly(parseDBTime(*row.StartDate)),
+		// 		EndDate:         sharedmodels.DateOnly(parseDBTime(*row.EndDate)),
+		// 		Provider:        *row.Provider,
+		// 		CreatedAt:       parseDBTime(*row.ServiceCreatedAt),
+		// 		UpdatedAt:       parseDBTime(*row.ServiceUpdatedAt),
+		// 	}
+		// 	students[idx].Services = append(students[idx].Services, service)
+		// }
 	}
 
 	return students, nil
@@ -213,7 +227,8 @@ func (m *ReadModel) ListByIEPServiceType(ctx context.Context, serviceType string
 	students := make([]models.Student, len(rows))
 	for i := range rows {
 		students[i] = models.Student{
-			ID: rows[i].Id,
+			ID:      rows[i].Id,
+			MARSSID: rows[i].MarssId,
 			Person: sharedmodels.Person{
 				GivenName:  rows[i].GivenName,
 				ChosenName: rows[i].ChosenName,
@@ -221,9 +236,9 @@ func (m *ReadModel) ListByIEPServiceType(ctx context.Context, serviceType string
 				Email:      rows[i].Email,
 				Username:   rows[i].Username,
 			},
-			Grade:       sharedmodels.Grade(rows[i].Grade),
-			Homeroom:    rows[i].Homeroom,
-			CaseManager: rows[i].CaseManager,
+			Grade:         sharedmodels.Grade(rows[i].Grade),
+			Homeroom:      rows[i].Homeroom,
+			CaseManagerID: rows[i].CaseManager,
 		}
 	}
 	return students, nil
@@ -235,6 +250,7 @@ func (m *ReadModel) Create(ctx context.Context, event StudentCreatedProjection) 
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceCreateStudent(conn, dbsql.CreateStudentParams{
 			Id:                       event.StudentID,
+			MarssId:                  event.MARSSID,
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
@@ -253,6 +269,7 @@ func (m *ReadModel) Create(ctx context.Context, event StudentCreatedProjection) 
 func (m *ReadModel) Update(ctx context.Context, event StudentUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateStudent(conn, dbsql.UpdateStudentParams{
+			MarssId:                  event.MARSSID,
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,

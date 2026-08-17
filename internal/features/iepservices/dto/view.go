@@ -8,6 +8,7 @@ import (
 
 type IEPServiceView struct {
 	ID              string
+	ServiceName     string                   `json:"service_name"`
 	ServiceType     sharedmodels.ServiceType `json:"service_type"`
 	IndirectMinutes int                      `json:"indirect_minutes"`
 	DirectMinutes   int                      `json:"direct_minutes"`
@@ -27,6 +28,7 @@ func NewIEPServiceView(sm *models.IEPService) IEPServiceView {
 	}
 	return IEPServiceView{
 		ID:              sm.ID,
+		ServiceName:     sm.ServiceName,
 		ServiceType:     sm.ServiceType,
 		IndirectMinutes: sm.IndirectMinutes,
 		DirectMinutes:   sm.DirectMinutes,
@@ -46,6 +48,7 @@ func NewModelFromView(v *IEPServiceView) models.IEPService {
 	}
 	return models.IEPService{
 		ID:              v.ID,
+		ServiceName:     v.ServiceName,
 		ServiceType:     v.ServiceType,
 		IndirectMinutes: v.IndirectMinutes,
 		DirectMinutes:   v.DirectMinutes,

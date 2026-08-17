@@ -8,7 +8,8 @@ import (
 
 type IEPService struct {
 	ID              string                   `json:"id"`
-	StudentID       string                   `json:"student_id" csv:"MARSS ID"`
+	StudentID       string                   `json:"student_id"`
+	StudentMARSSID  string                   `json:"student_marss_id" csv:"MARSS ID"`
 	ServiceName     string                   `json:"service_name" csv:"Service"`
 	ServiceType     sharedmodels.ServiceType `json:"service_type"`
 	IndirectMinutes int                      `json:"indirect_minutes" csv:"Indirect minutes"`

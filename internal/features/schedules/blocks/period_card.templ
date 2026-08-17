@@ -15,7 +15,7 @@ templ PeriodCard(view dto.PeriodScheduleView, color string) {
 	>
 		@tooltip.Tooltip() {
 			@tooltip.Trigger() {
-				<button
+				<div
 					id={ fmt.Sprintf("period-schedule-%s-card", view.ID) }
 					data-color={ color }
 					data-service={ view.ServiceType.ShortString() }
@@ -27,7 +27,7 @@ templ PeriodCard(view dto.PeriodScheduleView, color string) {
 						Size:  "14",
 					})
 					<span class="hidden @5xs:flex relative z-10 text-white [text-shadow:_0_1px_4px_rgba(0,0,0,0.7)]">{ view.ServiceType.ShortString() }</span>
-				</button>
+				</div>
 			}
 			@tooltip.Content(tooltip.ContentProps{
 				Class:         "flex flex-col gap-1 rounded-md background-neutral text-xs p-3 border-muted w-48",

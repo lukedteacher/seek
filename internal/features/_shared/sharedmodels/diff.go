@@ -13,15 +13,17 @@ type DiffStatus int
 const (
 	DiffSame DiffStatus = iota
 	DiffUpdated
-	DiffAdded
-	DiffRemoved
+	DiffNew
+	DiffAbsent
+	DiffInvalid
 )
 
 var DiffStatusStringMap = map[DiffStatus]string{
 	DiffSame:    "same",
 	DiffUpdated: "updated",
-	DiffAdded:   "added",
-	DiffRemoved: "removed",
+	DiffNew:     "new",
+	DiffAbsent:  "absent",
+	DiffInvalid: "invalid",
 }
 
 func (ds DiffStatus) String() string {
@@ -67,7 +69,7 @@ func Compare[T any](
 		} else {
 			diffs = append(diffs, Diff[T]{
 				Key:    key,
-				Status: DiffAdded,
+				Status: DiffNew,
 				New:    csvItem,
 			})
 		}
@@ -77,7 +79,7 @@ func Compare[T any](
 		if !csvKeys[key] {
 			diffs = append(diffs, Diff[T]{
 				Key:    key,
-				Status: DiffRemoved,
+				Status: DiffAbsent,
 				Old:    dbItem,
 			})
 		}

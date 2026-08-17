@@ -67,10 +67,6 @@ func (h *AuthUserProjectionEventHandler) handle(ctx context.Context, resolved ev
 	switch resolved.Event.EventType {
 	case UserRegistered:
 		return h.handleUserRegistered(ctx, resolved)
-	case EmailVerificationOTPGenerated:
-		return h.handleEmailVerificationOTPGenerated(ctx, resolved)
-	case EmailVerificationOTPValidated:
-		return h.handleEmailVerificationOTPValidated(ctx, resolved)
 	case PasswordResetRequested:
 		return h.handlePasswordResetRequested(ctx, resolved)
 	case PasswordResetCompleted, PasswordChanged:
@@ -95,36 +91,6 @@ func (h *AuthUserProjectionEventHandler) handleUserRegistered(ctx context.Contex
 		Email:        protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredEmailField),
 		PasswordHash: stringValue(resolved.Event.Data[UserRegisteredPasswordHashField]),
 	})
-}
-
-func (h *AuthUserProjectionEventHandler) handleEmailVerificationOTPGenerated(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	userRegisteredID := stringValue(eventstore.Scope(resolved.Event.Data)[UserRegisteredIDField])
-	otpID := stringValue(resolved.Event.Data[EmailVerificationOTPGeneratedIDField])
-	code := stringValue(resolved.Event.Data[EmailVerificationOTPCodeField])
-	expiresAt, err := time.Parse(time.RFC3339, stringValue(resolved.Event.Data[EmailVerificationOTPExpiresAtField]))
-	if userRegisteredID == "" || otpID == "" || code == "" || err != nil {
-		return nil
-	}
-	return h.verifications.CreateEmailVerificationOTP(ctx, userRegisteredID, otpID, code, expiresAt)
-}
-
-func (h *AuthUserProjectionEventHandler) handleEmailVerificationOTPValidated(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[UserRegisteredIDField].(string)
-	if userRegisteredID == "" {
-		otpID, _ := eventstore.Scope(resolved.Event.Data)[EmailVerificationOTPGeneratedIDField].(string)
-		generatedEvents, err := h.retriever.GetEvents(ctx, eventstore.NoEventPosition, 1, eventstore.Forward, emailVerificationOTPGeneratedQuery(otpID))
-		if err != nil {
-			return err
-		}
-		if len(generatedEvents) == 0 {
-			return nil
-		}
-		userRegisteredID, _ = eventstore.Scope(generatedEvents[0].Event.Data)[UserRegisteredIDField].(string)
-	}
-	if userRegisteredID == "" {
-		return nil
-	}
-	return h.writer.MarkEmailVerified(ctx, userRegisteredID)
 }
 
 func (h *AuthUserProjectionEventHandler) handlePasswordResetRequested(ctx context.Context, resolved eventstore.ResolvedEvent) error {
@@ -153,8 +119,6 @@ func (h *AuthUserProjectionEventHandler) handlePasswordUpdated(ctx context.Conte
 func authUserProjectionEventHandlerQuery() eventstore.Query {
 	eventTypes := []string{
 		UserRegistered,
-		EmailVerificationOTPGenerated,
-		EmailVerificationOTPValidated,
 		PasswordResetRequested,
 		PasswordResetCompleted,
 		PasswordChanged,

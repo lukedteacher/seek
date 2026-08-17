@@ -3,14 +3,18 @@ package httpserver
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iepservices/dto"
 	"seek/internal/features/iepservices/events"
 	"seek/internal/features/iepservices/models"
 	"seek/internal/features/iepservices/pages"
+	sevents "seek/internal/features/students/events"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -32,7 +36,8 @@ func (s Server) iepServiceRoutes(r chi.Router) {
 	r.Post("/iepservices/{id}/edit", s.postIEPServiceEdit)
 	r.Post("/iepservices/{id}/edit/validate", s.postIEPServiceEditValidate)
 	r.Delete("/iepservices/{id}", s.deleteIEPService)
-	r.Get("/iepservices/csv", s.ReadCSV)
+	r.Get("/iepservices/csv", getCSV(s.Logger, *s.ReadModels.IEPServices, *s.ReadModels.Students))
+	r.Post("/iepservices/csv", postCSV(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.IEPServices, *s.ReadModels.Students))
 }
 
 // GET request to /iepservices
@@ -372,6 +377,7 @@ func (s Server) postIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 	command := events.UpdateIEPServiceCommand{
 		IEPServiceID:    iepServiceID,
 		StudentID:       signals.View.StudentID,
+		ServiceName:     signals.View.ServiceName,
 		ServiceType:     signals.View.ServiceType.ShortString(),
 		IndirectMinutes: signals.View.IndirectMinutes,
 		DirectMinutes:   signals.View.DirectMinutes,
@@ -413,54 +419,196 @@ func (s Server) deleteIEPService(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET request to /iepservices/csv
-func (s Server) ReadCSV(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+func getCSV(
+	l *slog.Logger,
+	serviceReadModel events.ReadModel,
+	studentReadModel sevents.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 
-	file, err := os.OpenFile("iep_services.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
-
-	csvServices := []*models.CSVIEPService{}
-	if err := gocsv.UnmarshalFile(file, &csvServices); err != nil {
-		http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// filter out unwanted services
-	filtered := make([]*models.CSVIEPService, 0, len(csvServices))
-	for _, svc := range csvServices {
-		if svc.ServiceName != "Shared paraprofessional" {
-			filtered = append(filtered, svc)
+		file, err := os.OpenFile("iep_services.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+		if err != nil {
+			http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
+			return
 		}
-	}
+		defer file.Close()
 
-	// convert CSV models to domain models
-	converted := make([]*models.IEPService, len(filtered))
-	for i, csvSvc := range filtered {
-		domain := csvSvc.ToIEPService()
-		converted[i] = &domain
-	}
+		csvServices := []*models.CSVIEPService{}
+		if err := gocsv.UnmarshalFile(file, &csvServices); err != nil {
+			http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
+			return
+		}
 
-	// fetch existing DB services
-	dbServices, err := s.ReadModels.IEPServices.List(ctx)
-	if err != nil {
-		http.Error(w, "failed to list existing services: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	dbPtrs := make([]*models.IEPService, len(dbServices))
-	for i := range dbServices {
-		dbPtrs[i] = &dbServices[i]
-	}
+		// filter out unwanted services
+		filtered := make([]*models.CSVIEPService, 0, len(csvServices))
+		for _, svc := range csvServices {
+			if svc.ServiceName != "Shared paraprofessional" {
+				filtered = append(filtered, svc)
+			}
+		}
 
-	// compute diff
-	diffs := models.CompareIEPServices(dbPtrs, converted)
+		// get student list and make map for marss check
+		students, _ := studentReadModel.List(ctx)
+		marssMap := make(map[string]string)
+		for _, student := range students {
+			marssMap[student.MARSSID] = student.ID
+		}
 
-	// render view
-	view := dto.NewIEPServiceDiffTableView(diffs)
-	pages.CSV(view).Render(ctx, w)
+		// convert CSV rows with valid MARSS ID to domain models
+		converted := make([]*models.IEPService, 0)
+		for _, csvSvc := range filtered {
+			key := strings.TrimSpace(csvSvc.StudentMARSSID)
+			if student_id, ok := marssMap[key]; ok {
+				csvSvc.StudentID = student_id
+				converted = append(converted, csvSvc.ToIEPService())
+			}
+		}
+
+		// fetch existing DB services
+		dbServices, err := serviceReadModel.List(ctx)
+		if err != nil {
+			l.ErrorContext(ctx, "read csv list db services", "err", err)
+			return
+		}
+		dbPtrs := make([]*models.IEPService, len(dbServices))
+		for i := range dbServices {
+			dbPtrs[i] = &dbServices[i]
+		}
+
+		// compute diff
+		diffs := models.CompareIEPServices(dbPtrs, converted)
+
+		// render view
+		view := dto.NewIEPServiceDiffTableView(diffs)
+		pages.ReadCSV(view).Render(ctx, w)
+	}
+}
+
+// POST request to /iepservices/csv
+func postCSV(
+	l *slog.Logger,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+	serviceReadModel events.ReadModel,
+	studentReadModel sevents.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		file, err := os.OpenFile("iep_services.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+		if err != nil {
+			http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		csvServices := []*models.CSVIEPService{}
+		if err := gocsv.UnmarshalFile(file, &csvServices); err != nil {
+			http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		// filter out unwanted services
+		filtered := make([]*models.CSVIEPService, 0, len(csvServices))
+		for _, svc := range csvServices {
+			if svc.ServiceName != "Shared paraprofessional" {
+				filtered = append(filtered, svc)
+			}
+		}
+
+		// get student list and make map for marss check
+		students, _ := studentReadModel.List(ctx)
+		marssMap := make(map[string]string)
+		for _, student := range students {
+			marssMap[student.MARSSID] = student.ID
+		}
+
+		// convert CSV rows with valid MARSS ID to domain models
+		converted := make([]*models.IEPService, 0)
+		for _, csvSvc := range filtered {
+			key := strings.TrimSpace(csvSvc.StudentMARSSID)
+			if student_id, ok := marssMap[key]; ok {
+				csvSvc.StudentID = student_id
+				converted = append(converted, csvSvc.ToIEPService())
+			}
+		}
+
+		// fetch existing DB services
+		dbServices, err := serviceReadModel.List(ctx)
+		if err != nil {
+			l.ErrorContext(ctx, "read csv list db services", "err", err)
+			return
+		}
+		dbPtrs := make([]*models.IEPService, len(dbServices))
+		for i := range dbServices {
+			dbPtrs[i] = &dbServices[i]
+		}
+
+		// compute diff
+		diffs := models.CompareIEPServices(dbPtrs, converted)
+
+		for _, diff := range diffs {
+			if diff.Status == sharedmodels.DiffNew {
+				events.AddIEPServiceToStudentCommandHandler(
+					ctx,
+					events.AddIEPServiceToStudentCommand{
+						StudentID:       diff.New.StudentID,
+						ServiceName:     diff.New.ServiceName,
+						ServiceType:     string(diff.New.ServiceType),
+						IndirectMinutes: diff.New.IndirectMinutes,
+						DirectMinutes:   diff.New.DirectMinutes,
+						FrequencyCount:  diff.New.FrequencyCount,
+						FrequencyType:   diff.New.FrequencyType,
+						StartDate:       diff.New.StartDate.String(),
+						EndDate:         diff.New.EndDate.String(),
+						Location:        diff.New.Location,
+						Provider:        diff.New.Provider,
+					},
+					saver,
+					retriever,
+				)
+			}
+			if diff.Status == sharedmodels.DiffUpdated {
+				events.UpdateIEPServiceCommandHandler(
+					ctx,
+					events.UpdateIEPServiceCommand{
+						IEPServiceID:    diff.New.ID,
+						StudentID:       diff.New.StudentID,
+						ServiceName:     diff.New.ServiceName,
+						ServiceType:     string(diff.New.ServiceType),
+						IndirectMinutes: diff.New.IndirectMinutes,
+						DirectMinutes:   diff.New.DirectMinutes,
+						FrequencyCount:  diff.New.FrequencyCount,
+						FrequencyType:   diff.New.FrequencyType,
+						StartDate:       diff.New.StartDate.String(),
+						EndDate:         diff.New.EndDate.String(),
+						Location:        diff.New.Location,
+						Provider:        diff.New.Provider,
+					},
+					saver,
+					retriever,
+				)
+			}
+			if diff.Status == sharedmodels.DiffAbsent {
+				events.DeleteIEPServiceCommandHandler(
+					ctx,
+					events.DeleteIEPServiceCommand{
+						IEPServiceID: diff.Old.ID,
+						StudentID:    diff.Old.StudentID,
+					},
+					saver,
+					retriever,
+				)
+			}
+			if diff.Status == sharedmodels.DiffSame {
+				continue
+			}
+		}
+
+		sse := newSSE(w, r)
+		sse.Redirect("/iepservices")
+	}
 }
 
 func (s Server) refreshIEPServiceViewState(ctx context.Context, iepServiceID string) error {

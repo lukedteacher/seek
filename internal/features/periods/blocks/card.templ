@@ -33,7 +33,7 @@ templ Card(view dto.PeriodView) {
 			</p>
 			<div class="flex items-center justify-between">
 				<span class="text-neutral-content/80">teachers</span>
-				<div class="period-card-educators flex gap-1 flex-wrap">
+				<div class="period-card-educators flex gap-1 no-wrap">
 					for _, educator := range view.Educators {
 						@eblocks.EducatorAvatar(educator)
 					}

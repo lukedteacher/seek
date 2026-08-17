@@ -29,6 +29,7 @@ type StudentReadModelWriter interface {
 type StudentCreatedProjection struct {
 	Position    eventstore.Position
 	StudentID   string
+	MARSSID     string
 	GivenName   string
 	ChosenName  string
 	FamilyName  string
@@ -43,6 +44,7 @@ type StudentCreatedProjection struct {
 type StudentUpdatedProjection struct {
 	Position    eventstore.Position
 	StudentID   string
+	MARSSID     string
 	GivenName   string
 	ChosenName  string
 	FamilyName  string
@@ -131,6 +133,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	studentID, _ := scope[FieldStudentID].(string)
 	switch resolved.Event.EventType {
 	case StudentCreated:
+		marssID, _ := data[FieldStudentMARSSID].(string)
 		givenName, _ := data[FieldStudentGivenName].(string)
 		chosenName, _ := data[FieldStudentChosenName].(string)
 		familyName, _ := data[FieldStudentFamilyName].(string)
@@ -142,6 +145,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		if err := h.readModel.Create(ctx, StudentCreatedProjection{
 			Position:    resolved.Position,
 			StudentID:   studentID,
+			MARSSID:     marssID,
 			GivenName:   givenName,
 			ChosenName:  chosenName,
 			FamilyName:  familyName,
@@ -155,6 +159,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 			return err
 		}
 	case StudentUpdated:
+		marssID, _ := data[FieldStudentMARSSID].(string)
 		givenName, _ := data[FieldStudentGivenName].(string)
 		chosenName, _ := data[FieldStudentChosenName].(string)
 		familyName, _ := data[FieldStudentFamilyName].(string)
@@ -166,6 +171,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		if err := h.readModel.Update(ctx, StudentUpdatedProjection{
 			Position:    resolved.Position,
 			StudentID:   studentID,
+			MARSSID:     marssID,
 			GivenName:   givenName,
 			ChosenName:  chosenName,
 			FamilyName:  familyName,

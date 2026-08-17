@@ -11,6 +11,8 @@ import (
 
 templ FormSections(view dto.IEPServiceFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<input class="hidden" data-bind="iepservice.id" value={ view.IEPService.ID }/>
+	<input class="hidden" data-bind="iepservice.service_name" value={ view.IEPService.ServiceName }/>
 	<section>
 		@IEPServiceStudentSelectBox(view.Students)
 	</section>

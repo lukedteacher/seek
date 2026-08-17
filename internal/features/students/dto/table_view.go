@@ -13,7 +13,7 @@ var StudentColumns = []shareddto.ColumnView{
 	{Field: "Email", Display: "email"},
 	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center"},
 	{Field: "Homeroom", Display: "homeroom"},
-	{Field: "CaseManager", Display: "case manager"},
+	{Field: "CaseManagerID", Display: "case manager ID"},
 }
 
 var StudentTableConfig = shareddto.TableConfig[models.Student]{
@@ -21,9 +21,6 @@ var StudentTableConfig = shareddto.TableConfig[models.Student]{
 	Columns:         StudentColumns,
 	ValueExtractor:  valueExtractor,
 	TargetExtractor: targetExtractor,
-	SubTableBuilder: func(student models.Student) shareddto.TableView {
-		return NewIEPServiceTableView(student.Services)
-	},
 }
 
 func NewStudentTableView(students []models.Student) shareddto.TableView {
@@ -51,8 +48,8 @@ func valueExtractor(m *models.Student, field string) string {
 		return m.Grade.Ordinal()
 	case "Homeroom":
 		return m.Homeroom
-	case "CaseManager":
-		return m.CaseManager
+	case "CaseManagerID":
+		return m.CaseManagerID
 	default:
 		return ""
 	}

@@ -467,7 +467,7 @@ func DiffRow(row shareddto.DiffRowView) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					case row.Status == sharedmodels.DiffAdded:
+					case row.Status == sharedmodels.DiffNew:
 						var templ_7745c5c3_Var24 = []any{fmt.Sprintf("span-%s", row.Status.String())}
 						templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var24...)
 						if templ_7745c5c3_Err != nil {
@@ -503,7 +503,7 @@ func DiffRow(row shareddto.DiffRowView) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-					case row.Status == sharedmodels.DiffRemoved:
+					case row.Status == sharedmodels.DiffAbsent:
 						var templ_7745c5c3_Var27 = []any{fmt.Sprintf("span-%s", row.Status.String())}
 						templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var27...)
 						if templ_7745c5c3_Err != nil {

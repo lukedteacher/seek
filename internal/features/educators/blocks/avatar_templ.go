@@ -80,7 +80,7 @@ func EducatorAvatar(e dto.EducatorView) templ.Component {
 					var templ_7745c5c3_Var5 templ.SafeURL
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/educators/%s/info", e.Username))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/avatar.templ`, Line: 15, Col: 116}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/avatar.templ`, Line: 17, Col: 116}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -105,7 +105,7 @@ func EducatorAvatar(e dto.EducatorView) templ.Component {
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(e.Initials())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/avatar.templ`, Line: 19, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/avatar.templ`, Line: 21, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -154,7 +154,7 @@ func EducatorAvatar(e dto.EducatorView) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(e.FullName())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/avatar.templ`, Line: 29, Col: 17}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/avatar.templ`, Line: 31, Col: 17}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -172,7 +172,9 @@ func EducatorAvatar(e dto.EducatorView) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = tooltip.Tooltip().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = tooltip.Tooltip(tooltip.Props{
+			Class: "w-full flex justify-center items-center",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

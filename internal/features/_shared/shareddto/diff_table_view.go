@@ -12,7 +12,7 @@ type DiffTableView struct {
 
 type DiffRowView struct {
 	ID       string
-	Status   sharedmodels.DiffStatus // "same, "updated", "added", "deleted"
+	Status   sharedmodels.DiffStatus // "same, "updated", "new", "to be archived"
 	OldCells []CellView              // values from DB (nil for added)
 	NewCells []CellView              // values from CSV (nil for deleted)
 }

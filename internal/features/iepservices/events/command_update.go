@@ -12,6 +12,7 @@ import (
 type UpdateIEPServiceCommand struct {
 	IEPServiceID    string
 	StudentID       string
+	ServiceName     string
 	ServiceType     string
 	IndirectMinutes int
 	DirectMinutes   int
@@ -57,6 +58,7 @@ func UpdateIEPServiceCommandHandler(
 		eventID,
 		command.IEPServiceID,
 		command.StudentID,
+		command.ServiceName,
 		command.ServiceType,
 		command.IndirectMinutes,
 		command.DirectMinutes,
@@ -83,6 +85,7 @@ type updateIEPServiceContext struct {
 	studentDeleted  bool
 	iepServiceID    string
 	studentID       string
+	serviceName     string
 	serviceType     string
 	indirectMinutes int
 	directMinutes   int
@@ -136,6 +139,7 @@ func (m *updateIEPServiceContext) isStudentActive() error {
 
 func (m *updateIEPServiceContext) isSame(cmd UpdateIEPServiceCommand) bool {
 	return m.studentID == cmd.StudentID &&
+		m.serviceName == cmd.ServiceName &&
 		m.serviceType == cmd.ServiceType &&
 		m.indirectMinutes == cmd.IndirectMinutes &&
 		m.directMinutes == cmd.DirectMinutes &&
@@ -159,6 +163,7 @@ func (m *updateIEPServiceContext) handle(resolved eventstore.ResolvedEvent) {
 		m.serviceExists = true
 		m.serviceDeleted = false
 		m.studentID, _ = data[FieldIEPServiceStudentID].(string)
+		m.serviceName, _ = data[FieldIEPServiceServiceName].(string)
 		m.serviceType, _ = data[FieldIEPServiceServiceType].(string)
 		m.indirectMinutes = int(data[FieldIEPServiceIndirectMinutes].(float64))
 		m.directMinutes = int(data[FieldIEPServiceDirectMinutes].(float64))
@@ -170,6 +175,7 @@ func (m *updateIEPServiceContext) handle(resolved eventstore.ResolvedEvent) {
 		m.provider, _ = data[FieldIEPServiceProvider].(string)
 	case EventTypeIEPServiceUpdated:
 		m.studentID, _ = data[FieldIEPServiceStudentID].(string)
+		m.serviceName, _ = data[FieldIEPServiceServiceName].(string)
 		m.serviceType, _ = data[FieldIEPServiceServiceType].(string)
 		m.indirectMinutes = int(data[FieldIEPServiceIndirectMinutes].(float64))
 		m.directMinutes = int(data[FieldIEPServiceDirectMinutes].(float64))

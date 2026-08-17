@@ -2,7 +2,17 @@
 
 updates for SEEK
 
-## v0.5.2 (26.08.13) educator avatar
+## v0.6.0 (26.08.17) more refactoring
+
+- refactored to use "composite dto" as source of multi-entity data
+- table view now has renderer func for views that aren't strings
+- student handlers now refactored to use dependency injection
+- major work on CSV import
+- added basic toast for student create to prevent submission without email
+- removed OTP commands and such
+- other various things
+
+## v0.5.2 (26.08.14) educator avatar
 
 - added educator avatar component
 - used that component on the student card view

@@ -1,10 +1,14 @@
 package models
 
-import "seek/internal/features/_shared/sharedmodels"
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+)
 
 func CompareIEPServices(db, csv []*IEPService) []sharedmodels.Diff[IEPService] {
 	keyFn := func(s *IEPService) string {
-		return s.StudentID + "|" + s.ServiceName
+		return fmt.Sprintf("%s|%s|%d|%s", s.StudentID, s.ServiceName, s.FrequencyCount, s.FrequencyType)
 	}
 	diffFields := func(a, b *IEPService) []string {
 		changed := []string{}

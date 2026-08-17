@@ -8,9 +8,11 @@ import (
 
 // event types
 const (
-	EventTypeIEPServiceAddedToStudent = "IEPServiceAddedToStudent"
-	EventTypeIEPServiceUpdated        = "IEPServiceUpdated"
-	EventTypeIEPServiceDeleted        = "IEPServiceDeleted"
+	EventTypeIEPServiceAddedToStudent     = "IEPServiceAddedToStudent"
+	EventTypeIEPServiceRemovedFromStudent = "IEPServiceRemovedFromStudent"
+	EventTypeIEPServiceUpdated            = "IEPServiceUpdated"
+	EventTypeIEPServiceArchived           = "IEPServiceArchived"
+	EventTypeIEPServiceDeleted            = "IEPServiceDeleted"
 )
 
 // event fields for event IDs
@@ -24,6 +26,7 @@ const (
 const (
 	FieldIEPServiceID              = "iep_service_id"
 	FieldIEPServiceStudentID       = "student_id"
+	FieldIEPServiceServiceName     = "service_name"
 	FieldIEPServiceServiceType     = "service_type"
 	FieldIEPServiceIndirectMinutes = "indirect_minutes"
 	FieldIEPServiceDirectMinutes   = "direct_minutes"
@@ -35,6 +38,7 @@ const (
 	FieldIEPServiceProvider        = "provider"
 	FieldIEPServiceAddedAt         = "added_at"
 	FieldIEPServiceUpdatedAt       = "updated_at"
+	FieldIEPServiceArchivedAt      = "archived_at"
 	FieldIEPServiceDeletedAt       = "deleted_at"
 	FieldIEPServiceScopeID         = "scope.iep_service_added_to_student_event_id"
 )
@@ -43,6 +47,7 @@ type IEPServiceAddedToStudentEvent struct {
 	EventID         string          `json:"iep_service_added_to_student_event_id"`
 	IEPServiceID    string          `json:"iep_service_id"`
 	StudentID       string          `json:"student_id"`
+	ServiceName     string          `json:"service_name"`
 	ServiceType     string          `json:"service_type"`
 	IndirectMinutes int             `json:"indirect_minutes"`
 	DirectMinutes   int             `json:"direct_minutes"`
@@ -60,6 +65,7 @@ type IEPServiceUpdatedEvent struct {
 	EventID         string          `json:"iep_service_updated_event_id"`
 	IEPServiceID    string          `json:"iep_service_id"`
 	StudentID       string          `json:"student_id"`
+	ServiceName     string          `json:"service_name"`
 	ServiceType     string          `json:"service_type"`
 	IndirectMinutes int             `json:"indirect_minutes"`
 	DirectMinutes   int             `json:"direct_minutes"`
@@ -94,6 +100,7 @@ func NewIEPServiceAddedToStudentEvent(
 		EventID:         eventID,
 		IEPServiceID:    eventID,
 		StudentID:       command.StudentID,
+		ServiceName:     command.ServiceName,
 		ServiceType:     command.ServiceType,
 		IndirectMinutes: command.IndirectMinutes,
 		DirectMinutes:   command.DirectMinutes,
@@ -115,17 +122,18 @@ func NewIEPServiceAddedToStudentEvent(
 }
 
 func NewIEPServiceUpdatedEvent(
-	eventID string,
-	iepServiceID string,
-	studentID string,
+	eventID,
+	iepServiceID,
+	studentID,
+	serviceName,
 	serviceType string,
-	indirectMinutes int,
-	directMinutes int,
+	indirectMinutes,
+	directMinutes,
 	frequencyCount int,
-	frequencyType string,
-	location string,
-	startDate string,
-	endDate string,
+	frequencyType,
+	location,
+	startDate,
+	endDate,
 	provider string,
 	updatedAt time.Time,
 	metadata map[string]any,
@@ -134,6 +142,7 @@ func NewIEPServiceUpdatedEvent(
 		EventID:         eventID,
 		IEPServiceID:    iepServiceID,
 		StudentID:       studentID,
+		ServiceName:     serviceName,
 		ServiceType:     serviceType,
 		IndirectMinutes: indirectMinutes,
 		DirectMinutes:   directMinutes,

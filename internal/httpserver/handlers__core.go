@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"seek/internal/auth"
 	"seek/internal/eventstore"
 	"seek/internal/seed"
 	"seek/internal/ui/core/corepages"
@@ -21,6 +22,7 @@ func (s Server) coreRoutes(r chi.Router) {
 	r.Post("/seed/educators", postSeedEducators(s.Logger, s.EventSaver))
 	r.Post("/seed/students", postSeedStudents(s.Logger, s.EventSaver))
 	r.Post("/seed/periods", postSeedPeriods(s.Logger, s.EventSaver))
+	r.Post("/seed/users", postSeedPeriods(s.Logger, s.EventSaver))
 }
 
 // GET request to "/"
@@ -49,7 +51,6 @@ func postTheme(
 		if err != nil {
 			l.ErrorContext(ctx, "theme signals", "err", err)
 		}
-		l.Debug("theme", "theme", signals.Theme)
 	}
 }
 
@@ -110,7 +111,7 @@ func postSeedStudents(
 	}
 }
 
-// POST request to "/seed/educators"
+// POST request to "/seed/periods"
 // seeds period data
 func postSeedPeriods(
 	l *slog.Logger,
@@ -122,5 +123,19 @@ func postSeedPeriods(
 		if err != nil {
 			l.ErrorContext(ctx, "seed periods", "err", err)
 		}
+	}
+}
+
+// POST request to "/seed/users"
+// seeds user data
+func postSeedUsers(
+	_ *slog.Logger,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+	piiKeys *auth.SubjectPiiKeyStore,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_ = seed.SeedUsers(ctx, saver, retriever, piiKeys)
 	}
 }

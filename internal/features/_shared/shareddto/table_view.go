@@ -1,5 +1,7 @@
 package shareddto
 
+import "github.com/a-h/templ"
+
 type TableConfig[T any] struct {
 	Name            string
 	Columns         []ColumnView
@@ -16,17 +18,19 @@ type TableView struct {
 }
 
 type ColumnView struct {
-	Field        string // e.g. "DirectMinutes", "StudentID"
-	JSON         string // e.g. "direct_minutes", "student_id"
-	Display      string // e.g. "direct", "student ID"
-	Group        string // e.g. "minutes", ""
-	Renderer     string // e.g. "text", "badge"
-	Alignment    string // e.g. "left", "center", "right"
-	FormatMethod string // e.g. "GradeOrdinal", "FullName"
+	Field        string                         // e.g. "DirectMinutes", "StudentID"
+	JSON         string                         // e.g. "direct_minutes", "student_id"
+	Display      string                         // e.g. "direct", "student ID"
+	Group        string                         // e.g. "minutes", ""
+	Renderer     string                         // e.g. "text", "badge"
+	Alignment    string                         // e.g. "left", "center", "right"
+	FormatMethod string                         // e.g. "GradeOrdinal", "FullName"
+	RenderFunc   func(item any) templ.Component // optional custom cell renderer
 }
 
 type RowView struct {
 	Target   string
+	Item     any
 	Cells    []CellView
 	SubTable *TableView
 }
@@ -62,6 +66,7 @@ func NewTableView[T any](items []T, cfg TableConfig[T]) TableView {
 
 		rows[i] = RowView{
 			Target:   target,
+			Item:     *item,
 			Cells:    cells,
 			SubTable: subTable,
 		}

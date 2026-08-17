@@ -11,6 +11,7 @@ import (
 
 type AddIEPServiceToStudentCommand struct {
 	StudentID       string
+	ServiceName     string
 	ServiceType     string
 	IndirectMinutes int
 	DirectMinutes   int

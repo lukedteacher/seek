@@ -13,7 +13,7 @@ import (
 templ StudentCreateForm(view dto.StudentFormView) {
 	<form
 		id="student-create-form"
-		class="seek-form"
+		class="seek-form w-128"
 		data-on:submit={ datastar.PostSSE("/students/create") }
 	>
 		<hgroup>
@@ -21,6 +21,13 @@ templ StudentCreateForm(view dto.StudentFormView) {
 			<p>create a student.</p>
 		</hgroup>
 		<section>
+			@forms.TextInputWithLabel(
+				"marss-id-label",
+				"MARSS ID",
+				"/students/create/validate",
+				"student.marss_id",
+				view.Student.MARSSID,
+			)
 			@forms.TextInputWithLabel(
 				"given-name-label",
 				"given name",

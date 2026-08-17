@@ -85,36 +85,34 @@ func SeedUsers(
 
 func SeedStudents(ctx context.Context, saver eventstore.Saver) ([]string, error) {
 	data := []struct {
-		GivenName   string
-		ChosenName  string
-		FamilyName  string
-		Email       string
-		Grade       int
-		Homeroom    string
-		CaseManager string
+		MARSSID    string
+		GivenName  string
+		ChosenName string
+		FamilyName string
+		Email      string
+		Grade      int
 	}{
-		{"Emma", "Em", "Johnson", "emma.j@schoolofnorthernlights.org", 5, "Ms. Smith", "Mr. Davis"},
-		{"Liam", "", "Garcia", "liam.g@schoolofnorthernlights.org", 6, "Mr. Brown", "Ms. Wilson"},
-		{"Olivia", "Liv", "Martinez", "olivia.m@schoolofnorthernlights.org", 2, "Mrs. Lee", ""},
-		{"Noah", "", "Rodriguez", "noah.r@schoolofnorthernlights.org", 1, "Mr. Jones", "Ms. Taylor"},
-		{"Ava", "Aves", "Williams", "ava.w@schoolofnorthernlights.org", 4, "Mrs. Clark", "Mr. Harris"},
-		{"Mason", "Mace", "Brown", "mason.b@schoolofnorthernlights.org", 8, "Ms. White", ""},
-		{"Sophia", "Soph", "Jones", "sophia.j@schoolofnorthernlights.org", 0, "Mr. Anderson", "Ms. Thomas"},
-		{"Logan", "", "Miller", "logan.m@schoolofnorthernlights.org", 7, "Mrs. Martinez", "Mr. Garcia"},
-		{"Mia", "", "Davis", "mia.d@schoolofnorthernlights.org", 5, "Ms. Smith", "Ms. Wilson"},
-		{"Ethan", "E", "Moore", "ethan.m@schoolofnorthernlights.org", 6, "Mr. Brown", ""},
+		{"0625000790560", "Emma", "Em", "Johnson", "emma.j@schoolofnorthernlights.org", 5},
+		{"0625000795705", "Liam", "", "Garcia", "liam.g@schoolofnorthernlights.org", 6},
+		{"1", "Olivia", "Liv", "Martinez", "olivia.m@schoolofnorthernlights.org", 2},
+		{"1", "Noah", "", "Rodriguez", "noah.r@schoolofnorthernlights.org", 1},
+		{"1", "Ava", "Aves", "Williams", "ava.w@schoolofnorthernlights.org", 4},
+		{"1", "Mason", "Mace", "Brown", "mason.b@schoolofnorthernlights.org", 8},
+		{"1", "Sophia", "Soph", "Jones", "sophia.j@schoolofnorthernlights.org", 0},
+		{"1", "Logan", "", "Miller", "logan.m@schoolofnorthernlights.org", 7},
+		{"1", "Mia", "", "Davis", "mia.d@schoolofnorthernlights.org", 5},
+		{"1", "Ethan", "E", "Moore", "ethan.m@schoolofnorthernlights.org", 6},
 	}
 
 	ids := make([]string, 0, len(data))
 	for _, d := range data {
 		cmd := se.CreateStudentCommand{
-			GivenName:   d.GivenName,
-			ChosenName:  d.ChosenName,
-			FamilyName:  d.FamilyName,
-			Email:       d.Email,
-			Grade:       d.Grade,
-			Homeroom:    d.Homeroom,
-			CaseManager: d.CaseManager,
+			MARSSID:    d.MARSSID,
+			GivenName:  d.GivenName,
+			ChosenName: d.ChosenName,
+			FamilyName: d.FamilyName,
+			Email:      d.Email,
+			Grade:      d.Grade,
 		}
 		res, err := se.CreateStudentCommandHandler(ctx, cmd, saver)
 		if err != nil {

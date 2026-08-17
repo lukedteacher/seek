@@ -33,8 +33,8 @@ func ResetPasswordCommandHandler(
 	if err := commandlimits.Assert(command); err != nil {
 		return err
 	}
-	if len(command.Password) < 6 {
-		return errors.New("password must be at least 6 characters")
+	if len(command.Password) < 8 {
+		return errors.New("password must be at least 8 characters")
 	}
 	verification, err := resets.PasswordResetByToken(ctx, command.Token)
 	if err != nil {
