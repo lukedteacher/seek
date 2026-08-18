@@ -64,21 +64,21 @@ func TextInputWithLabel(id, labelText, url, bind, value string) templ.Component 
 			return nil
 		})
 		templ_7745c5c3_Err = label.Label(label.Props{
-			ID:    "label" + id,
-			For:   "input" + id,
+			ID:    fmt.Sprintf("%s-label", id),
+			For:   fmt.Sprintf("%s-input", id),
 			Class: "mb-3 text-muted-foreground",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = input.Input(input.Props{
-			ID:    "input" + id,
+			ID:    fmt.Sprintf("%s-input", id),
 			Name:  id,
 			Type:  input.TypeText,
 			Value: value,
 			Attributes: templ.Attributes{
 				"data-bind":     bind,
-				"data-on:input": fmt.Sprintf("@post('%s')", url),
+				"data-on:input": fmt.Sprintf("@post('%s/validate')", url),
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

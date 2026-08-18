@@ -10,6 +10,8 @@ import (
 	"seek/internal/ui/core/coreblocks/tables"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
 )
 
 templ List(view shareddto.TableView) {
@@ -17,8 +19,17 @@ templ List(view shareddto.TableView) {
 	@corelayouts.LayoutBase("SEEK: students") {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("student list")
-			@blocks.StudentFilters()
-			@tables.DataTable(view)
+			@tables.DataTable(view) {
+				<div class="w-full flex gap-3">
+					@button.Button(button.Props{
+						Href: "/students/create",
+					}) {
+						@icon.UserRoundPlus()
+						<span>create</span>
+					}
+					@blocks.StudentFilters()
+				</div>
+			}
 		</main>
 	}
 }

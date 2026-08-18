@@ -16,6 +16,7 @@ import (
 
 templ DataTable(view shareddto.TableView) {
 	<section data-slot="data-table" class="w-full ml-auto mr-auto">
+		{ children... }
 		@Table(view)
 	</section>
 	<style>

@@ -33,7 +33,8 @@ func NewSessionManager(db *appdb.DB, users *AuthUserStore, secureCookie bool) *S
 	}
 }
 
-func (s *SessionManager) Login(ctx context.Context, email, password string) (models.User, string, error) {
+func (s *SessionManager) Login(ctx context.Context, username, password string) (models.User, string, error) {
+	email := username + "@schoolofnorthernlights.org"
 	// checks the email and password against length constrains
 	if err := commandlimits.Assert(struct {
 		Email    string

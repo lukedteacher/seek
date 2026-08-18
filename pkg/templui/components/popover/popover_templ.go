@@ -302,7 +302,7 @@ func Content(props ...ContentProps) templ.Component {
 			}
 		}
 		var templ_7745c5c3_Var11 = []any{utils.TwMerge(
-			"bg-popover rounded-lg border text-popover-foreground text-sm shadow-lg pointer-events-auto fixed inset-auto top-0 left-0 m-0 max-w-[min(24rem,calc(100vw-2rem))] overflow-visible outline-none transition-opacity duration-150 ease-out data-[tui-popover-open=false]:opacity-0 data-[tui-popover-open=true]:opacity-100 motion-reduce:transition-none",
+			"bg-popover rounded-lg border border-muted text-popover-foreground text-sm shadow-lg pointer-events-auto fixed inset-auto top-0 left-0 m-0 max-w-[min(24rem,calc(100vw-2rem))] overflow-visible outline-none transition-opacity duration-150 ease-out data-[tui-popover-open=false]:opacity-0 data-[tui-popover-open=true]:opacity-100 motion-reduce:transition-none",
 			p.Class,
 		)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var11...)
@@ -472,7 +472,7 @@ func Content(props ...ContentProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "><div class=\"w-full overflow-hidden\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "><div class=\"w-full overflow-hidden flex flex-col gap-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

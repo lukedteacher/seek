@@ -264,7 +264,7 @@ func Content(props ...ContentProps) templ.Component {
 			Placement: placement,
 			Class: utils.TwMerge(
 				"z-50 rounded-md bg-popover p-1 shadow-md focus:outline-none overflow-y-auto overflow-x-hidden",
-				"border border-border",
+				"border border-border border-muted",
 				"min-w-[8rem] max-h-[min(24rem,calc(100dvh_-_2rem))]",
 				p.Class,
 			),
@@ -1088,7 +1088,7 @@ func SubContent(props ...SubContentProps) templ.Component {
 		})
 		templ_7745c5c3_Err = popover.Content(popover.ContentProps{
 			Placement:     popover.PlacementRightStart,
-			Offset:        -4,  // Adjust as needed
+			Offset:        -2,  // Adjust as needed
 			HoverDelay:    100, // ms
 			HoverOutDelay: 200, // ms
 			Class: utils.TwMerge(

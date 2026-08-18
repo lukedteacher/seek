@@ -4,105 +4,18 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks/forms"
-	"seek/pkg/templui/components/label"
-	"seek/pkg/templui/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
 templ StudentCreateForm(view dto.StudentFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
 		id="student-create-form"
 		class="seek-form w-128"
-		data-on:submit={ datastar.PostSSE("/students/create") }
+		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
-		<hgroup>
-			<h2>create student</h2>
-			<p>create a student.</p>
-		</hgroup>
-		<section>
-			@forms.TextInputWithLabel(
-				"marss-id-label",
-				"MARSS ID",
-				"/students/create/validate",
-				"student.marss_id",
-				view.Student.MARSSID,
-			)
-			@forms.TextInputWithLabel(
-				"given-name-label",
-				"given name",
-				"/students/create/validate",
-				"student.given_name",
-				view.Student.GivenName,
-			)
-			@forms.TextInputWithLabel(
-				"chosen-name-label",
-				"chosen name",
-				"/students/create/validate",
-				"student.chosen_name",
-				view.Student.ChosenName,
-			)
-			@forms.TextInputWithLabel(
-				"family-name-label",
-				"family name",
-				"/students/create/validate",
-				"student.family_name",
-				view.Student.FamilyName,
-			)
-			@forms.TextInputWithLabel(
-				"email-label",
-				"email",
-				"/students/create/validate",
-				"student.email",
-				view.Student.Email,
-			)
-		</section>
-		<section>
-			@label.Label(label.Props{
-				ID:  "student-grade-label",
-				For: "student-grade-select",
-			}) {
-				@selectbox.SelectBox() {
-					@selectbox.Trigger(selectbox.TriggerProps{
-						ID: "student-grade-select",
-						Attributes: templ.Attributes{
-							"data-bind:student.grade": "",
-						},
-					}) {
-						@selectbox.Value(selectbox.ValueProps{
-							Placeholder: "select a grade",
-						})
-					}
-					@selectbox.Content() {
-						for i := range sharedmodels.GradeList {
-							@selectbox.Item(selectbox.ItemProps{
-								Value:    sharedmodels.GradeList[i].Str(),
-								Selected: sharedmodels.GradeList[i].Str() == view.Student.Grade.Str(),
-							}) {
-								{ sharedmodels.GradeList[i].Ordinal() }
-							}
-						}
-					}
-				}
-			}
-			@selectbox.Script()
-		</section>
-		<section>
-			@forms.TextInputWithLabel(
-				"homeroom-label",
-				"homeroom",
-				"/students/create/validate",
-				"student.homeroom",
-				view.Student.Homeroom,
-			)
-			@forms.TextInputWithLabel(
-				"case-manager-label",
-				"case manager",
-				"/students/create/validate",
-				"student.case_manager",
-				view.Student.CaseManagerID,
-			)
-		</section>
+		@FormSections(view)
 		<footer>
 			@forms.CancelButton()
 			@forms.SaveButton()

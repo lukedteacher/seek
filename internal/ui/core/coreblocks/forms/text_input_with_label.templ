@@ -10,20 +10,20 @@ import (
 templ TextInputWithLabel(id, labelText, url, bind, value string) {
 	<div class="flex flex-col">
 		@label.Label(label.Props{
-			ID:    "label" + id,
-			For:   "input" + id,
+			ID:    fmt.Sprintf("%s-label", id),
+			For:   fmt.Sprintf("%s-input", id),
 			Class: "mb-3 text-muted-foreground",
 		}) {
 			{ labelText }
 		}
 		@input.Input(input.Props{
-			ID:    "input" + id,
+			ID:    fmt.Sprintf("%s-input", id),
 			Name:  id,
 			Type:  input.TypeText,
 			Value: value,
 			Attributes: templ.Attributes{
 				"data-bind":     bind,
-				"data-on:input": fmt.Sprintf("@post('%s')", url),
+				"data-on:input": fmt.Sprintf("@post('%s/validate')", url),
 			},
 		})
 	</div>

@@ -15,7 +15,6 @@ import (
 	"seek/internal/features/educators/pages"
 	scheduledto "seek/internal/features/schedules/dto"
 	studentdto "seek/internal/features/students/dto"
-	sevents "seek/internal/features/students/events"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -34,7 +33,7 @@ func (s Server) educatorRoutes(r chi.Router) {
 	r.Get("/educators/{username}/info/stream", getEducatorViewInfoStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Educators))
 	r.Get("/educators/{username}/schedule", s.getEducatorViewSchedule)
 	r.Get("/educators/{username}/caseload", getEducatorViewCaseload(s.Logger))
-	r.Get("/educators/{username}/caseload/stream", getEducatorViewCaseloadStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Educators, *s.ReadModels.Students))
+	r.Get("/educators/{username}/caseload/stream", getEducatorViewCaseloadStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Educators))
 	r.Get("/educators/{username}/edit", s.getEducatorEdit)
 	r.Get("/educators/{username}/edit/stream", s.getEducatorEditStream)
 	r.Post("/educators/{username}/edit/validate", s.postEducatorEditValidate)
@@ -341,7 +340,6 @@ func getEducatorViewCaseloadStream(
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
 	educatorReadModel events.ReadModel,
-	studentReadModel sevents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()

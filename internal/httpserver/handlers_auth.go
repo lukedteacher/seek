@@ -1,7 +1,6 @@
 package httpserver
 
 import (
-	"fmt"
 	"net/http"
 
 	"seek/internal/auth"
@@ -53,13 +52,13 @@ func (s Server) login(w http.ResponseWriter, r *http.Request) {
 		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return flashError(sse, err.Error()) })
 		return
 	}
-	user, token, err := s.Sessions.Login(ctx, r.FormValue("email"), r.FormValue("password"))
+	user, token, err := s.Sessions.Login(ctx, r.FormValue("username"), r.FormValue("password"))
 	userRegisteredID := ""
 	if err == nil {
 		userRegisteredID = user.UserRegisteredID
 	}
 	_ = auth.RecordLoginAttemptCommandHandler(ctx, auth.RecordLoginAttemptCommand{
-		AttemptedIdentifier: r.FormValue("email"),
+		AttemptedIdentifier: r.FormValue("username"),
 		IPAddress:           r.RemoteAddr,
 		UserRegisteredID:    userRegisteredID,
 		Succeeded:           err == nil,
@@ -71,9 +70,6 @@ func (s Server) login(w http.ResponseWriter, r *http.Request) {
 	}
 	s.Sessions.SetSessionCookie(w, token)
 	path := "/"
-	if !user.EmailVerified {
-		path = fmt.Sprintf("/register/%s/validate-email", user.ID)
-	}
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return sse.Redirect(path) })
 }
 

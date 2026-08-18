@@ -22,7 +22,6 @@ import (
 	"seek/internal/httpserver"
 	"seek/internal/natsbus"
 	"seek/internal/protectedpii"
-	"seek/internal/seed"
 	"seek/internal/storage"
 	"seek/internal/viewstore"
 )
@@ -91,15 +90,6 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 
 	viewStore := newViewStore(bus, logger)
 	components := newAppComponents(db, orisunStore, cfg, logger)
-
-	// seeds the data from /internal/seed if the seed option is parsed
-	if opts.seedOnly {
-		if err := seed.SeedData(ctx, orisunStore, orisunStore, components.piiKeys, logger); err != nil {
-			return err
-		}
-		logger.Info("seed complete")
-		return nil
-	}
 
 	// requires components to be initated to run
 	if opts.resetReadModels {

@@ -100,7 +100,7 @@ func LoginForm(errors map[string]string) templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = coreblocks.AuthForm("/login", "login", []coreblocks.Field{
-			{Name: "email", Type: "email", Label: "email"},
+			{Name: "username", Type: "text", Label: "username"},
 			{Name: "password", Type: "password", Label: "password"},
 		}, errors).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

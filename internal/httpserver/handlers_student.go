@@ -30,7 +30,7 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students", getStudentsList(s.Logger))
 	r.Get("/students/stream", getStudentsListStream(s.Logger, s.Subscriber, *s.ReadModels.Students, *s.ReadModels.Educators))
 	r.Get("/students/create", getStudentCreate(s.Logger))
-	r.Get("/students/create/stream", getStudentCreateStream(s.Logger, s.ViewStore))
+	r.Get("/students/create/stream", getStudentCreateStream(s.Logger, s.ViewStore, *s.ReadModels.Educators))
 	r.Post("/students/create/validate", postStudentCreateValidate(s.Logger, s.ViewStore))
 	r.Post("/students/create", postStudentCreate(s.Logger, s.EventSaver))
 	r.Get("/students/{username}", getStudentView(s.Logger))
@@ -137,6 +137,7 @@ func getStudentCreate(_ *slog.Logger) http.HandlerFunc {
 func getStudentCreateStream(
 	l *slog.Logger,
 	vs viewstore.Store,
+	educatorReadModel eevents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -157,6 +158,16 @@ func getStudentCreateStream(
 		}
 		defer watcher.Stop()
 
+		// populate the case managers for the select
+		studentFormView := dto.NewStudentFormView(&models.Student{Grade: -1})
+		caseManagers, _ := educatorReadModel.List(
+			ctx,
+			eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
+		)
+
+		studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{""})
+		sse.PatchElementTempl(pages.Create(studentFormView))
+
 		for {
 			select {
 			case <-ctx.Done():
@@ -171,6 +182,12 @@ func getStudentCreateStream(
 					return
 				}
 				studentFormView := dto.NewStudentFormView(student)
+				caseManagers, _ := educatorReadModel.List(
+					ctx,
+					eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
+				)
+
+				studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{student.CaseManagerID})
 				sse.PatchElementTempl(pages.Create(studentFormView))
 			}
 		}
@@ -608,12 +625,15 @@ func getStudentEditStream(
 					return
 				}
 				studentFormView := dto.NewStudentFormView(student)
+
+				// list current case managers to populate form
 				caseManagers, _ := educatorReadModel.List(
 					ctx,
 					eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 				)
-
 				studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{student.CaseManagerID})
+
+				// patch data to page
 				sse.PatchElementTempl(pages.Edit(studentFormView))
 			}
 		}
@@ -661,6 +681,7 @@ func postStudentEdit(
 			ctx,
 			events.UpdateStudentCommand{
 				StudentID:   signals.Student.ID,
+				MARSSID:     signals.Student.MARSSID,
 				GivenName:   signals.Student.GivenName,
 				ChosenName:  signals.Student.ChosenName,
 				FamilyName:  signals.Student.FamilyName,
@@ -758,15 +779,6 @@ func deleteStudent(
 // student helper functions
 
 // reads the db for the given student and saves the state to a kv store for the SSE to update
-func (s Server) refreshStudentViewState(ctx context.Context, username string) error {
-	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
-	if err != nil {
-		return err
-	}
-	return viewstore.PutState(ctx, s.ViewStore, username+".view", student)
-}
-
-// reads the db for the given student and saves the state to a kv store for the SSE to update
 func refreshStudentViewState(
 	_ *slog.Logger,
 	ctx context.Context,
@@ -779,15 +791,6 @@ func refreshStudentViewState(
 		return err
 	}
 	return viewstore.PutState(ctx, vs, username+".view", student)
-}
-
-// reads the db for the given student and saves the state to a kv store for the SSE to update
-func (s Server) refreshStudentEditState(ctx context.Context, username string) error {
-	student, err := s.ReadModels.Students.GetByUsername(ctx, username)
-	if err != nil {
-		return err
-	}
-	return viewstore.PutState(ctx, s.ViewStore, username+".edit", student)
 }
 
 // reads the db for the given student and saves the state to a kv store for the SSE to update

@@ -6,6 +6,7 @@ import (
 
 	"seek/internal/auth"
 	"seek/internal/eventstore"
+	educatorEvents "seek/internal/features/educators/events"
 	"seek/internal/seed"
 	"seek/internal/ui/core/corepages"
 
@@ -22,7 +23,7 @@ func (s Server) coreRoutes(r chi.Router) {
 	r.Post("/seed/educators", postSeedEducators(s.Logger, s.EventSaver))
 	r.Post("/seed/students", postSeedStudents(s.Logger, s.EventSaver))
 	r.Post("/seed/periods", postSeedPeriods(s.Logger, s.EventSaver))
-	r.Post("/seed/users", postSeedPeriods(s.Logger, s.EventSaver))
+	r.Post("/seed/users", postSeedUsers(s.Logger, s.EventSaver, s.EventRetriever, s.PIIKeys, *s.ReadModels.Educators))
 }
 
 // GET request to "/"
@@ -129,13 +130,17 @@ func postSeedPeriods(
 // POST request to "/seed/users"
 // seeds user data
 func postSeedUsers(
-	_ *slog.Logger,
+	l *slog.Logger,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
-	piiKeys *auth.SubjectPiiKeyStore,
+	piiKeys auth.SubjectPiiKeyPort,
+	educatorReadModel educatorEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = seed.SeedUsers(ctx, saver, retriever, piiKeys)
+		err := seed.SeedUsers(ctx, saver, retriever, piiKeys, educatorReadModel)
+		if err != nil {
+			l.ErrorContext(ctx, "seed users", "err", err)
+		}
 	}
 }

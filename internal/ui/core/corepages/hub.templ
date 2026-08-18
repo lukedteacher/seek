@@ -24,7 +24,7 @@ type linkProps struct {
 templ Hub() {
 	@corelayouts.LayoutBase("SEEK: hub") {
 		<main class="flex flex-col gap-2 row-2" data-init={ sse.LongRunningGetSSE("/stream") }>
-			<section class="grid gap-2 w-full" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+			<section class="grid gap-16 w-full max-w-400" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
 				@HubCard(HubCardProps{
 					icon:        "school",
 					title:       "general",

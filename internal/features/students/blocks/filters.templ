@@ -3,7 +3,7 @@ package blocks
 import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/pkg/templui/components/button"
-	"seek/pkg/templui/components/collapsible"
+	"seek/pkg/templui/components/dropdown"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
@@ -11,23 +11,62 @@ import (
 
 templ StudentFilters() {
 	@selectbox.Script()
+	@dropdown.Script()
 	<div class="mb-3 w-full">
-		@collapsible.Collapsible(collapsible.Props{
-			Class: "w-full flex flex-col gap-2",
-		}) {
-			@collapsible.Trigger(collapsible.TriggerProps{
-				Class: "flex justify-end",
-			}) {
+		@dropdown.Dropdown() {
+			@dropdown.Trigger() {
 				@button.Button() {
-					<span>filters</span>
 					@icon.ListFilter(icon.Props{
 						Class: "size-4",
 					})
+					<span>filters</span>
 				}
 			}
-			@collapsible.Content() {
-				@StudentGradeFilter()
-				@StudentHomeroomFilter()
+			@dropdown.Content(dropdown.ContentProps{
+				Class: "w-50",
+			}) {
+				@dropdown.Sub() {
+					@dropdown.SubTrigger(dropdown.SubTriggerProps{
+						Class: "text-neutral-content/90",
+					}) {
+						grade
+					}
+					@dropdown.SubContent() {
+						for _, grade := range sharedmodels.GradeList {
+							@dropdown.Item() {
+								{ grade.Ordinal() }
+							}
+						}
+					}
+				}
+				@dropdown.Sub() {
+					@dropdown.SubTrigger(dropdown.SubTriggerProps{
+						Class: "text-neutral-content/90",
+					}) {
+						homeroom
+					}
+					@dropdown.SubContent() {
+						for _, grade := range sharedmodels.GradeList {
+							@dropdown.Item() {
+								{ grade.Ordinal() }
+							}
+						}
+					}
+				}
+				@dropdown.Sub() {
+					@dropdown.SubTrigger(dropdown.SubTriggerProps{
+						Class: "text-neutral-content/90",
+					}) {
+						case manager
+					}
+					@dropdown.SubContent() {
+						for _, grade := range sharedmodels.GradeList {
+							@dropdown.Item() {
+								{ grade.Ordinal() }
+							}
+						}
+					}
+				}
 			}
 		}
 	</div>

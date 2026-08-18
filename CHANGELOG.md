@@ -2,7 +2,17 @@
 
 updates for SEEK
 
-## v0.6.01 (26.08.18) working toast (singular)
+## v0.6.2 (26.08.18) username login, other styling
+
+- combined student create and edit form
+- switched section to fieldset
+- various style changes to form
+- added create button to students page
+- switched login to use username (with periods)
+- added user seeding via educator data
+- continued work on student list filter ui
+
+## v0.6.1 (26.08.18) working toast (singular)
 
 - added a toast container to the layout to target with patches
 - added helper functions in the sse package for toast types

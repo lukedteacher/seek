@@ -27,6 +27,7 @@ func NewStudentView(s *models.Student, e *emodels.Educator) StudentView {
 	}
 	return StudentView{
 		ID:              s.ID,
+		MARSSID:         s.MARSSID,
 		Person:          s.Person,
 		Grade:           s.Grade,
 		Homeroom:        s.Homeroom,
@@ -40,6 +41,7 @@ func NewStudentViews(students []models.Student) []StudentView {
 	for i, s := range students {
 		studentViews[i] = StudentView{
 			ID:            s.ID,
+			MARSSID:       s.MARSSID,
 			Person:        s.Person,
 			Grade:         s.Grade,
 			Homeroom:      s.Homeroom,
@@ -55,6 +57,7 @@ func NewStudentModelFromView(v *StudentView) models.Student {
 	}
 	return models.Student{
 		ID:            v.ID,
+		MARSSID:       v.MARSSID,
 		Person:        v.Person,
 		Grade:         v.Grade,
 		Homeroom:      v.Homeroom,

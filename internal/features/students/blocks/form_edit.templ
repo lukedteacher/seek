@@ -1,130 +1,23 @@
 package blocks
 
 import (
-	"fmt"
-
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks/forms"
-	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
 templ StudentEditForm(view dto.StudentFormView) {
-	{{ url := fmt.Sprintf("/students/%s/edit", view.Student.Username) }}
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@selectbox.Script()
 	<form
 		id="student-edit-form"
 		class="seek-form w-128"
 		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
-		<hgroup>
-			<h2>edit student</h2>
-			<p>edit the data of an existing student.</p>
-		</hgroup>
-		<input class="hidden" data-bind:student.id value={ view.Student.ID }/>
-		<input class="hidden" data-bind:student.email value={ view.Student.Email }/>
-		<section>
-			@forms.TextInputWithLabel(
-				"given-name-label",
-				"given name",
-				url+"/validate",
-				"student.given_name",
-				view.Student.GivenName,
-			)
-			@forms.TextInputWithLabel(
-				"chosen-name-label",
-				"chosen name",
-				url+"/validate",
-				"student.chosen_name",
-				view.Student.ChosenName,
-			)
-			@forms.TextInputWithLabel(
-				"family-name-label",
-				"family name",
-				url+"/validate",
-				"student.family_name",
-				view.Student.FamilyName,
-			)
-			@forms.TextInputWithLabel(
-				"email-label",
-				"email",
-				"/students/create/validate",
-				"student.email",
-				view.Student.Email,
-			)
-		</section>
-		<section>
-			@selectbox.SelectBox() {
-				@label.Label(label.Props{
-					ID:    "student-grade-label",
-					For:   "student-grade-select",
-					Class: "mb-3 text-neutral-content/80",
-				}) {
-					grade 
-				}
-				@selectbox.Trigger(selectbox.TriggerProps{
-					ID: "student-grade-select",
-					Attributes: templ.Attributes{
-						"data-bind:student.grade": "",
-					},
-				}) {
-					@selectbox.Value(selectbox.ValueProps{
-						Placeholder: "select a grade",
-					})
-				}
-				@selectbox.Content() {
-					for i := range sharedmodels.GradeList {
-						@selectbox.Item(selectbox.ItemProps{
-							Value:    sharedmodels.GradeList[i].Str(),
-							Selected: sharedmodels.GradeList[i].Str() == view.Student.Grade.Str(),
-						}) {
-							{ sharedmodels.GradeList[i].Ordinal() }
-						}
-					}
-				}
-			}
-		</section>
-		<section>
-			@forms.TextInputWithLabel(
-				"homeroom-label",
-				"homeroom",
-				url+"/validate",
-				"student.homeroom",
-				view.Student.Homeroom,
-			)
-		</section>
-		<section>
-			@selectbox.SelectBox() {
-				@label.Label(label.Props{
-					For:   "student-case-manager-select-box",
-					Class: "mb-3 text-neutral-content/80",
-				}) {
-					case manager
-				}
-				@selectbox.Trigger(selectbox.TriggerProps{
-					DataBind: "student.case_manager_id",
-				}) {
-					@selectbox.Value(selectbox.ValueProps{
-						Placeholder: "select a case manager (optional)",
-					})
-				}
-				@selectbox.Content(selectbox.ContentProps{
-					NoSearch: true,
-				}) {
-					for _, cm := range view.CaseManagers {
-						@selectbox.Item(selectbox.ItemProps{
-							Value:    cm.Educator.ID,
-							Selected: cm.IsSelected,
-						}) {
-							{ cm.Educator.NameInitial() }
-						}
-					}
-				}
-			}
-		</section>
+		@FormSections(view)
 		<footer>
 			@forms.CancelButton()
 			@forms.SaveButton()

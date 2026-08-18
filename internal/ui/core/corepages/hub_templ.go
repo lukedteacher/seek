@@ -75,7 +75,7 @@ func Hub() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><section class=\"grid gap-2 w-full\" style=\"grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><section class=\"grid gap-16 w-full max-w-400\" style=\"grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

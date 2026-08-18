@@ -2,88 +2,25 @@ package seed
 
 import (
 	"context"
-	"log/slog"
 	"strings"
 	"time"
 
 	"seek/internal/auth"
 	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/educators/events"
 	ee "seek/internal/features/educators/events"
-	epe "seek/internal/features/educators_periods/events"
 	pe "seek/internal/features/periods/events"
 	se "seek/internal/features/students/events"
-	spe "seek/internal/features/students_periods/events"
 )
 
-func SeedData(
+func SeedStudents(
 	ctx context.Context,
 	saver eventstore.Saver,
-	retriever eventstore.Retriever,
-	piiKeys *auth.SubjectPiiKeyStore,
-	logger *slog.Logger,
-) error {
-	err := SeedUsers(ctx, saver, retriever, piiKeys)
-	if err != nil {
-		logger.ErrorContext(ctx, "seed data user", "err", err)
-		return err
-	}
-	studentIDs, err := SeedStudents(ctx, saver)
-	if err != nil {
-		logger.ErrorContext(ctx, "seed students", "err", err)
-		return err
-	}
-	periodIDs, err := SeedPeriods(ctx, saver)
-	if err != nil {
-		logger.ErrorContext(ctx, "seed periods", "err", err)
-		return err
-	}
-	educatorIDs, err := SeedEducators(ctx, saver)
-	if err != nil {
-		logger.ErrorContext(ctx, "seed educators", "err", err)
-		return err
-	}
-	if len(educatorIDs) > 0 && len(periodIDs) > 0 {
-		for i, eduID := range educatorIDs {
-			periodIdx := i % len(periodIDs)
-			if err := SeedEducatorPeriods(ctx, saver, retriever, eduID, periodIDs[periodIdx]); err != nil {
-				logger.ErrorContext(ctx, "seed educator period", "err", err, "educator", eduID, "period", periodIDs[periodIdx])
-				return err
-			}
-		}
-	}
-	if len(studentIDs) > 0 && len(periodIDs) > 1 {
-		for _, stuID := range studentIDs {
-			if err := SeedStudentPeriods(ctx, saver, retriever, stuID, periodIDs[0]); err != nil {
-				logger.ErrorContext(ctx, "seed student period 1", "err", err, "student", stuID)
-				return err
-			}
-			if err := SeedStudentPeriods(ctx, saver, retriever, stuID, periodIDs[1]); err != nil {
-				logger.ErrorContext(ctx, "seed student period 2", "err", err, "student", stuID)
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-func SeedUsers(
-	ctx context.Context,
-	saver eventstore.Saver,
-	retriever eventstore.Retriever,
-	piiKeys *auth.SubjectPiiKeyStore,
-) error {
-	_, err := auth.RegisterUserCommandHandler(ctx, auth.RegisterUserCommand{
-		Email:    "luke@lukeout.world",
-		Password: "fart123",
-	}, saver, retriever, piiKeys)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func SeedStudents(ctx context.Context, saver eventstore.Saver) ([]string, error) {
+) (
+	[]string,
+	error,
+) {
 	data := []struct {
 		MARSSID    string
 		GivenName  string
@@ -123,7 +60,13 @@ func SeedStudents(ctx context.Context, saver eventstore.Saver) ([]string, error)
 	return ids, nil
 }
 
-func SeedPeriods(ctx context.Context, saver eventstore.Saver) ([]string, error) {
+func SeedPeriods(
+	ctx context.Context,
+	saver eventstore.Saver,
+) (
+	[]string,
+	error,
+) {
 	data := []struct {
 		Title       string
 		ServiceType sharedmodels.ServiceType
@@ -161,7 +104,13 @@ func SeedPeriods(ctx context.Context, saver eventstore.Saver) ([]string, error) 
 	return ids, nil
 }
 
-func SeedEducators(ctx context.Context, saver eventstore.Saver) ([]string, error) {
+func SeedEducators(
+	ctx context.Context,
+	saver eventstore.Saver,
+) (
+	[]string,
+	error,
+) {
 	data := []struct {
 		GivenName  string
 		ChosenName string
@@ -169,7 +118,7 @@ func SeedEducators(ctx context.Context, saver eventstore.Saver) ([]string, error
 		Email      string
 		Role       string
 	}{
-		{"James", "Jim", "Peterson", "james.p@schoolofnorthernlights.org", "service provider,co-teacher,case manager"},
+		{"luke", "!uke", "earley", "luke.e@schoolofnorthernlights.org", "service provider,resource room teacher"},
 		{"Sarah", "Sally", "Chen", "sarah.c@schoolofnorthernlights.org", "co-teacher,case manager"},
 		{"Michael", "Mike", "O'Brien", "michael.o@schoolofnorthernlights.org", "educational assistant"},
 		{"Emily", "Em", "Kim", "emily.k@schoolofnorthernlights.org", "admin"},
@@ -199,37 +148,31 @@ func SeedEducators(ctx context.Context, saver eventstore.Saver) ([]string, error
 	return ids, nil
 }
 
-func SeedEducatorPeriods(
-	ctx context.Context,
-	saver eventstore.Saver,
-	retriever eventstore.Retriever,
-	educatorID,
-	periodID string,
-) error {
-	cmd := epe.AddEducatorToPeriodCommand{
-		PeriodID:   periodID,
-		EducatorID: educatorID,
-	}
-	_, err := epe.AddEducatorToPeriodCommandHandler(ctx, cmd, saver, retriever)
-	return err
-}
-
-func SeedStudentPeriods(
-	ctx context.Context,
-	saver eventstore.Saver,
-	retriever eventstore.Retriever,
-	studentID,
-	periodID string,
-) error {
-	cmd := spe.AddStudentToPeriodCommand{
-		PeriodID:  periodID,
-		StudentID: studentID,
-	}
-	_, err := spe.AddStudentToPeriodCommandHandler(ctx, cmd, saver, retriever)
-	return err
-}
-
 func parseTimeOnly(s string) sharedmodels.TimeOnly {
 	t, _ := time.Parse("15:04", s)
 	return sharedmodels.TimeOnly(t)
+}
+
+func SeedUsers(
+	ctx context.Context,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+	piiKeys auth.SubjectPiiKeyPort,
+	educatorReadModel events.ReadModel,
+) error {
+	educators, err := educatorReadModel.List(ctx)
+	if err != nil {
+		return err
+	}
+	for _, educator := range educators {
+		_, err := auth.RegisterUserCommandHandler(ctx, auth.RegisterUserCommand{
+			Email:    educator.Email,
+			Password: "sharingiscaring2026",
+		}, saver, retriever, piiKeys)
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
 }

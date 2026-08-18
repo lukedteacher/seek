@@ -3,6 +3,7 @@ package coreblocks
 import (
 	"seek/pkg/sse"
 	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/label"
 )
 
 type Field struct {
@@ -12,9 +13,9 @@ type Field struct {
 }
 
 templ AuthForm(action string, title string, fields []Field, errors map[string]string) {
-	<main id="auth-page" class="auth-layout">
-		<section class="auth-card card" aria-label={ title }>
-			<div class="card-body">
+	<main id="auth-page">
+		<section class="w-full h-full flex items-center justify-center">
+			<div class="auth-card card-body h-fit max-w-128 w-full">
 				if errors != nil && errors["error"] != "" {
 					<div class="alert alert-error alert-soft">{ errors["error"] }</div>
 				}
@@ -22,21 +23,39 @@ templ AuthForm(action string, title string, fields []Field, errors map[string]st
 					<hgroup>
 						<h2>{ title }</h2>
 					</hgroup>
-					for _, field := range fields {
-						<label class="form-field">
-							<span class="font-semibold">{ field.Label }</span>
-							<input class={ "input w-full", templ.KV("input-error", errors != nil && errors[field.Name] != "") } name={ field.Name } type={ field.Type } required/>
-						</label>
-						if errors != nil && errors[field.Name] != "" {
-							<small class="text-error">{ errors[field.Name] }</small>
+					<div class="flex flex-col gap-4">
+						for _, field := range fields {
+							<div>
+								@label.Label(label.Props{
+									For:   field.Name,
+									Class: "mb-3 text-neutral-content/80",
+								}) {
+									{ field.Label }
+								}
+								<input
+									class={ "input w-full", templ.KV("input-error", errors != nil && errors[field.Name] != "") }
+									id={ field.Name }
+									name={ field.Name }
+									type={ field.Type }
+									required
+								/>
+								if errors != nil && errors[field.Name] != "" {
+									<small class="text-error">{ errors[field.Name] }</small>
+								}
+							</div>
 						}
-					}
-					@button.Button(button.Props{
-						Type:  "submit",
-						Class: "btn btn-success",
-					}) {
-						{ title }
-					}
+					</div>
+					<footer>
+						@button.Button(button.Props{
+							Type:      "submit",
+							FullWidth: true,
+							Attributes: templ.Attributes{
+								"data-variant": "success",
+							},
+						}) {
+							{ title }
+						}
+					</footer>
 				</form>
 				<div class="auth-links">
 					{ children... }

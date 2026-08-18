@@ -262,7 +262,7 @@ func FeatureCards() templ.Component {
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<section class=\"grid gap-2 w-full\" style=\"grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<section class=\"grid gap-[var(--size-6)] w-full\" style=\"grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

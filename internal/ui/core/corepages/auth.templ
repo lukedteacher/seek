@@ -13,7 +13,7 @@ templ Login(errors map[string]string) {
 
 templ LoginForm(errors map[string]string) {
 	@coreblocks.AuthForm("/login", "login", []coreblocks.Field{
-		{Name: "email", Type: "email", Label: "email"},
+		{Name: "username", Type: "text", Label: "username"},
 		{Name: "password", Type: "password", Label: "password"},
 	}, errors) {
 		<a href="/register">create account</a>
