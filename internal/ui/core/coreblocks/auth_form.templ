@@ -13,19 +13,6 @@ type Field struct {
 
 templ AuthForm(action string, title string, fields []Field, errors map[string]string) {
 	<main id="auth-page" class="auth-layout">
-		<section class="auth-intro">
-			<a class="brand-link brand-link-large" href="/login">
-				<span class="brand-mark">SK</span>
-				<span class="brand-copy">
-					<span class="brand-title">SEEK</span>
-					<span class="brand-subtitle">shared education environment knowledge</span>
-				</span>
-			</a>
-			<div class="auth-copy">
-				<h2>fast, syncronized data for school staff and teachers.</h2>
-				<p>create a schedule, add services, track goal data.</p>
-			</div>
-		</section>
 		<section class="auth-card card" aria-label={ title }>
 			<div class="card-body">
 				if errors != nil && errors["error"] != "" {

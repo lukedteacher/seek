@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"net/http"
+	"seek/internal/ui/core/coreblocks/toasts"
 
 	"github.com/a-h/templ"
 	"github.com/starfederation/datastar-go/datastar"
@@ -42,16 +43,6 @@ func newSSE(w http.ResponseWriter, r *http.Request) *datastar.ServerSentEventGen
 	return datastar.NewSSE(w, r, datastar.WithCompression())
 }
 
-func emptySSE(w http.ResponseWriter, r *http.Request, err error) {
-	if err != nil {
-		writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error {
-			return flashError(sse, err.Error())
-		})
-		return
-	}
-	writeSSE(w, r, clearFlash)
-}
-
 func clearSignals(signals any, sse *datastar.ServerSentEventGenerator) error {
 	return sse.MarshalAndPatchSignals(signals)
 }
@@ -64,8 +55,20 @@ func flashError(sse *datastar.ServerSentEventGenerator, message string) error {
 	return sse.MarshalAndPatchSignals(map[string]string{"flashMessage": message})
 }
 
-func clearFlash(sse *datastar.ServerSentEventGenerator) error {
-	return sse.MarshalAndPatchSignals(map[string]string{"flashMessage": ""})
+func toastError(sse *datastar.ServerSentEventGenerator, message string) error {
+	return sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantError, message))
+}
+
+func toastInfo(sse *datastar.ServerSentEventGenerator, message string) error {
+	return sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantInfo, message))
+}
+
+func toastSuccess(sse *datastar.ServerSentEventGenerator, message string) error {
+	return sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantSuccess, message))
+}
+
+func toastWarning(sse *datastar.ServerSentEventGenerator, message string) error {
+	return sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantWarning, message))
 }
 
 func patchTempl(w http.ResponseWriter, r *http.Request, component templ.Component, opts ...datastar.PatchElementOption) {

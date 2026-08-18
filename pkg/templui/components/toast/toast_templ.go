@@ -91,18 +91,18 @@ func Toast(props ...Props) templ.Component {
 			p.Duration = 3000
 		}
 		var templ_7745c5c3_Var2 = []any{utils.TwMerge(
-			// Base styles
+			// base styles
 			"z-50 fixed pointer-events-auto p-4 w-full md:max-w-105",
-			// Animation
+			// animation
 			"animate-in fade-in slide-in-from-bottom-4 duration-300",
-			// Position-based styles using data attributes
+			// position-based styles using data attributes
 			"data-[position=top-right]:top-0 data-[position=top-right]:right-0",
 			"data-[position=top-left]:top-0 data-[position=top-left]:left-0",
 			"data-[position=top-center]:top-0 data-[position=top-center]:left-1/2 data-[position=top-center]:-translate-x-1/2",
 			"data-[position=bottom-right]:bottom-0 data-[position=bottom-right]:right-0",
 			"data-[position=bottom-left]:bottom-0 data-[position=bottom-left]:left-0",
 			"data-[position=bottom-center]:bottom-0 data-[position=bottom-center]:left-1/2 data-[position=bottom-center]:-translate-x-1/2",
-			// Slide direction based on position
+			// slide direction based on position
 			"data-[position*=top]:slide-in-from-top-4",
 			"data-[position*=bottom]:slide-in-from-bottom-4",
 			p.Class,
@@ -184,7 +184,7 @@ func Toast(props ...Props) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "><div class=\"w-full bg-popover text-popover-foreground rounded-lg shadow-xs border pt-5 pb-4 px-4 flex items-center justify-center relative overflow-hidden group\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "><div class=\"w-full bg-linear-4-3 text-neutral-content rounded-lg shadow-xs border border-muted pt-5 pb-4 px-4 flex items-center justify-center relative overflow-hidden group\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -195,7 +195,7 @@ func Toast(props ...Props) templ.Component {
 			}
 			var templ_7745c5c3_Var8 = []any{utils.TwMerge(
 				"toast-progress h-full origin-left transition-transform ease-linear",
-				// Variant colors
+				// variant colors
 				"data-[variant=default]:bg-gray-500",
 				"data-[variant=success]:bg-green-500",
 				"data-[variant=error]:bg-red-500",

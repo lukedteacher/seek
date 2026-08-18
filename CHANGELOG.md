@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.6.01 (26.08.18) working toast (singular)
+
+- added a toast container to the layout to target with patches
+- added helper functions in the sse package for toast types
+- can send one toast at a time, only if staying on the page
+
 ## v0.6.0 (26.08.17) more refactoring
 
 - refactored to use "composite dto" as source of multi-entity data

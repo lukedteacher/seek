@@ -1,4 +1,4 @@
-package coreblocks
+package toasts
 
 import "seek/pkg/templui/components/toast"
 
@@ -8,7 +8,7 @@ templ ToastError(errorString string) {
 		Description:   errorString,
 		Variant:       toast.VariantError,
 		Position:      toast.PositionTopCenter,
-		Duration:      500,
+		Duration:      501,
 		Dismissible:   true,
 		ShowIndicator: true,
 	})

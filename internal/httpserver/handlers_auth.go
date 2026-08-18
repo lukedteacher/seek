@@ -24,9 +24,6 @@ func (s Server) authRoutes(r chi.Router) {
 		_ = corepages.ResetPassword(chi.URLParam(r, "token"), nil).Render(r.Context(), w)
 	})
 	r.With(noCache, resetPasswordRateLimit).Post("/reset-password/{token}", s.resetPassword)
-	r.With(noCache).Get("/register/{userID}/validate-email", func(w http.ResponseWriter, r *http.Request) {
-		_ = corepages.ValidateEmail(chi.URLParam(r, "userID"), nil).Render(r.Context(), w)
-	})
 }
 
 func (s Server) register(w http.ResponseWriter, r *http.Request) {

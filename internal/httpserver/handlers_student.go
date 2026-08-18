@@ -20,7 +20,6 @@ import (
 	"seek/internal/features/students/events"
 	"seek/internal/features/students/models"
 	"seek/internal/features/students/pages"
-	"seek/internal/ui/core/coreblocks"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -217,7 +216,7 @@ func postStudentCreate(
 		}
 		if signals.Student.Email == "" {
 			sse := newSSE(w, r)
-			sse.PatchElementTempl(coreblocks.ToastError("no email provided"))
+			toastError(sse, "no email provided")
 			return
 		}
 
@@ -239,6 +238,7 @@ func postStudentCreate(
 
 		sse := newSSE(w, r)
 		sse.Redirect(fmt.Sprintf("/students/%s", result.EventID))
+		toastSuccess(sse, "student created")
 	}
 }
 
@@ -681,18 +681,20 @@ func postStudentEdit(
 			l.InfoContext(ctx, "post student edit command handler", "skipped", result.Skipped)
 			return
 		}
-		_, err = csevents.SyncCaseManagerForStudentCommandHandler(
-			ctx,
-			csevents.SyncCaseManagerForStudentCommand{
-				StudentID:          signals.Student.ID,
-				ProposedEducatorID: signals.Student.CaseManagerID,
-			},
-			saver,
-			retriever,
-		)
-		if err != nil {
-			l.ErrorContext(ctx, "post student edit case manager command handler", "err", err)
-			return
+		if signals.Student.CaseManagerID != "" {
+			_, err = csevents.SyncCaseManagerForStudentCommandHandler(
+				ctx,
+				csevents.SyncCaseManagerForStudentCommand{
+					StudentID:          signals.Student.ID,
+					ProposedEducatorID: signals.Student.CaseManagerID,
+				},
+				saver,
+				retriever,
+			)
+			if err != nil {
+				l.ErrorContext(ctx, "post student edit case manager command handler", "err", err)
+				return
+			}
 		}
 		sse := newSSE(w, r)
 		sse.Redirect(fmt.Sprintf("/students/%s/info", username))

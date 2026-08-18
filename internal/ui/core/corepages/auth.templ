@@ -3,7 +3,6 @@ package corepages
 import (
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
-	"seek/pkg/sse"
 )
 
 templ Login(errors map[string]string) {
@@ -62,24 +61,4 @@ templ ResetPasswordForm(token string, errors map[string]string) {
 		{Name: "password", Type: "password", Label: "new password"},
 	}, errors) {
 	}
-}
-
-templ ValidateEmail(userID string, errors map[string]string) {
-	@corelayouts.LayoutBase("SEEK: validate email") {
-		@ValidateEmailForm(userID, errors)
-	}
-}
-
-templ ValidateEmailForm(userID string, errors map[string]string) {
-	@coreblocks.AuthForm("/register/"+userID+"/validate-email", "validate email", []coreblocks.Field{
-		{Name: "otp", Type: "text", Label: "verification code"},
-	}, errors) {
-		<form class="w-full" data-on:submit={ sendValidationOTPSSE(userID) }>
-			<button class="btn btn-outline w-full" type="submit">send new code</button>
-		</form>
-	}
-}
-
-func sendValidationOTPSSE(userID string) string {
-	return sse.PostFormSSE("/register/" + userID + "/send-email-validation-otp")
 }

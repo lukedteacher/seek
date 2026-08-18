@@ -9,7 +9,6 @@ import (
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
-	"seek/pkg/templui/components/toast"
 )
 
 templ Create(view dto.StudentFormView) {
@@ -20,11 +19,6 @@ templ Create(view dto.StudentFormView) {
 			<section>
 				@blocks.StudentCreateForm(view)
 			</section>
-			@toast.Toast(toast.Props{
-				ID:    "toast",
-				Class: "hidden",
-			})
-			@toast.Script()
 		</main>
 	}
 }

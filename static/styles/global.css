@@ -454,6 +454,42 @@ table {
     inset 0 -4px 8px rgba(0, 0, 0, 0.05);
 }
 
+/* toast styles */
+
+[data-tui-toast][data-variant='error'] {
+  div {
+    --accent: var(--gruvbox-red-faded-0);
+  }
+}
+
+[data-tui-toast][data-variant='success'] {
+  div {
+    --accent: var(--gruvbox-green-bright-0);
+  }
+}
+
+[data-tui-toast][data-variant='info'] {
+  div {
+    --accent: var(--gruvbox-blue-faded-0);
+  }
+}
+
+[data-tui-toast][data-variant='warning'] {
+  div {
+    --accent: var(--gruvbox-yellow-faded-0);
+  }
+}
+
+.bg-linear-4-3 {
+  background:
+    linear-gradient(
+      to bottom right,
+      color-mix(in oklch, var(--accent), transparent 80%),
+      transparent 25%
+    ),
+    linear-gradient(to bottom, var(--neutral-3), var(--neutral-4) 75%);
+}
+
 .bg-linear-2 {
   background: linear-gradient(
     to bottom right,
@@ -461,6 +497,8 @@ table {
     var(--neutral-5) 75%
   );
 }
+
+/* period card styles */
 
 div[data-color='default'] {
   background: linear-gradient(

@@ -1,0 +1,31 @@
+package toasts
+
+import "seek/pkg/templui/components/toast"
+
+type Variant = toast.Variant
+
+const (
+	VariantDefault = toast.VariantDefault
+	VariantSuccess = toast.VariantSuccess
+	VariantError   = toast.VariantError
+	VariantWarning = toast.VariantWarning
+	VariantInfo    = toast.VariantInfo
+)
+
+templ ToastContainer(variant Variant, message string) {
+	<div id="toast-container">
+		if variant != "" {
+			@toast.Toast(toast.Props{
+				Title:         string(variant),
+				Description:   message,
+				Variant:       variant,
+				Position:      toast.PositionBottomCenter,
+				Duration:      5000,
+				Dismissible:   true,
+				ShowIndicator: true,
+				Icon:          true,
+				Class:         "border-muted",
+			})
+		}
+	</div>
+}
