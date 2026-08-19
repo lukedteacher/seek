@@ -32,21 +32,8 @@ templ List(view ListView) {
 						@icon.UserRoundPlus()
 						<span>create</span>
 					}
-					@blocks.StudentFilters()
-					<div class="button-group">
-						for _, grade := range sharedmodels.GradeList {
-							@button.Button(button.Props{
-								Variant: button.VariantOutline,
-								Attributes: templ.Attributes{
-									"data-class:bg-primary": fmt.Sprintf("$filter.grades.includes(%d)", grade),
-									"data-on:click":         fmt.Sprintf("$filter.grades = $filter.grades.includes(%[1]d) ? $filter.grades.filter(v=>v!==%[1]d) : [...$filter.grades,%[1]d]; @post('/students')", grade),
-								},
-							}) {
-								{ grade.Ordinal() }
-							}
-						}
-					</div>
 				</div>
+				@blocks.StudentFilters()
 			}
 		</main>
 	}

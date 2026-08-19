@@ -39,8 +39,8 @@ func UpdateStudentCommandHandler(
 	if err != nil {
 		return UpdateStudentResult{}, err
 	}
-	if err := model.isActive(); err != nil {
-		return UpdateStudentResult{}, err
+	if !model.isActive() {
+		return UpdateStudentResult{}, eventstore.ErrStudentNotActive
 	}
 
 	// TODO add skip logic
@@ -107,11 +107,11 @@ func loadUpdateStudentContext(
 	return model, nil
 }
 
-func (m *updateStudentContext) isActive() error {
+func (m *updateStudentContext) isActive() bool {
 	if !m.created || m.archived || m.deleted {
-		return eventstore.ErrNotFound
+		return false
 	}
-	return nil
+	return true
 }
 
 func (m *updateStudentContext) handle(resolved eventstore.ResolvedEvent) {

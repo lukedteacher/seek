@@ -243,7 +243,7 @@ func TimeColumn() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		for i, time := range times {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"flex relative\"><span class=\"absolute top-0 translate-y-[-50%]\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"flex relative\"><span class=\"absolute top-0 translate-y-[-50%] z-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -261,7 +261,7 @@ func TimeColumn() templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if i == len(times)-1 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"absolute bottom-0 translate-y-[50%]\">4:00</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"absolute bottom-0 translate-y-[50%] z-1\">4:00</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

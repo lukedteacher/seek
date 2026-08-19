@@ -30,8 +30,8 @@ func ArchiveStudentCommandHandler(
 	if err != nil {
 		return ArchiveStudentResult{}, err
 	}
-	if err := model.isActive(); err != nil {
-		return ArchiveStudentResult{}, err
+	if !model.isActive() {
+		return ArchiveStudentResult{}, eventstore.ErrStudentNotActive
 	}
 
 	eventID := uuidv7.NewString()
@@ -84,11 +84,11 @@ func loadArchiveStudentContext(
 	return model, nil
 }
 
-func (m *archiveStudentContext) isActive() error {
+func (m *archiveStudentContext) isActive() bool {
 	if !m.created || m.archived || m.deleted {
-		return eventstore.ErrNotActive
+		return false
 	}
-	return nil
+	return true
 }
 
 func (m *archiveStudentContext) handle(resolved eventstore.ResolvedEvent) {

@@ -147,10 +147,6 @@ func (s Server) requireVerifiedEmail(next http.Handler) http.Handler {
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
-		if !user.EmailVerified {
-			http.Redirect(w, r, "/register/"+user.ID+"/validate-email", http.StatusFound)
-			return
-		}
 		next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, models.UserKey, user)))
 	})
 }

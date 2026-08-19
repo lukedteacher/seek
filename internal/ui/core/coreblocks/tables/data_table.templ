@@ -91,7 +91,10 @@ templ Header(view shareddto.TableView) {
 							"rowspan": 2,
 						},
 					}) {
-						{ col.Display }
+						<div class="flex justify-between items-center">
+							<span>{ col.Display }</span>
+							@SortButton(strings.ToLower(col.Field))
+						</div>
 					}
 				} else {
 					if !renderedGroups[col.Group] {
@@ -241,11 +244,13 @@ templ ActionCell(target, rowID string) {
 }
 
 templ SortButton(column string) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@button.Button(button.Props{
 		Size:    button.SizeIcon,
 		Variant: button.VariantGhost,
 		Attributes: templ.Attributes{
-			"data-on:click": "$table." + column + "=!$table." + column + "; @post('/sort')",
+			"data-signals":  fmt.Sprintf("$%[1]s = false", column),
+			"data-on:click": fmt.Sprintf("$%[1]s=!$%[1]s; @post('%[2]s/sort')", column, url),
 			"style":         "margin-left: auto;",
 		},
 	}) {

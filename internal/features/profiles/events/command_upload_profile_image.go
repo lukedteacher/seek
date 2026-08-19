@@ -92,7 +92,7 @@ func loadUploadProfileImageContext(ctx context.Context, command UploadProfileIma
 		model.handle(event)
 	}
 	if !model.userExists {
-		return nil, eventstore.ErrNotFound
+		return nil, eventstore.ErrUserNotActive
 	}
 	return model, nil
 }

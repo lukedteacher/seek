@@ -120,7 +120,7 @@ func StudentReadModelEventHandlerQuery() eventstore.Query {
 	for _, eventType := range eventTypes {
 		criteria = append(criteria, eventstore.Criterion{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: eventType},
+				{Key: eventTypeKey, Value: eventType},
 			},
 		})
 	}

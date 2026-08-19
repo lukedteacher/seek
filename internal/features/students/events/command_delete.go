@@ -22,8 +22,8 @@ func DeleteStudentCommandHandler(ctx context.Context, command DeleteStudentComma
 	if err != nil {
 		return DeleteStudentResult{}, err
 	}
-	if err := model.requireActive(); err != nil {
-		return DeleteStudentResult{}, err
+	if !model.isActive() {
+		return DeleteStudentResult{}, eventstore.ErrStudentNotActive
 	}
 
 	eventID := uuidv7.NewString()
@@ -57,11 +57,11 @@ func loadDeleteStudentContext(ctx context.Context, retriever eventstore.Retrieve
 	return model, nil
 }
 
-func (m *deleteStudentContext) requireActive() error {
+func (m *deleteStudentContext) isActive() bool {
 	if !m.exists || m.deleted {
-		return eventstore.ErrNotFound
+		return false
 	}
-	return nil
+	return true
 }
 
 func (m *deleteStudentContext) handle(resolved eventstore.ResolvedEvent) {

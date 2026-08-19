@@ -144,11 +144,11 @@ func (h *GlobalEventHandler) retryEventProcessing(ctx context.Context, event Res
 	for {
 		err := h.handleEvent(ctx, event)
 		if err == nil {
-			h.logger.Info("event handler processed event", "handler", h.name, "eventId", event.Event.EventID, "eventType", event.Event.EventType, "retryCount", retryCount)
+			h.logger.Info("event handler processed event", "handler", h.name, "eventId", event.Event.EventID, "event_type", event.Event.EventType, "retryCount", retryCount)
 			return nil
 		}
 
-		h.logger.Error("event handler failed processing event", "handler", h.name, "eventId", event.Event.EventID, "eventType", event.Event.EventType, "retryCount", retryCount, "err", err)
+		h.logger.Error("event handler failed processing event", "handler", h.name, "eventId", event.Event.EventID, "event_type", event.Event.EventType, "retryCount", retryCount, "err", err)
 		if h.maxEventRetries != -1 && retryCount >= h.maxEventRetries-1 {
 			return err
 		}

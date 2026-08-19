@@ -22,7 +22,7 @@ func (s *EmbeddedOrisun) EnsureBoundaryIndexes(ctx context.Context, definitions 
 
 		conditions := make([]orisunapi.BoundaryIndexCondition, 0, len(definition.EventTypes))
 		for _, eventType := range definition.EventTypes {
-			conditions = append(conditions, orisunapi.BoundaryIndexCondition{Key: "eventType", Operator: "=", Value: eventType})
+			conditions = append(conditions, orisunapi.BoundaryIndexCondition{Key: "event_type", Operator: "=", Value: eventType})
 		}
 
 		combinator := orisunapi.IndexCombinatorAND

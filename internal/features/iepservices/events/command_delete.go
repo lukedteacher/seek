@@ -31,8 +31,8 @@ func DeleteIEPServiceCommandHandler(
 	if err != nil {
 		return DeleteIEPServiceResult{}, err
 	}
-	if err := model.requireActive(); err != nil {
-		return DeleteIEPServiceResult{}, err
+	if !model.isActive() {
+		return DeleteIEPServiceResult{}, eventstore.ErrServiceNotActive
 	}
 
 	eventID := uuidv7.NewString()
@@ -72,11 +72,11 @@ func loadDeleteIEPServiceContext(ctx context.Context, retriever eventstore.Retri
 	return model, nil
 }
 
-func (m *deleteIEPServiceContext) requireActive() error {
+func (m *deleteIEPServiceContext) isActive() bool {
 	if !m.exists || m.deleted {
-		return eventstore.ErrNotFound
+		return false
 	}
-	return nil
+	return true
 }
 
 func (m *deleteIEPServiceContext) handle(resolved eventstore.ResolvedEvent) {

@@ -14,13 +14,13 @@ import (
 	"github.com/a-h/templ"
 )
 
-type Student struct {
+type StudentWithData struct {
 	studentModels.Student
 	CaseManager educatorModels.Educator
 	Services    []serviceModels.IEPService
 }
 
-var StudentColumns = []shareddto.ColumnView{
+var StudentWithDataColumns = []shareddto.ColumnView{
 	{Field: "MARSSID", Display: "MARSS ID"},
 	{Field: "GivenName", Display: "given", Group: "name"},
 	{Field: "ChosenName", Display: "chosen", Group: "name"},
@@ -31,21 +31,21 @@ var StudentColumns = []shareddto.ColumnView{
 	{Field: "CaseManager", Display: "case manager", RenderFunc: caseManagerRenderer},
 }
 
-var StudentTableConfig = shareddto.TableConfig[Student]{
+var StudentWithDataTableConfig = shareddto.TableConfig[StudentWithData]{
 	Name:            "students",
-	Columns:         StudentColumns,
+	Columns:         StudentWithDataColumns,
 	ValueExtractor:  valueExtractor,
 	TargetExtractor: targetExtractor,
-	SubTableBuilder: func(student Student) shareddto.TableView {
+	SubTableBuilder: func(student StudentWithData) shareddto.TableView {
 		return serviceDTO.NewIEPServiceTableView(student.Services)
 	},
 }
 
-func NewStudentTableView(students []Student) shareddto.TableView {
-	return shareddto.NewTableView(students, StudentTableConfig)
+func NewStudentWithDataTableView(students []StudentWithData) shareddto.TableView {
+	return shareddto.NewTableView(students, StudentWithDataTableConfig)
 }
 
-func valueExtractor(m *Student, field string) string {
+func valueExtractor(m *StudentWithData, field string) string {
 	if m == nil {
 		return ""
 	}
@@ -79,12 +79,12 @@ func valueExtractor(m *Student, field string) string {
 	}
 }
 
-func targetExtractor(m *Student) string {
+func targetExtractor(m *StudentWithData) string {
 	return m.Username
 }
 
 func caseManagerRenderer(item any) templ.Component {
-	s := item.(Student)
+	s := item.(StudentWithData)
 	if s.CaseManager.ID == "" {
 		return templ.NopComponent
 	}

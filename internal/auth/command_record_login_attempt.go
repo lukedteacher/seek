@@ -28,8 +28,12 @@ func RecordLoginAttemptCommandHandler(ctx context.Context, command RecordLoginAt
 }
 
 func loginAttemptRecordedQuery(eventID string) eventstore.Query {
-	return eventstore.Query{Criteria: []eventstore.Criterion{{Tags: []eventstore.Tag{
-		{Key: "eventType", Value: LoginAttemptRecorded},
-		{Key: LoginAttemptRecordedIDField, Value: eventID},
-	}}}}
+	return eventstore.Query{
+		Criteria: []eventstore.Criterion{
+			{Tags: []eventstore.Tag{
+				{Key: eventTypeKey, Value: LoginAttemptRecorded.String()},
+				{Key: LoginAttemptRecordedEventID, Value: eventID},
+			}},
+		},
+	}
 }

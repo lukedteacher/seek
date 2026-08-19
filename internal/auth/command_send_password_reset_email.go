@@ -50,13 +50,13 @@ func SendPasswordResetEmailCommandHandler(ctx context.Context, command SendPassw
 	}
 	for _, resolved := range model.events {
 		if resolved.Event.EventType == PasswordResetRequested {
-			userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[UserRegisteredIDField].(string)
+			userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[FieldUserRegisteredID].(string)
 			subjectKey, ok, err := keys.GetSubjectDataKey(ctx, userRegisteredID)
 			if err != nil {
 				return err
 			}
 			if !ok {
-				return eventstore.ErrNotFound
+				return eventstore.ErrSubjectKeyNotFound
 			}
 			model.subjectKey = subjectKey
 			break
@@ -90,11 +90,11 @@ func SendPasswordResetEmailCommandHandler(ctx context.Context, command SendPassw
 func (m *passwordResetEmailContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case PasswordResetRequested:
-		m.requestID, _ = resolved.Event.Data[PasswordResetRequestedIDField].(string)
+		m.requestID, _ = resolved.Event.Data[PasswordResetRequestedEventID].(string)
 		protector := protectedpii.FromEnv()
-		m.email = protectedpii.MustDecryptEventStringWithDataKey(protector, m.subjectKey, resolved.Event.Data, PasswordResetRequestedEmailField)
-		m.token = protectedpii.MustDecryptEventStringWithDataKey(protector, m.subjectKey, resolved.Event.Data, PasswordResetRequestedTokenField)
-		m.expiresAt, _ = resolved.Event.Data[PasswordResetRequestedExpiresAtField].(string)
+		m.email = protectedpii.MustDecryptEventStringWithDataKey(protector, m.subjectKey, resolved.Event.Data, FieldPasswordResetRequestedEmail)
+		m.token = protectedpii.MustDecryptEventStringWithDataKey(protector, m.subjectKey, resolved.Event.Data, FieldPasswordResetRequestedToken)
+		m.expiresAt, _ = resolved.Event.Data[FieldPasswordResetRequestedExpiresAt].(string)
 	case PasswordResetEmailSent:
 		m.alreadySent = true
 	}

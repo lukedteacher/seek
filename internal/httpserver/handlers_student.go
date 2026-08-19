@@ -97,45 +97,45 @@ func getStudentsListStream(
 			return
 		}
 		defer watcher.Stop()
+		defaultGradesFilter := []int{0, 1, 2, 3, 4, 5, 6, 7, 8}
 
-		// populates the view with the initial data
-		students, err := studentReadModel.List(ctx, events.WithServices())
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		studentWithDataViews := make([]compositedto.Student, len(students))
-		for i, student := range students {
-			studentWithDataViews[i] = compositedto.Student{
-				Student: student,
-			}
-			if student.CaseManagerID != "" {
-				caseManager, err := educatorReadModel.GetByID(ctx, student.CaseManagerID)
-				if err != nil {
-					l.ErrorContext(ctx, "student list sse get case manager from db", "err", err)
-				}
-				if caseManager != nil {
-					studentWithDataViews[i].CaseManager = *caseManager
-				}
-			}
-		}
-		studentTableView := compositedto.NewStudentTableView(studentWithDataViews)
-		sse.PatchElementTempl(pages.List(pages.ListView{Table: studentTableView, FilterGrades: []int{0, 1, 2, 3, 4, 5, 6, 7, 8}}))
+		listView := createListView(
+			ctx,
+			l,
+			studentReadModel,
+			defaultGradesFilter,
+			educatorReadModel,
+		)
+		sse.PatchElementTempl(pages.List(listView))
 
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal(): // triggers when the read model publishes
-				// for now just reloads the page
-				// consider adding a view store for the list
-				students, err := studentReadModel.List(ctx, events.WithServices())
-				if err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-					return
+				type filterSignals struct {
+					Filter struct {
+						Grades []int `json:"grades"`
+					} `json:"filter"`
 				}
-				studentTableView := dto.NewStudentTableView(students)
-				sse.PatchElementTempl(pages.List(pages.ListView{Table: studentTableView}))
+				signals, ok, err := viewstore.GetState[filterSignals](ctx, vs, "students.list")
+				if err != nil {
+					l.ErrorContext(ctx, "sse stream subscriber update", "err", err)
+				}
+				filters := []int{0, 1, 2, 3, 4, 5, 6, 7, 8}
+				// checks if there is a view with filters different than the default
+				if ok {
+					filters = signals.Filter.Grades
+				}
+				listView := createListView(
+					ctx,
+					l,
+					studentReadModel,
+					filters,
+					educatorReadModel,
+				)
+				listView.FilterGrades = filters
+				sse.PatchElementTempl(pages.List(listView))
 			case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
 				if !ok {
 					return
@@ -149,13 +149,15 @@ func getStudentsListStream(
 					l.ErrorContext(ctx, "student create stream json", "err", err)
 					return
 				}
-				students, err := studentReadModel.List(ctx, events.WithGradeFilter(signals.Filter.Grades))
-				if err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-					return
-				}
-				studentTableView := dto.NewStudentTableView(students)
-				sse.PatchElementTempl(pages.List(pages.ListView{Table: studentTableView, FilterGrades: signals.Filter.Grades}))
+				listView := createListView(
+					ctx,
+					l,
+					studentReadModel,
+					signals.Filter.Grades,
+					educatorReadModel,
+				)
+				listView.FilterGrades = signals.Filter.Grades
+				sse.PatchElementTempl(pages.List(listView))
 			}
 		}
 	}
@@ -357,7 +359,7 @@ func getStudentViewInfoStream(
 		}
 		defer sub.Close()
 
-		if err := refreshStudentViewState(l, ctx, username, vs, studentReadModel); err != nil {
+		if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
 			l.ErrorContext(ctx, "student view info stream refresh", "err", err)
 			return
 		}
@@ -382,7 +384,7 @@ func getStudentViewInfoStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal(): // triggers when the read model publishes
-				if err := refreshStudentViewState(l, ctx, username, vs, studentReadModel); err != nil {
+				if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
 					if err.Error() == "student not found" {
 						sse.PatchElementTempl(pages.NotFound())
 						return
@@ -450,7 +452,7 @@ func getStudentViewScheduleStream(
 		}
 		defer sub.Close()
 
-		if err := refreshStudentViewState(l, ctx, username, vs, studentReadModel); err != nil {
+		if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
 			l.ErrorContext(ctx, "student view schedule stream refresh", "err", err)
 			return
 		}
@@ -475,7 +477,7 @@ func getStudentViewScheduleStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal(): // triggers when the read model publishes
-				if err := refreshStudentViewState(l, ctx, username, vs, studentReadModel); err != nil {
+				if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
 					if err.Error() == "student not found" {
 						sse.PatchElementTempl(pages.NotFound())
 						return
@@ -541,7 +543,7 @@ func getStudentViewServicesStream(
 		}
 		defer sub.Close()
 
-		if err := refreshStudentViewState(l, ctx, username, vs, studentReadModel); err != nil {
+		if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
 			l.ErrorContext(ctx, "student view services stream refresh", "err", err)
 			return
 		}
@@ -566,7 +568,7 @@ func getStudentViewServicesStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal(): // triggers when the read model publishes
-				if err := refreshStudentViewState(l, ctx, username, vs, studentReadModel); err != nil {
+				if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
 					l.ErrorContext(ctx, "student view services stream refresh in select", "err", err)
 					if err.Error() == "student not found" {
 						sse.PatchElementTempl(pages.NotFound())
@@ -831,10 +833,49 @@ func deleteStudent(
 
 // student helper functions
 
+func createListView(
+	ctx context.Context,
+	l *slog.Logger,
+	studentReadModel events.ReadModel,
+	studentFilter []int,
+	educatorReadModel eevents.ReadModel,
+) pages.ListView {
+	// get students data from db
+	students, err := studentReadModel.List(ctx, events.WithServices(), events.WithGradeFilter(studentFilter))
+	if err != nil {
+		l.ErrorContext(ctx, "create students view", "err", err)
+		return pages.ListView{}
+	}
+	// create the views
+	studentWithDataViews := make([]compositedto.StudentWithData, len(students))
+	for i, student := range students {
+		studentWithDataViews[i] = compositedto.StudentWithData{
+			Student: student,
+		}
+		if student.CaseManagerID != "" {
+			caseManager, err := educatorReadModel.GetByID(ctx, student.CaseManagerID)
+			if err != nil {
+				l.ErrorContext(ctx, "student list sse get case manager from db", "err", err)
+			}
+			if caseManager != nil {
+				studentWithDataViews[i].CaseManager = *caseManager
+			}
+		}
+	}
+
+	// create the table view
+	studentTableView := compositedto.NewStudentWithDataTableView(studentWithDataViews)
+
+	return pages.ListView{
+		Table:        studentTableView,
+		FilterGrades: studentFilter,
+	}
+}
+
 // reads the db for the given student and saves the state to a kv store for the SSE to update
 func refreshStudentViewState(
-	_ *slog.Logger,
 	ctx context.Context,
+	_ *slog.Logger,
 	username string,
 	vs viewstore.Store,
 	studentReadModel events.ReadModel,

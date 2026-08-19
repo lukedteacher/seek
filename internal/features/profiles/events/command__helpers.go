@@ -22,8 +22,8 @@ func registeredUserQuery(userRegisteredID string) eventstore.Query {
 	return eventstore.Query{
 		Criteria: []eventstore.Criterion{
 			{Tags: []eventstore.Tag{
-				{Key: "eventType", Value: auth.UserRegistered},
-				{Key: auth.UserRegisteredIDField, Value: userRegisteredID},
+				{Key: eventTypeKey, Value: auth.UserRegistered.String()},
+				{Key: auth.FieldUserRegisteredID, Value: userRegisteredID},
 			}},
 		},
 	}
@@ -33,7 +33,7 @@ func profileUserEventQuery(eventType, userRegisteredID string) eventstore.Query 
 	return eventstore.Query{
 		Criteria: []eventstore.Criterion{
 			{Tags: []eventstore.Tag{
-				{Key: "eventType", Value: eventType},
+				{Key: eventTypeKey, Value: eventType},
 				{Key: ProfileScopeUserRegisteredIDField, Value: userRegisteredID},
 			}},
 		},

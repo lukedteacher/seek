@@ -25,9 +25,9 @@
 @layer stellar {
   :root {
     interpolate-size: allow-keywords;
+    --accent: transparent;
     --sidebar-w: 200px;
     --sidebarc-w: 45px;
-    --bg-transparent: transparent;
     --ar-square: var(--aspect-ratio-square);
     /* borders */
     --border-style: solid;
@@ -507,7 +507,7 @@ a[data-variant='info'] {
   }
 }
 
-.bg-linear-4-3 {
+.bg-linear-3-4 {
   background:
     linear-gradient(
       to bottom right,

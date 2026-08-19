@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.7.0 (26.08.18) major user event refactor, more data table stuff
+
+- changed user events to follow the style currently in place
+- moved filters to hidden div
+- re-added sorting buttons
+- working on getting signals to work for them
+
 ## v0.6.3 (26.08.18) student grades filter, styling
 
 - added a grades filter for the student list

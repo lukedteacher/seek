@@ -16,7 +16,7 @@ type UpdateEducatorCommand struct {
 	ChosenName string
 	FamilyName string
 	Email      string
-	Roles       []string
+	Roles      []string
 	Metadata   CommandMetadata
 }
 
@@ -38,8 +38,8 @@ func UpdateEducatorCommandHandler(
 	if err != nil {
 		return UpdateEducatorResult{}, err
 	}
-	if err := model.isActive(); err != nil {
-		return UpdateEducatorResult{}, err
+	if !model.isActive() {
+		return UpdateEducatorResult{}, eventstore.ErrEducatorNotActive
 	}
 	// TODO add skip logic
 
@@ -55,7 +55,7 @@ func UpdateEducatorCommandHandler(
 			FamilyName: command.FamilyName,
 			Email:      command.Email,
 			Username:   deriveUsername(command.Email),
-			Roles:       command.Roles,
+			Roles:      command.Roles,
 		},
 		UpdatedAt: time.Now(),
 		Scope:     educatorScope(model.id),
@@ -118,11 +118,11 @@ func loadUpdateEducatorContext(
 	return model, nil
 }
 
-func (m *updateEducatorContext) isActive() error {
+func (m *updateEducatorContext) isActive() bool {
 	if !m.created || m.archived || m.deleted {
-		return eventstore.ErrNotActive
+		return false
 	}
-	return nil
+	return true
 }
 
 func (m *updateEducatorContext) handle(resolved eventstore.ResolvedEvent) {

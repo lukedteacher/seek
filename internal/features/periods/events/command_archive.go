@@ -75,7 +75,7 @@ func loadArchivePeriodContext(
 
 func (m *archivePeriodContext) isActive() error {
 	if !m.created || m.archived || m.deleted {
-		return eventstore.ErrNotFound
+		return eventstore.ErrPeriodNotActive
 	}
 	return nil
 }

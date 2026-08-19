@@ -126,7 +126,6 @@ func (s *AuthUserStore) UserByEmailWithPassword(ctx context.Context, emailAddres
 		ID:               row.Id,
 		UserRegisteredID: row.UserRegisteredId,
 		Email:            row.Email,
-		EmailVerified:    row.EmailVerified != 0,
 		Image:            row.Image,
 		Bio:              row.Bio,
 		HeaderImageURL:   row.HeaderImageUrl,

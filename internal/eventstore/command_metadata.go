@@ -43,9 +43,9 @@ func EventHandlerCommandMetadata(handlerName string, resolved ResolvedEvent) Com
 		"name": handlerName,
 	}
 	audit["reactedTo"] = map[string]any{
-		"eventId":   resolved.Event.EventID,
-		"eventType": resolved.Event.EventType,
-		"position":  resolved.Position,
+		"eventId":    resolved.Event.EventID,
+		"event_type": resolved.Event.EventType,
+		"position":   resolved.Position,
 	}
 	return metadata
 }

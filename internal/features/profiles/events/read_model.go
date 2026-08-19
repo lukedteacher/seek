@@ -50,14 +50,14 @@ func (m *ReadModel) User(ctx context.Context, userRegisteredID string) (models.U
 
 func (m *ReadModel) UpsertRegisteredUser(ctx context.Context, resolved eventstore.ResolvedEvent, keys auth.SubjectPiiKeyPort) error {
 	data := resolved.Event.Data
-	userRegisteredID, _ := data[auth.UserRegisteredIDField].(string)
+	userRegisteredID, _ := data[auth.FieldUserRegisteredID].(string)
 	protector := protectedpii.FromEnv()
 	subjectKey, ok, err := keys.GetSubjectDataKey(ctx, userRegisteredID)
 	if err != nil {
 		return err
 	}
 	if !ok {
-		return eventstore.ErrNotFound
+		return eventstore.ErrSubjectKeyNotFound
 	}
 	emailAddress := protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, data, "email")
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
@@ -71,13 +71,15 @@ func (m *ReadModel) UpsertRegisteredUser(ctx context.Context, resolved eventstor
 }
 
 func (m *ReadModel) UpdateBio(ctx context.Context, resolved eventstore.ResolvedEvent, keys auth.SubjectPiiKeyPort) error {
-	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[auth.UserRegisteredIDField].(string)
+	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[auth.FieldUserRegisteredID].(string)
+	println("u: ", userRegisteredID)
 	subjectKey, ok, err := keys.GetSubjectDataKey(ctx, userRegisteredID)
+	println("e: ", ok)
 	if err != nil {
 		return err
 	}
 	if !ok {
-		return eventstore.ErrNotFound
+		return eventstore.ErrSubjectKeyNotFound
 	}
 	bio := protectedpii.MustDecryptEventStringWithDataKey(protectedpii.FromEnv(), subjectKey, resolved.Event.Data, "bio")
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
@@ -91,7 +93,7 @@ func (m *ReadModel) UpdateBio(ctx context.Context, resolved eventstore.ResolvedE
 }
 
 func (m *ReadModel) UpdateImage(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[auth.UserRegisteredIDField].(string)
+	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[auth.FieldUserRegisteredID].(string)
 	url, _ := resolved.Event.Data[ProfileImageURLField].(string)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpsertProfileImage(conn, dbsql.UpsertProfileImageParams{
@@ -104,7 +106,7 @@ func (m *ReadModel) UpdateImage(ctx context.Context, resolved eventstore.Resolve
 }
 
 func (m *ReadModel) UpdateHeaderImage(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[auth.UserRegisteredIDField].(string)
+	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[auth.FieldUserRegisteredID].(string)
 	url, _ := resolved.Event.Data[ProfileImageURLField].(string)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpsertProfileHeaderImage(conn, dbsql.UpsertProfileHeaderImageParams{

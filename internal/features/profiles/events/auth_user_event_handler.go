@@ -67,7 +67,7 @@ func (h *ProfileImageUploadedAuthUserEventHandler) handle(ctx context.Context, r
 func profileImageUploadedAuthUserEventHandlerQuery() eventstore.Query {
 	return eventstore.Query{
 		Criteria: []eventstore.Criterion{
-			{Tags: []eventstore.Tag{{Key: "eventType", Value: ProfileImageUploaded}}},
+			{Tags: []eventstore.Tag{{Key: eventTypeKey, Value: ProfileImageUploaded}}},
 		},
 	}
 }

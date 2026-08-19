@@ -10,21 +10,36 @@ import (
 )
 
 var (
-	ErrNotFound          = errors.New("not found")
-	ErrNotActive         = errors.New("not active")
-	ErrEducatorNotFound  = errors.New("educator not found")
-	ErrEducatorNotActive = errors.New("educator not active")
-	ErrPeriodNotFound    = errors.New("period not found")
-	ErrPeriodNotActive   = errors.New("period not active")
-	ErrStudentNotFound   = errors.New("student not found")
-	ErrStudentNotActive  = errors.New("student not active")
-	ErrConflict          = errors.New("event position conflict")
-	ErrInvalidEvent      = errors.New("invalid event")
+	ErrUserNotActive      = errors.New("user not active")
+	ErrServiceNotActive   = errors.New("service not active")
+	ErrEducatorNotFound   = errors.New("educator not found")
+	ErrEducatorNotActive  = errors.New("educator not active")
+	ErrPeriodNotFound     = errors.New("period not found")
+	ErrPeriodNotActive    = errors.New("period not active")
+	ErrStudentNotFound    = errors.New("student not found")
+	ErrStudentNotActive   = errors.New("student not active")
+	ErrConflict           = errors.New("event position conflict")
+	ErrInvalidEvent       = errors.New("invalid event")
+	ErrSubjectKeyNotFound = errors.New("subject key not found")
 )
 
 type Position struct {
 	Commit  int64 `json:"commitPosition"`
 	Prepare int64 `json:"preparePosition"`
+}
+
+const EventTypeKey string = "event_type"
+
+type EventType string
+
+func (e EventType) String() string {
+	return string(e)
+}
+
+type EventField string
+
+func (e EventField) String() string {
+	return string(e)
 }
 
 var (
@@ -53,8 +68,8 @@ type Query struct {
 }
 
 type DomainEvent struct {
-	EventID   string         `json:"eventId"`
-	EventType string         `json:"eventType"`
+	EventID   string         `json:"event_id"`
+	EventType EventType      `json:"event_type"`
 	Data      map[string]any `json:"data"`
 	RawData   string         `json:"raw_data"`
 	Metadata  map[string]any `json:"metadata,omitempty"`

@@ -30,8 +30,8 @@ func DeleteEducatorCommandHandler(
 	if err != nil {
 		return DeleteEducatorResult{}, err
 	}
-	if err := model.isActive(); err != nil {
-		return DeleteEducatorResult{}, err
+	if !model.isActive() {
+		return DeleteEducatorResult{}, eventstore.ErrEducatorNotActive
 	}
 	eventID := uuidv7.NewString()
 
@@ -64,6 +64,7 @@ func DeleteEducatorCommandHandler(
 
 type deleteEducatorContext struct {
 	created  bool
+	archived bool
 	deleted  bool
 	position eventstore.Position
 	events   []eventstore.ResolvedEvent
@@ -91,11 +92,11 @@ func loadDeleteEducatorContext(
 	return model, nil
 }
 
-func (m *deleteEducatorContext) isActive() error {
-	if !m.created || m.deleted {
-		return eventstore.ErrNotActive
+func (m *deleteEducatorContext) isActive() bool {
+	if !m.created || m.archived || m.deleted {
+		return false
 	}
-	return nil
+	return true
 }
 
 func (m *deleteEducatorContext) handle(resolved eventstore.ResolvedEvent) {

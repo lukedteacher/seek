@@ -92,7 +92,7 @@ func loadUpdatePeriodContext(ctx context.Context, retriever eventstore.Retriever
 
 func (m *updatePeriodContext) isActive() error {
 	if !m.exists || m.archived || m.deleted {
-		return eventstore.ErrNotFound
+		return eventstore.ErrPeriodNotActive
 	}
 	return nil
 }

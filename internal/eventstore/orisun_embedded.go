@@ -128,10 +128,10 @@ func (s *EmbeddedOrisun) SaveEvents(ctx context.Context, events []DomainEvent, e
 			return WriteResult{}, err
 		}
 		data := flattenMap(merged.Data)
-		data["eventType"] = merged.EventType
+		data[EventTypeKey] = merged.EventType
 		toSave = append(toSave, orisunapi.EventWithMapTags{
 			EventId:   merged.EventID,
-			EventType: merged.EventType,
+			EventType: merged.EventType.String(),
 			Data:      data,
 			Metadata:  merged.Metadata,
 		})
@@ -234,7 +234,7 @@ func (s *EmbeddedOrisun) SubscribeToEvents(
 				Position: fromOrisunPosition(event.Position),
 				Event: DomainEvent{
 					EventID:   event.EventId,
-					EventType: event.EventType,
+					EventType: EventType(event.EventType),
 					Data:      unflattenMap(data),
 					RawData:   event.Data,
 					Metadata:  metadata,
@@ -277,7 +277,7 @@ func fromOrisunEvent(event *orisunapi.Event) (ResolvedEvent, error) {
 		Position: fromOrisunPosition(event.Position),
 		Event: DomainEvent{
 			EventID:   event.EventId,
-			EventType: event.EventType,
+			EventType: EventType(event.EventType),
 			Data:      unflattenMap(data),
 			RawData:   event.Data,
 			Metadata:  metadata,

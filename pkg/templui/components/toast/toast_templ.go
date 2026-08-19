@@ -184,7 +184,7 @@ func Toast(props ...Props) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "><div class=\"w-full bg-linear-4-3 text-neutral-content rounded-lg shadow-xs border border-muted pt-5 pb-4 px-4 flex items-center justify-center relative overflow-hidden group\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "><div class=\"w-full bg-linear-3-4 text-neutral-content rounded-lg shadow-xs border border-muted pt-5 pb-4 px-4 flex items-center justify-center relative overflow-hidden group\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

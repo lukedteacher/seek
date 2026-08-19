@@ -54,7 +54,7 @@ func requestPasswordReset(ctx context.Context, user models.User, metadata events
 		return RequestPasswordResetResult{}, err
 	}
 	if !ok {
-		return RequestPasswordResetResult{}, eventstore.ErrNotFound
+		return RequestPasswordResetResult{}, eventstore.ErrSubjectKeyNotFound
 	}
 	event := NewPasswordResetRequestedEvent(requestID, user.Email, token, expiresAt, user.UserRegisteredID, subjectKey, nil)
 	if _, err := eventstore.SaveCommandEvents(ctx, saver, metadata, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {

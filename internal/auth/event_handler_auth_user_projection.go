@@ -78,26 +78,26 @@ func (h *AuthUserProjectionEventHandler) handle(ctx context.Context, resolved ev
 
 func (h *AuthUserProjectionEventHandler) handleUserRegistered(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	protector := protectedpii.FromEnv()
-	userRegisteredID := stringValue(resolved.Event.Data[UserRegisteredIDField])
-	subjectKey, ok, err := h.keys.GetSubjectDataKey(ctx, userRegisteredID)
+	userID := stringValue(resolved.Event.Data[UserRegisteredEventID])
+	subjectKey, ok, err := h.keys.GetSubjectDataKey(ctx, userID)
 	if err != nil {
 		return err
 	}
 	if !ok {
-		return eventstore.ErrNotFound
+		return eventstore.ErrSubjectKeyNotFound
 	}
 	return h.writer.CreateRegisteredUserAccount(ctx, RegisterUserResult{
 		EventID:      resolved.Event.EventID,
-		Email:        protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, UserRegisteredEmailField),
-		PasswordHash: stringValue(resolved.Event.Data[UserRegisteredPasswordHashField]),
+		Email:        protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, FieldUserRegisteredEmail),
+		PasswordHash: stringValue(resolved.Event.Data[FieldUserRegisteredPasswordHash]),
 	})
 }
 
 func (h *AuthUserProjectionEventHandler) handlePasswordResetRequested(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	userRegisteredID := stringValue(eventstore.Scope(resolved.Event.Data)[UserRegisteredIDField])
-	requestID := stringValue(resolved.Event.Data[PasswordResetRequestedIDField])
-	token := stringValue(resolved.Event.Data[PasswordResetRequestedTokenField])
-	expiresAt, err := time.Parse(time.RFC3339, stringValue(resolved.Event.Data[PasswordResetRequestedExpiresAtField]))
+	userRegisteredID := stringValue(eventstore.Scope(resolved.Event.Data)[FieldUserRegisteredID])
+	requestID := stringValue(resolved.Event.Data[PasswordResetRequestedEventID])
+	token := stringValue(resolved.Event.Data[FieldPasswordResetRequestedToken])
+	expiresAt, err := time.Parse(time.RFC3339, stringValue(resolved.Event.Data[FieldPasswordResetRequestedExpiresAt]))
 	if userRegisteredID == "" || requestID == "" || token == "" || err != nil {
 		return nil
 	}
@@ -105,10 +105,10 @@ func (h *AuthUserProjectionEventHandler) handlePasswordResetRequested(ctx contex
 }
 
 func (h *AuthUserProjectionEventHandler) handlePasswordUpdated(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	userRegisteredID := stringValue(eventstore.Scope(resolved.Event.Data)[UserRegisteredIDField])
-	passwordHash := stringValue(resolved.Event.Data[PasswordChangedPasswordHashField])
+	userRegisteredID := stringValue(eventstore.Scope(resolved.Event.Data)[FieldUserRegisteredID])
+	passwordHash := stringValue(resolved.Event.Data[FieldPasswordChangedPasswordHash])
 	if resolved.Event.EventType == PasswordResetCompleted {
-		passwordHash = stringValue(resolved.Event.Data[PasswordResetCompletedPasswordHashField])
+		passwordHash = stringValue(resolved.Event.Data[FieldPasswordResetCompletedPasswordHash])
 	}
 	if userRegisteredID == "" || passwordHash == "" {
 		return nil
@@ -117,7 +117,7 @@ func (h *AuthUserProjectionEventHandler) handlePasswordUpdated(ctx context.Conte
 }
 
 func authUserProjectionEventHandlerQuery() eventstore.Query {
-	eventTypes := []string{
+	eventTypes := []eventType{
 		UserRegistered,
 		PasswordResetRequested,
 		PasswordResetCompleted,
@@ -127,7 +127,7 @@ func authUserProjectionEventHandlerQuery() eventstore.Query {
 	for _, eventType := range eventTypes {
 		criteria = append(criteria, eventstore.Criterion{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: eventType},
+				{Key: eventTypeKey, Value: eventType.String()},
 			},
 		})
 	}

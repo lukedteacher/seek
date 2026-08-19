@@ -38,21 +38,20 @@ func RegisterUserCommandHandler(
 	if err := commandlimits.Assert(command); err != nil {
 		return RegisterUserResult{}, err
 	}
-	if len(command.Password) < 6 {
-		return RegisterUserResult{}, errors.New("invalid registration input")
+	if len(command.Password) < 8 {
+		return RegisterUserResult{}, errors.New("password must be at least 8 characters")
 	}
 	model, err := loadRegisterUserContext(ctx, command, retriever)
 	if err != nil {
 		return RegisterUserResult{}, err
 	}
 	if model.existingEmail {
-		return RegisterUserResult{}, errors.New("user already exists")
+		return RegisterUserResult{}, errors.New("user already exists with that email")
 	}
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(command.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return RegisterUserResult{}, err
 	}
-
 	subjectKey, err := keys.GetOrCreateSubjectDataKey(ctx, model.id)
 	if err != nil {
 		return RegisterUserResult{}, err
@@ -106,7 +105,7 @@ func loadRegisterUserContext(
 	}
 
 	protector := protectedpii.FromEnv()
-	emailHash := protector.BlindIndex(UserRegisteredEmailField, email)
+	emailHash := protector.BlindIndex(FieldUserRegisteredEmail, email)
 	query := userRegisteredByEmailQuery(emailHash)
 	latest, err := retriever.GetLatestByCriteria(ctx, query.Criteria)
 	if err != nil {
@@ -130,7 +129,7 @@ func loadRegisterUserContext(
 
 func (m *registerUserContext) handle(resolved eventstore.ResolvedEvent) {
 	if resolved.Event.EventType == UserRegistered {
-		emailHash, _ := resolved.Event.Data[UserRegisteredEmailHashField].(string)
+		emailHash, _ := resolved.Event.Data[FieldUserRegisteredEmailHash].(string)
 		if emailHash == m.emailHash {
 			m.existingEmail = true
 		}
@@ -138,4 +137,10 @@ func (m *registerUserContext) handle(resolved eventstore.ResolvedEvent) {
 	if resolved.Position.After(m.position) {
 		m.position = resolved.Position
 	}
+}
+
+func deriveUsername(email string) string {
+	localPart := strings.Split(email, "@")[0]
+	username := strings.ReplaceAll(localPart, ".", "")
+	return strings.ToLower(username)
 }

@@ -48,7 +48,7 @@ func (h *PasswordResetEmailToBeSentEventHandler) handle(ctx context.Context, res
 	if resolved.Event.EventType != PasswordResetRequested {
 		return nil
 	}
-	requestID, _ := resolved.Event.Data[PasswordResetRequestedIDField].(string)
+	requestID, _ := resolved.Event.Data[PasswordResetRequestedEventID].(string)
 	return SendPasswordResetEmailCommandHandler(ctx, SendPasswordResetEmailCommand{
 		PasswordResetRequestedID: requestID,
 		Metadata:                 eventstore.EventHandlerCommandMetadata(PasswordResetEmailToBeSentEventHandlerName, resolved),
@@ -56,5 +56,11 @@ func (h *PasswordResetEmailToBeSentEventHandler) handle(ctx context.Context, res
 }
 
 func passwordResetEmailToBeSentEventHandlerQuery() eventstore.Query {
-	return eventstore.Query{Criteria: []eventstore.Criterion{{Tags: []eventstore.Tag{{Key: "eventType", Value: PasswordResetRequested}}}}}
+	return eventstore.Query{
+		Criteria: []eventstore.Criterion{
+			{Tags: []eventstore.Tag{
+				{Key: eventTypeKey, Value: PasswordResetRequested.String()},
+			}},
+		},
+	}
 }

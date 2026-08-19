@@ -116,7 +116,7 @@ func (s Server) postProfileEdit(w http.ResponseWriter, r *http.Request) {
 		s.EventRetriever,
 		s.PIIKeys,
 	); err != nil {
-		s.Logger.InfoContext(ctx, "profile updated", "user", user.Email)
+		s.Logger.ErrorContext(ctx, "profile update", "err", err)
 	}
 }
 
@@ -138,6 +138,5 @@ func (s Server) profileUser(ctx context.Context, current um.User) (um.User, erro
 		}
 		return um.User{}, err
 	}
-	user.EmailVerified = current.EmailVerified
 	return user, nil
 }

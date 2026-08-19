@@ -1,102 +1,51 @@
 package blocks
 
 import (
+	"fmt"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/pkg/templui/components/button"
-	"seek/pkg/templui/components/dropdown"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
 templ StudentFilters() {
-	@selectbox.Script()
-	@dropdown.Script()
-	<div class="mb-3 w-full">
-		@dropdown.Dropdown() {
-			@dropdown.Trigger() {
-				@button.Button() {
-					@icon.ListFilter(icon.Props{
-						Class: "size-4",
-					})
-					<span>filters</span>
-				}
-			}
-			@dropdown.Content(dropdown.ContentProps{
-				Class: "w-50",
-			}) {
-				@dropdown.Sub() {
-					@dropdown.SubTrigger(dropdown.SubTriggerProps{
-						Class: "text-neutral-content/90",
-					}) {
-						grade
-					}
-					@dropdown.SubContent() {
-						for _, grade := range sharedmodels.GradeList {
-							@dropdown.Item() {
-								{ grade.Ordinal() }
-							}
-						}
-					}
-				}
-				@dropdown.Sub() {
-					@dropdown.SubTrigger(dropdown.SubTriggerProps{
-						Class: "text-neutral-content/90",
-					}) {
-						homeroom
-					}
-					@dropdown.SubContent() {
-						for _, grade := range sharedmodels.GradeList {
-							@dropdown.Item() {
-								{ grade.Ordinal() }
-							}
-						}
-					}
-				}
-				@dropdown.Sub() {
-					@dropdown.SubTrigger(dropdown.SubTriggerProps{
-						Class: "text-neutral-content/90",
-					}) {
-						case manager
-					}
-					@dropdown.SubContent() {
-						for _, grade := range sharedmodels.GradeList {
-							@dropdown.Item() {
-								{ grade.Ordinal() }
-							}
-						}
-					}
-				}
-			}
+	<div class="flex flex-col gap-4">
+		@button.Button(button.Props{
+			Attributes: templ.Attributes{
+				"data-on:click": "$test = !$test",
+			},
+		}) {
+			@icon.ListFilter()
+			<span>filter</span>
 		}
+		<div
+			style="display: none;"
+			class="rounded-md border border-muted bg-linear-3-4 p-4 flex flex-col gap-3"
+			data-signals:test="false"
+			data-show="$test"
+		>
+			@StudentGradesFilter()
+		</div>
 	</div>
 }
 
-templ StudentGradeFilter() {
-	<div>
-		@label.Label(label.Props{
-			Class: "mb-3 text-primary-content/80",
-		}) {
-			grade
-		}
-		@selectbox.SelectBox() {
-			@selectbox.Trigger(selectbox.TriggerProps{
-				Multiple: true,
-			}) {
-				@selectbox.Value()
-			}
-			@selectbox.Content(selectbox.ContentProps{
-				NoSearch: true,
-			}) {
-				for _, grade := range sharedmodels.GradeList {
-					@selectbox.Item(selectbox.ItemProps{
-						Value: grade.Str(),
-					}) {
-						{ grade.Ordinal() }
-					}
+templ StudentGradesFilter() {
+	<div class="flex flex-col gap-3">
+		<h4>grades</h4>
+		<div class="button-group">
+			for _, grade := range sharedmodels.GradeList {
+				@button.Button(button.Props{
+					Variant: button.VariantOutline,
+					Attributes: templ.Attributes{
+						"data-class:bg-primary": fmt.Sprintf("$filter.grades.includes(%d)", grade),
+						"data-on:click":         fmt.Sprintf("$filter.grades = $filter.grades.includes(%[1]d) ? $filter.grades.filter(v=>v!==%[1]d) : [...$filter.grades,%[1]d]; @post('/students')", grade),
+					},
+				}) {
+					{ grade.Ordinal() }
 				}
 			}
-		}
+		</div>
 	</div>
 }
 

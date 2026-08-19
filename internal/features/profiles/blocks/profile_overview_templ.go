@@ -87,7 +87,7 @@ func Header(user models.User) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"margin-bottom: 2rem; display: flex; align-items: start; justify-content: space-between; gap: 1rem;\"><div style=\"display: flex; align-items: center; gap: 1rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"flex items-start justify-between gap-4 mb-[2rem]\"><div class=\"flex items-center gap-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -396,7 +396,7 @@ func InfoCard(title string, iconComponent templ.Component) templ.Component {
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 74, Col: 16}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 76, Col: 16}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -454,7 +454,9 @@ func InfoCard(title string, iconComponent templ.Component) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = card.Card().Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = card.Card(card.Props{
+			Class: "border-muted bg-linear-3-4",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -490,7 +492,7 @@ func InfoItem(label, value string) templ.Component {
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 88, Col: 89}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 90, Col: 89}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -503,7 +505,7 @@ func InfoItem(label, value string) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 89, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 91, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -614,7 +616,7 @@ func StatCard(title, value, subtitle string, iconComponent templ.Component) temp
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 105, Col: 123}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 109, Col: 123}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 				if templ_7745c5c3_Err != nil {
@@ -635,7 +637,7 @@ func StatCard(title, value, subtitle string, iconComponent templ.Component) temp
 				var templ_7745c5c3_Var26 string
 				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 110, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 114, Col: 92}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 				if templ_7745c5c3_Err != nil {
@@ -648,7 +650,7 @@ func StatCard(title, value, subtitle string, iconComponent templ.Component) temp
 				var templ_7745c5c3_Var27 string
 				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(subtitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 111, Col: 143}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 115, Col: 143}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 				if templ_7745c5c3_Err != nil {
@@ -666,7 +668,9 @@ func StatCard(title, value, subtitle string, iconComponent templ.Component) temp
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = card.Card().Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = card.Card(card.Props{
+			Class: "border-muted bg-linear-3-4",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -878,8 +882,7 @@ func RecentActivity() templ.Component {
 					return nil
 				})
 				templ_7745c5c3_Err = button.Button(button.Props{
-					Variant: button.VariantOutline,
-					Class:   "w-full",
+					Class: "w-full",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -892,7 +895,9 @@ func RecentActivity() templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = card.Card().Render(templ.WithChildren(ctx, templ_7745c5c3_Var29), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = card.Card(card.Props{
+			Class: "border-muted bg-linear-3-4",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var29), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -936,7 +941,7 @@ func ActivityItem(iconComponent templ.Component, title, time string) templ.Compo
 		var templ_7745c5c3_Var37 string
 		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 170, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 175, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 		if templ_7745c5c3_Err != nil {
@@ -949,7 +954,7 @@ func ActivityItem(iconComponent templ.Component, title, time string) templ.Compo
 		var templ_7745c5c3_Var38 string
 		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(time)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 171, Col: 118}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/profiles/blocks/profile_overview.templ`, Line: 176, Col: 118}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 		if templ_7745c5c3_Err != nil {

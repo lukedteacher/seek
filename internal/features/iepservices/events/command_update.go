@@ -125,14 +125,14 @@ func loadUpdateIEPServiceContext(
 
 func (m *updateIEPServiceContext) isServiceActive() error {
 	if !m.serviceExists || m.serviceDeleted {
-		return eventstore.ErrNotFound
+		return eventstore.ErrServiceNotActive
 	}
 	return nil
 }
 
 func (m *updateIEPServiceContext) isStudentActive() error {
 	if !m.studentExists || m.studentDeleted {
-		return eventstore.ErrNotFound
+		return eventstore.ErrStudentNotActive
 	}
 	return nil
 }

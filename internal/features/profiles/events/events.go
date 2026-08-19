@@ -7,6 +7,10 @@ import (
 	"seek/internal/protectedpii"
 )
 
+type eventType = eventstore.EventType
+
+var eventTypeKey = eventstore.EventTypeKey
+
 // profile event types
 const (
 	ProfileBioUpdated          = "ProfileBioUpdated"

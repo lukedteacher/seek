@@ -14,7 +14,6 @@ type TableView struct {
 	Name    string
 	Columns []ColumnView
 	Rows    []RowView
-	URL     string
 }
 
 type ColumnView struct {

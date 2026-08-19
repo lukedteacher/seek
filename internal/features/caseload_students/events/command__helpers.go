@@ -8,41 +8,43 @@ import (
 
 type CommandMetadata = eventstore.CommandMetadata
 
+var eventTypeKey = eventstore.EventTypeKey
+
 func educatorStreamQuery(educatorID string) eventstore.Query {
 	criteria := []eventstore.Criterion{
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorCreated},
+				{Key: eventTypeKey, Value: ee.EducatorCreated},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorUpdated},
+				{Key: eventTypeKey, Value: ee.EducatorUpdated},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorArchived},
+				{Key: eventTypeKey, Value: ee.EducatorArchived},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorDeleted},
+				{Key: eventTypeKey, Value: ee.EducatorDeleted},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: StudentAddedToCaseload},
+				{Key: eventTypeKey, Value: StudentAddedToCaseload},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: StudentRemovedFromCaseload},
+				{Key: eventTypeKey, Value: StudentRemovedFromCaseload},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
@@ -54,55 +56,55 @@ func studentStreamQuery(studentID, educatorID string) eventstore.Query {
 	criteria := []eventstore.Criterion{
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: se.StudentCreated},
+				{Key: eventTypeKey, Value: se.StudentCreated},
 				{Key: se.FieldStudentScopeID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: se.StudentArchived},
+				{Key: eventTypeKey, Value: se.StudentArchived},
 				{Key: se.FieldStudentScopeID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: se.StudentDeleted},
+				{Key: eventTypeKey, Value: se.StudentDeleted},
 				{Key: se.FieldStudentScopeID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorCreated},
+				{Key: eventTypeKey, Value: ee.EducatorCreated},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorUpdated},
+				{Key: eventTypeKey, Value: ee.EducatorUpdated},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorArchived},
+				{Key: eventTypeKey, Value: ee.EducatorArchived},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorDeleted},
+				{Key: eventTypeKey, Value: ee.EducatorDeleted},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: StudentAddedToCaseload},
+				{Key: eventTypeKey, Value: StudentAddedToCaseload},
 				{Key: se.FieldStudentScopeID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: StudentRemovedFromCaseload},
+				{Key: eventTypeKey, Value: StudentRemovedFromCaseload},
 				{Key: se.FieldStudentScopeID, Value: studentID},
 			},
 		},
@@ -114,56 +116,56 @@ func educatorStudentStreamQuery(educatorID, studentID string) eventstore.Query {
 	criteria := []eventstore.Criterion{
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorCreated},
+				{Key: eventTypeKey, Value: ee.EducatorCreated},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorUpdated},
+				{Key: eventTypeKey, Value: ee.EducatorUpdated},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorArchived},
+				{Key: eventTypeKey, Value: ee.EducatorArchived},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: ee.EducatorDeleted},
+				{Key: eventTypeKey, Value: ee.EducatorDeleted},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: se.StudentCreated},
+				{Key: eventTypeKey, Value: se.StudentCreated},
 				{Key: se.FieldStudentScopeID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: se.StudentArchived},
+				{Key: eventTypeKey, Value: se.StudentArchived},
 				{Key: se.FieldStudentScopeID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: se.StudentDeleted},
+				{Key: eventTypeKey, Value: se.StudentDeleted},
 				{Key: se.FieldStudentScopeID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: StudentAddedToCaseload},
+				{Key: eventTypeKey, Value: StudentAddedToCaseload},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 				{Key: se.FieldStudentScopeID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: "eventType", Value: StudentRemovedFromCaseload},
+				{Key: eventTypeKey, Value: StudentRemovedFromCaseload},
 				{Key: ee.FieldEducatorScopeID, Value: educatorID},
 				{Key: se.FieldStudentScopeID, Value: studentID},
 			},

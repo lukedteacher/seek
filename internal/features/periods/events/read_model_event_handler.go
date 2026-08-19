@@ -113,7 +113,7 @@ func PeriodReadModelEventHandlerQuery() eventstore.Query {
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
 	for _, eventType := range eventTypes {
 		criteria = append(criteria, eventstore.Criterion{
-			Tags: []eventstore.Tag{{Key: "eventType", Value: eventType}},
+			Tags: []eventstore.Tag{{Key: eventTypeKey, Value: eventType}},
 		})
 	}
 	return eventstore.Query{Criteria: criteria}
