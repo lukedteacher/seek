@@ -637,3 +637,23 @@ span[data-service='speech'] {
 span[data-service='OT'] {
   background-color: var(--gruvbox-yellow-faded-0);
 }
+
+.button-group {
+  display: flex;
+  width: 100%;
+
+  & button {
+    flex: 1;
+  }
+
+  & button:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  & button:not(:last-child) {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}

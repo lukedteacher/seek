@@ -321,7 +321,7 @@ func (b Props) variantClasses() string {
 	case VariantDestructive:
 		return "bg-destructive text-white shadow-xs hover:bg-destructive/90 active:bg-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60"
 	case VariantOutline:
-		return "border bg-background shadow-xs hover:bg-primary/90 active:bg-primary hover:text-primary-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
+		return "border border-muted bg-background shadow-xs hover:bg-primary/90 active:bg-primary hover:text-primary-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
 	case VariantSecondary:
 		return "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 active:bg-secondary/90"
 	case VariantGhost:

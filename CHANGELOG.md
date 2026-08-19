@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.6.3 (26.08.18) student grades filter, styling
+
+- added a grades filter for the student list
+- currently using toggle buttons and signals to drive filter
+- sets signals based on initial load and keeps them updated via a view
+- added a button-group class for nice looking buttons
+
 ## v0.6.2 (26.08.18) username login, other styling
 
 - combined student create and edit form

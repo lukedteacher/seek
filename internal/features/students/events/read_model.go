@@ -93,6 +93,7 @@ type ListOption func(*listConfig)
 type listConfig struct {
 	withCaseManager bool
 	withServices    bool
+	withGradeFilter []int
 }
 
 func WithCaseManager() ListOption {
@@ -107,15 +108,23 @@ func WithServices() ListOption {
 	}
 }
 
+func WithGradeFilter(grades []int) ListOption {
+	return func(c *listConfig) {
+		c.withGradeFilter = grades
+	}
+}
+
 func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Student, error) {
 	cfg := &listConfig{}
 	for _, opt := range opts {
 		opt(cfg)
 	}
 	if cfg.withCaseManager {
-
+		// TODO later?
 	}
-
+	if len(cfg.withGradeFilter) > 0 && len(cfg.withGradeFilter) < 9 {
+		return m.listByGrade(ctx, cfg.withGradeFilter)
+	}
 	if cfg.withServices {
 		return m.listWithServices(ctx)
 	}
@@ -127,6 +136,40 @@ func (m *ReadModel) listAll(ctx context.Context) ([]models.Student, error) {
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
 		rows, err = dbsql.OnceListStudents(conn)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	students := make([]models.Student, len(rows))
+	for i := range rows {
+		students[i] = models.Student{
+			ID:      rows[i].Id,
+			MARSSID: rows[i].MarssId,
+			Person: sharedmodels.Person{
+				GivenName:  rows[i].GivenName,
+				ChosenName: rows[i].ChosenName,
+				FamilyName: rows[i].FamilyName,
+				Email:      rows[i].Email,
+				Username:   rows[i].Username,
+			},
+			Grade:         sharedmodels.Grade(rows[i].Grade),
+			Homeroom:      rows[i].Homeroom,
+			CaseManagerID: rows[i].CaseManager,
+		}
+	}
+	return students, nil
+}
+
+func (m *ReadModel) listByGrade(ctx context.Context, grades []int) ([]models.Student, error) {
+	var rows []dbsql.ListStudentsByGradeRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		gradeInt64 := make([]int64, len(grades))
+		for i, g := range grades {
+			gradeInt64[i] = int64(g)
+		}
+		var err error
+		rows, err = dbsql.OnceListStudentsByGrade(conn, gradeInt64)
 		return err
 	}); err != nil {
 		return nil, err

@@ -28,7 +28,8 @@ import (
 
 func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students", getStudentsList(s.Logger))
-	r.Get("/students/stream", getStudentsListStream(s.Logger, s.Subscriber, *s.ReadModels.Students, *s.ReadModels.Educators))
+	r.Get("/students/stream", getStudentsListStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.Educators))
+	r.Post("/students", postStudentsList(s.Logger, s.ViewStore))
 	r.Get("/students/create", getStudentCreate(s.Logger))
 	r.Get("/students/create/stream", getStudentCreateStream(s.Logger, s.ViewStore, *s.ReadModels.Educators))
 	r.Post("/students/create/validate", postStudentCreateValidate(s.Logger, s.ViewStore))
@@ -55,7 +56,7 @@ func getStudentsList(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		studentTableView := dto.NewStudentTableView([]models.Student{})
-		_ = pages.List(studentTableView).Render(ctx, w)
+		_ = pages.List(pages.ListView{Table: studentTableView}).Render(ctx, w)
 	}
 }
 
@@ -63,12 +64,39 @@ func getStudentsList(
 func getStudentsListStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
+	vs viewstore.Store,
 	studentReadModel events.ReadModel,
 	educatorReadModel eevents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		sse := newSSE(w, r)
+
+		// subscribes to the channel which publishes changes to any students
+		notifier := NewDedupeNotifier()
+		sub, err := subscriber.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {
+			notifier.Notify()
+		})
+		if err != nil {
+			l.ErrorContext(ctx, "students list stream subscribe", "err", err)
+			return
+		}
+		defer sub.Close()
+
+		// watches list key value stream for ephemeral changes
+		// lasts 5m
+		watcher, err := vs.Watch(
+			ctx,
+			"students.list",
+			viewstore.WatchOptions{
+				IgnoreDeletes: true,
+			},
+		)
+		if err != nil {
+			l.ErrorContext(ctx, "students list stream watcher", "err", err)
+			return
+		}
+		defer watcher.Stop()
 
 		// populates the view with the initial data
 		students, err := studentReadModel.List(ctx, events.WithServices())
@@ -92,18 +120,7 @@ func getStudentsListStream(
 			}
 		}
 		studentTableView := compositedto.NewStudentTableView(studentWithDataViews)
-		sse.PatchElementTempl(pages.List(studentTableView))
-
-		// subscribes to the channel which publishes changes to any students
-		notifier := NewDedupeNotifier()
-		sub, err := subscriber.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {
-			notifier.Notify()
-		})
-		if err != nil {
-			l.ErrorContext(ctx, "students list stream subscribe", "err", err)
-			return
-		}
-		defer sub.Close()
+		sse.PatchElementTempl(pages.List(pages.ListView{Table: studentTableView, FilterGrades: []int{0, 1, 2, 3, 4, 5, 6, 7, 8}}))
 
 		for {
 			select {
@@ -118,14 +135,50 @@ func getStudentsListStream(
 					return
 				}
 				studentTableView := dto.NewStudentTableView(students)
-				sse.PatchElementTempl(pages.List(studentTableView))
+				sse.PatchElementTempl(pages.List(pages.ListView{Table: studentTableView}))
+			case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
+				if !ok {
+					return
+				}
+				signals := &struct {
+					Filter struct {
+						Grades []int `json:"grades"`
+					} `json:"filter"`
+				}{}
+				if err := entry.JSON(signals); err != nil {
+					l.ErrorContext(ctx, "student create stream json", "err", err)
+					return
+				}
+				students, err := studentReadModel.List(ctx, events.WithGradeFilter(signals.Filter.Grades))
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				studentTableView := dto.NewStudentTableView(students)
+				sse.PatchElementTempl(pages.List(pages.ListView{Table: studentTableView, FilterGrades: signals.Filter.Grades}))
 			}
 		}
 	}
 }
 
-// GET request to /students/create
+// POST request to /students
+func postStudentsList(
+	_ *slog.Logger,
+	vs viewstore.Store,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		signals := &struct {
+			Filter struct {
+				Grades []int `json:"grades"`
+			} `json:"filter"`
+		}{}
+		datastar.ReadSignals(r, signals)
+		viewstore.PutState(ctx, vs, "students.list", signals)
+	}
+}
 
+// GET request to /students/create
 func getStudentCreate(_ *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()

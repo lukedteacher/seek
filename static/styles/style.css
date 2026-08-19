@@ -7555,14 +7555,8 @@
   .gap-4 {
     gap: calc(var(--spacing) * 4);
   }
-  .gap-5 {
-    gap: calc(var(--spacing) * 5);
-  }
   .gap-16 {
     gap: calc(var(--spacing) * 16);
-  }
-  .gap-\[var\(--size-4\)\] {
-    gap: var(--size-4);
   }
   .gap-\[var\(--size-6\)\] {
     gap: var(--size-6);
@@ -11365,6 +11359,11 @@
       padding-inline: calc(var(--spacing) * 4);
     }
   }
+  .data-class\:bg-primary {
+    &[data-class] {
+      background-color: var(--color-primary);
+    }
+  }
   .data-on\:input {
     &[data-on] {
       @layer daisyui.l1.l2.l3 {
@@ -12022,6 +12021,29 @@
     &>[role=checkbox] {
       --tw-translate-y: 2px;
       translate: var(--tw-translate-x) var(--tw-translate-y);
+    }
+  }
+  .\[\&\>button\]\:border-none {
+    &>button {
+      --tw-border-style: none;
+      border-style: none;
+    }
+  }
+  .\[\&\>button\:not\(\:first-child\)\]\:rounded-none {
+    &>button:not(:first-child) {
+      border-radius: 0;
+    }
+  }
+  .\[\&\>button\:not\(\:first-child\)\]\:border-l-0 {
+    &>button:not(:first-child) {
+      border-left-style: var(--tw-border-style);
+      border-left-width: 0px;
+    }
+  }
+  .\[\&\>button\:not\(\:last-child\)\]\:border-r-0 {
+    &>button:not(:last-child) {
+      border-right-style: var(--tw-border-style);
+      border-right-width: 0px;
     }
   }
   .\[\&\>span\:last-child\]\:truncate {

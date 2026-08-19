@@ -55,6 +55,26 @@ FROM students
 WHERE archived_at IS NULL
 ORDER BY family_name DESC, given_name DESC;
 
+-- name: ListStudentsByGrade :many
+SELECT 
+    id, 
+    marss_id,
+    given_name, 
+    chosen_name, 
+    family_name, 
+    email,
+    username,
+    grade, 
+    homeroom, 
+    case_manager, 
+    created_at, 
+    updated_at,
+    archived_at
+FROM students
+WHERE archived_at IS NULL
+  AND grade IN (sqlc.slice('grades'))
+ORDER BY family_name DESC, given_name DESC;
+
 -- name: ListStudentsByIEPServiceType :many
 SELECT 
     s.id, 
