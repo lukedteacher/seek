@@ -3,6 +3,7 @@ package events
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"seek/internal/appdb"
@@ -134,8 +135,9 @@ func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Stud
 	if cfg.withCaseManager {
 		// TODO later?
 	}
+	// TODO fix this
 	if cfg.withSort.column != "" && cfg.withSort.direction != "" {
-		return m.listAllWithSorting(ctx, cfg.withSort.column, cfg.withSort.direction)
+		return m.listAllWithSorting(ctx, cfg.withSort.column, cfg.withSort.direction, cfg.withGradeFilter)
 	}
 	if len(cfg.withGradeFilter) > 0 && len(cfg.withGradeFilter) < 9 {
 		return m.listByGrade(ctx, cfg.withGradeFilter)
@@ -150,6 +152,7 @@ func (m *ReadModel) listAllWithSorting(
 	ctx context.Context,
 	sortBy,
 	sortDir string,
+	grades []int,
 ) ([]models.Student, error) {
 	allowedColumns := map[string]bool{
 		"marss_id":     true,
@@ -172,19 +175,32 @@ func (m *ReadModel) listAllWithSorting(
 		sortDir = "DESC"
 	}
 
+	// Build WHERE clause
+	where := "archived_at IS NULL"
+	args := []any{}
+	if len(grades) > 0 {
+		placeholders := strings.Repeat("?,", len(grades))
+		placeholders = placeholders[:len(placeholders)-1] // trim trailing comma
+		where += " AND grade IN (" + placeholders + ")"
+		for _, g := range grades {
+			args = append(args, g)
+		}
+	}
+
 	query := fmt.Sprintf(`
-        SELECT 
-            id, marss_id, given_name, chosen_name, family_name,
-            email, username, grade, homeroom, case_manager,
-            created_at, updated_at
-        FROM students
-        WHERE archived_at IS NULL
-        ORDER BY %s %s, family_name ASC, given_name ASC
-    `, sortBy, sortDir)
+			SELECT 
+				id, marss_id, given_name, chosen_name, family_name,
+				email, username, grade, homeroom, case_manager,
+				created_at, updated_at
+			FROM students
+			WHERE %s
+			ORDER BY %s %s, family_name ASC, given_name ASC
+    `, where, sortBy, sortDir)
 
 	var students []models.Student
 	err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		return sqlitex.ExecuteTransient(conn, query, &sqlitex.ExecOptions{
+			Args: args,
 			ResultFunc: func(stmt *sqlite.Stmt) error {
 				var student models.Student
 				student.ID = stmt.ColumnText(0)

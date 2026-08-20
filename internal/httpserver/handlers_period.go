@@ -337,7 +337,6 @@ func postPeriodCreateValidateField(
 			return
 		}
 		field := chi.URLParam(r, "field")
-		l.DebugContext(ctx, "validating field", "field", field, "st", signals.Period.ServiceType)
 
 		// convert the form view to a temporary Period for business logic
 		temp := signals.Period.ToPeriod()
@@ -348,7 +347,6 @@ func postPeriodCreateValidateField(
 			temp.UpdateStartTime(signals.Period.StartTime)
 			// copy back the recalculated end time (duration unchanged)
 			signals.Period.EndTime = temp.EndTime
-			l.DebugContext(ctx, "start time updated", "start", temp.StartTime, "end", temp.EndTime, "duration", temp.Duration)
 
 		case "endtime":
 			// update end time → recalculate duration using current start time
@@ -356,14 +354,12 @@ func postPeriodCreateValidateField(
 			// copy back the new duration (end time already set)
 			signals.Period.Duration = temp.Duration
 			signals.Period.StartTime = temp.StartTime
-			l.DebugContext(ctx, "end time updated", "start", temp.StartTime, "end", temp.EndTime, "duration", temp.Duration)
 
 		case "duration":
 			// update duration → recalculate end time using current start time
 			temp.UpdateDuration(signals.Period.Duration)
 			// copy back the recalculated end time
 			signals.Period.EndTime = temp.EndTime
-			l.DebugContext(ctx, "duration updated", "start", temp.StartTime, "end", temp.EndTime, "duration", temp.Duration)
 
 		default:
 			l.WarnContext(ctx, "unknown validation field", "field", field)

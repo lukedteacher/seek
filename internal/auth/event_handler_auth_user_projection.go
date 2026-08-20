@@ -13,7 +13,6 @@ const AuthUserProjectionEventHandlerName = "auth_user_projection_event_handler"
 
 type AuthUserProjectionWriter interface {
 	CreateRegisteredUserAccount(ctx context.Context, registered RegisterUserResult) error
-	MarkEmailVerified(ctx context.Context, userRegisteredID string) error
 	UpdatePasswordByRegisteredID(ctx context.Context, userRegisteredID, passwordHash string) error
 }
 
@@ -79,6 +78,7 @@ func (h *AuthUserProjectionEventHandler) handle(ctx context.Context, resolved ev
 func (h *AuthUserProjectionEventHandler) handleUserRegistered(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	protector := protectedpii.FromEnv()
 	userID := stringValue(resolved.Event.Data[UserRegisteredEventID])
+	username := stringValue(resolved.Event.Data[FieldUserRegisteredUsername])
 	subjectKey, ok, err := h.keys.GetSubjectDataKey(ctx, userID)
 	if err != nil {
 		return err
@@ -89,6 +89,7 @@ func (h *AuthUserProjectionEventHandler) handleUserRegistered(ctx context.Contex
 	return h.writer.CreateRegisteredUserAccount(ctx, RegisterUserResult{
 		EventID:      resolved.Event.EventID,
 		Email:        protectedpii.MustDecryptEventStringWithDataKey(protector, subjectKey, resolved.Event.Data, FieldUserRegisteredEmail),
+		Username:     username,
 		PasswordHash: stringValue(resolved.Event.Data[FieldUserRegisteredPasswordHash]),
 	})
 }

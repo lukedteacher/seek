@@ -24,6 +24,7 @@ func (s *AuthUserStore) CreateRegisteredUserAccount(ctx context.Context, registe
 		if err := dbsql.OnceCreateAuthUser(conn, dbsql.CreateAuthUserParams{
 			Id:               userID,
 			Email:            registered.Email,
+			Username:         registered.Username,
 			UserRegisteredId: registered.EventID,
 		}); err != nil {
 			return err
@@ -95,12 +96,6 @@ func (s *AuthUserStore) UpdateImage(ctx context.Context, userRegisteredID, image
 	})
 }
 
-func (s *AuthUserStore) MarkEmailVerified(ctx context.Context, userRegisteredID string) error {
-	return s.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceMarkAuthUserEmailVerified(conn, userRegisteredID)
-	})
-}
-
 func (s *AuthUserStore) UpdatePasswordByRegisteredID(ctx context.Context, userRegisteredID, passwordHash string) error {
 	return s.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateAuthAccountPasswordByRegisteredId(conn, dbsql.UpdateAuthAccountPasswordByRegisteredIdParams{
@@ -110,11 +105,11 @@ func (s *AuthUserStore) UpdatePasswordByRegisteredID(ctx context.Context, userRe
 	})
 }
 
-func (s *AuthUserStore) UserByEmailWithPassword(ctx context.Context, emailAddress string) (models.User, string, error) {
-	var row *dbsql.UserByEmailWithPasswordRes
+func (s *AuthUserStore) GetUserByEmailWithPassword(ctx context.Context, emailAddress string) (models.User, string, error) {
+	var row *dbsql.GetUserByEmailWithPasswordRes
 	if err := s.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
-		row, err = dbsql.OnceUserByEmailWithPassword(conn, emailAddress)
+		row, err = dbsql.OnceGetUserByEmailWithPassword(conn, emailAddress)
 		return err
 	}); err != nil {
 		return models.User{}, "", err
@@ -126,6 +121,37 @@ func (s *AuthUserStore) UserByEmailWithPassword(ctx context.Context, emailAddres
 		ID:               row.Id,
 		UserRegisteredID: row.UserRegisteredId,
 		Email:            row.Email,
+		Username:         row.Username,
+		Image:            row.Image,
+		Bio:              row.Bio,
+		HeaderImageURL:   row.HeaderImageUrl,
+	}, *row.Password, nil
+}
+
+func (s *AuthUserStore) GetUserByUsernameWithPassword(
+	ctx context.Context,
+	emailAddress string,
+) (
+	models.User,
+	string,
+	error,
+) {
+	var row *dbsql.GetUserByUsernameWithPasswordRes
+	if err := s.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		row, err = dbsql.OnceGetUserByUsernameWithPassword(conn, emailAddress)
+		return err
+	}); err != nil {
+		return models.User{}, "", err
+	}
+	if row == nil || row.Password == nil {
+		return models.User{}, "", appdb.ErrNoRows
+	}
+	return models.User{
+		ID:               row.Id,
+		UserRegisteredID: row.UserRegisteredId,
+		Email:            row.Email,
+		Username:         row.Username,
 		Image:            row.Image,
 		Bio:              row.Bio,
 		HeaderImageURL:   row.HeaderImageUrl,

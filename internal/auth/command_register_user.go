@@ -22,6 +22,7 @@ type RegisterUserCommand struct {
 type RegisterUserResult struct {
 	EventID      string
 	Email        string
+	Username     string
 	PasswordHash string
 }
 

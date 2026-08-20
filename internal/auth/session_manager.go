@@ -43,7 +43,7 @@ func (s *SessionManager) Login(ctx context.Context, username, password string) (
 		return models.User{}, "", err
 	}
 	// checks if the user exists, returns the password hash
-	user, hash, err := s.users.UserByEmailWithPassword(ctx, strings.ToLower(strings.TrimSpace(email)))
+	user, hash, err := s.users.GetUserByEmailWithPassword(ctx, strings.ToLower(strings.TrimSpace(email)))
 	if err != nil {
 		return models.User{}, "", errors.New("invalid email or password")
 	}

@@ -51,7 +51,7 @@ func NumberInputWithLabel(id, labelText, url, bind string, value int) templ.Comp
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(labelText)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/number_input_with_label.templ`, Line: 15, Col: 13}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/number_input_with_label.templ`, Line: 16, Col: 13}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -60,8 +60,9 @@ func NumberInputWithLabel(id, labelText, url, bind string, value int) templ.Comp
 			return nil
 		})
 		templ_7745c5c3_Err = label.Label(label.Props{
-			ID:  "label" + id,
-			For: "input" + id,
+			ID:    "label" + id,
+			For:   "input" + id,
+			Class: "mb-3 text-xs text-neutral-content/90",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

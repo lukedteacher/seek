@@ -208,7 +208,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 	return h.publisher.Publish(
 		ctx,
 		Channel(studentID),
-		map[string]string{"periodID": studentID},
+		map[string]string{"studentID": studentID, "type": resolved.Event.EventType.String()},
 	)
 }
 

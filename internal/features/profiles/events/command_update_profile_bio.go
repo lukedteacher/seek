@@ -28,8 +28,6 @@ func UpdateProfileBioCommandHandler(ctx context.Context, command UpdateProfileBi
 	if err != nil {
 		return err
 	}
-	println("m: ", model.bio)
-	println("n: ", model.nextBio)
 	if model.bio == model.nextBio {
 		return nil
 	}
@@ -65,11 +63,6 @@ func loadUpdateProfileBioContext(
 	userQuery := registeredUserQuery(command.User.UserRegisteredID)
 	bioQuery := profileUserEventQuery(ProfileBioUpdated, command.User.UserRegisteredID)
 	query := combineQueries(userQuery, bioQuery)
-	for _, q := range query.Criteria {
-		for _, t := range q.Tags {
-			println("k:", t.Key, "v:", t.Value)
-		}
-	}
 	subjectKey, ok, err := keys.GetSubjectDataKey(ctx, command.User.UserRegisteredID)
 	if err != nil {
 		return nil, err
@@ -102,10 +95,8 @@ func loadUpdateProfileBioContext(
 func (m *updateProfileBioContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case auth.UserRegistered:
-		println("Hello")
 		m.userExists = true
 	case ProfileBioUpdated:
-		println("world")
 		m.bio = protectedpii.MustDecryptEventStringWithDataKey(protectedpii.FromEnv(), m.subjectKey, resolved.Event.Data, ProfileBioUpdatedBioField)
 	}
 	if resolved.Position.After(m.position) {

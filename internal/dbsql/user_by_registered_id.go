@@ -11,7 +11,7 @@ type UserByRegisteredIdRes struct {
 	Id               string `json:"id"`
 	UserRegisteredId string `json:"user_registered_id"`
 	Email            string `json:"email"`
-	EmailVerified    int64  `json:"email_verified"`
+	Username         string `json:"username"`
 	Image            string `json:"image"`
 	Bio              string `json:"bio"`
 	HeaderImageUrl   string `json:"header_image_url"`
@@ -29,7 +29,7 @@ func UserByRegisteredId(tx *sqlite.Conn) *UserByRegisteredIdStmt {
 SELECT u.id,
        u.user_registered_id,
        u.email,
-       u.email_verified,
+			 u.username,
        coalesce(u.image, '') AS image,
        coalesce(p.bio, '') AS bio,
        coalesce(p.header_image_url, '') AS header_image_url
@@ -85,7 +85,7 @@ func (ps *UserByRegisteredIdStmt) Run(
 		row.Id = stmt.ColumnText(0)
 		row.UserRegisteredId = stmt.ColumnText(1)
 		row.Email = stmt.ColumnText(2)
-		row.EmailVerified = stmt.ColumnInt64(3)
+		row.Username = stmt.ColumnText(3)
 		row.Image = stmt.ColumnText(4)
 		row.Bio = stmt.ColumnText(5)
 		row.HeaderImageUrl = stmt.ColumnText(6)

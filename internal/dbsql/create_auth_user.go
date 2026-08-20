@@ -10,6 +10,7 @@ import (
 type CreateAuthUserParams struct {
 	Id               string `json:"id"`
 	Email            string `json:"email"`
+	Username         string `json:"username"`
 	UserRegisteredId string `json:"user_registered_id"`
 }
 
@@ -25,14 +26,14 @@ func CreateAuthUser(tx *sqlite.Conn) *CreateAuthUserStmt {
 INSERT OR IGNORE INTO auth_user (
 	id, 
 	email, 
-	email_verified, 
+	username,
 	user_registered_id
 )
 VALUES (
 	?1, 
 	?2, 
-	true, 
-	?3
+	?3, 
+	?4
 )
     `
 
@@ -74,6 +75,9 @@ func (ps *CreateAuthUserStmt) Run(
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Email)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.Username)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.UserRegisteredId)

@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.7.2 (26.08.19) profile updates
+
+- fixed profile edit page to only edit bio
+- updated save and cancel buttons to redirect
+- deleted more remnants of old user model stuff
+- revised profile stats table to include username
+
 ## v0.7.1 (26.08.19) student table sorting alpha
 
 - implemented hacky sort for student table

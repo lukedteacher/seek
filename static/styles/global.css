@@ -365,6 +365,7 @@ form.seek-form {
     border-width: var(--border-width-0);
     border-radius: var(--border-radius-3);
     padding: var(--size-4);
+    padding-top: var(--size-0);
   }
 
   footer {

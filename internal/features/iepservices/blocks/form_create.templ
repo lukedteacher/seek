@@ -15,10 +15,6 @@ templ CreateServiceForm(view dto.IEPServiceFormView) {
 		class="seek-form"
 		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
-		<hgroup>
-			<h2>create IEP service</h2>
-			<p>create a new iep service for a student.</p>
-		</hgroup>
 		@FormSections(view)
 		<footer>
 			@forms.CancelButton()

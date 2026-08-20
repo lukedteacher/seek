@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS profile_stats (
 	user_id TEXT PRIMARY KEY,
 	email TEXT,
+	username TEXT,
 	image TEXT,
 	bio TEXT,
 	header_image_url TEXT,

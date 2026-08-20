@@ -4,18 +4,21 @@ import "github.com/a-h/templ"
 
 type TableConfig[T any] struct {
 	Name            string
+	Sort            TableSort
 	Columns         []ColumnView
 	ValueExtractor  func(item *T, field string) string // for cell values
 	TargetExtractor func(item *T) string               // for row link target
 	SubTableBuilder func(item T) TableView
 }
 
+type TableSort struct {
+	Column    string
+	Direction string
+}
+
 type TableView struct {
-	Name string
-	Sort struct {
-		Column    string
-		Direction string
-	}
+	Name    string
+	Sort    TableSort
 	Columns []ColumnView
 	Rows    []RowView
 }
@@ -48,7 +51,12 @@ func (cv CellView) String() string {
 // the ID field is always hidden
 func NewTableView[T any](items []T, cfg TableConfig[T]) TableView {
 	if len(items) == 0 || len(cfg.Columns) == 0 {
-		return TableView{Name: cfg.Name, Columns: cfg.Columns, Rows: []RowView{}}
+		return TableView{
+			Name:    cfg.Name,
+			Sort:    cfg.Sort,
+			Columns: cfg.Columns,
+			Rows:    []RowView{},
+		}
 	}
 
 	rows := make([]RowView, len(items))
@@ -77,6 +85,7 @@ func NewTableView[T any](items []T, cfg TableConfig[T]) TableView {
 
 	return TableView{
 		Name:    cfg.Name,
+		Sort:    cfg.Sort,
 		Columns: cfg.Columns,
 		Rows:    rows,
 	}

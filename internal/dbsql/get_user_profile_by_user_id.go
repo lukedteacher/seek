@@ -7,26 +7,28 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type ProfileUserRes struct {
+type GetUserProfileByUserIdRes struct {
 	UserId         string `json:"user_id"`
 	Email          string `json:"email"`
+	Username       string `json:"username"`
 	Image          string `json:"image"`
 	Bio            string `json:"bio"`
 	HeaderImageUrl string `json:"header_image_url"`
 }
 
-type ProfileUserStmt struct {
+type GetUserProfileByUserIdStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func ProfileUser(tx *sqlite.Conn) *ProfileUserStmt {
+func GetUserProfileByUserId(tx *sqlite.Conn) *GetUserProfileByUserIdStmt {
 	const querySQL = `
 SELECT 
 	user_id,
 	coalesce(email, '') AS email,
+	coalesce(username, '') AS username,
 	coalesce(image, '') AS image,
 	coalesce(bio, '') AS bio,
 	coalesce(header_image_url, '') AS header_image_url
@@ -34,7 +36,7 @@ FROM profile_stats
 WHERE user_id = ?1
     `
 
-	ps := &ProfileUserStmt{
+	ps := &GetUserProfileByUserIdStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -47,10 +49,10 @@ WHERE user_id = ?1
 	return ps
 }
 
-func (ps *ProfileUserStmt) Run(
+func (ps *GetUserProfileByUserIdStmt) Run(
 	userId string,
 ) (
-	res *ProfileUserRes,
+	res *GetUserProfileByUserIdRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
@@ -77,26 +79,27 @@ func (ps *ProfileUserStmt) Run(
 	if hasRow, err := stmt.Step(); err != nil {
 		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
 	} else if hasRow {
-		row := ProfileUserRes{}
+		row := GetUserProfileByUserIdRes{}
 		row.UserId = stmt.ColumnText(0)
 		row.Email = stmt.ColumnText(1)
-		row.Image = stmt.ColumnText(2)
-		row.Bio = stmt.ColumnText(3)
-		row.HeaderImageUrl = stmt.ColumnText(4)
+		row.Username = stmt.ColumnText(2)
+		row.Image = stmt.ColumnText(3)
+		row.Bio = stmt.ColumnText(4)
+		row.HeaderImageUrl = stmt.ColumnText(5)
 		res = &row
 	}
 
 	return res, nil
 }
 
-func OnceProfileUser(
+func OnceGetUserProfileByUserId(
 	tx *sqlite.Conn,
 	userId string,
 ) (
-	res *ProfileUserRes,
+	res *GetUserProfileByUserIdRes,
 	err error,
 ) {
-	ps := ProfileUser(tx)
+	ps := GetUserProfileByUserId(tx)
 
 	return ps.Run(
 		userId,

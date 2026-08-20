@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS auth_user (
 	id TEXT PRIMARY KEY,
 	email TEXT NOT NULL UNIQUE,
-	email_verified INTEGER NOT NULL DEFAULT 0,
+	username TEXT NOT NULL,
 	image TEXT,
 	role TEXT,
 	user_registered_id TEXT NOT NULL,

@@ -9,8 +9,9 @@ import (
 
 templ NumberInputWithLabel(id, labelText, url, bind string, value int) {
 	@label.Label(label.Props{
-		ID:  "label" + id,
-		For: "input" + id,
+		ID:    "label" + id,
+		For:   "input" + id,
+		Class: "mb-3 text-xs text-neutral-content/90",
 	}) {
 		{ labelText }
 	}

@@ -10,6 +10,7 @@ import (
 type UpsertRegisteredProfileUserParams struct {
 	UserId                   string  `json:"user_id"`
 	Email                    *string `json:"email"`
+	Username                 *string `json:"username"`
 	LastEventCommitPosition  int64   `json:"last_event_commit_position"`
 	LastEventPreparePosition int64   `json:"last_event_prepare_position"`
 }
@@ -26,17 +27,20 @@ func UpsertRegisteredProfileUser(tx *sqlite.Conn) *UpsertRegisteredProfileUserSt
 INSERT INTO profile_stats (
 	user_id, 
 	email, 
+	username,
 	last_event_commit_position, 
 	last_event_prepare_position
 )
 VALUES (
 	?1, 
 	?2, 
-	?3, 
-	?4
+	?3,
+	?4, 
+	?5
 )
 ON CONFLICT (user_id) DO UPDATE SET
     email = EXCLUDED.email,
+		username = EXCLUDED.username,
     last_event_commit_position = EXCLUDED.last_event_commit_position,
     last_event_prepare_position = EXCLUDED.last_event_prepare_position,
     updated_at = CURRENT_TIMESTAMP
@@ -83,6 +87,13 @@ func (ps *UpsertRegisteredProfileUserStmt) Run(
 		stmt.BindNull(bindIndex)
 	} else {
 		stmt.BindText(bindIndex, *params.Email)
+
+	}
+	bindIndex++
+	if params.Username == nil {
+		stmt.BindNull(bindIndex)
+	} else {
+		stmt.BindText(bindIndex, *params.Username)
 
 	}
 	bindIndex++

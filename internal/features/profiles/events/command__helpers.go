@@ -23,7 +23,7 @@ func registeredUserQuery(userRegisteredID string) eventstore.Query {
 		Criteria: []eventstore.Criterion{
 			{Tags: []eventstore.Tag{
 				{Key: eventTypeKey, Value: auth.UserRegistered.String()},
-				{Key: auth.FieldUserRegisteredID, Value: userRegisteredID},
+				{Key: auth.UserRegisteredEventID, Value: userRegisteredID},
 			}},
 		},
 	}

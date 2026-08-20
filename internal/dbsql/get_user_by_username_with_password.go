@@ -7,24 +7,25 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type UserBySessionTokenRes struct {
-	Id               string `json:"id"`
-	UserRegisteredId string `json:"user_registered_id"`
-	Email            string `json:"email"`
-	Username         string `json:"username"`
-	Image            string `json:"image"`
-	Bio              string `json:"bio"`
-	HeaderImageUrl   string `json:"header_image_url"`
+type GetUserByUsernameWithPasswordRes struct {
+	Id               string  `json:"id"`
+	UserRegisteredId string  `json:"user_registered_id"`
+	Email            string  `json:"email"`
+	Username         string  `json:"username"`
+	Image            string  `json:"image"`
+	Bio              string  `json:"bio"`
+	HeaderImageUrl   string  `json:"header_image_url"`
+	Password         *string `json:"password"`
 }
 
-type UserBySessionTokenStmt struct {
+type GetUserByUsernameWithPasswordStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func UserBySessionToken(tx *sqlite.Conn) *UserBySessionTokenStmt {
+func GetUserByUsernameWithPassword(tx *sqlite.Conn) *GetUserByUsernameWithPasswordStmt {
 	const querySQL = `
 SELECT u.id,
        u.user_registered_id,
@@ -32,15 +33,15 @@ SELECT u.id,
 			 u.username,
        coalesce(u.image, '') AS image,
        coalesce(p.bio, '') AS bio,
-       coalesce(p.header_image_url, '') AS header_image_url
-FROM auth_session s
-JOIN auth_user u ON u.id = s.user_id
+       coalesce(p.header_image_url, '') AS header_image_url,
+       a.password
+FROM auth_user u
+JOIN auth_account a ON a.user_id = u.id AND a.provider_id = 'credential'
 LEFT JOIN profile_stats p ON p.user_id = u.user_registered_id
-WHERE s.token = ?1
-  AND s.expires_at > CURRENT_TIMESTAMP
+WHERE u.username = ?1
     `
 
-	ps := &UserBySessionTokenStmt{
+	ps := &GetUserByUsernameWithPasswordStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -53,10 +54,10 @@ WHERE s.token = ?1
 	return ps
 }
 
-func (ps *UserBySessionTokenStmt) Run(
-	token string,
+func (ps *GetUserByUsernameWithPasswordStmt) Run(
+	username string,
 ) (
-	res *UserBySessionTokenRes,
+	res *GetUserByUsernameWithPasswordRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
@@ -75,7 +76,7 @@ func (ps *UserBySessionTokenStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, token)
+	stmt.BindText(bindIndex, username)
 
 	bindIndex++
 
@@ -83,7 +84,7 @@ func (ps *UserBySessionTokenStmt) Run(
 	if hasRow, err := stmt.Step(); err != nil {
 		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
 	} else if hasRow {
-		row := UserBySessionTokenRes{}
+		row := GetUserByUsernameWithPasswordRes{}
 		row.Id = stmt.ColumnText(0)
 		row.UserRegisteredId = stmt.ColumnText(1)
 		row.Email = stmt.ColumnText(2)
@@ -91,22 +92,27 @@ func (ps *UserBySessionTokenStmt) Run(
 		row.Image = stmt.ColumnText(4)
 		row.Bio = stmt.ColumnText(5)
 		row.HeaderImageUrl = stmt.ColumnText(6)
+		isNullPassword := stmt.ColumnIsNull(7)
+		if !isNullPassword {
+			tmp := stmt.ColumnText(7)
+			row.Password = &tmp
+		}
 		res = &row
 	}
 
 	return res, nil
 }
 
-func OnceUserBySessionToken(
+func OnceGetUserByUsernameWithPassword(
 	tx *sqlite.Conn,
-	token string,
+	username string,
 ) (
-	res *UserBySessionTokenRes,
+	res *GetUserByUsernameWithPasswordRes,
 	err error,
 ) {
-	ps := UserBySessionToken(tx)
+	ps := GetUserByUsernameWithPassword(tx)
 
 	return ps.Run(
-		token,
+		username,
 	)
 }

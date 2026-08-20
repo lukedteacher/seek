@@ -5,6 +5,7 @@ import (
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
+
 	"zombiezen.com/go/sqlite"
 )
 
@@ -47,10 +48,10 @@ func (s *AccountDataDeletionStore) deleteKnownMedia(ctx context.Context, userReg
 	if s.storage == nil {
 		return nil
 	}
-	var row *dbsql.ProfileUserRes
+	var row *dbsql.GetUserProfileByUserIdRes
 	if err := s.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
-		row, err = dbsql.OnceProfileUser(conn, userRegisteredID)
+		row, err = dbsql.OnceGetUserProfileByUserId(conn, userRegisteredID)
 		if err == appdb.ErrNoRows {
 			return nil
 		}

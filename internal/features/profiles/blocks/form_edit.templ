@@ -3,10 +3,10 @@ package blocks
 import (
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/coreblocks/forms"
-	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/selectbox"
 	"seek/pkg/templui/components/textarea"
-
 
 	"github.com/starfederation/datastar-go/datastar"
 )
@@ -15,75 +15,37 @@ templ EditProfileForm() {
 	{{ user := models.GetUserFromContext(ctx) }}
 	<form
 		id="edit-profile-form"
-		class="seek-form"
+		class="seek-form w-128"
 		data-on:submit={ datastar.PostSSE("/profile/edit") }
 	>
 		<hgroup>
 			<h2>edit your profile</h2>
 			<p>make changes to your public profile information</p>
 		</hgroup>
-		<section>
-			@forms.TextInputWithLabel(
-				"name-label",
-				"name",
-				"/profile/edit/validate",
-				"profile.name",
-				user.Email,
-			)
-			@label.Label() {
-				<p>
-					<span class="justify-start">role</span>
-					<span></span>
-				</p>
-				@selectbox.SelectBox() {
-					@selectbox.Trigger(selectbox.TriggerProps{
-						Attributes: templ.Attributes{
-							"data-bind:profile.role": "",
-						},
-					}) {
-						@selectbox.Value(selectbox.ValueProps{
-							Placeholder: "select a role",
-						})
-					}
-					@selectbox.Content(selectbox.ContentProps{
-						NoSearch: true,
-					}) {
-						@selectbox.Item(selectbox.ItemProps{
-							Value: "coteacher",
-						}) {
-							co-teacher
-						}
-						@selectbox.Item(selectbox.ItemProps{
-							Value: "ea",
-						}) {
-							EA
-						}
-						@selectbox.Item(selectbox.ItemProps{
-							Value: "teacher",
-						}) {
-							teacher
-						}
-						@selectbox.Item(selectbox.ItemProps{
-							Value: "admin",
-						}) {
-							admin
-						}
-					}
-				}
-			}
+		<fieldset>
+			<legend>bio</legend>
 			@textarea.Textarea(textarea.Props{
 				Value: user.Bio,
 				Attributes: templ.Attributes{
 					"data-bind:profile.bio": "",
 				},
-			}) {
-				test
-			}
+			})
 			@textarea.Script()
 			@selectbox.Script()
-		</section>
+		</fieldset>
 		<footer>
-			@forms.CancelButton()
+			@button.Button(button.Props{
+				Class: "btn-warning",
+				Href:  "/profile",
+				Attributes: templ.Attributes{
+					"style": "flex: 1;",
+				},
+			}) {
+				@icon.X(icon.Props{
+					Size: "16",
+				})
+				<span>cancel</span>
+			}
 			@forms.SaveButton()
 		</footer>
 	</form>

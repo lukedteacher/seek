@@ -2,13 +2,13 @@
 INSERT OR IGNORE INTO auth_user (
 	id, 
 	email, 
-	email_verified, 
+	username,
 	user_registered_id
 )
 VALUES (
 	@id, 
 	@email, 
-	true, 
+	@username, 
 	@user_registered_id
 );
 
@@ -40,7 +40,7 @@ WHERE token = @token;
 SELECT u.id,
        u.user_registered_id,
        u.email,
-       u.email_verified,
+			 u.username,
        coalesce(u.image, '') AS image,
        coalesce(p.bio, '') AS bio,
        coalesce(p.header_image_url, '') AS header_image_url
@@ -54,7 +54,7 @@ WHERE s.token = @token
 SELECT u.id,
        u.user_registered_id,
        u.email,
-       u.email_verified,
+			 u.username,
        coalesce(u.image, '') AS image,
        coalesce(p.bio, '') AS bio,
        coalesce(p.header_image_url, '') AS header_image_url
@@ -66,7 +66,7 @@ WHERE u.user_registered_id = @user_registered_id;
 SELECT u.id,
        u.user_registered_id,
        u.email,
-       u.email_verified,
+			 u.username,
        coalesce(u.image, '') AS image,
        coalesce(p.bio, '') AS bio,
        coalesce(p.header_image_url, '') AS header_image_url
@@ -81,12 +81,6 @@ VALUES (@id, @identifier, @value, @expires_at);
 -- name: UpdateAuthUserImage :exec
 UPDATE auth_user
 SET image = @image,
-    updated_at = CURRENT_TIMESTAMP
-WHERE user_registered_id = @user_registered_id;
-
--- name: MarkAuthUserEmailVerified :exec
-UPDATE auth_user
-SET email_verified = true,
     updated_at = CURRENT_TIMESTAMP
 WHERE user_registered_id = @user_registered_id;
 
@@ -117,11 +111,11 @@ WHERE user_id = (
 )
   AND provider_id = 'credential';
 
--- name: UserByEmailWithPassword :one
+-- name: GetUserByEmailWithPassword :one
 SELECT u.id,
        u.user_registered_id,
        u.email,
-       u.email_verified,
+			 u.username,
        coalesce(u.image, '') AS image,
        coalesce(p.bio, '') AS bio,
        coalesce(p.header_image_url, '') AS header_image_url,
@@ -130,6 +124,20 @@ FROM auth_user u
 JOIN auth_account a ON a.user_id = u.id AND a.provider_id = 'credential'
 LEFT JOIN profile_stats p ON p.user_id = u.user_registered_id
 WHERE u.email = @email;
+
+-- name: GetUserByUsernameWithPassword :one
+SELECT u.id,
+       u.user_registered_id,
+       u.email,
+			 u.username,
+       coalesce(u.image, '') AS image,
+       coalesce(p.bio, '') AS bio,
+       coalesce(p.header_image_url, '') AS header_image_url,
+       a.password
+FROM auth_user u
+JOIN auth_account a ON a.user_id = u.id AND a.provider_id = 'credential'
+LEFT JOIN profile_stats p ON p.user_id = u.user_registered_id
+WHERE u.username = @username;
 
 -- name: DeleteAuthVerificationsByRegisteredID :exec
 DELETE FROM auth_verification

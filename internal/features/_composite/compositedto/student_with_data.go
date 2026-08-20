@@ -31,7 +31,11 @@ var StudentWithDataColumns = []shareddto.ColumnView{
 }
 
 var StudentWithDataTableConfig = shareddto.TableConfig[StudentWithData]{
-	Name:            "students",
+	Name: "students",
+	Sort: shareddto.TableSort{
+		Column:    "family_name",
+		Direction: "ASC",
+	},
 	Columns:         StudentWithDataColumns,
 	ValueExtractor:  valueExtractor,
 	TargetExtractor: targetExtractor,
@@ -40,7 +44,10 @@ var StudentWithDataTableConfig = shareddto.TableConfig[StudentWithData]{
 	},
 }
 
-func NewStudentWithDataTableView(students []StudentWithData) shareddto.TableView {
+func NewStudentWithDataTableView(students []StudentWithData, sort shareddto.TableSort) shareddto.TableView {
+	if sort.Column != "" && sort.Direction != "" {
+		StudentWithDataTableConfig.Sort = sort
+	}
 	return shareddto.NewTableView(students, StudentWithDataTableConfig)
 }
 

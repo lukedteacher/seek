@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 	"seek/internal/eventstore"
 	"seek/internal/features/_composite/compositedto"
+	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
 	csevents "seek/internal/features/caseload_students/events"
 	edto "seek/internal/features/educators/dto"
@@ -21,7 +23,9 @@ import (
 	"seek/internal/features/students/events"
 	"seek/internal/features/students/models"
 	"seek/internal/features/students/pages"
+	"seek/internal/ui/core/coreblocks/toasts"
 	"seek/internal/viewstore"
+	"seek/pkg/templui/components/toast"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/starfederation/datastar-go/datastar"
@@ -31,7 +35,6 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students", getStudentsList(s.Logger))
 	r.Get("/students/stream", getStudentsListStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.Educators))
 	r.Post("/students", postStudentsList(s.Logger, s.ViewStore))
-	r.Post("/students/sort/{field}", postStudentsSortField(s.Logger, s.ViewStore))
 	r.Get("/students/create", getStudentCreate(s.Logger))
 	r.Get("/students/create/stream", getStudentCreateStream(s.Logger, s.ViewStore, *s.ReadModels.Educators))
 	r.Post("/students/create/validate", postStudentCreateValidate(s.Logger, s.ViewStore))
@@ -73,11 +76,13 @@ func getStudentsListStream(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		sse := newSSE(w, r)
+		user := currentUser(r)
 
 		// subscribes to the channel which publishes changes to any students
-		notifier := NewDedupeNotifier()
-		sub, err := subscriber.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {
-			notifier.Notify()
+		notifier := NewMessageNotifier()
+		sub, err := subscriber.Subscribe(ctx, events.ChannelAll(), func(ctx context.Context, data []byte) {
+			l.Debug("data", "data", string(data))
+			notifier.Notify(data)
 		})
 		if err != nil {
 			l.ErrorContext(ctx, "students list stream subscribe", "err", err)
@@ -89,7 +94,7 @@ func getStudentsListStream(
 		// lasts 5m
 		watcher, err := vs.Watch(
 			ctx,
-			"students.list",
+			user.Username+".students.list",
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -119,33 +124,44 @@ func getStudentsListStream(
 			select {
 			case <-ctx.Done():
 				return
-			case <-notifier.Signal(): // triggers when the read model publishes
-				type filterSignals struct {
+			case data := <-notifier.Signal(): // triggers when the read model publishes
+				var msg map[string]string
+				if err := json.Unmarshal(data, &msg); err != nil {
+					l.ErrorContext(ctx, "parse signal data", "err", err)
+					continue
+				}
+				toastMsg := fmt.Sprintf("Updated: %s", msg["studentID"]) // example
+
+				type tableSignals struct {
 					Table struct {
-						Sort   map[string]int `json:"sort"`
+						Sort struct {
+							Column    string
+							Direction string
+						} `json:"sort"`
 						Filter struct {
 							Grade map[string]bool `json:"grade"`
 						} `json:"filter"`
 					} `json:"table"`
 				}
-				signals, ok, err := viewstore.GetState[filterSignals](ctx, vs, "students.list")
+				signals, ok, err := viewstore.GetState[tableSignals](ctx, vs, user.Username+".students.list")
 				if err != nil {
-					l.ErrorContext(ctx, "sse stream subscriber update", "err", err)
+					l.ErrorContext(ctx, "student create stream subscriber update", "err", err)
 				}
-				// checks if there is a view with filters different than the default
 				if !ok {
-					signals.Table.Filter.Grade = defaultFilter
+					signals.Table.Sort.Column = "family_name"
+					signals.Table.Sort.Direction = "ASC"
 				}
 				listView := createListView(
 					ctx,
 					l,
 					studentReadModel,
-					"family_name",
-					"ASC",
+					signals.Table.Sort.Column,
+					signals.Table.Sort.Direction,
 					signals.Table.Filter.Grade,
 					educatorReadModel,
 				)
 				sse.PatchElementTempl(pages.List(listView))
+				sse.PatchElementTempl(toasts.ToastContainer(toast.VariantInfo, toastMsg))
 			case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
 				if !ok {
 					return
@@ -187,6 +203,7 @@ func postStudentsList(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		user := currentUser(r)
 		signals := &struct {
 			Table struct {
 				Sort struct {
@@ -199,18 +216,7 @@ func postStudentsList(
 			} `json:"table"`
 		}{}
 		datastar.ReadSignals(r, signals)
-		viewstore.PutState(ctx, vs, "students.list", signals)
-	}
-}
-
-// POST request to /students/sort/field
-func postStudentsSortField(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		field := chi.URLParam(r, "field")
-		l.Debug("test", "field", field)
+		viewstore.PutState(ctx, vs, user.Username+".students.list", signals)
 	}
 }
 
@@ -877,8 +883,8 @@ func createListView(
 	educatorReadModel eevents.ReadModel,
 ) pages.ListView {
 	// get students data from db
-	// temp := temp(studentFilter)
-	students, err := studentReadModel.List(ctx, events.WithSort(sortCol, sortDir))
+	gradeFilter := buildGradeFilter(studentFilter)
+	students, err := studentReadModel.List(ctx, events.WithSort(sortCol, sortDir), events.WithGradeFilter(gradeFilter))
 	if err != nil {
 		l.ErrorContext(ctx, "create students view", "err", err)
 		return pages.ListView{}
@@ -901,9 +907,10 @@ func createListView(
 	}
 
 	// create the table view
-	studentTableView := compositedto.NewStudentWithDataTableView(studentWithDataViews)
-	studentTableView.Sort.Column = sortCol
-	studentTableView.Sort.Direction = sortDir
+	studentTableView := compositedto.NewStudentWithDataTableView(studentWithDataViews, shareddto.TableSort{
+		Column:    sortCol,
+		Direction: sortDir,
+	})
 
 	return pages.ListView{
 		Table:        studentTableView,
@@ -911,7 +918,7 @@ func createListView(
 	}
 }
 
-func temp(m map[string]bool) []int {
+func buildGradeFilter(m map[string]bool) []int {
 	var result []int
 	for k, v := range m {
 		if v {

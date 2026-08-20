@@ -23,14 +23,14 @@ type RequestPasswordResetResult struct {
 }
 
 type PasswordResetUserReader interface {
-	UserByEmailWithPassword(ctx context.Context, emailAddress string) (models.User, string, error)
+	GetUserByEmailWithPassword(ctx context.Context, emailAddress string) (models.User, string, error)
 }
 
 func RequestPasswordResetCommandHandler(ctx context.Context, command RequestPasswordResetCommand, users PasswordResetUserReader, saver eventstore.Saver, retriever eventstore.Retriever, keys SubjectPiiKeyPort) (RequestPasswordResetResult, error) {
 	if err := commandlimits.Assert(command); err != nil {
 		return RequestPasswordResetResult{}, err
 	}
-	user, _, err := users.UserByEmailWithPassword(ctx, strings.ToLower(strings.TrimSpace(command.EmailAddress)))
+	user, _, err := users.GetUserByEmailWithPassword(ctx, strings.ToLower(strings.TrimSpace(command.EmailAddress)))
 	if err != nil {
 		return RequestPasswordResetResult{}, nil
 	}

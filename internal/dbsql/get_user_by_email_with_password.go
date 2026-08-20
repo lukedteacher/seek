@@ -7,30 +7,30 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type UserByEmailWithPasswordRes struct {
+type GetUserByEmailWithPasswordRes struct {
 	Id               string  `json:"id"`
 	UserRegisteredId string  `json:"user_registered_id"`
 	Email            string  `json:"email"`
-	EmailVerified    int64   `json:"email_verified"`
+	Username         string  `json:"username"`
 	Image            string  `json:"image"`
 	Bio              string  `json:"bio"`
 	HeaderImageUrl   string  `json:"header_image_url"`
 	Password         *string `json:"password"`
 }
 
-type UserByEmailWithPasswordStmt struct {
+type GetUserByEmailWithPasswordStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func UserByEmailWithPassword(tx *sqlite.Conn) *UserByEmailWithPasswordStmt {
+func GetUserByEmailWithPassword(tx *sqlite.Conn) *GetUserByEmailWithPasswordStmt {
 	const querySQL = `
 SELECT u.id,
        u.user_registered_id,
        u.email,
-       u.email_verified,
+			 u.username,
        coalesce(u.image, '') AS image,
        coalesce(p.bio, '') AS bio,
        coalesce(p.header_image_url, '') AS header_image_url,
@@ -41,7 +41,7 @@ LEFT JOIN profile_stats p ON p.user_id = u.user_registered_id
 WHERE u.email = ?1
     `
 
-	ps := &UserByEmailWithPasswordStmt{
+	ps := &GetUserByEmailWithPasswordStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -54,10 +54,10 @@ WHERE u.email = ?1
 	return ps
 }
 
-func (ps *UserByEmailWithPasswordStmt) Run(
+func (ps *GetUserByEmailWithPasswordStmt) Run(
 	email string,
 ) (
-	res *UserByEmailWithPasswordRes,
+	res *GetUserByEmailWithPasswordRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
@@ -84,11 +84,11 @@ func (ps *UserByEmailWithPasswordStmt) Run(
 	if hasRow, err := stmt.Step(); err != nil {
 		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
 	} else if hasRow {
-		row := UserByEmailWithPasswordRes{}
+		row := GetUserByEmailWithPasswordRes{}
 		row.Id = stmt.ColumnText(0)
 		row.UserRegisteredId = stmt.ColumnText(1)
 		row.Email = stmt.ColumnText(2)
-		row.EmailVerified = stmt.ColumnInt64(3)
+		row.Username = stmt.ColumnText(3)
 		row.Image = stmt.ColumnText(4)
 		row.Bio = stmt.ColumnText(5)
 		row.HeaderImageUrl = stmt.ColumnText(6)
@@ -103,14 +103,14 @@ func (ps *UserByEmailWithPasswordStmt) Run(
 	return res, nil
 }
 
-func OnceUserByEmailWithPassword(
+func OnceGetUserByEmailWithPassword(
 	tx *sqlite.Conn,
 	email string,
 ) (
-	res *UserByEmailWithPasswordRes,
+	res *GetUserByEmailWithPasswordRes,
 	err error,
 ) {
-	ps := UserByEmailWithPassword(tx)
+	ps := GetUserByEmailWithPassword(tx)
 
 	return ps.Run(
 		email,

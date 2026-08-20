@@ -15,10 +15,6 @@ templ EditServiceForm(view dto.IEPServiceFormView) {
 		class="seek-form"
 		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
-		<hgroup>
-			<h2>edit IEP service</h2>
-			<p>edit an iep service for a student.</p>
-		</hgroup>
 		@FormSections(view)
 		<footer>
 			@forms.CancelButton()

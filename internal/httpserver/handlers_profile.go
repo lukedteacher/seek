@@ -32,6 +32,7 @@ func (s Server) profileRoutes(r chi.Router) {
 func (s Server) getProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := s.profileUser(ctx, currentUser(r))
+	s.Logger.Debug("test", "U", user.Email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -118,6 +119,8 @@ func (s Server) postProfileEdit(w http.ResponseWriter, r *http.Request) {
 	); err != nil {
 		s.Logger.ErrorContext(ctx, "profile update", "err", err)
 	}
+	sse := newSSE(w, r)
+	sse.Redirect("/profile")
 }
 
 // refreshes profile view state in kv store when there is an update for the SSE stream
@@ -131,9 +134,10 @@ func (s Server) refreshProfileViewState(ctx context.Context, key string, current
 
 // helper to get profile for the user
 func (s Server) profileUser(ctx context.Context, current um.User) (um.User, error) {
-	user, err := s.ReadModels.Profiles.User(ctx, current.UserRegisteredID)
+	user, err := s.ReadModels.Profiles.GetUserProfileByID(ctx, current.UserRegisteredID)
 	if err != nil {
 		if errors.Is(err, appdb.ErrNoRows) {
+			s.Logger.DebugContext(ctx, "returning current user due to no profile entry in db")
 			return current, nil
 		}
 		return um.User{}, err

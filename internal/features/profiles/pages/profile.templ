@@ -1,16 +1,20 @@
 package pages
 
 import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/profiles/blocks"
-	"seek/internal/ui/core/corelayouts"
 	"seek/internal/features/users/models"
-	sse "seek/pkg/sse"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
 )
 
 templ Profile(user models.User, view any) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: your profile") {
-		<main data-init={ sse.LongRunningGetSSE("/profile/stream") }>
-			<section style="width: 100%; max-width: 52rem;">
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			<section class="w-full h-full flex justify-center items-start">
 				@blocks.ProfileOverview(user)
 			</section>
 		</main>

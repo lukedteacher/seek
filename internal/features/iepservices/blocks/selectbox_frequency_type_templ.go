@@ -66,7 +66,7 @@ func FrequencyTypeSelect(selected string) templ.Component {
 			})
 			templ_7745c5c3_Err = label.Label(label.Props{
 				For:   "frequency-type-multiselect",
-				Class: "text-neutral-content/80 mb-3",
+				Class: "text-xs text-neutral-content/90 mb-3",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

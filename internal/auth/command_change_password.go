@@ -21,7 +21,7 @@ type ChangePasswordCommand struct {
 }
 
 type PasswordCredentialReader interface {
-	UserByEmailWithPassword(ctx context.Context, emailAddress string) (models.User, string, error)
+	GetUserByEmailWithPassword(ctx context.Context, emailAddress string) (models.User, string, error)
 }
 
 func ChangePasswordCommandHandler(ctx context.Context, command ChangePasswordCommand, credentials PasswordCredentialReader, saver eventstore.Saver, retriever eventstore.Retriever) error {
@@ -31,7 +31,7 @@ func ChangePasswordCommandHandler(ctx context.Context, command ChangePasswordCom
 	if len(command.NewPassword) < 6 {
 		return errors.New("password must be at least 6 characters")
 	}
-	_, currentHash, err := credentials.UserByEmailWithPassword(ctx, command.User.Email)
+	_, currentHash, err := credentials.GetUserByEmailWithPassword(ctx, command.User.Email)
 	if err != nil {
 		return err
 	}

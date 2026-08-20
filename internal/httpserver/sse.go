@@ -3,6 +3,8 @@ package httpserver
 import (
 	"net/http"
 	"seek/internal/ui/core/coreblocks/toasts"
+	"sync"
+	"time"
 
 	"github.com/a-h/templ"
 	"github.com/starfederation/datastar-go/datastar"
@@ -32,6 +34,40 @@ func (n *DedupeNotifier) Notify() {
 // returns the recieve-only channel
 // use `<-notifier.Signal()` to be notified of updates
 func (n *DedupeNotifier) Signal() <-chan struct{} {
+	return n.ch
+}
+
+type MessageNotifier struct {
+	mu      sync.Mutex
+	ch      chan []byte
+	timer   *time.Timer
+	pending []byte // last message to send after coalescing
+}
+
+func NewMessageNotifier() *MessageNotifier {
+	return &MessageNotifier{
+		ch: make(chan []byte, 1), // buffered to avoid blocking
+	}
+}
+
+func (n *MessageNotifier) Notify(data []byte) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	n.pending = data
+	if n.timer == nil {
+		n.timer = time.AfterFunc(10*time.Millisecond, func() {
+			n.mu.Lock()
+			defer n.mu.Unlock()
+			select {
+			case n.ch <- n.pending:
+			default:
+			}
+			n.timer = nil
+		})
+	}
+}
+
+func (n *MessageNotifier) Signal() <-chan []byte {
 	return n.ch
 }
 
