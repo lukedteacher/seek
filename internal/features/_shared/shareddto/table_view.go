@@ -11,14 +11,18 @@ type TableConfig[T any] struct {
 }
 
 type TableView struct {
-	Name    string
+	Name string
+	Sort struct {
+		Column    string
+		Direction string
+	}
 	Columns []ColumnView
 	Rows    []RowView
 }
 
 type ColumnView struct {
 	Field        string                         // e.g. "DirectMinutes", "StudentID"
-	JSON         string                         // e.g. "direct_minutes", "student_id"
+	Signal       string                         // e.g. "direct_minutes", "student_id"
 	Display      string                         // e.g. "direct", "student ID"
 	Group        string                         // e.g. "minutes", ""
 	Renderer     string                         // e.g. "text", "badge"

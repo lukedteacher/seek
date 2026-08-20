@@ -10,19 +10,18 @@ import (
 )
 
 type ListStudentsByGradeRes struct {
-	Id          string  `json:"id"`
-	MarssId     string  `json:"marss_id"`
-	GivenName   string  `json:"given_name"`
-	ChosenName  string  `json:"chosen_name"`
-	FamilyName  string  `json:"family_name"`
-	Email       string  `json:"email"`
-	Username    string  `json:"username"`
-	Grade       int64   `json:"grade"`
-	Homeroom    string  `json:"homeroom"`
-	CaseManager string  `json:"case_manager"`
-	CreatedAt   string  `json:"created_at"`
-	UpdatedAt   string  `json:"updated_at"`
-	ArchivedAt  *string `json:"archived_at"`
+	Id          string `json:"id"`
+	MarssId     string `json:"marss_id"`
+	GivenName   string `json:"given_name"`
+	ChosenName  string `json:"chosen_name"`
+	FamilyName  string `json:"family_name"`
+	Email       string `json:"email"`
+	Username    string `json:"username"`
+	Grade       int64  `json:"grade"`
+	Homeroom    string `json:"homeroom"`
+	CaseManager string `json:"case_manager"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
 }
 
 type ListStudentsByGradeStmt struct {
@@ -46,8 +45,7 @@ SELECT
     homeroom, 
     case_manager, 
     created_at, 
-    updated_at,
-    archived_at
+    updated_at
 FROM students
 WHERE archived_at IS NULL
   AND grade IN (/*SLICE:grades*/?)
@@ -125,11 +123,6 @@ func (ps *ListStudentsByGradeStmt) Run(
 		row.CaseManager = stmt.ColumnText(9)
 		row.CreatedAt = stmt.ColumnText(10)
 		row.UpdatedAt = stmt.ColumnText(11)
-		isNullArchivedAt := stmt.ColumnIsNull(12)
-		if !isNullArchivedAt {
-			tmp := stmt.ColumnText(12)
-			row.ArchivedAt = &tmp
-		}
 		res = append(res, row)
 	}
 

@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.7.1 (26.08.19) student table sorting alpha
+
+- implemented hacky sort for student table
+- sort buttons have styles and logic for activation and direction
+- non-student table fields don't sort as of yet
+
 ## v0.7.0 (26.08.18) major user event refactor, more data table stuff
 
 - changed user events to follow the style currently in place

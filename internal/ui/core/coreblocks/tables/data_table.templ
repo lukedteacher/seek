@@ -15,7 +15,11 @@ import (
 )
 
 templ DataTable(view shareddto.TableView) {
-	<section data-slot="data-table" class="w-full ml-auto mr-auto">
+	<section
+		data-slot="data-table"
+		class="w-full ml-auto mr-auto"
+		data-signals={ fmt.Sprintf("{table: {sort: {column: '%s', direction: '%s'}}}", view.Sort.Column, view.Sort.Direction) }
+	>
 		{ children... }
 		@Table(view)
 	</section>
@@ -93,7 +97,7 @@ templ Header(view shareddto.TableView) {
 					}) {
 						<div class="flex justify-between items-center">
 							<span>{ col.Display }</span>
-							@SortButton(strings.ToLower(col.Field))
+							@SortButton(col.Signal, view.Sort.Column, view.Sort.Direction)
 						</div>
 					}
 				} else {
@@ -136,7 +140,10 @@ templ Header(view shareddto.TableView) {
 						{{ class += " not-first:border-l" }}
 					}
 					@table.Head(table.HeadProps{Class: class}) {
-						{ col.Display }
+						<div class="flex justify-between items-center">
+							<span>{ col.Display }</span>
+							@SortButton(col.Signal, view.Sort.Column, view.Sort.Direction)
+						</div>
 					}
 					{{ firstGrouped = false }}
 				}
@@ -243,19 +250,32 @@ templ ActionCell(target, rowID string) {
 	}
 }
 
-templ SortButton(column string) {
+templ SortButton(column, sortCol, sortDir string) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@button.Button(button.Props{
 		Size:    button.SizeIcon,
 		Variant: button.VariantGhost,
 		Attributes: templ.Attributes{
-			"data-signals":  fmt.Sprintf("$%[1]s = false", column),
-			"data-on:click": fmt.Sprintf("$%[1]s=!$%[1]s; @post('%[2]s/sort')", column, url),
-			"style":         "margin-left: auto;",
+			"data-on:click": fmt.Sprintf(
+				"if ($table.sort.column == '%[1]s') { $table.sort.direction = $table.sort.direction == 'ASC' ? 'DESC' : 'ASC'; } else { $table.sort.column = '%[1]s'; $table.sort.direction = 'ASC'; } @post('%[2]s')",
+				column, url,
+			),
+			"data-class:bg-primary": fmt.Sprintf("$table.sort.column == '%s'", column),
+			"style":                 "margin-left: auto;",
 		},
 	}) {
-		@icon.ArrowUpDown(icon.Props{
-			Size: "16",
-		})
+		if sortCol == column {
+			if sortDir == "ASC" {
+				@icon.ArrowUp(icon.Props{
+					Class: "text-neutral-content",
+				})
+			} else {
+				@icon.ArrowDown(icon.Props{
+					Class: "text-neutral-content",
+				})
+			}
+		} else {
+			@icon.ArrowUpDown()
+		}
 	}
 }

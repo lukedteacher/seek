@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"seek/internal/eventstore"
 	"seek/internal/features/_composite/compositedto"
@@ -30,6 +31,7 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students", getStudentsList(s.Logger))
 	r.Get("/students/stream", getStudentsListStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.Educators))
 	r.Post("/students", postStudentsList(s.Logger, s.ViewStore))
+	r.Post("/students/sort/{field}", postStudentsSortField(s.Logger, s.ViewStore))
 	r.Get("/students/create", getStudentCreate(s.Logger))
 	r.Get("/students/create/stream", getStudentCreateStream(s.Logger, s.ViewStore, *s.ReadModels.Educators))
 	r.Post("/students/create/validate", postStudentCreateValidate(s.Logger, s.ViewStore))
@@ -97,13 +99,18 @@ func getStudentsListStream(
 			return
 		}
 		defer watcher.Stop()
-		defaultGradesFilter := []int{0, 1, 2, 3, 4, 5, 6, 7, 8}
 
+		defaultFilter := make(map[string]bool, 9)
+		for _, grade := range sharedmodels.GradeList {
+			defaultFilter[grade.Str()] = true
+		}
 		listView := createListView(
 			ctx,
 			l,
 			studentReadModel,
-			defaultGradesFilter,
+			"family_name",
+			"ASC",
+			defaultFilter,
 			educatorReadModel,
 		)
 		sse.PatchElementTempl(pages.List(listView))
@@ -114,36 +121,45 @@ func getStudentsListStream(
 				return
 			case <-notifier.Signal(): // triggers when the read model publishes
 				type filterSignals struct {
-					Filter struct {
-						Grades []int `json:"grades"`
-					} `json:"filter"`
+					Table struct {
+						Sort   map[string]int `json:"sort"`
+						Filter struct {
+							Grade map[string]bool `json:"grade"`
+						} `json:"filter"`
+					} `json:"table"`
 				}
 				signals, ok, err := viewstore.GetState[filterSignals](ctx, vs, "students.list")
 				if err != nil {
 					l.ErrorContext(ctx, "sse stream subscriber update", "err", err)
 				}
-				filters := []int{0, 1, 2, 3, 4, 5, 6, 7, 8}
 				// checks if there is a view with filters different than the default
-				if ok {
-					filters = signals.Filter.Grades
+				if !ok {
+					signals.Table.Filter.Grade = defaultFilter
 				}
 				listView := createListView(
 					ctx,
 					l,
 					studentReadModel,
-					filters,
+					"family_name",
+					"ASC",
+					signals.Table.Filter.Grade,
 					educatorReadModel,
 				)
-				listView.FilterGrades = filters
 				sse.PatchElementTempl(pages.List(listView))
 			case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
 				if !ok {
 					return
 				}
 				signals := &struct {
-					Filter struct {
-						Grades []int `json:"grades"`
-					} `json:"filter"`
+					Table struct {
+						Sort struct {
+							Column    string
+							Direction string
+						} `json:"sort"`
+						Filter struct {
+							Grade map[string]bool `json:"grade"`
+						} `json:"filter"`
+					} `json:"table"`
 				}{}
 				if err := entry.JSON(signals); err != nil {
 					l.ErrorContext(ctx, "student create stream json", "err", err)
@@ -153,10 +169,11 @@ func getStudentsListStream(
 					ctx,
 					l,
 					studentReadModel,
-					signals.Filter.Grades,
+					signals.Table.Sort.Column,
+					signals.Table.Sort.Direction,
+					signals.Table.Filter.Grade,
 					educatorReadModel,
 				)
-				listView.FilterGrades = signals.Filter.Grades
 				sse.PatchElementTempl(pages.List(listView))
 			}
 		}
@@ -171,12 +188,29 @@ func postStudentsList(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		signals := &struct {
-			Filter struct {
-				Grades []int `json:"grades"`
-			} `json:"filter"`
+			Table struct {
+				Sort struct {
+					Column    string
+					Direction string
+				} `json:"sort"`
+				Filter struct {
+					Grade map[string]bool `json:"grade"`
+				} `json:"filter"`
+			} `json:"table"`
 		}{}
 		datastar.ReadSignals(r, signals)
 		viewstore.PutState(ctx, vs, "students.list", signals)
+	}
+}
+
+// POST request to /students/sort/field
+func postStudentsSortField(
+	l *slog.Logger,
+	vs viewstore.Store,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		field := chi.URLParam(r, "field")
+		l.Debug("test", "field", field)
 	}
 }
 
@@ -837,11 +871,14 @@ func createListView(
 	ctx context.Context,
 	l *slog.Logger,
 	studentReadModel events.ReadModel,
-	studentFilter []int,
+	sortCol,
+	sortDir string,
+	studentFilter map[string]bool,
 	educatorReadModel eevents.ReadModel,
 ) pages.ListView {
 	// get students data from db
-	students, err := studentReadModel.List(ctx, events.WithServices(), events.WithGradeFilter(studentFilter))
+	// temp := temp(studentFilter)
+	students, err := studentReadModel.List(ctx, events.WithSort(sortCol, sortDir))
 	if err != nil {
 		l.ErrorContext(ctx, "create students view", "err", err)
 		return pages.ListView{}
@@ -865,11 +902,25 @@ func createListView(
 
 	// create the table view
 	studentTableView := compositedto.NewStudentWithDataTableView(studentWithDataViews)
+	studentTableView.Sort.Column = sortCol
+	studentTableView.Sort.Direction = sortDir
 
 	return pages.ListView{
 		Table:        studentTableView,
 		FilterGrades: studentFilter,
 	}
+}
+
+func temp(m map[string]bool) []int {
+	var result []int
+	for k, v := range m {
+		if v {
+			if i, err := strconv.Atoi(k); err == nil {
+				result = append(result, i)
+			}
+		}
+	}
+	return result
 }
 
 // reads the db for the given student and saves the state to a kv store for the SSE to update

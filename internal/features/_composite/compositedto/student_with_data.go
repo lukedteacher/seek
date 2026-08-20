@@ -21,14 +21,13 @@ type StudentWithData struct {
 }
 
 var StudentWithDataColumns = []shareddto.ColumnView{
-	{Field: "MARSSID", Display: "MARSS ID"},
-	{Field: "GivenName", Display: "given", Group: "name"},
-	{Field: "ChosenName", Display: "chosen", Group: "name"},
-	{Field: "FamilyName", Display: "family", Group: "name"},
-	{Field: "Email", Display: "email"},
-	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center"},
-	{Field: "Homeroom", Display: "homeroom"},
-	{Field: "CaseManager", Display: "case manager", RenderFunc: caseManagerRenderer},
+	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name"},
+	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name"},
+	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name"},
+	{Field: "Email", Display: "email", Signal: "email"},
+	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center", Signal: "grade"},
+	{Field: "Homeroom", Display: "homeroom", Signal: "homeroom"},
+	{Field: "CaseManager", Display: "case manager", RenderFunc: caseManagerRenderer, Signal: "case_manager"},
 }
 
 var StudentWithDataTableConfig = shareddto.TableConfig[StudentWithData]{

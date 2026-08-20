@@ -13,6 +13,7 @@ import (
 	"seek/internal/features/students/models"
 
 	"zombiezen.com/go/sqlite"
+	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 type ReadModel struct {
@@ -94,6 +95,10 @@ type listConfig struct {
 	withCaseManager bool
 	withServices    bool
 	withGradeFilter []int
+	withSort        struct {
+		column    string
+		direction string
+	}
 }
 
 func WithCaseManager() ListOption {
@@ -105,6 +110,13 @@ func WithCaseManager() ListOption {
 func WithServices() ListOption {
 	return func(c *listConfig) {
 		c.withServices = true
+	}
+}
+
+func WithSort(col, dir string) ListOption {
+	return func(c *listConfig) {
+		c.withSort.column = col
+		c.withSort.direction = dir
 	}
 }
 
@@ -122,6 +134,9 @@ func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Stud
 	if cfg.withCaseManager {
 		// TODO later?
 	}
+	if cfg.withSort.column != "" && cfg.withSort.direction != "" {
+		return m.listAllWithSorting(ctx, cfg.withSort.column, cfg.withSort.direction)
+	}
 	if len(cfg.withGradeFilter) > 0 && len(cfg.withGradeFilter) < 9 {
 		return m.listByGrade(ctx, cfg.withGradeFilter)
 	}
@@ -129,6 +144,70 @@ func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Stud
 		return m.listWithServices(ctx)
 	}
 	return m.listAll(ctx)
+}
+
+func (m *ReadModel) listAllWithSorting(
+	ctx context.Context,
+	sortBy,
+	sortDir string,
+) ([]models.Student, error) {
+	allowedColumns := map[string]bool{
+		"marss_id":     true,
+		"given_name":   true,
+		"chosen_name":  true,
+		"family_name":  true,
+		"email":        true,
+		"grade":        true,
+		"homeroom":     true,
+		"case_manager": true,
+		"created_at":   true,
+		"updated_at":   true,
+	}
+	allowedDirs := map[string]bool{"ASC": true, "DESC": true}
+
+	if !allowedColumns[sortBy] {
+		sortBy = "family_name"
+	}
+	if !allowedDirs[sortDir] {
+		sortDir = "DESC"
+	}
+
+	query := fmt.Sprintf(`
+        SELECT 
+            id, marss_id, given_name, chosen_name, family_name,
+            email, username, grade, homeroom, case_manager,
+            created_at, updated_at
+        FROM students
+        WHERE archived_at IS NULL
+        ORDER BY %s %s, family_name ASC, given_name ASC
+    `, sortBy, sortDir)
+
+	var students []models.Student
+	err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		return sqlitex.ExecuteTransient(conn, query, &sqlitex.ExecOptions{
+			ResultFunc: func(stmt *sqlite.Stmt) error {
+				var student models.Student
+				student.ID = stmt.ColumnText(0)
+				student.MARSSID = stmt.ColumnText(1)
+				student.GivenName = stmt.ColumnText(2)
+				student.ChosenName = stmt.ColumnText(3)
+				student.FamilyName = stmt.ColumnText(4)
+				student.Email = stmt.ColumnText(5)
+				student.Username = stmt.ColumnText(6)
+				student.Grade = sharedmodels.Grade(stmt.ColumnInt64(7))
+				student.Homeroom = stmt.ColumnText(8)
+				student.CaseManagerID = stmt.ColumnText(9)
+				student.CreatedAt = parseDBTime(stmt.ColumnText(10))
+				student.UpdatedAt = parseDBTime(stmt.ColumnText(11))
+				students = append(students, student)
+				return nil
+			},
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return students, nil
 }
 
 func (m *ReadModel) listAll(ctx context.Context) ([]models.Student, error) {

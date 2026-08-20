@@ -16,7 +16,7 @@ import (
 
 type ListView struct {
 	Table        shareddto.TableView
-	FilterGrades []int
+	FilterGrades map[string]bool
 }
 
 templ List(view ListView) {
@@ -25,7 +25,7 @@ templ List(view ListView) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("student list")
 			@tables.DataTable(view.Table) {
-				<div class="w-full flex gap-3" data-signals:filter.grades={ templ.JSONString(view.FilterGrades) }>
+				<div class="w-full flex gap-3">
 					@button.Button(button.Props{
 						Href: "/students/create",
 					}) {
@@ -33,7 +33,7 @@ templ List(view ListView) {
 						<span>create</span>
 					}
 				</div>
-				@blocks.StudentFilters()
+				@blocks.StudentFilters(view.FilterGrades)
 			}
 		</main>
 	}

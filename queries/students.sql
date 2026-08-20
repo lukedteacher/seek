@@ -11,8 +11,7 @@ SELECT
 	homeroom, 
 	case_manager, 
 	created_at, 
-	updated_at,
-	archived_at
+	updated_at
 FROM students
 WHERE archived_at IS NULL
 	AND id = @id;
@@ -30,8 +29,7 @@ SELECT
 	homeroom, 
 	case_manager, 
 	created_at, 
-	updated_at,
-	archived_at
+	updated_at
 FROM students
 WHERE archived_at IS NULL
 	AND username = @username;
@@ -49,8 +47,7 @@ SELECT
 	homeroom, 
 	case_manager, 
 	created_at, 
-	updated_at,
-	archived_at
+	updated_at
 FROM students
 WHERE archived_at IS NULL
 ORDER BY family_name DESC, given_name DESC;
@@ -68,8 +65,7 @@ SELECT
     homeroom, 
     case_manager, 
     created_at, 
-    updated_at,
-    archived_at
+    updated_at
 FROM students
 WHERE archived_at IS NULL
   AND grade IN (sqlc.slice('grades'))
@@ -88,14 +84,14 @@ SELECT
     s.homeroom, 
     s.case_manager, 
     s.created_at, 
-    s.updated_at,
-    s.archived_at
+    s.updated_at
 FROM students s
 WHERE EXISTS (
 	SELECT 1 FROM iep_services ieps
 	WHERE ieps.student_id = s.id
 		AND ieps.service_type = sqlc.arg('service_type')
 		AND ieps.archived_at IS NULL
+		AND s.archived_at IS NULL
 );
 
 -- name: ListStudentsWithIEPServices :many
@@ -112,7 +108,6 @@ SELECT
     s.case_manager,
     s.created_at,
     s.updated_at,
-    s.archived_at,
     i.id AS service_id,
     i.service_name,
     i.service_type,
@@ -125,8 +120,7 @@ SELECT
     i.end_date,
     i.provider,
     i.created_at AS service_created_at,
-    i.updated_at AS service_updated_at,
-    i.archived_at AS service_archived_at
+    i.updated_at AS service_updated_at
 FROM students s
 LEFT JOIN iep_services i ON s.id = i.student_id
 WHERE s.archived_at IS NULL
