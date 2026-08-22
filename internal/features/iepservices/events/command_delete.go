@@ -81,10 +81,10 @@ func (m *deleteIEPServiceContext) isActive() bool {
 
 func (m *deleteIEPServiceContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case EventTypeIEPServiceAddedToStudent:
+	case EventServiceAddedToIEP:
 		m.exists = true
 		m.deleted = false
-	case EventTypeIEPServiceDeleted:
+	case EventIEPServiceDeleted:
 		m.deleted = true
 	}
 	if resolved.Position.After(m.position) {

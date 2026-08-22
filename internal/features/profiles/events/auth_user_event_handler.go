@@ -49,8 +49,8 @@ func (h *ProfileImageUploadedAuthUserEventHandler) handle(ctx context.Context, r
 	if resolved.Event.EventType != ProfileImageUploaded {
 		return nil
 	}
-	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[ProfileScopeUserRegisteredIDField].(string)
-	imageURL, _ := resolved.Event.Data[ProfileImageURLField].(string)
+	userRegisteredID, _ := eventstore.Scope(resolved.Event.Data)[FieldScopeUserRegisteredEventID].(string)
+	imageURL, _ := resolved.Event.Data[FieldProfileImageURL].(string)
 	if userRegisteredID == "" || imageURL == "" {
 		return nil
 	}
@@ -67,7 +67,7 @@ func (h *ProfileImageUploadedAuthUserEventHandler) handle(ctx context.Context, r
 func profileImageUploadedAuthUserEventHandlerQuery() eventstore.Query {
 	return eventstore.Query{
 		Criteria: []eventstore.Criterion{
-			{Tags: []eventstore.Tag{{Key: eventTypeKey, Value: ProfileImageUploaded}}},
+			{Tags: []eventstore.Tag{{Key: eventTypeKey, Value: ProfileImageUploaded.String()}}},
 		},
 	}
 }

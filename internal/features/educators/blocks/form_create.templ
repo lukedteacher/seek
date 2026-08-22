@@ -15,10 +15,6 @@ templ EducatorCreateForm(view dto.EducatorFormView) {
 		class="seek-form w-128"
 		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
-		<hgroup>
-			<h2>create educator</h2>
-			<p>create a new educator.</p>
-		</hgroup>
 		@FormSections(view)
 		<footer>
 			@forms.CancelButton()

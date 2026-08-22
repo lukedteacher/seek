@@ -104,16 +104,16 @@ func (h *PeriodReadModelEventHandler) StopSubscribing() {
 }
 
 func PeriodReadModelEventHandlerQuery() eventstore.Query {
-	eventTypes := []string{
-		PeriodCreated,
-		PeriodUpdated,
-		PeriodArchived,
-		PeriodDeleted,
+	eventTypes := []eventType{
+		EventPeriodCreated,
+		EventPeriodUpdated,
+		EventPeriodArchived,
+		EventPeriodDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
 	for _, eventType := range eventTypes {
 		criteria = append(criteria, eventstore.Criterion{
-			Tags: []eventstore.Tag{{Key: eventTypeKey, Value: eventType}},
+			Tags: []eventstore.Tag{{Key: eventTypeKey, Value: eventType.String()}},
 		})
 	}
 	return eventstore.Query{Criteria: criteria}
@@ -129,7 +129,7 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 	}
 
 	switch resolved.Event.EventType {
-	case PeriodCreated:
+	case EventPeriodCreated:
 		periodCreated := PeriodCreatedProjection{
 			PeriodID:    periodID,
 			Title:       data[FieldPeriodTitle].(string),
@@ -142,7 +142,7 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 		if err := h.readModel.CreatePeriod(ctx, periodCreated); err != nil {
 			return err
 		}
-	case PeriodUpdated:
+	case EventPeriodUpdated:
 		periodUpdated := PeriodUpdatedProjection{
 			PeriodID:    periodID,
 			Title:       data[FieldPeriodTitle].(string),
@@ -155,7 +155,7 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 		if err := h.readModel.UpdatePeriod(ctx, periodUpdated); err != nil {
 			return err
 		}
-	case PeriodArchived:
+	case EventPeriodArchived:
 		periodArchived := PeriodArchivedProjection{
 			Position:   resolved.Position,
 			PeriodID:   periodID,
@@ -164,7 +164,7 @@ func (h *PeriodReadModelEventHandler) handle(ctx context.Context, resolved event
 		if err := h.readModel.ArchivePeriod(ctx, periodArchived); err != nil {
 			return err
 		}
-	case PeriodDeleted:
+	case EventPeriodDeleted:
 		periodDeleted := PeriodDeletedProjection{
 			Position:  resolved.Position,
 			PeriodID:  periodID,

@@ -10,18 +10,18 @@ import (
 )
 
 type ListStudentsByGradeRes struct {
-	Id          string `json:"id"`
-	MarssId     string `json:"marss_id"`
-	GivenName   string `json:"given_name"`
-	ChosenName  string `json:"chosen_name"`
-	FamilyName  string `json:"family_name"`
-	Email       string `json:"email"`
-	Username    string `json:"username"`
-	Grade       int64  `json:"grade"`
-	Homeroom    string `json:"homeroom"`
-	CaseManager string `json:"case_manager"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
+	Id         string `json:"id"`
+	MarssId    string `json:"marss_id"`
+	GivenName  string `json:"given_name"`
+	ChosenName string `json:"chosen_name"`
+	FamilyName string `json:"family_name"`
+	Email      string `json:"email"`
+	Username   string `json:"username"`
+	Grade      int64  `json:"grade"`
+	HomeroomId string `json:"homeroom_id"`
+	PlanType   int64  `json:"plan_type"`
+	CreatedAt  string `json:"created_at"`
+	UpdatedAt  string `json:"updated_at"`
 }
 
 type ListStudentsByGradeStmt struct {
@@ -34,18 +34,18 @@ type ListStudentsByGradeStmt struct {
 func ListStudentsByGrade(tx *sqlite.Conn) *ListStudentsByGradeStmt {
 	const querySQL = `
 SELECT 
-    id, 
-    marss_id,
-    given_name, 
-    chosen_name, 
-    family_name, 
-    email,
-    username,
-    grade, 
-    homeroom, 
-    case_manager, 
-    created_at, 
-    updated_at
+	id, 
+	marss_id,
+	given_name, 
+	chosen_name, 
+	family_name, 
+	email,
+	username,
+	grade, 
+	homeroom_id, 
+	plan_type, 
+	created_at, 
+	updated_at
 FROM students
 WHERE archived_at IS NULL
   AND grade IN (/*SLICE:grades*/?)
@@ -119,8 +119,8 @@ func (ps *ListStudentsByGradeStmt) Run(
 		row.Email = stmt.ColumnText(5)
 		row.Username = stmt.ColumnText(6)
 		row.Grade = stmt.ColumnInt64(7)
-		row.Homeroom = stmt.ColumnText(8)
-		row.CaseManager = stmt.ColumnText(9)
+		row.HomeroomId = stmt.ColumnText(8)
+		row.PlanType = stmt.ColumnInt64(9)
 		row.CreatedAt = stmt.ColumnText(10)
 		row.UpdatedAt = stmt.ColumnText(11)
 		res = append(res, row)

@@ -118,17 +118,17 @@ func (m *addEducatorToPeriodContext) isEducatorActive() error {
 
 func (m *addEducatorToPeriodContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case pe.PeriodCreated:
+	case pe.EventPeriodCreated:
 		m.periodCreated = true
-	case pe.PeriodArchived:
+	case pe.EventPeriodArchived:
 		m.periodArchived = true
-	case pe.PeriodDeleted:
+	case pe.EventPeriodDeleted:
 		m.periodDeleted = true
-	case se.EducatorCreated:
+	case se.EventEducatorCreated:
 		m.educatorCreated = true
-	case se.EducatorArchived:
+	case se.EventEducatorArchived:
 		m.educatorArchived = true
-	case se.EducatorDeleted:
+	case se.EventEducatorDeleted:
 		m.educatorDeleted = true
 	case EducatorAddedToPeriod:
 		m.added = true

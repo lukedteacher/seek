@@ -11,32 +11,32 @@ func BoundaryIndexes() []eventstore.BoundaryIndexDefinition {
 	return []eventstore.BoundaryIndexDefinition{
 		{
 			Name:   "educator_scope",
-			Fields: []string{e.FieldEducatorScopeID},
+			Fields: []string{e.FieldScopeEducatorID},
 			EventTypes: []string{
-				e.EducatorCreated,
-				e.EducatorUpdated,
-				e.EducatorArchived,
-				e.EducatorDeleted,
+				e.EventEducatorCreated.String(),
+				e.EventEducatorUpdated.String(),
+				e.EventEducatorArchived.String(),
+				e.EventEducatorDeleted.String(),
 			},
 		},
 		{
 			Name:   "period_scope",
 			Fields: []string{p.FieldPeriodScopeID},
 			EventTypes: []string{
-				p.PeriodCreated,
-				p.PeriodUpdated,
-				p.PeriodArchived,
-				p.PeriodDeleted,
+				p.EventPeriodCreated.String(),
+				p.EventPeriodUpdated.String(),
+				p.EventPeriodArchived.String(),
+				p.EventPeriodDeleted.String(),
 			},
 		},
 		{
 			Name:   "student_scope",
-			Fields: []string{s.FieldStudentScopeID},
+			Fields: []string{s.FieldScopeStudentID},
 			EventTypes: []string{
-				s.StudentCreated,
-				s.StudentUpdated,
-				s.StudentArchived,
-				s.StudentDeleted,
+				s.EventStudentCreated.String(),
+				s.EventStudentUpdated.String(),
+				s.EventStudentArchived.String(),
+				s.EventStudentDeleted.String(),
 			},
 		},
 	}

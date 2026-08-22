@@ -36,7 +36,6 @@ func EventHandlerFactories(
 	cfg config.Config,
 	readModels *ReadModelContainer,
 	authUsers *auth.AuthUserStore,
-	verifications *auth.VerificationStore,
 	checkpointer eventstore.Checkpointer,
 	emailSender email.Sender,
 	piiKeys *auth.SubjectPiiKeyStore,
@@ -66,7 +65,6 @@ func EventHandlerFactories(
 					checkpointer,
 					store,
 					authUsers,
-					verifications,
 					piiKeys,
 					logger,
 				)

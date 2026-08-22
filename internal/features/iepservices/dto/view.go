@@ -14,10 +14,11 @@ type IEPServiceView struct {
 	DirectMinutes   int                      `json:"direct_minutes"`
 	FrequencyCount  int                      `json:"frequency_count"`
 	FrequencyType   string                   `json:"frequency_type"`
-	Location        string                   `json:"location"`
+	LocationID      string                   `json:"location_id"`
 	StartDate       sharedmodels.DateOnly    `json:"start_date"`
 	EndDate         sharedmodels.DateOnly    `json:"end_date"`
 	Provider        string                   `json:"provider"`
+	ProviderID      string                   `json:"provider_id"`
 	StudentID       string                   `json:"student_id"`
 	StudentView     sdto.StudentView
 }
@@ -34,7 +35,7 @@ func NewIEPServiceView(sm *models.IEPService) IEPServiceView {
 		DirectMinutes:   sm.DirectMinutes,
 		FrequencyCount:  sm.FrequencyCount,
 		FrequencyType:   sm.FrequencyType,
-		Location:        sm.Location,
+		LocationID:      sm.LocationID,
 		StartDate:       sm.StartDate,
 		EndDate:         sm.EndDate,
 		Provider:        sm.Provider,
@@ -54,7 +55,7 @@ func NewModelFromView(v *IEPServiceView) models.IEPService {
 		DirectMinutes:   v.DirectMinutes,
 		FrequencyCount:  v.FrequencyCount,
 		FrequencyType:   v.FrequencyType,
-		Location:        v.Location,
+		LocationID:      v.LocationID,
 		StartDate:       v.StartDate,
 		EndDate:         v.EndDate,
 		Provider:        v.Provider,

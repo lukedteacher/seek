@@ -28,9 +28,6 @@ func (s *AccountDataDeletionStore) DeleteAccountData(ctx context.Context, userRe
 		return err
 	}
 	return s.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		if err := dbsql.OnceDeleteAuthVerificationsByRegisteredId(conn, stringPtr(userRegisteredID)); err != nil {
-			return err
-		}
 		if err := dbsql.OnceDeleteAuthSessionsByRegisteredId(conn, userRegisteredID); err != nil {
 			return err
 		}
@@ -62,7 +59,7 @@ func (s *AccountDataDeletionStore) deleteKnownMedia(ctx context.Context, userReg
 	if row == nil {
 		return nil
 	}
-	for _, url := range []string{row.Image, row.HeaderImageUrl} {
+	for _, url := range []string{row.Avatar} {
 		if url == "" {
 			continue
 		}

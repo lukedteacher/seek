@@ -27,27 +27,13 @@ type EducatorReadModelWriter interface {
 }
 
 type EducatorCreatedProjection struct {
-	Position   eventstore.Position
-	ID         string
-	GivenName  string
-	ChosenName string
-	FamilyName string
-	Email      string
-	Username   string
-	Roles      []string
-	CreatedAt  time.Time
+	Position eventstore.Position
+	EducatorState
 }
 
 type EducatorUpdatedProjection struct {
-	Position   eventstore.Position
-	ID         string
-	GivenName  string
-	ChosenName string
-	FamilyName string
-	Email      string
-	Username   string
-	Roles      []string
-	UpdatedAt  time.Time
+	Position eventstore.Position
+	EducatorState
 }
 
 type EducatorArchivedProjection struct {
@@ -104,17 +90,17 @@ func (h *EducatorReadModelEventHandler) StopSubscribing() {
 }
 
 func EducatorReadModelEventHandlerQuery() eventstore.Query {
-	eventTypes := []string{
-		EducatorCreated,
-		EducatorUpdated,
-		EducatorArchived,
-		EducatorDeleted,
+	eventTypes := []eventType{
+		EventEducatorCreated,
+		EventEducatorUpdated,
+		EventEducatorArchived,
+		EventEducatorDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
 	for _, eventType := range eventTypes {
 		criteria = append(criteria, eventstore.Criterion{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: eventType},
+				{Key: eventTypeKey, Value: eventType.String()},
 			},
 		})
 	}
@@ -126,43 +112,29 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 	scope := eventstore.Scope(data)
 	educatorCreatedEventID, _ := scope[FieldEducatorCreatedEventID].(string)
 	switch resolved.Event.EventType {
-	case EducatorCreated:
+	case EventEducatorCreated:
 		var event EducatorCreatedEvent
 		if err := json.Unmarshal([]byte(resolved.Event.RawData), &event); err != nil {
 			return err
 		}
 		if err := h.readModel.Create(ctx, EducatorCreatedProjection{
-			Position:   resolved.Position,
-			ID:         educatorCreatedEventID,
-			GivenName:  event.GivenName,
-			ChosenName: event.ChosenName,
-			FamilyName: event.FamilyName,
-			Email:      event.Email,
-			Username:   event.Username,
-			Roles:      event.Roles,
-			CreatedAt:  event.CreatedAt,
+			Position:      resolved.Position,
+			EducatorState: event.EducatorState,
 		}); err != nil {
 			return err
 		}
-	case EducatorUpdated:
+	case EventEducatorUpdated:
 		var event EducatorUpdatedEvent
 		if err := json.Unmarshal([]byte(resolved.Event.RawData), &event); err != nil {
 			return err
 		}
 		if err := h.readModel.Update(ctx, EducatorUpdatedProjection{
-			Position:   resolved.Position,
-			ID:         educatorCreatedEventID,
-			GivenName:  event.GivenName,
-			ChosenName: event.ChosenName,
-			FamilyName: event.FamilyName,
-			Email:      event.Email,
-			Username:   event.Username,
-			Roles:      event.Roles,
-			UpdatedAt:  parseTime(data[FieldEducatorUpdatedAt]),
+			Position:      resolved.Position,
+			EducatorState: event.EducatorState,
 		}); err != nil {
 			return err
 		}
-	case EducatorArchived:
+	case EventEducatorArchived:
 		if err := h.readModel.Archive(ctx, EducatorArchivedProjection{
 			Position:   resolved.Position,
 			ID:         educatorCreatedEventID,
@@ -170,7 +142,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 		}); err != nil {
 			return err
 		}
-	case EducatorDeleted:
+	case EventEducatorDeleted:
 		if err := h.readModel.Delete(ctx, EducatorDeletedProjection{
 			Position:  resolved.Position,
 			ID:        educatorCreatedEventID,

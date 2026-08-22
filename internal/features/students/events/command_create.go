@@ -10,15 +10,8 @@ import (
 )
 
 type CreateStudentCommand struct {
-	MARSSID     string
-	GivenName   string
-	ChosenName  string
-	FamilyName  string
-	Email       string
-	Grade       int
-	Homeroom    string
-	CaseManager string
-	Metadata    CommandMetadata
+	StudentState
+	Metadata CommandMetadata
 }
 
 type CreateStudentResult struct {
@@ -38,55 +31,37 @@ func CreateStudentCommandHandler(
 		return CreateStudentResult{}, err
 	}
 	event := NewStudentCreatedEvent(
-		model.id,
-		model.marssID,
-		model.givenName,
-		model.chosenName,
-		model.familyName,
-		model.email,
-		model.username,
-		model.grade,
-		model.homeroom,
-		model.caseManager,
+		model.StudentState,
 		time.Now(),
 		metadataWithQuery(command.Metadata, model.query),
 	)
-	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, model.query); err != nil {
+	if _, err := saver.SaveEvents(
+		ctx,
+		[]eventstore.DomainEvent{event},
+		eventstore.NoEventPosition,
+		nil,
+		model.query,
+	); err != nil {
 		return CreateStudentResult{}, err
 	}
-	return CreateStudentResult{EventID: model.id}, nil
+	return CreateStudentResult{EventID: model.ID}, nil
 }
 
 type createStudentContext struct {
-	id          string
-	marssID     string
-	givenName   string
-	chosenName  string
-	familyName  string
-	email       string
-	username    string
-	grade       int
-	homeroom    string
-	caseManager string
-	query       eventstore.Query
+	StudentState
+	query eventstore.Query
 }
 
 func newCreateStudentContext(command CreateStudentCommand) (*createStudentContext, error) {
 	id := uuidv7.NewString()
 	username := deriveUsername(command.Email)
-	return &createStudentContext{
-		id:          id,
-		marssID:     command.MARSSID,
-		givenName:   command.GivenName,
-		chosenName:  command.ChosenName,
-		familyName:  command.FamilyName,
-		email:       command.Email,
-		username:    username,
-		grade:       command.Grade,
-		homeroom:    command.Homeroom,
-		caseManager: command.CaseManager,
-		query:       StreamQuery(id),
-	}, nil
+	context := &createStudentContext{
+		StudentState: command.StudentState,
+		query:        StreamQuery(id),
+	}
+	context.ID = id
+	context.Username = username
+	return context, nil
 }
 
 func deriveUsername(email string) string {

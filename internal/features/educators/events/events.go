@@ -2,14 +2,18 @@ package events
 
 import (
 	"time"
+
+	"seek/internal/eventstore"
 )
+
+type eventType = eventstore.EventType
 
 // educator event types
 const (
-	EducatorCreated  = "EducatorCreated"
-	EducatorUpdated  = "EducatorUpdated"
-	EducatorArchived = "EducatorArchived"
-	EducatorDeleted  = "EducatorDeleted"
+	EventEducatorCreated  eventType = "educator_created"
+	EventEducatorUpdated  eventType = "educator_updated"
+	EventEducatorArchived eventType = "educator_archived"
+	EventEducatorDeleted  eventType = "educator_deleted"
 )
 
 // educator event id and scope fields
@@ -18,7 +22,7 @@ const (
 	FieldEducatorUpdatedEventID  = "educator_updated_event_id"
 	FieldEducatorArchivedEventID = "educator_archived_event_id"
 	FieldEducatorDeletedEventID  = "educator_deleted_event_id"
-	FieldEducatorScopeID         = "scope.educator_created_event_id"
+	FieldScopeEducatorID         = "scope.educator_id"
 )
 
 // educator event fields
@@ -37,26 +41,27 @@ const (
 )
 
 type EducatorState struct {
-	GivenName  string   `json:"given_name"`
-	ChosenName string   `json:"chosen_name"`
-	FamilyName string   `json:"family_name"`
-	Email      string   `json:"email"`
-	Username   string   `json:"username"`
-	Roles      []string `json:"role"`
+	ID         string    `json:"id"`
+	GivenName  string    `json:"given_name"`
+	ChosenName string    `json:"chosen_name"`
+	FamilyName string    `json:"family_name"`
+	Email      string    `json:"email"`
+	Username   string    `json:"username"`
+	Roles      []string  `json:"role"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type EducatorCreatedEvent struct {
 	EventID string `json:"educator_created_event_id"`
 	EducatorState
-	CreatedAt time.Time     `json:"created_at"`
-	Scope     EducatorScope `json:"scope"`
+	Scope EducatorScope `json:"scope"`
 }
 
 type EducatorUpdatedEvent struct {
 	EventID string `json:"educator_updated_event_id"`
 	EducatorState
-	UpdatedAt time.Time     `json:"updated_at"`
-	Scope     EducatorScope `json:"scope"`
+	Scope EducatorScope `json:"scope"`
 }
 
 type EducatorArchivedEvent struct {
@@ -72,7 +77,7 @@ type EducatorDeletedEvent struct {
 }
 
 type EducatorScope struct {
-	ID string `json:"educator_created_event_id"`
+	ID string `json:"educator_id"`
 }
 
 func educatorScope(id string) EducatorScope {

@@ -16,8 +16,8 @@ type ListStudentsWithIepservicesRes struct {
 	Email            string  `json:"email"`
 	Username         string  `json:"username"`
 	Grade            int64   `json:"grade"`
-	Homeroom         string  `json:"homeroom"`
-	CaseManager      string  `json:"case_manager"`
+	HomeroomId       string  `json:"homeroom_id"`
+	PlanType         int64   `json:"plan_type"`
 	CreatedAt        string  `json:"created_at"`
 	UpdatedAt        string  `json:"updated_at"`
 	ServiceId        *string `json:"service_id"`
@@ -27,10 +27,10 @@ type ListStudentsWithIepservicesRes struct {
 	DirectMinutes    *int64  `json:"direct_minutes"`
 	FrequencyCount   *int64  `json:"frequency_count"`
 	FrequencyType    *string `json:"frequency_type"`
-	Location         *string `json:"location"`
+	LocationId       *string `json:"location_id"`
 	StartDate        *string `json:"start_date"`
 	EndDate          *string `json:"end_date"`
-	Provider         *string `json:"provider"`
+	ProviderId       *string `json:"provider_id"`
 	ServiceCreatedAt *string `json:"service_created_at"`
 	ServiceUpdatedAt *string `json:"service_updated_at"`
 }
@@ -45,31 +45,31 @@ type ListStudentsWithIepservicesStmt struct {
 func ListStudentsWithIepservices(tx *sqlite.Conn) *ListStudentsWithIepservicesStmt {
 	const querySQL = `
 SELECT
-    s.id AS student_id,
-    s.marss_id,
-    s.given_name,
-    s.chosen_name,
-    s.family_name,
-    s.email,
-    s.username,
-    s.grade,
-    s.homeroom,
-    s.case_manager,
-    s.created_at,
-    s.updated_at,
-    i.id AS service_id,
-    i.service_name,
-    i.service_type,
-    i.indirect_minutes,
-    i.direct_minutes,
-    i.frequency_count,
-    i.frequency_type,
-    i.location,
-    i.start_date,
-    i.end_date,
-    i.provider,
-    i.created_at AS service_created_at,
-    i.updated_at AS service_updated_at
+	s.id AS student_id,
+	s.marss_id,
+	s.given_name,
+	s.chosen_name,
+	s.family_name,
+	s.email,
+	s.username,
+	s.grade,
+	s.homeroom_id, 
+	s.plan_type, 
+	s.created_at,
+	s.updated_at,
+	i.id AS service_id,
+	i.service_name,
+	i.service_type,
+	i.indirect_minutes,
+	i.direct_minutes,
+	i.frequency_count,
+	i.frequency_type,
+	i.location_id,
+	i.start_date,
+	i.end_date,
+	i.provider_id,
+	i.created_at AS service_created_at,
+	i.updated_at AS service_updated_at
 FROM students s
 LEFT JOIN iep_services i ON s.id = i.student_id
 WHERE s.archived_at IS NULL
@@ -125,8 +125,8 @@ func (ps *ListStudentsWithIepservicesStmt) Run() (
 		row.Email = stmt.ColumnText(5)
 		row.Username = stmt.ColumnText(6)
 		row.Grade = stmt.ColumnInt64(7)
-		row.Homeroom = stmt.ColumnText(8)
-		row.CaseManager = stmt.ColumnText(9)
+		row.HomeroomId = stmt.ColumnText(8)
+		row.PlanType = stmt.ColumnInt64(9)
 		row.CreatedAt = stmt.ColumnText(10)
 		row.UpdatedAt = stmt.ColumnText(11)
 		isNullServiceId := stmt.ColumnIsNull(12)
@@ -164,10 +164,10 @@ func (ps *ListStudentsWithIepservicesStmt) Run() (
 			tmp := stmt.ColumnText(18)
 			row.FrequencyType = &tmp
 		}
-		isNullLocation := stmt.ColumnIsNull(19)
-		if !isNullLocation {
+		isNullLocationId := stmt.ColumnIsNull(19)
+		if !isNullLocationId {
 			tmp := stmt.ColumnText(19)
-			row.Location = &tmp
+			row.LocationId = &tmp
 		}
 		isNullStartDate := stmt.ColumnIsNull(20)
 		if !isNullStartDate {
@@ -179,10 +179,10 @@ func (ps *ListStudentsWithIepservicesStmt) Run() (
 			tmp := stmt.ColumnText(21)
 			row.EndDate = &tmp
 		}
-		isNullProvider := stmt.ColumnIsNull(22)
-		if !isNullProvider {
+		isNullProviderId := stmt.ColumnIsNull(22)
+		if !isNullProviderId {
 			tmp := stmt.ColumnText(22)
-			row.Provider = &tmp
+			row.ProviderId = &tmp
 		}
 		isNullServiceCreatedAt := stmt.ColumnIsNull(23)
 		if !isNullServiceCreatedAt {

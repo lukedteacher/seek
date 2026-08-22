@@ -87,10 +87,10 @@ func (s *AuthUserStore) UserByIDOrRegisteredID(ctx context.Context, id string) (
 	return userFromIDOrRegisteredRow(row)
 }
 
-func (s *AuthUserStore) UpdateImage(ctx context.Context, userRegisteredID, imageURL string) error {
+func (s *AuthUserStore) UpdateAvatar(ctx context.Context, userRegisteredID, imageURL string) error {
 	return s.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceUpdateAuthUserImage(conn, dbsql.UpdateAuthUserImageParams{
-			Image:            stringPtr(imageURL),
+		return dbsql.OnceUpdateAuthUserAvatar(conn, dbsql.UpdateAuthUserAvatarParams{
+			Avatar:           stringPtr(imageURL),
 			UserRegisteredId: userRegisteredID,
 		})
 	})
@@ -120,11 +120,8 @@ func (s *AuthUserStore) GetUserByEmailWithPassword(ctx context.Context, emailAdd
 	return models.User{
 		ID:               row.Id,
 		UserRegisteredID: row.UserRegisteredId,
-		Email:            row.Email,
-		Username:         row.Username,
-		Image:            row.Image,
+		Avatar:           row.Avatar,
 		Bio:              row.Bio,
-		HeaderImageURL:   row.HeaderImageUrl,
 	}, *row.Password, nil
 }
 
@@ -150,10 +147,7 @@ func (s *AuthUserStore) GetUserByUsernameWithPassword(
 	return models.User{
 		ID:               row.Id,
 		UserRegisteredID: row.UserRegisteredId,
-		Email:            row.Email,
-		Username:         row.Username,
-		Image:            row.Image,
+		Avatar:           row.Avatar,
 		Bio:              row.Bio,
-		HeaderImageURL:   row.HeaderImageUrl,
 	}, *row.Password, nil
 }

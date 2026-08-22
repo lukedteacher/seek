@@ -13,23 +13,37 @@ var eventTypeKey = eventstore.EventTypeKey
 
 // profile event types
 const (
-	ProfileBioUpdated          = "ProfileBioUpdated"
-	ProfileImageUploaded       = "ProfileImageUploaded"
-	ProfileHeaderImageUploaded = "ProfileHeaderImageUploaded"
+	ProfileAvatarUpdated       eventType = "profile_avatar_updated_event"
+	ProfileBioUpdated          eventType = "profile_bio_updated_event"
+	ProfileImageUploaded       eventType = "profile_image_uploaded_event"
+	ProfileHeaderImageUploaded eventType = "profile_header_image_uploaded_event"
+)
+
+const (
+	FieldProfileAvatarUpdatedEventID       = "profile_avatar_updated_event_id"
+	FieldProfileBioUpdatedEventID          = "profile_bio_updated_event_id"
+	FieldProfileImageUploadedEventID       = "profile_image_uploaded_event_id"
+	FieldProfileHeaderImageUploadedEventID = "profile_header_image_uploaded_event_id"
 )
 
 // profile event fields
 const (
-	ProfileBioUpdatedEventIDField          = "profile_bio_updated_event_id"
-	ProfileBioUpdatedBioField              = "bio"
-	ProfileBioUpdatedBioHashField          = "bio_hash"
-	ProfileBioUpdatedAtField               = "updated_at"
-	ProfileImageUploadedEventIDField       = "profile_image_uploaded_event_id"
-	ProfileHeaderImageUploadedEventIDField = "profile_header_image_uploaded_event_id"
-	ProfileImageURLField                   = "image_url"
-	ProfileImageUploadedAtField            = "uploaded_at"
-	ProfileScopeUserRegisteredIDField      = "scope.user_registered_event_id"
+	FieldProfileAvatarUpdatedAvatar    = "avatar"
+	FieldProfileAvatarUpdatedUpdatedAt = "updated_at"
+	FieldProfileBioUpdatedBio          = "bio"
+	FieldProfileBioUpdatedBioHash      = "bio_hash"
+	FieldProfileBioUpdatedAt           = "updated_at"
+	FieldProfileImageURL               = "image_url"
+	FieldProfileImageUploadedAt        = "uploaded_at"
+	FieldScopeUserRegisteredEventID    = "scope.user_registered_event_id"
 )
+
+type ProfileAvatarUpdatedEvent struct {
+	EventID   string           `json:"profile_avatar_updated_event_id"`
+	Avatar    string           `json:"avatar"`
+	UpdatedAt string           `json:"updated_at"`
+	Scope     ProfileUserScope `json:"scope"`
+}
 
 type ProfileBioUpdatedEvent struct {
 	EventID   string             `json:"profile_bio_updated_event_id"`
@@ -68,8 +82,29 @@ func NewProfileBioUpdatedEvent(
 	protector := protectedpii.FromEnv()
 	event := ProfileBioUpdatedEvent{
 		EventID:   eventID,
-		Bio:       protector.MustProtectWithDataKey(bio, ProfileBioUpdatedBioField, subjectKey),
-		BioHash:   protector.BlindIndex(ProfileBioUpdatedBioField, bio),
+		Bio:       protector.MustProtectWithDataKey(bio, FieldProfileBioUpdatedBio, subjectKey),
+		BioHash:   protector.BlindIndex(FieldProfileBioUpdatedBio, bio),
+		UpdatedAt: updatedAt.Format(time.RFC3339),
+		Scope:     ProfileUserScope{UserRegisteredEventID: userRegisteredEventID},
+	}
+	return eventstore.DomainEvent{
+		EventID:   eventID,
+		EventType: ProfileBioUpdated,
+		Data:      eventstore.MustData(event),
+		Metadata:  metadata,
+	}
+}
+
+func NewProfileAvatarUpdatedEvent(
+	eventID,
+	avatar string,
+	updatedAt time.Time,
+	userRegisteredEventID string,
+	metadata map[string]any,
+) eventstore.DomainEvent {
+	event := ProfileAvatarUpdatedEvent{
+		EventID:   eventID,
+		Avatar:    avatar,
 		UpdatedAt: updatedAt.Format(time.RFC3339),
 		Scope:     ProfileUserScope{UserRegisteredEventID: userRegisteredEventID},
 	}

@@ -371,7 +371,7 @@ func FormSections(view dto.StudentFormView) templ.Component {
 			"homeroom",
 			url,
 			"student.homeroom",
-			view.Student.Homeroom,
+			view.Student.HomeroomID,
 		).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

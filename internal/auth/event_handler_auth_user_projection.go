@@ -22,11 +22,10 @@ type AuthVerificationProjectionWriter interface {
 }
 
 type AuthUserProjectionEventHandler struct {
-	global        *eventstore.GlobalEventHandler
-	writer        AuthUserProjectionWriter
-	verifications AuthVerificationProjectionWriter
-	retriever     eventstore.Retriever
-	keys          SubjectPiiKeyPort
+	global    *eventstore.GlobalEventHandler
+	writer    AuthUserProjectionWriter
+	retriever eventstore.Retriever
+	keys      SubjectPiiKeyPort
 }
 
 func NewAuthUserProjectionEventHandler(
@@ -34,10 +33,9 @@ func NewAuthUserProjectionEventHandler(
 	checkpointer eventstore.Checkpointer,
 	retriever eventstore.Retriever,
 	writer AuthUserProjectionWriter,
-	verifications AuthVerificationProjectionWriter,
 	keys SubjectPiiKeyPort,
 	logger *slog.Logger) (*AuthUserProjectionEventHandler, error) {
-	handler := &AuthUserProjectionEventHandler{retriever: retriever, writer: writer, verifications: verifications, keys: keys}
+	handler := &AuthUserProjectionEventHandler{retriever: retriever, writer: writer, keys: keys}
 	global, err := eventstore.NewGlobalEventHandler(eventstore.GlobalEventHandlerConfig{
 		Subscriber:      subscriber,
 		Checkpointer:    checkpointer,
@@ -66,8 +64,6 @@ func (h *AuthUserProjectionEventHandler) handle(ctx context.Context, resolved ev
 	switch resolved.Event.EventType {
 	case UserRegistered:
 		return h.handleUserRegistered(ctx, resolved)
-	case PasswordResetRequested:
-		return h.handlePasswordResetRequested(ctx, resolved)
 	case PasswordResetCompleted, PasswordChanged:
 		return h.handlePasswordUpdated(ctx, resolved)
 	default:
@@ -92,17 +88,6 @@ func (h *AuthUserProjectionEventHandler) handleUserRegistered(ctx context.Contex
 		Username:     username,
 		PasswordHash: stringValue(resolved.Event.Data[FieldUserRegisteredPasswordHash]),
 	})
-}
-
-func (h *AuthUserProjectionEventHandler) handlePasswordResetRequested(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	userRegisteredID := stringValue(eventstore.Scope(resolved.Event.Data)[FieldUserRegisteredID])
-	requestID := stringValue(resolved.Event.Data[PasswordResetRequestedEventID])
-	token := stringValue(resolved.Event.Data[FieldPasswordResetRequestedToken])
-	expiresAt, err := time.Parse(time.RFC3339, stringValue(resolved.Event.Data[FieldPasswordResetRequestedExpiresAt]))
-	if userRegisteredID == "" || requestID == "" || token == "" || err != nil {
-		return nil
-	}
-	return h.verifications.CreatePasswordReset(ctx, userRegisteredID, requestID, token, expiresAt)
 }
 
 func (h *AuthUserProjectionEventHandler) handlePasswordUpdated(ctx context.Context, resolved eventstore.ResolvedEvent) error {

@@ -1,7 +1,6 @@
 package dto
 
 import (
-	"seek/internal/features/iepservices/events"
 	"seek/internal/features/iepservices/models"
 	dto "seek/internal/features/students/dto"
 	sm "seek/internal/features/students/models"
@@ -9,7 +8,6 @@ import (
 
 type IEPServiceFormView struct {
 	IEPService IEPServiceView
-	Validation map[string]events.Validation
 	Students   []dto.StudentSelectBoxView
 	URL        string
 }
@@ -22,7 +20,6 @@ func NewIEPServiceFormView(model *models.IEPService, students []sm.Student) IEPS
 	view := NewIEPServiceView(model)
 	return IEPServiceFormView{
 		IEPService: view,
-		Validation: events.Validate(model),
 		Students:   studentViews,
 	}
 }

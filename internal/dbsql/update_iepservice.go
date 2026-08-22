@@ -8,17 +8,16 @@ import (
 )
 
 type UpdateIepserviceParams struct {
-	StudentId                string `json:"student_id"`
 	ServiceName              string `json:"service_name"`
 	ServiceType              string `json:"service_type"`
 	IndirectMinutes          int64  `json:"indirect_minutes"`
 	DirectMinutes            int64  `json:"direct_minutes"`
 	FrequencyCount           int64  `json:"frequency_count"`
 	FrequencyType            string `json:"frequency_type"`
-	Location                 string `json:"location"`
+	LocationId               string `json:"location_id"`
 	StartDate                string `json:"start_date"`
 	EndDate                  string `json:"end_date"`
-	Provider                 string `json:"provider"`
+	ProviderId               string `json:"provider_id"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	UpdatedAt                string `json:"updated_at"`
@@ -36,21 +35,20 @@ func UpdateIepservice(tx *sqlite.Conn) *UpdateIepserviceStmt {
 	const querySQL = `
 UPDATE iep_services
 SET
-	student_id = ?1,
-	service_name = ?2,
-	service_type = ?3,
-	indirect_minutes = ?4,
-	direct_minutes = ?5,
-	frequency_count = ?6,
-	frequency_type = ?7,
-	location = ?8,
-	start_date = ?9,
-	end_date = ?10,
-	provider = ?11,
-	last_event_commit_position = ?12,
-	last_event_prepare_position = ?13,
-	updated_at = ?14
-WHERE id = ?15
+	service_name = ?1,
+	service_type = ?2,
+	indirect_minutes = ?3,
+	direct_minutes = ?4,
+	frequency_count = ?5,
+	frequency_type = ?6,
+	location_id = ?7,
+	start_date = ?8,
+	end_date = ?9,
+	provider_id = ?10,
+	last_event_commit_position = ?11,
+	last_event_prepare_position = ?12,
+	updated_at = ?13
+WHERE id = ?14
     `
 
 	ps := &UpdateIepserviceStmt{
@@ -87,9 +85,6 @@ func (ps *UpdateIepserviceStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, params.StudentId)
-
-	bindIndex++
 	stmt.BindText(bindIndex, params.ServiceName)
 
 	bindIndex++
@@ -108,7 +103,7 @@ func (ps *UpdateIepserviceStmt) Run(
 	stmt.BindText(bindIndex, params.FrequencyType)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.Location)
+	stmt.BindText(bindIndex, params.LocationId)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.StartDate)
@@ -117,7 +112,7 @@ func (ps *UpdateIepserviceStmt) Run(
 	stmt.BindText(bindIndex, params.EndDate)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.Provider)
+	stmt.BindText(bindIndex, params.ProviderId)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)

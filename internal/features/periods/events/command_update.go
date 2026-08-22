@@ -108,24 +108,22 @@ func (m *updatePeriodContext) isSame(cmd UpdatePeriodCommand) bool {
 func (m *updatePeriodContext) handle(resolved eventstore.ResolvedEvent) {
 	data := resolved.Event.Data
 	switch resolved.Event.EventType {
-	case PeriodCreated:
+	case EventPeriodCreated:
 		m.exists = true
-		m.archived = false
-		m.deleted = false
 		m.title, _ = data[FieldPeriodTitle].(string)
 		m.serviceType = sharedmodels.ServiceType(data[FieldPeriodServiceType].(string))
 		m.startTime = parseDBTimeOnly(data[FieldPeriodStartTime].(string))
 		m.duration = int(data[FieldPeriodDuration].(float64))
 		m.daysBitmask = sharedmodels.DaysBitmask(int(data[FieldPeriodDaysBitmask].(float64)))
-	case PeriodUpdated:
+	case EventPeriodUpdated:
 		m.title, _ = data[FieldPeriodTitle].(string)
 		m.serviceType = sharedmodels.ServiceType(data[FieldPeriodServiceType].(string))
 		m.startTime = parseDBTimeOnly(data[FieldPeriodStartTime].(string))
 		m.duration = int(data[FieldPeriodDuration].(float64))
 		m.daysBitmask = sharedmodels.DaysBitmask(int(data[FieldPeriodDaysBitmask].(float64)))
-	case PeriodArchived:
+	case EventPeriodArchived:
 		m.archived = true
-	case PeriodDeleted:
+	case EventPeriodDeleted:
 		m.deleted = true
 	}
 	if resolved.Position.After(m.position) {

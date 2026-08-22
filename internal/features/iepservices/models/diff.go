@@ -30,8 +30,8 @@ func CompareIEPServices(db, csv []*IEPService) []sharedmodels.Diff[IEPService] {
 		if a.FrequencyType != b.FrequencyType {
 			changed = append(changed, "FrequencyType")
 		}
-		if a.Location != b.Location {
-			changed = append(changed, "Location")
+		if a.LocationID != b.LocationID {
+			changed = append(changed, "LocationID")
 		}
 		if a.Provider != b.Provider {
 			changed = append(changed, "Provider")

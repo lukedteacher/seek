@@ -93,13 +93,11 @@ func (m *archiveStudentContext) isActive() bool {
 
 func (m *archiveStudentContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case StudentCreated:
+	case EventStudentCreated:
 		m.created = true
-		m.archived = false
-		m.deleted = false
-	case StudentArchived:
+	case EventStudentArchived:
 		m.archived = true
-	case StudentDeleted:
+	case EventStudentDeleted:
 		m.deleted = true
 	}
 	if resolved.Position.After(m.position) {

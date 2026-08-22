@@ -62,11 +62,11 @@ templ TimeColumn() {
 	<div id="schedule-time-column">
 		for i, time := range times {
 			<div class="flex relative">
-				<span class="absolute top-0 translate-y-[-50%] z-1">
+				<span class="absolute top-0 translate-y-[-50%]">
 					{ time }
 				</span>
 				if i == len(times)-1 {
-					<span class="absolute bottom-0 translate-y-[50%] z-1">
+					<span class="absolute bottom-0 translate-y-[50%]">
 						4:00
 					</span>
 				}
@@ -133,14 +133,14 @@ templ ScheduleStyle() {
 			display: grid;
 			grid-template-rows: 4rem 1fr;
 			grid-template-columns: 6rem repeat(5, 1fr);
-			background-color: var(--neutral-1);
+			background: linear-gradient(to bottom right, var(--neutral-3), var(--neutral-2));
 			color: var(--neutral-3-on);
 			border-style: solid;
 			border-color: var(--neutral-3-dim);
 			border-width: var(--border-width-0);
-			border-radius: var(--border-radius-0);
-			padding-right: var(--size-4);
-			padding-bottom: var(--size-4);
+			border-radius: var(--border-radius-2);
+			padding-right: var(--size-5);
+			padding-bottom: var(--size-5);
 			overflow: auto;
 
 			#schedule-day-header {
@@ -150,8 +150,6 @@ templ ScheduleStyle() {
 				grid-row: 1 / span 1;
 				position: sticky;
 				top: 0;
-				background-color: var(--neutral-1);
-				z-index: 1;
 
 				.day-header-box {
 					width: 100%;

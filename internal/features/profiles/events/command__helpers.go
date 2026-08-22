@@ -29,12 +29,12 @@ func registeredUserQuery(userRegisteredID string) eventstore.Query {
 	}
 }
 
-func profileUserEventQuery(eventType, userRegisteredID string) eventstore.Query {
+func profileUserEventQuery(eventType eventType, userRegisteredID string) eventstore.Query {
 	return eventstore.Query{
 		Criteria: []eventstore.Criterion{
 			{Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: eventType},
-				{Key: ProfileScopeUserRegisteredIDField, Value: userRegisteredID},
+				{Key: eventTypeKey, Value: eventType.String()},
+				{Key: FieldScopeUserRegisteredEventID, Value: userRegisteredID},
 			}},
 		},
 	}

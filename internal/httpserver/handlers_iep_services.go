@@ -169,20 +169,20 @@ func (s Server) postIEPServiceCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	model := dto.NewModelFromView(&signals.View)
-	command := events.AddIEPServiceToStudentCommand{
+	command := events.AddServiceToIEPCommand{
 		StudentID:       model.StudentID,
 		ServiceType:     signals.View.ServiceType.ShortString(),
 		IndirectMinutes: model.IndirectMinutes,
 		DirectMinutes:   model.DirectMinutes,
 		FrequencyCount:  model.FrequencyCount,
 		FrequencyType:   model.FrequencyType,
-		Location:        model.Location,
+		LocationID:      model.LocationID,
 		Provider:        model.Provider,
 		StartDate:       model.StartDate.String(),
 		EndDate:         model.EndDate.String(),
 		Metadata:        eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
-	result, err := events.AddIEPServiceToStudentCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
+	result, err := events.AddServiceToIEPCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "post iep services create command handler", "err", err)
 		return
@@ -383,10 +383,10 @@ func (s Server) postIEPServiceEdit(w http.ResponseWriter, r *http.Request) {
 		DirectMinutes:   signals.View.DirectMinutes,
 		FrequencyCount:  signals.View.FrequencyCount,
 		FrequencyType:   signals.View.FrequencyType,
-		Location:        signals.View.Location,
+		LocationID:      signals.View.LocationID,
 		StartDate:       signals.View.StartDate.String(),
 		EndDate:         signals.View.EndDate.String(),
-		Provider:        signals.View.Provider,
+		ProviderID:      signals.View.ProviderID,
 		Metadata:        eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 	}
 	result, err := events.UpdateIEPServiceCommandHandler(ctx, command, s.EventSaver, s.EventRetriever)
@@ -550,9 +550,9 @@ func postCSV(
 
 		for _, diff := range diffs {
 			if diff.Status == sharedmodels.DiffNew {
-				events.AddIEPServiceToStudentCommandHandler(
+				events.AddServiceToIEPCommandHandler(
 					ctx,
-					events.AddIEPServiceToStudentCommand{
+					events.AddServiceToIEPCommand{
 						StudentID:       diff.New.StudentID,
 						ServiceName:     diff.New.ServiceName,
 						ServiceType:     string(diff.New.ServiceType),
@@ -562,7 +562,7 @@ func postCSV(
 						FrequencyType:   diff.New.FrequencyType,
 						StartDate:       diff.New.StartDate.String(),
 						EndDate:         diff.New.EndDate.String(),
-						Location:        diff.New.Location,
+						LocationID:      diff.New.LocationID,
 						Provider:        diff.New.Provider,
 					},
 					saver,
@@ -583,8 +583,8 @@ func postCSV(
 						FrequencyType:   diff.New.FrequencyType,
 						StartDate:       diff.New.StartDate.String(),
 						EndDate:         diff.New.EndDate.String(),
-						Location:        diff.New.Location,
-						Provider:        diff.New.Provider,
+						LocationID:      diff.New.LocationID,
+						ProviderID:      diff.New.ProviderID,
 					},
 					saver,
 					retriever,

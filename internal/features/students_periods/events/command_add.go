@@ -118,17 +118,17 @@ func (m *addStudentToPeriodContext) isStudentActive() error {
 
 func (m *addStudentToPeriodContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case pe.PeriodCreated:
+	case pe.EventPeriodCreated:
 		m.periodCreated = true
-	case pe.PeriodArchived:
+	case pe.EventPeriodArchived:
 		m.periodArchived = true
-	case pe.PeriodDeleted:
+	case pe.EventPeriodDeleted:
 		m.periodDeleted = true
-	case se.StudentCreated:
+	case se.EventStudentCreated:
 		m.studentCreated = true
-	case se.StudentArchived:
+	case se.EventStudentArchived:
 		m.studentArchived = true
-	case se.StudentDeleted:
+	case se.EventStudentDeleted:
 		m.studentDeleted = true
 	case StudentAddedToPeriod:
 		m.added = true

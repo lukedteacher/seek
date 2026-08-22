@@ -103,9 +103,9 @@ func Header(user models.User) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			if user.Image != "" {
+			if user.Avatar != "" {
 				templ_7745c5c3_Err = avatar.Image(avatar.ImageProps{
-					Src: user.Image,
+					Src: user.Avatar,
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

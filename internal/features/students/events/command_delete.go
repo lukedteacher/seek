@@ -37,6 +37,7 @@ func DeleteStudentCommandHandler(ctx context.Context, command DeleteStudentComma
 
 type deleteStudentContext struct {
 	exists   bool
+	archived bool
 	deleted  bool
 	position eventstore.Position
 	events   []eventstore.ResolvedEvent
@@ -66,10 +67,11 @@ func (m *deleteStudentContext) isActive() bool {
 
 func (m *deleteStudentContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case StudentCreated:
+	case EventStudentCreated:
 		m.exists = true
-		m.deleted = false
-	case StudentDeleted:
+	case EventStudentArchived:
+		m.archived = true
+	case EventStudentDeleted:
 		m.deleted = true
 	}
 	if resolved.Position.After(m.position) {

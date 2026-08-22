@@ -16,18 +16,19 @@ const IEPServiceReadModelEventHandlerName = "iep_service_read_model_event_handle
 type IEPServiceReadModelReader interface {
 	Get(ctx context.Context, iepServiceID string) (*models.IEPService, error)
 	List(ctx context.Context) ([]models.IEPService, error)
-	ListIEPServicesForStudent(ctx context.Context, studentID string) ([]models.IEPService, error)
+	ListServicesForIEP(ctx context.Context, studentID string) ([]models.IEPService, error)
 }
 
 type IEPServiceReadModelWriter interface {
-	AddIEPServiceToStudent(ctx context.Context, event IEPServiceAddedToStudentProjection) error
+	AddServiceToIEP(ctx context.Context, event ServiceAddedToIEPProjection) error
 	UpdateIEPService(ctx context.Context, event IEPServiceUpdatedProjection) error
 	DeleteIEPService(ctx context.Context, event IEPServiceDeletedProjection) error
 }
 
-type IEPServiceAddedToStudentProjection struct {
+type ServiceAddedToIEPProjection struct {
 	Position        eventstore.Position
 	IEPServiceID    string
+	IEPID           string
 	StudentID       string
 	ServiceName     string
 	ServiceType     string
@@ -35,16 +36,17 @@ type IEPServiceAddedToStudentProjection struct {
 	DirectMinutes   int
 	FrequencyCount  int
 	FrequencyType   string
-	Location        string
+	LocationID      string
 	StartDate       string
 	EndDate         string
-	Provider        string
+	ProviderID      string
 	CreatedAt       time.Time
 }
 
 type IEPServiceUpdatedProjection struct {
 	Position        eventstore.Position
 	IEPServiceID    string
+	IEPID           string
 	StudentID       string
 	ServiceName     string
 	ServiceType     string
@@ -52,10 +54,10 @@ type IEPServiceUpdatedProjection struct {
 	DirectMinutes   int
 	FrequencyCount  int
 	FrequencyType   string
-	Location        string
+	LocationID      string
 	StartDate       string
 	EndDate         string
-	Provider        string
+	ProviderID      string
 	UpdatedAt       time.Time
 }
 
@@ -98,15 +100,15 @@ func (h *IEPServiceReadModelEventHandler) StopSubscribing() {
 }
 
 func IEPServiceReadModelEventHandlerQuery() eventstore.Query {
-	eventTypes := []string{
-		EventTypeIEPServiceAddedToStudent,
-		EventTypeIEPServiceUpdated,
-		EventTypeIEPServiceDeleted,
+	eventTypes := []eventType{
+		EventServiceAddedToIEP,
+		EventIEPServiceUpdated,
+		EventIEPServiceDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
 	for _, eventType := range eventTypes {
 		criteria = append(criteria, eventstore.Criterion{
-			Tags: []eventstore.Tag{{Key: eventTypeKey, Value: eventType}},
+			Tags: []eventstore.Tag{{Key: eventTypeKey, Value: eventType.String()}},
 		})
 	}
 	return eventstore.Query{Criteria: criteria}
@@ -115,16 +117,14 @@ func IEPServiceReadModelEventHandlerQuery() eventstore.Query {
 func (h *IEPServiceReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
-	iepServiceID, _ := scope[FieldIEPServiceEventIDIEPServiceAddedToStudent].(string)
+	eventID, _ := scope[FieldServiceAddedToIEPEventID].(string)
+	iepID, _ := scope[FieldIEPServiceIEPID].(string)
 	studentID, _ := scope[FieldIEPServiceStudentID].(string)
-	// this is to prevent errors where the period ID isn't present or read correctly
-	if iepServiceID == "" {
-		return fmt.Errorf("no id provided for student service read model event")
-	}
 	switch resolved.Event.EventType {
-	case EventTypeIEPServiceAddedToStudent:
-		projection := IEPServiceAddedToStudentProjection{
-			IEPServiceID:    iepServiceID,
+	case EventServiceAddedToIEP:
+		projection := ServiceAddedToIEPProjection{
+			IEPServiceID:    eventID,
+			IEPID:           iepID,
 			StudentID:       studentID,
 			ServiceName:     data[FieldIEPServiceServiceName].(string),
 			ServiceType:     data[FieldIEPServiceServiceType].(string),
@@ -132,18 +132,19 @@ func (h *IEPServiceReadModelEventHandler) handle(ctx context.Context, resolved e
 			DirectMinutes:   int(data[FieldIEPServiceDirectMinutes].(float64)),
 			FrequencyCount:  int(data[FieldIEPServiceFrequencyCount].(float64)),
 			FrequencyType:   data[FieldIEPServiceFrequencyType].(string),
-			Location:        data[FieldIEPServiceLocation].(string),
+			LocationID:      data[FieldIEPServiceLocationID].(string),
 			StartDate:       data[FieldIEPServiceStartDate].(string),
 			EndDate:         data[FieldIEPServiceEndDate].(string),
-			Provider:        data[FieldIEPServiceProvider].(string),
+			ProviderID:      data[FieldIEPServiceProviderID].(string),
 			CreatedAt:       parseTime(data[FieldIEPServiceAddedAt]),
 		}
-		if err := h.readModel.AddIEPServiceToStudent(ctx, projection); err != nil {
+		if err := h.readModel.AddServiceToIEP(ctx, projection); err != nil {
 			return err
 		}
-	case EventTypeIEPServiceUpdated:
+	case EventIEPServiceUpdated:
 		projection := IEPServiceUpdatedProjection{
-			IEPServiceID:    iepServiceID,
+			IEPServiceID:    eventID,
+			IEPID:           iepID,
 			StudentID:       studentID,
 			ServiceName:     data[FieldIEPServiceServiceName].(string),
 			ServiceType:     data[FieldIEPServiceServiceType].(string),
@@ -151,19 +152,19 @@ func (h *IEPServiceReadModelEventHandler) handle(ctx context.Context, resolved e
 			DirectMinutes:   int(data[FieldIEPServiceDirectMinutes].(float64)),
 			FrequencyCount:  int(data[FieldIEPServiceFrequencyCount].(float64)),
 			FrequencyType:   data[FieldIEPServiceFrequencyType].(string),
-			Location:        data[FieldIEPServiceLocation].(string),
+			LocationID:      data[FieldIEPServiceLocationID].(string),
 			StartDate:       data[FieldIEPServiceStartDate].(string),
 			EndDate:         data[FieldIEPServiceEndDate].(string),
-			Provider:        data[FieldIEPServiceProvider].(string),
+			ProviderID:      data[FieldIEPServiceProviderID].(string),
 			UpdatedAt:       parseTime(data[FieldIEPServiceUpdatedAt]),
 		}
 		if err := h.readModel.UpdateIEPService(ctx, projection); err != nil {
 			return err
 		}
-	case EventTypeIEPServiceDeleted:
+	case EventIEPServiceDeleted:
 		projection := IEPServiceDeletedProjection{
 			Position:     resolved.Position,
-			IEPServiceID: iepServiceID,
+			IEPServiceID: eventID,
 			DeletedAt:    parseTime(data[FieldIEPServiceDeletedAt]),
 		}
 		if err := h.readModel.DeleteIEPService(ctx, projection); err != nil {
@@ -174,7 +175,8 @@ func (h *IEPServiceReadModelEventHandler) handle(ctx context.Context, resolved e
 	}
 	// so the SSE stream will update
 	// s.Subscriber.Subscribe(ctx, period.Channel(periodID).. etc)
-	_ = h.publisher.Publish(ctx, Channel(iepServiceID), "iep service read model update")
+	_ = h.publisher.Publish(ctx, Channel(eventID), "iep service read model update")
+	_ = h.publisher.Publish(ctx, Channel(eventID), "iep service read model update")
 	_ = h.publisher.Publish(ctx, se.Channel(studentID), "student read model update")
 	return nil
 }

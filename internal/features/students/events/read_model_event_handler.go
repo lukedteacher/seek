@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"time"
@@ -26,34 +27,29 @@ type StudentReadModelWriter interface {
 	Delete(ctx context.Context, event StudentDeletedProjection) error
 }
 
+type StudentState struct {
+	ID         string    `json:"id"`
+	MARSSID    string    `json:"marss_id"`
+	GivenName  string    `json:"given_name"`
+	ChosenName string    `json:"chosen_name"`
+	FamilyName string    `json:"family_name"`
+	Email      string    `json:"email"`
+	Username   string    `json:"username"`
+	Grade      int       `json:"grade"`
+	HomeroomID string    `json:"homeroom_id"`
+	PlanType   int       `json:"plan_type"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
 type StudentCreatedProjection struct {
-	Position    eventstore.Position
-	StudentID   string
-	MARSSID     string
-	GivenName   string
-	ChosenName  string
-	FamilyName  string
-	Email       string
-	Username    string
-	Grade       int
-	Homeroom    string
-	CaseManager string
-	CreatedAt   time.Time
+	Position eventstore.Position
+	StudentState
 }
 
 type StudentUpdatedProjection struct {
-	Position    eventstore.Position
-	StudentID   string
-	MARSSID     string
-	GivenName   string
-	ChosenName  string
-	FamilyName  string
-	Email       string
-	Username    string
-	Grade       int
-	Homeroom    string
-	CaseManager string
-	UpdatedAt   time.Time
+	Position eventstore.Position
+	StudentState
 }
 
 type StudentArchivedProjection struct {
@@ -110,17 +106,17 @@ func (h *StudentReadModelEventHandler) StopSubscribing() {
 }
 
 func StudentReadModelEventHandlerQuery() eventstore.Query {
-	eventTypes := []string{
-		StudentCreated,
-		StudentUpdated,
-		StudentArchived,
-		StudentDeleted,
+	eventTypes := []eventType{
+		EventStudentCreated,
+		EventStudentUpdated,
+		EventStudentArchived,
+		EventStudentDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
 	for _, eventType := range eventTypes {
 		criteria = append(criteria, eventstore.Criterion{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: eventType},
+				{Key: eventTypeKey, Value: eventType.String()},
 			},
 		})
 	}
@@ -129,62 +125,35 @@ func StudentReadModelEventHandlerQuery() eventstore.Query {
 
 func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
+	rawData := resolved.Event.RawData
 	scope := eventstore.Scope(data)
 	studentID, _ := scope[FieldStudentID].(string)
 	switch resolved.Event.EventType {
-	case StudentCreated:
-		marssID, _ := data[FieldStudentMARSSID].(string)
-		givenName, _ := data[FieldStudentGivenName].(string)
-		chosenName, _ := data[FieldStudentChosenName].(string)
-		familyName, _ := data[FieldStudentFamilyName].(string)
-		email, _ := data[FieldStudentEmail].(string)
-		username, _ := data[FieldStudentUsername].(string)
-		grade := int(data[FieldStudentGrade].(float64))
-		homeroom, _ := data[FieldStudentHomeroom].(string)
-		caseManager, _ := data[FieldStudentCaseManager].(string)
+	case EventStudentCreated:
+		var event StudentCreatedEvent
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+			slog.Error("student read model handle create unmarshal", "err", err)
+			return err
+		}
 		if err := h.readModel.Create(ctx, StudentCreatedProjection{
-			Position:    resolved.Position,
-			StudentID:   studentID,
-			MARSSID:     marssID,
-			GivenName:   givenName,
-			ChosenName:  chosenName,
-			FamilyName:  familyName,
-			Email:       email,
-			Username:    username,
-			Grade:       grade,
-			Homeroom:    homeroom,
-			CaseManager: caseManager,
-			CreatedAt:   parseTime(data[FieldStudentCreatedAt]),
+			Position:     resolved.Position,
+			StudentState: event.StudentState,
 		}); err != nil {
 			return err
 		}
-	case StudentUpdated:
-		marssID, _ := data[FieldStudentMARSSID].(string)
-		givenName, _ := data[FieldStudentGivenName].(string)
-		chosenName, _ := data[FieldStudentChosenName].(string)
-		familyName, _ := data[FieldStudentFamilyName].(string)
-		email, _ := data[FieldStudentEmail].(string)
-		username, _ := data[FieldStudentUsername].(string)
-		grade := int(data[FieldStudentGrade].(float64))
-		homeroom, _ := data[FieldStudentHomeroom].(string)
-		caseManager, _ := data[FieldStudentCaseManager].(string)
+	case EventStudentUpdated:
+		var event StudentUpdatedEvent
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+			slog.Error("student read model handle update unmarshal", "err", err)
+			return err
+		}
 		if err := h.readModel.Update(ctx, StudentUpdatedProjection{
-			Position:    resolved.Position,
-			StudentID:   studentID,
-			MARSSID:     marssID,
-			GivenName:   givenName,
-			ChosenName:  chosenName,
-			FamilyName:  familyName,
-			Email:       email,
-			Username:    username,
-			Grade:       grade,
-			Homeroom:    homeroom,
-			CaseManager: caseManager,
-			UpdatedAt:   parseTime(data[FieldStudentUpdatedAt]),
+			Position:     resolved.Position,
+			StudentState: event.StudentState,
 		}); err != nil {
 			return err
 		}
-	case StudentArchived:
+	case EventStudentArchived:
 		if err := h.readModel.Archive(ctx, StudentArchivedProjection{
 			Position:   resolved.Position,
 			StudentID:  studentID,
@@ -192,7 +161,7 @@ func (h *StudentReadModelEventHandler) handle(ctx context.Context, resolved even
 		}); err != nil {
 			return err
 		}
-	case StudentDeleted:
+	case EventStudentDeleted:
 		if err := h.readModel.Delete(ctx, StudentDeletedProjection{
 			Position:  resolved.Position,
 			StudentID: studentID,

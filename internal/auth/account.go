@@ -20,9 +20,8 @@ func userFromSessionRow(row *dbsql.UserBySessionTokenRes) (models.User, error) {
 		UserRegisteredID: row.UserRegisteredId,
 		Email:            row.Email,
 		Username:         row.Username,
-		Image:            row.Image,
+		Avatar:           row.Avatar,
 		Bio:              row.Bio,
-		HeaderImageURL:   row.HeaderImageUrl,
 	}, nil
 }
 
@@ -35,9 +34,8 @@ func userFromRegisteredRow(row *dbsql.UserByRegisteredIdRes) (models.User, error
 		UserRegisteredID: row.UserRegisteredId,
 		Email:            row.Email,
 		Username:         row.Username,
-		Image:            row.Image,
+		Avatar:           row.Avatar,
 		Bio:              row.Bio,
-		HeaderImageURL:   row.HeaderImageUrl,
 	}, nil
 }
 
@@ -50,9 +48,8 @@ func userFromIDOrRegisteredRow(row *dbsql.UserByIdorRegisteredIdRes) (models.Use
 		UserRegisteredID: row.UserRegisteredId,
 		Email:            row.Email,
 		Username:         row.Username,
-		Image:            row.Image,
+		Avatar:           row.Avatar,
 		Bio:              row.Bio,
-		HeaderImageURL:   row.HeaderImageUrl,
 	}, nil
 }
 

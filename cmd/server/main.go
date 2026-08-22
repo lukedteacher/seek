@@ -35,7 +35,6 @@ type runOptions struct {
 type appComponents struct {
 	sessionManager  *auth.SessionManager
 	authUsers       *auth.AuthUserStore
-	verifications   *auth.VerificationStore
 	readModels      *appcore.ReadModelContainer
 	checkpointer    eventstore.Checkpointer
 	emailSender     email.Sender
@@ -106,7 +105,6 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		cfg,
 		components.readModels,
 		components.authUsers,
-		components.verifications,
 		components.checkpointer,
 		components.emailSender,
 		components.piiKeys,
@@ -124,7 +122,6 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 		AuthUsers:           components.authUsers,
 		PIIKeys:             components.piiKeys,
 		PasswordCredentials: components.authUsers,
-		Verifications:       components.verifications,
 		ReadModels:          *components.readModels,
 		EventSaver:          orisunStore,
 		EventRetriever:      orisunStore,
@@ -172,7 +169,6 @@ func newViewStore(bus *natsbus.Bus, logger *slog.Logger) viewstore.Store {
 func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config.Config, logger *slog.Logger) appComponents {
 	authUsers := auth.NewAuthUserStore(db)
 	sessionManager := auth.NewSessionManager(db, authUsers, !cfg.DevelopmentCookie)
-	verifications := auth.NewVerificationStore(db)
 	readModels := appcore.NewReadModelContainer(db)
 	profileStorage := storage.NewLocalProvider(cfg.UploadDir, cfg.UploadBaseURL)
 	piiKeys := auth.NewSubjectPiiKeyStore(db, protectedpii.FromEnv())
@@ -181,7 +177,6 @@ func newAppComponents(db *appdb.DB, store *eventstore.EmbeddedOrisun, cfg config
 	return appComponents{
 		sessionManager:  sessionManager,
 		authUsers:       authUsers,
-		verifications:   verifications,
 		readModels:      readModels,
 		checkpointer:    eventstore.NewSQLiteCheckpointer(db),
 		emailSender:     email.LogSender{Logger: logger},

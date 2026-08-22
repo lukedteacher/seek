@@ -2,6 +2,8 @@ package events
 
 import (
 	"context"
+	"encoding/json"
+	"log/slog"
 	"time"
 
 	"seek/internal/eventstore"
@@ -9,16 +11,8 @@ import (
 )
 
 type UpdateStudentCommand struct {
-	StudentID   string
-	MARSSID     string
-	GivenName   string
-	ChosenName  string
-	FamilyName  string
-	Email       string
-	Grade       int
-	Homeroom    string
-	CaseManager string
-	Metadata    CommandMetadata
+	StudentState
+	Metadata CommandMetadata
 }
 
 type UpdateStudentResult struct {
@@ -35,7 +29,7 @@ func UpdateStudentCommandHandler(
 	UpdateStudentResult,
 	error,
 ) {
-	model, err := loadUpdateStudentContext(ctx, retriever, command.StudentID)
+	model, err := loadUpdateStudentContext(ctx, retriever, command.ID)
 	if err != nil {
 		return UpdateStudentResult{}, err
 	}
@@ -48,16 +42,7 @@ func UpdateStudentCommandHandler(
 	eventID := uuidv7.NewString()
 	event := NewStudentUpdatedEvent(
 		eventID,
-		command.StudentID,
-		command.MARSSID,
-		command.GivenName,
-		command.ChosenName,
-		command.FamilyName,
-		command.Email,
-		deriveUsername(command.Email),
-		command.Grade,
-		command.Homeroom,
-		command.CaseManager,
+		command.StudentState,
 		time.Now(),
 		metadataWithQuery(command.Metadata, model.query),
 	)
@@ -69,21 +54,13 @@ func UpdateStudentCommandHandler(
 }
 
 type updateStudentContext struct {
-	created     bool
-	archived    bool
-	deleted     bool
-	marssID     string
-	givenName   string
-	chosenName  string
-	familyName  string
-	email       string
-	username    string
-	grade       int
-	homeroom    string
-	caseManager string
-	position    eventstore.Position
-	events      []eventstore.ResolvedEvent
-	query       eventstore.Query
+	created  bool
+	archived bool
+	deleted  bool
+	StudentState
+	position eventstore.Position
+	events   []eventstore.ResolvedEvent
+	query    eventstore.Query
 }
 
 func loadUpdateStudentContext(
@@ -115,32 +92,26 @@ func (m *updateStudentContext) isActive() bool {
 }
 
 func (m *updateStudentContext) handle(resolved eventstore.ResolvedEvent) {
-	data := resolved.Event.Data
+	rawData := resolved.Event.RawData
 	switch resolved.Event.EventType {
-	case StudentCreated:
+	case EventStudentCreated:
+		var event StudentCreatedEvent
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+			slog.Error("student update handle create unmarshal", "err", err)
+			return
+		}
 		m.created = true
-		m.archived = false
-		m.deleted = false
-		m.givenName, _ = data[FieldStudentGivenName].(string)
-		m.chosenName, _ = data[FieldStudentChosenName].(string)
-		m.familyName, _ = data[FieldStudentFamilyName].(string)
-		m.email, _ = data[FieldStudentEmail].(string)
-		m.username, _ = data[FieldStudentUsername].(string)
-		m.grade = int(data[FieldStudentGrade].(float64))
-		m.homeroom, _ = data[FieldStudentHomeroom].(string)
-		m.caseManager, _ = data[FieldStudentCaseManager].(string)
-	case StudentUpdated:
-		m.givenName, _ = data[FieldStudentGivenName].(string)
-		m.chosenName, _ = data[FieldStudentChosenName].(string)
-		m.familyName, _ = data[FieldStudentFamilyName].(string)
-		m.email, _ = data[FieldStudentEmail].(string)
-		m.username, _ = data[FieldStudentUsername].(string)
-		m.grade = int(data[FieldStudentGrade].(float64))
-		m.homeroom, _ = data[FieldStudentHomeroom].(string)
-		m.caseManager, _ = data[FieldStudentCaseManager].(string)
-	case StudentArchived:
+		m.StudentState = event.StudentState
+	case EventStudentUpdated:
+		var event StudentUpdatedEvent
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+			slog.Error("student update handle update unmarshal", "err", err)
+			return
+		}
+		m.StudentState = event.StudentState
+	case EventStudentArchived:
 		m.archived = true
-	case StudentDeleted:
+	case EventStudentDeleted:
 		m.deleted = true
 	}
 	if resolved.Position.After(m.position) {

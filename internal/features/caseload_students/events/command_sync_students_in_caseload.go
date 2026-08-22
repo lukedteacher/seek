@@ -145,7 +145,7 @@ func loadSyncStudentsInCaseloadContext(
 func (m *syncStudentsInEducatorContext) handle(resolved eventstore.ResolvedEvent) {
 	data := resolved.Event.RawData
 	switch resolved.Event.EventType {
-	case ee.EducatorCreated:
+	case ee.EventEducatorCreated:
 		var event = &ee.EducatorCreatedEvent{}
 		_ = json.Unmarshal([]byte(data), event)
 		m.educator.created = true
@@ -155,7 +155,7 @@ func (m *syncStudentsInEducatorContext) handle(resolved eventstore.ResolvedEvent
 				m.educator.isCaseManager = true
 			}
 		}
-	case ee.EducatorUpdated:
+	case ee.EventEducatorUpdated:
 		var event = &ee.EducatorUpdatedEvent{}
 		_ = json.Unmarshal([]byte(data), event)
 		m.educator.isCaseManager = false
@@ -164,9 +164,9 @@ func (m *syncStudentsInEducatorContext) handle(resolved eventstore.ResolvedEvent
 				m.educator.isCaseManager = true
 			}
 		}
-	case ee.EducatorArchived:
+	case ee.EventEducatorArchived:
 		m.educator.archived = true
-	case ee.EducatorDeleted:
+	case ee.EventEducatorDeleted:
 		m.educator.deleted = true
 	case StudentAddedToCaseload:
 		var event = &StudentAddedToCaseloadEvent{}

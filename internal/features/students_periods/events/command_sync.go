@@ -141,11 +141,11 @@ func loadSyncStudentsInPeriodContext(
 func (m *syncStudentsInPeriodContext) handle(resolved eventstore.ResolvedEvent) {
 	data := resolved.Event.RawData
 	switch resolved.Event.EventType {
-	case pe.PeriodCreated:
+	case pe.EventPeriodCreated:
 		m.period.created = true
-	case pe.PeriodArchived:
+	case pe.EventPeriodArchived:
 		m.period.archived = true
-	case pe.PeriodDeleted:
+	case pe.EventPeriodDeleted:
 		m.period.deleted = true
 	case StudentAddedToPeriod:
 		var event = &StudentAddedToPeriodEvent{}

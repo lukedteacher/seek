@@ -8,12 +8,9 @@ import (
 )
 
 type GetUserProfileByUserIdRes struct {
-	UserId         string `json:"user_id"`
-	Email          string `json:"email"`
-	Username       string `json:"username"`
-	Image          string `json:"image"`
-	Bio            string `json:"bio"`
-	HeaderImageUrl string `json:"header_image_url"`
+	UserId string `json:"user_id"`
+	Avatar string `json:"avatar"`
+	Bio    string `json:"bio"`
 }
 
 type GetUserProfileByUserIdStmt struct {
@@ -27,11 +24,8 @@ func GetUserProfileByUserId(tx *sqlite.Conn) *GetUserProfileByUserIdStmt {
 	const querySQL = `
 SELECT 
 	user_id,
-	coalesce(email, '') AS email,
-	coalesce(username, '') AS username,
-	coalesce(image, '') AS image,
-	coalesce(bio, '') AS bio,
-	coalesce(header_image_url, '') AS header_image_url
+	coalesce(avatar, '') AS avatar,
+	coalesce(bio, '') AS bio
 FROM profile_stats
 WHERE user_id = ?1
     `
@@ -81,11 +75,8 @@ func (ps *GetUserProfileByUserIdStmt) Run(
 	} else if hasRow {
 		row := GetUserProfileByUserIdRes{}
 		row.UserId = stmt.ColumnText(0)
-		row.Email = stmt.ColumnText(1)
-		row.Username = stmt.ColumnText(2)
-		row.Image = stmt.ColumnText(3)
-		row.Bio = stmt.ColumnText(4)
-		row.HeaderImageUrl = stmt.ColumnText(5)
+		row.Avatar = stmt.ColumnText(1)
+		row.Bio = stmt.ColumnText(2)
 		res = &row
 	}
 

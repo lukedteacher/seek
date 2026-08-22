@@ -9,8 +9,8 @@ import (
 // case manager student event types
 
 const (
-	StudentAddedToCaseload     = "StudentAddedToCaseload"
-	StudentRemovedFromCaseload = "StudentRemovedFromCaseload"
+	StudentAddedToCaseload     = "student_added_to_caseload_event"
+	StudentRemovedFromCaseload = "student_removed_from_caseload_event"
 )
 
 // case manager student event fields

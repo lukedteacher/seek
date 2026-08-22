@@ -3,7 +3,6 @@ package blocks
 import (
 	"fmt"
 
-	eblocks "seek/internal/features/educators/blocks"
 	"seek/internal/features/students/dto"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
@@ -33,13 +32,7 @@ templ Card(view dto.StudentView) {
 					{ view.Grade.Ordinal() }
 				}
 			</p>
-			<p class="flex justify-between"><span class="text-neutral-content/80">homeroom</span>{ view.Homeroom }</p>
-			if view.CaseManagerID != "" {
-				<div class="flex justify-between items-center">
-					<span class="text-neutral-content/80">case manager</span>
-					@eblocks.EducatorAvatar(view.CaseManagerView)
-				</div>
-			}
+			<p class="flex justify-between"><span class="text-neutral-content/80">homeroom</span>{ view.HomeroomID }</p>
 		}
 		@card.Footer(card.FooterProps{
 			Class: "flex justify-end items-center",

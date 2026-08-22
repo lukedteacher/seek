@@ -18,8 +18,6 @@ type User struct {
 	UserRegisteredID string
 	Email            string
 	Username         string
-	Roles            []string
-	Image            string
+	Avatar           string
 	Bio              string
-	HeaderImageURL   string
 }

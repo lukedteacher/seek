@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"seek/internal/eventstore"
-	pe "seek/internal/features/educators/events"
+	ee "seek/internal/features/educators/events"
 	se "seek/internal/features/students/events"
 	"seek/pkg/uuidv7"
 )
@@ -112,17 +112,17 @@ func (m *removeStudentFromEducatorContext) isStudentActive() error {
 
 func (m *removeStudentFromEducatorContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case pe.EducatorCreated:
+	case ee.EventEducatorCreated:
 		m.educatorCreated = true
-	case pe.EducatorArchived:
+	case ee.EventEducatorArchived:
 		m.educatorArchived = true
-	case pe.EducatorDeleted:
+	case ee.EventEducatorDeleted:
 		m.educatorDeleted = true
-	case se.StudentCreated:
+	case se.EventStudentCreated:
 		m.studentCreated = true
-	case se.StudentArchived:
+	case se.EventStudentArchived:
 		m.studentArchived = true
-	case se.StudentDeleted:
+	case se.EventStudentDeleted:
 		m.studentDeleted = true
 	case StudentAddedToCaseload:
 		m.added = true

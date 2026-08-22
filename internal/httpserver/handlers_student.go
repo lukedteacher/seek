@@ -12,7 +12,6 @@ import (
 	"seek/internal/features/_composite/compositedto"
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
-	csevents "seek/internal/features/caseload_students/events"
 	edto "seek/internal/features/educators/dto"
 	eevents "seek/internal/features/educators/events"
 	idto "seek/internal/features/iepservices/dto"
@@ -81,7 +80,6 @@ func getStudentsListStream(
 		// subscribes to the channel which publishes changes to any students
 		notifier := NewMessageNotifier()
 		sub, err := subscriber.Subscribe(ctx, events.ChannelAll(), func(ctx context.Context, data []byte) {
-			l.Debug("data", "data", string(data))
 			notifier.Notify(data)
 		})
 		if err != nil {
@@ -331,18 +329,21 @@ func postStudentCreate(
 			toastError(sse, "no email provided")
 			return
 		}
-
-		result, err := events.CreateStudentCommandHandler(ctx, events.CreateStudentCommand{
-			MARSSID:     signals.Student.MARSSID,
-			GivenName:   signals.Student.GivenName,
-			ChosenName:  signals.Student.ChosenName,
-			FamilyName:  signals.Student.FamilyName,
-			Email:       signals.Student.Email,
-			Grade:       int(signals.Student.Grade),
-			Homeroom:    signals.Student.Homeroom,
-			CaseManager: signals.Student.CaseManagerID,
-			Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-		}, saver)
+		student := events.StudentState{
+			MARSSID:    signals.Student.MARSSID,
+			GivenName:  signals.Student.GivenName,
+			ChosenName: signals.Student.ChosenName,
+			FamilyName: signals.Student.FamilyName,
+			Email:      signals.Student.Email,
+			Grade:      int(signals.Student.Grade),
+			HomeroomID: signals.Student.HomeroomID,
+			PlanType:   int(signals.Student.PlanType),
+		}
+		cmd := events.CreateStudentCommand{
+			StudentState: student,
+			Metadata:     eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+		}
+		result, err := events.CreateStudentCommandHandler(ctx, cmd, saver)
 		if err != nil {
 			l.ErrorContext(ctx, "student create create command handler", "err", err)
 			return
@@ -627,7 +628,7 @@ func getStudentViewServicesStream(
 				studentView := dto.NewStudentView(student, nil)
 
 				// get the list of services for the student and make views
-				services, err := iepServiceReadModel.ListIEPServicesForStudent(ctx, studentView.ID)
+				services, err := iepServiceReadModel.ListServicesForIEP(ctx, studentView.ID)
 				if err != nil {
 					l.ErrorContext(ctx, "get student view db list services", "err", err)
 				}
@@ -772,23 +773,22 @@ func postStudentEdit(
 			l.ErrorContext(ctx, "post student edit read signals", "err", err)
 			return
 		}
-		result, err := events.UpdateStudentCommandHandler(
-			ctx,
-			events.UpdateStudentCommand{
-				StudentID:   signals.Student.ID,
-				MARSSID:     signals.Student.MARSSID,
-				GivenName:   signals.Student.GivenName,
-				ChosenName:  signals.Student.ChosenName,
-				FamilyName:  signals.Student.FamilyName,
-				Email:       signals.Student.Email,
-				Grade:       int(signals.Student.Grade),
-				Homeroom:    signals.Student.Homeroom,
-				CaseManager: signals.Student.CaseManagerID,
-				Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-			},
-			saver,
-			retriever,
-		)
+
+		student := events.StudentState{
+			MARSSID:    signals.Student.MARSSID,
+			GivenName:  signals.Student.GivenName,
+			ChosenName: signals.Student.ChosenName,
+			FamilyName: signals.Student.FamilyName,
+			Email:      signals.Student.Email,
+			Grade:      int(signals.Student.Grade),
+			HomeroomID: signals.Student.HomeroomID,
+			PlanType:   int(signals.Student.PlanType),
+		}
+		cmd := events.UpdateStudentCommand{
+			StudentState: student,
+			Metadata:     eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+		}
+		result, err := events.UpdateStudentCommandHandler(ctx, cmd, saver, retriever)
 		if err != nil {
 			l.ErrorContext(ctx, "post student edit update command handler", "err", err)
 			return
@@ -797,21 +797,21 @@ func postStudentEdit(
 			l.InfoContext(ctx, "post student edit command handler", "skipped", result.Skipped)
 			return
 		}
-		if signals.Student.CaseManagerID != "" {
-			_, err = csevents.SyncCaseManagerForStudentCommandHandler(
-				ctx,
-				csevents.SyncCaseManagerForStudentCommand{
-					StudentID:          signals.Student.ID,
-					ProposedEducatorID: signals.Student.CaseManagerID,
-				},
-				saver,
-				retriever,
-			)
-			if err != nil {
-				l.ErrorContext(ctx, "post student edit case manager command handler", "err", err)
-				return
-			}
-		}
+		// if signals.Student.CaseManagerID != "" {
+		// 	_, err = csevents.SyncCaseManagerForStudentCommandHandler(
+		// 		ctx,
+		// 		csevents.SyncCaseManagerForStudentCommand{
+		// 			StudentID:          signals.Student.ID,
+		// 			ProposedEducatorID: signals.Student.CaseManagerID,
+		// 		},
+		// 		saver,
+		// 		retriever,
+		// 	)
+		// 	if err != nil {
+		// 		l.ErrorContext(ctx, "post student edit case manager command handler", "err", err)
+		// 		return
+		// 	}
+		// }
 		sse := newSSE(w, r)
 		sse.Redirect(fmt.Sprintf("/students/%s/info", username))
 	}

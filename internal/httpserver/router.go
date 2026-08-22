@@ -40,16 +40,11 @@ type ProfileReader interface {
 	User(ctx context.Context, userRegisteredID string) (models.User, error)
 }
 
-type VerificationStore interface {
-	auth.PasswordResetReader
-}
-
 type Server struct {
 	Sessions            SessionManager
 	AuthUsers           AuthUserReader
 	PIIKeys             auth.SubjectPiiKeyPort
 	PasswordCredentials auth.PasswordCredentialReader
-	Verifications       VerificationStore
 	ReadModels          appcore.ReadModelContainer
 	EventSaver          eventstore.Saver
 	EventRetriever      eventstore.Retriever
@@ -87,7 +82,7 @@ func (s Server) Routes() http.Handler {
 		s.coreRoutes(r)
 	})
 	r.Group(func(r chi.Router) {
-		r.Use(s.requireVerifiedEmail)
+		r.Use(s.requireUserLoggedIn)
 		r.Use(addPathToContext(s.Logger))
 		s.educatorRoutes(r)
 		s.iepServiceRoutes(r)
@@ -134,7 +129,7 @@ func addPathToContext(
 	}
 }
 
-func (s Server) requireVerifiedEmail(next http.Handler) http.Handler {
+func (s Server) requireUserLoggedIn(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user, ok, err := s.Sessions.CurrentUser(ctx, r)

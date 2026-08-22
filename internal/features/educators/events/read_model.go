@@ -190,8 +190,8 @@ func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username stri
 					Email:      *row.StudentEmail,
 					Username:   *row.StudentUsername,
 				},
-				Grade:    sharedmodels.Grade(*row.Grade),
-				Homeroom: *row.Homeroom,
+				Grade:      sharedmodels.Grade(*row.Grade),
+				HomeroomID: *row.HomeroomId,
 			}
 			caseManager.Caseload = append(caseManager.Caseload, student)
 		}

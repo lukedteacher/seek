@@ -8,6 +8,7 @@ import (
 
 type IEPService struct {
 	ID              string                   `json:"id"`
+	IEPID           string                   `json:"iep_id"`
 	StudentID       string                   `json:"student_id"`
 	StudentMARSSID  string                   `json:"student_marss_id" csv:"MARSS ID"`
 	ServiceName     string                   `json:"service_name" csv:"Service"`
@@ -16,10 +17,11 @@ type IEPService struct {
 	DirectMinutes   int                      `json:"direct_minutes" csv:"Direct minutes"`
 	FrequencyCount  int                      `json:"frequency_count" csv:"Frequency count"`
 	FrequencyType   string                   `json:"frequency_type" csv:"Frequency"`
-	Location        string                   `json:"location"`
+	LocationID      string                   `json:"location_id" csv:"Location"`
 	StartDate       sharedmodels.DateOnly    `json:"start_date" csv:"Start date"`
 	EndDate         sharedmodels.DateOnly    `json:"end_date" csv:"End date"`
 	Provider        string                   `json:"provider" csv:"Provider"`
+	ProviderID      string                   `json:"provider_id"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }

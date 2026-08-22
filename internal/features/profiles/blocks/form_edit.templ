@@ -23,6 +23,10 @@ templ EditProfileForm() {
 			<p>make changes to your public profile information</p>
 		</hgroup>
 		<fieldset>
+			<legend>avatar</legend>
+			@AvatarChooser("fox")
+		</fieldset>
+		<fieldset>
 			<legend>bio</legend>
 			@textarea.Textarea(textarea.Props{
 				Value: user.Bio,

@@ -8,18 +8,18 @@ import (
 )
 
 type ListStudentsByIepserviceTypeRes struct {
-	Id          string `json:"id"`
-	MarssId     string `json:"marss_id"`
-	GivenName   string `json:"given_name"`
-	ChosenName  string `json:"chosen_name"`
-	FamilyName  string `json:"family_name"`
-	Email       string `json:"email"`
-	Username    string `json:"username"`
-	Grade       int64  `json:"grade"`
-	Homeroom    string `json:"homeroom"`
-	CaseManager string `json:"case_manager"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
+	Id         string `json:"id"`
+	MarssId    string `json:"marss_id"`
+	GivenName  string `json:"given_name"`
+	ChosenName string `json:"chosen_name"`
+	FamilyName string `json:"family_name"`
+	Email      string `json:"email"`
+	Username   string `json:"username"`
+	Grade      int64  `json:"grade"`
+	HomeroomId string `json:"homeroom_id"`
+	PlanType   int64  `json:"plan_type"`
+	CreatedAt  string `json:"created_at"`
+	UpdatedAt  string `json:"updated_at"`
 }
 
 type ListStudentsByIepserviceTypeStmt struct {
@@ -32,18 +32,18 @@ type ListStudentsByIepserviceTypeStmt struct {
 func ListStudentsByIepserviceType(tx *sqlite.Conn) *ListStudentsByIepserviceTypeStmt {
 	const querySQL = `
 SELECT 
-    s.id, 
-		s.marss_id,
-    s.given_name, 
-    s.chosen_name, 
-    s.family_name, 
-		s.email,
-		s.username,
-    s.grade, 
-    s.homeroom, 
-    s.case_manager, 
-    s.created_at, 
-    s.updated_at
+	s.id, 
+	s.marss_id,
+	s.given_name, 
+	s.chosen_name, 
+	s.family_name, 
+	s.email,
+	s.username,
+	s.grade, 
+	s.homeroom_id, 
+	s.plan_type, 
+	s.created_at, 
+	s.updated_at
 FROM students s
 WHERE EXISTS (
 	SELECT 1 FROM iep_services ieps
@@ -110,8 +110,8 @@ func (ps *ListStudentsByIepserviceTypeStmt) Run(
 		row.Email = stmt.ColumnText(5)
 		row.Username = stmt.ColumnText(6)
 		row.Grade = stmt.ColumnInt64(7)
-		row.Homeroom = stmt.ColumnText(8)
-		row.CaseManager = stmt.ColumnText(9)
+		row.HomeroomId = stmt.ColumnText(8)
+		row.PlanType = stmt.ColumnInt64(9)
 		row.CreatedAt = stmt.ColumnText(10)
 		row.UpdatedAt = stmt.ColumnText(11)
 		res = append(res, row)

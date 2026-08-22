@@ -44,12 +44,14 @@ func SeedStudents(
 	ids := make([]string, 0, len(data))
 	for _, d := range data {
 		cmd := se.CreateStudentCommand{
-			MARSSID:    d.MARSSID,
-			GivenName:  d.GivenName,
-			ChosenName: d.ChosenName,
-			FamilyName: d.FamilyName,
-			Email:      d.Email,
-			Grade:      d.Grade,
+			StudentState: se.StudentState{
+				MARSSID:    d.MARSSID,
+				GivenName:  d.GivenName,
+				ChosenName: d.ChosenName,
+				FamilyName: d.FamilyName,
+				Email:      d.Email,
+				Grade:      d.Grade,
+			},
 		}
 		res, err := se.CreateStudentCommandHandler(ctx, cmd, saver)
 		if err != nil {
@@ -133,11 +135,13 @@ func SeedEducators(
 	ids := make([]string, 0, len(data))
 	for _, d := range data {
 		cmd := ee.CreateEducatorCommand{
-			GivenName:  d.GivenName,
-			ChosenName: d.ChosenName,
-			FamilyName: d.FamilyName,
-			Email:      d.Email,
-			Roles:      strings.Split(d.Role, ","),
+			EducatorState: ee.EducatorState{
+				GivenName:  d.GivenName,
+				ChosenName: d.ChosenName,
+				FamilyName: d.FamilyName,
+				Email:      d.Email,
+				Roles:      strings.Split(d.Role, ","),
+			},
 		}
 		res, err := ee.CreateEducatorCommandHandler(ctx, cmd, saver)
 		if err != nil {

@@ -20,7 +20,13 @@ type UpdateProfileBioCommand struct {
 	Metadata eventstore.CommandMetadata
 }
 
-func UpdateProfileBioCommandHandler(ctx context.Context, command UpdateProfileBioCommand, saver eventstore.Saver, retriever eventstore.Retriever, keys auth.SubjectPiiKeyPort) error {
+func UpdateProfileBioCommandHandler(
+	ctx context.Context,
+	command UpdateProfileBioCommand,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+	keys auth.SubjectPiiKeyPort,
+) error {
 	if err := commandlimits.Assert(command); err != nil {
 		return err
 	}
@@ -31,8 +37,23 @@ func UpdateProfileBioCommandHandler(ctx context.Context, command UpdateProfileBi
 	if model.bio == model.nextBio {
 		return nil
 	}
-	event := NewProfileBioUpdatedEvent(model.eventID, model.nextBio, time.Now(), command.User.UserRegisteredID, model.subjectKey, nil)
-	_, err = eventstore.SaveCommandEvents(ctx, saver, command.Metadata, []eventstore.DomainEvent{event}, model.position, model.events, model.query)
+	event := NewProfileBioUpdatedEvent(
+		model.eventID,
+		model.nextBio,
+		time.Now(),
+		command.User.UserRegisteredID,
+		model.subjectKey,
+		nil,
+	)
+	_, err = eventstore.SaveCommandEvents(
+		ctx,
+		saver,
+		command.Metadata,
+		[]eventstore.DomainEvent{event},
+		model.position,
+		model.events,
+		model.query,
+	)
 	return err
 }
 
@@ -97,7 +118,12 @@ func (m *updateProfileBioContext) handle(resolved eventstore.ResolvedEvent) {
 	case auth.UserRegistered:
 		m.userExists = true
 	case ProfileBioUpdated:
-		m.bio = protectedpii.MustDecryptEventStringWithDataKey(protectedpii.FromEnv(), m.subjectKey, resolved.Event.Data, ProfileBioUpdatedBioField)
+		m.bio = protectedpii.MustDecryptEventStringWithDataKey(
+			protectedpii.FromEnv(),
+			m.subjectKey,
+			resolved.Event.Data,
+			FieldProfileBioUpdatedBio,
+		)
 	}
 	if resolved.Position.After(m.position) {
 		m.position = resolved.Position

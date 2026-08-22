@@ -46,7 +46,7 @@ func ArchiveEducatorCommandHandler(
 	// wrap data in a domain event
 	event := eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: EducatorArchived,
+		EventType: EventEducatorArchived,
 		Data:      eventstore.MustData(eventData),
 		Metadata:  metadataWithQuery(command.Metadata, model.query),
 	}
@@ -102,13 +102,11 @@ func (m *archiveEducatorContext) isActive() bool {
 
 func (m *archiveEducatorContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case EducatorCreated:
+	case EventEducatorCreated:
 		m.created = true
-		m.archived = false
-		m.deleted = false
-	case EducatorArchived:
+	case EventEducatorArchived:
 		m.archived = true
-	case EducatorDeleted:
+	case EventEducatorDeleted:
 		m.deleted = true
 	}
 	if resolved.Position.After(m.position) {

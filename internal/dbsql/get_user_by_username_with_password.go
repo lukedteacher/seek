@@ -12,9 +12,8 @@ type GetUserByUsernameWithPasswordRes struct {
 	UserRegisteredId string  `json:"user_registered_id"`
 	Email            string  `json:"email"`
 	Username         string  `json:"username"`
-	Image            string  `json:"image"`
+	Avatar           string  `json:"avatar"`
 	Bio              string  `json:"bio"`
-	HeaderImageUrl   string  `json:"header_image_url"`
 	Password         *string `json:"password"`
 }
 
@@ -27,14 +26,14 @@ type GetUserByUsernameWithPasswordStmt struct {
 
 func GetUserByUsernameWithPassword(tx *sqlite.Conn) *GetUserByUsernameWithPasswordStmt {
 	const querySQL = `
-SELECT u.id,
-       u.user_registered_id,
-       u.email,
-			 u.username,
-       coalesce(u.image, '') AS image,
-       coalesce(p.bio, '') AS bio,
-       coalesce(p.header_image_url, '') AS header_image_url,
-       a.password
+SELECT 
+	u.id,
+	u.user_registered_id,
+	u.email,
+	u.username,
+	coalesce(u.avatar, '') AS avatar,
+	coalesce(p.bio, '') AS bio,
+	a.password
 FROM auth_user u
 JOIN auth_account a ON a.user_id = u.id AND a.provider_id = 'credential'
 LEFT JOIN profile_stats p ON p.user_id = u.user_registered_id
@@ -89,12 +88,11 @@ func (ps *GetUserByUsernameWithPasswordStmt) Run(
 		row.UserRegisteredId = stmt.ColumnText(1)
 		row.Email = stmt.ColumnText(2)
 		row.Username = stmt.ColumnText(3)
-		row.Image = stmt.ColumnText(4)
+		row.Avatar = stmt.ColumnText(4)
 		row.Bio = stmt.ColumnText(5)
-		row.HeaderImageUrl = stmt.ColumnText(6)
-		isNullPassword := stmt.ColumnIsNull(7)
+		isNullPassword := stmt.ColumnIsNull(6)
 		if !isNullPassword {
-			tmp := stmt.ColumnText(7)
+			tmp := stmt.ColumnText(6)
 			row.Password = &tmp
 		}
 		res = &row

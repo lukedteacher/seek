@@ -49,7 +49,7 @@ func (c CSVIEPService) ToIEPService() *IEPService {
 		DirectMinutes:   c.DirectMinutes,
 		FrequencyCount:  c.FrequencyCount,
 		FrequencyType:   c.FrequencyType,
-		Location:        c.Location,
+		LocationID:      c.Location,
 		StartDate:       sharedmodels.DateOnly(c.StartDate),
 		EndDate:         sharedmodels.DateOnly(c.EndDate),
 		Provider:        c.Provider,

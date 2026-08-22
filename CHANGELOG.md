@@ -2,7 +2,18 @@
 
 updates for SEEK
 
-## v0.7.2 (26.08.19) profile updates
+## v0.8.0 (26.08.21) major event refactor, other things
+
+- adjusted most events to use 'state' model instead of individual fields
+- moved to snake case for event names
+- adjusted various models in preparation for ieps
+- adjusted style of forms and schedule
+- tweaked user / profile db stuff
+- added avatar picker
+- added avatar images
+- added data to gitignore
+
+## v0.7.2 (26.08.20) profile updates
 
 - fixed profile edit page to only edit bio
 - updated save and cancel buttons to redirect

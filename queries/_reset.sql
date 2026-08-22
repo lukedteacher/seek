@@ -7,9 +7,6 @@ DELETE FROM auth_account;
 -- name: ResetReadModelAuthUsers :exec
 DELETE FROM auth_user;
 
--- name: ResetReadModelAuthVerifications :exec
-DELETE FROM auth_verification;
-
 -- name: ResetReadModelProfiles :exec
 DELETE FROM profile_stats;
 

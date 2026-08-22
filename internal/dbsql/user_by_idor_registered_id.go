@@ -12,9 +12,8 @@ type UserByIdorRegisteredIdRes struct {
 	UserRegisteredId string `json:"user_registered_id"`
 	Email            string `json:"email"`
 	Username         string `json:"username"`
-	Image            string `json:"image"`
+	Avatar           string `json:"avatar"`
 	Bio              string `json:"bio"`
-	HeaderImageUrl   string `json:"header_image_url"`
 }
 
 type UserByIdorRegisteredIdStmt struct {
@@ -26,13 +25,13 @@ type UserByIdorRegisteredIdStmt struct {
 
 func UserByIdorRegisteredId(tx *sqlite.Conn) *UserByIdorRegisteredIdStmt {
 	const querySQL = `
-SELECT u.id,
-       u.user_registered_id,
-       u.email,
-			 u.username,
-       coalesce(u.image, '') AS image,
-       coalesce(p.bio, '') AS bio,
-       coalesce(p.header_image_url, '') AS header_image_url
+SELECT 
+	u.id,
+	u.user_registered_id,
+	u.email,
+	u.username,
+	coalesce(u.avatar, '') AS avatar,
+	coalesce(p.bio, '') AS bio
 FROM auth_user u
 LEFT JOIN profile_stats p ON p.user_id = u.user_registered_id
 WHERE u.id = ?1 OR u.user_registered_id = ?1
@@ -86,9 +85,8 @@ func (ps *UserByIdorRegisteredIdStmt) Run(
 		row.UserRegisteredId = stmt.ColumnText(1)
 		row.Email = stmt.ColumnText(2)
 		row.Username = stmt.ColumnText(3)
-		row.Image = stmt.ColumnText(4)
+		row.Avatar = stmt.ColumnText(4)
 		row.Bio = stmt.ColumnText(5)
-		row.HeaderImageUrl = stmt.ColumnText(6)
 		res = &row
 	}
 

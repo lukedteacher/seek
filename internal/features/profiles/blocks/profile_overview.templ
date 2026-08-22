@@ -24,9 +24,9 @@ templ Header(user models.User) {
 	<div class="flex items-start justify-between gap-4 mb-[2rem]">
 		<div class="flex items-center gap-4">
 			@avatar.Avatar(avatar.Props{Class: "h-16 w-16"}) {
-				if user.Image != "" {
+				if user.Avatar != "" {
 					@avatar.Image(avatar.ImageProps{
-						Src: user.Image,
+						Src: user.Avatar,
 					})
 				}
 				@avatar.Fallback() {

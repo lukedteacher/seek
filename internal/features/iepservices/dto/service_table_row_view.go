@@ -15,7 +15,7 @@ var IEPServiceColumns = []shareddto.ColumnView{
 	{Field: "DirectMinutes", Display: "direct", Group: "minutes", Alignment: "center"},
 	{Field: "FrequencyCount", Display: "count", Group: "frequency", Alignment: "center"},
 	{Field: "FrequencyType", Display: "type", Group: "frequency", Renderer: "badge", Alignment: "center"},
-	{Field: "Location", Display: "location", Renderer: "badge", Alignment: "center"},
+	{Field: "LocationID", Display: "location id", Renderer: "badge", Alignment: "center"},
 	{Field: "Provider", Display: "provider"},
 	{Field: "StartDate", Display: "start", Group: "date", Alignment: "center"},
 	{Field: "EndDate", Display: "end", Group: "date", Alignment: "center"},
@@ -44,8 +44,8 @@ func valueExtractor(m *models.IEPService, field string) string {
 		return strconv.Itoa(m.FrequencyCount)
 	case "FrequencyType":
 		return m.FrequencyType
-	case "Location":
-		return m.Location
+	case "LocationID":
+		return m.LocationID
 	case "Provider":
 		return m.Provider
 	case "StartDate":

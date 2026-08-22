@@ -6,13 +6,13 @@ import (
 	"seek/internal/eventstore"
 )
 
-// EVENT NAMES
+// event types
 const (
-	StudentAddedToPeriod     = "StudentAddedToPeriod"
-	StudentRemovedFromPeriod = "StudentRemovedFromPeriod"
+	StudentAddedToPeriod     = "student_added_to_period_event"
+	StudentRemovedFromPeriod = "student_removed_from_period_event"
 )
 
-// EVENT FIELDS
+// event fields
 const (
 	StudentAddedToPeriodIDField     = "student_added_to_period_event_id"
 	StudentAddedToPeriodAtField     = "added_at"

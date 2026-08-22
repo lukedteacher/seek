@@ -135,7 +135,7 @@ func FormSections(view dto.IEPServiceFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = ServiceLocationSelect(view.IEPService.Location).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = ServiceLocationSelect(view.IEPService.LocationID).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -9,17 +9,17 @@ type CommandMetadata = eventstore.CommandMetadata
 var eventTypeKey = eventstore.EventTypeKey
 
 func streamQuery(periodID string) eventstore.Query {
-	eventTypes := []string{
-		PeriodCreated,
-		PeriodUpdated,
-		PeriodArchived,
-		PeriodDeleted,
+	eventTypes := []eventType{
+		EventPeriodCreated,
+		EventPeriodUpdated,
+		EventPeriodArchived,
+		EventPeriodDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(eventTypes))
 	for _, eventType := range eventTypes {
 		criteria = append(criteria, eventstore.Criterion{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: eventType},
+				{Key: eventTypeKey, Value: eventType.String()},
 				{Key: FieldPeriodScopeID, Value: periodID},
 			},
 		})

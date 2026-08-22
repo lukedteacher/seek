@@ -8,18 +8,18 @@ import (
 )
 
 type ListStudentsForPeriodRes struct {
-	Id          string `json:"id"`
-	MarssId     string `json:"marss_id"`
-	GivenName   string `json:"given_name"`
-	ChosenName  string `json:"chosen_name"`
-	FamilyName  string `json:"family_name"`
-	Email       string `json:"email"`
-	Username    string `json:"username"`
-	Grade       int64  `json:"grade"`
-	Homeroom    string `json:"homeroom"`
-	CaseManager string `json:"case_manager"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
+	Id         string `json:"id"`
+	MarssId    string `json:"marss_id"`
+	GivenName  string `json:"given_name"`
+	ChosenName string `json:"chosen_name"`
+	FamilyName string `json:"family_name"`
+	Email      string `json:"email"`
+	Username   string `json:"username"`
+	Grade      int64  `json:"grade"`
+	HomeroomId string `json:"homeroom_id"`
+	PlanType   int64  `json:"plan_type"`
+	CreatedAt  string `json:"created_at"`
+	UpdatedAt  string `json:"updated_at"`
 }
 
 type ListStudentsForPeriodStmt struct {
@@ -32,21 +32,21 @@ type ListStudentsForPeriodStmt struct {
 func ListStudentsForPeriod(tx *sqlite.Conn) *ListStudentsForPeriodStmt {
 	const querySQL = `
 SELECT
-	students.id, 
-	students.marss_id,
-	students.given_name, 
-	students.chosen_name, 
-	students.family_name, 
-	students.email,
-	students.username,
-	students.grade, 
-	students.homeroom, 
-	students.case_manager,
-	students.created_at,
-	students.updated_at
-FROM students
-JOIN periods_students ON students.id = periods_students.student_id
-WHERE periods_students.period_id = ?1
+	s.id, 
+	s.marss_id,
+	s.given_name, 
+	s.chosen_name, 
+	s.family_name, 
+	s.email,
+	s.username,
+	s.grade, 
+	s.homeroom_id, 
+	s.plan_type, 
+	s.created_at,
+	s.updated_at
+FROM students s
+JOIN periods_students ps ON s.id = ps.student_id
+WHERE ps.period_id = ?1
 ORDER BY family_name DESC, given_name DESC
     `
 
@@ -106,8 +106,8 @@ func (ps *ListStudentsForPeriodStmt) Run(
 		row.Email = stmt.ColumnText(5)
 		row.Username = stmt.ColumnText(6)
 		row.Grade = stmt.ColumnInt64(7)
-		row.Homeroom = stmt.ColumnText(8)
-		row.CaseManager = stmt.ColumnText(9)
+		row.HomeroomId = stmt.ColumnText(8)
+		row.PlanType = stmt.ColumnInt64(9)
 		row.CreatedAt = stmt.ColumnText(10)
 		row.UpdatedAt = stmt.ColumnText(11)
 		res = append(res, row)

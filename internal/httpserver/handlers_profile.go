@@ -3,9 +3,11 @@ package httpserver
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"seek/internal/appdb"
+	"seek/internal/auth"
 	"seek/internal/eventstore"
 	"seek/internal/features/profiles/events"
 	"seek/internal/features/profiles/models"
@@ -25,14 +27,13 @@ func (s Server) profileRoutes(r chi.Router) {
 	r.Get("/profile", s.getProfile)
 	r.Get("/profile/stream", s.getProfileStream)
 	r.Get("/profile/edit", s.getEdit)
-	r.Post("/profile/edit", s.postProfileEdit)
+	r.Post("/profile/edit", postProfileEdit(s.Logger, s.EventSaver, s.EventRetriever, s.PIIKeys, *s.ReadModels.Profiles))
 }
 
 // GET request to /profile
 func (s Server) getProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user, err := s.profileUser(ctx, currentUser(r))
-	s.Logger.Debug("test", "U", user.Email)
+	user, err := profileUser(ctx, s.Logger, currentUser(r), *s.ReadModels.Profiles)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -94,38 +95,33 @@ func (s Server) getEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 // POST request to /profile/edit
-func (s Server) postProfileEdit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user, err := s.profileUser(ctx, currentUser(r))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+func postProfileEdit(
+	l *slog.Logger,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+	piiKeys auth.SubjectPiiKeyPort,
+	profileReadModel events.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// ctx := r.Context()
+		// user, err := profileUser(ctx, l, currentUser(r), profileReadModel)
+		// if err != nil {
+		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 	return
+		// }
+		signals := &struct {
+			Profile models.Profile `json:"profile"`
+		}{}
+		datastar.ReadSignals(r, signals)
+		l.Debug("post profile edit", "a", signals.Profile.Avatar)
+		sse := newSSE(w, r)
+		sse.Redirect("/profile")
 	}
-	signals := &struct {
-		Profile models.Profile `json:"profile"`
-	}{}
-	datastar.ReadSignals(r, signals)
-	command := events.UpdateProfileBioCommand{
-		User:     user,
-		Bio:      signals.Profile.Bio,
-		Metadata: eventstore.HTTPCommandMetadata(r, user.ID),
-	}
-	if err := events.UpdateProfileBioCommandHandler(
-		ctx,
-		command,
-		s.EventSaver,
-		s.EventRetriever,
-		s.PIIKeys,
-	); err != nil {
-		s.Logger.ErrorContext(ctx, "profile update", "err", err)
-	}
-	sse := newSSE(w, r)
-	sse.Redirect("/profile")
 }
 
 // refreshes profile view state in kv store when there is an update for the SSE stream
 func (s Server) refreshProfileViewState(ctx context.Context, key string, current um.User) error {
-	user, err := s.profileUser(ctx, current)
+	user, err := profileUser(ctx, s.Logger, current, *s.ReadModels.Profiles)
 	if err != nil {
 		return err
 	}
@@ -133,11 +129,16 @@ func (s Server) refreshProfileViewState(ctx context.Context, key string, current
 }
 
 // helper to get profile for the user
-func (s Server) profileUser(ctx context.Context, current um.User) (um.User, error) {
-	user, err := s.ReadModels.Profiles.GetUserProfileByID(ctx, current.UserRegisteredID)
+func profileUser(
+	ctx context.Context,
+	l *slog.Logger,
+	current um.User,
+	profileReadModel events.ReadModel,
+) (um.User, error) {
+	user, err := profileReadModel.GetUserProfileByID(ctx, current.UserRegisteredID)
 	if err != nil {
 		if errors.Is(err, appdb.ErrNoRows) {
-			s.Logger.DebugContext(ctx, "returning current user due to no profile entry in db")
+			l.DebugContext(ctx, "returning current user due to no profile entry in db")
 			return current, nil
 		}
 		return um.User{}, err

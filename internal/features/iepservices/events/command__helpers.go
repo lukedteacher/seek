@@ -10,21 +10,21 @@ type CommandMetadata = eventstore.CommandMetadata
 var eventTypeKey = eventstore.EventTypeKey
 
 func streamQuery(iepServiceID, studentID string) eventstore.Query {
-	serviceEventTypes := []string{
-		EventTypeIEPServiceAddedToStudent,
-		EventTypeIEPServiceUpdated,
-		EventTypeIEPServiceDeleted,
+	serviceEventTypes := []eventType{
+		EventServiceAddedToIEP,
+		EventIEPServiceUpdated,
+		EventIEPServiceDeleted,
 	}
-	studentEventTypes := []string{
-		se.StudentCreated,
-		se.StudentDeleted,
+	studentEventTypes := []eventType{
+		se.EventStudentCreated,
+		se.EventStudentDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(serviceEventTypes)+len(studentEventTypes))
 	for _, eventType := range serviceEventTypes {
 		criteria = append(criteria, eventstore.Criterion{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: eventType},
-				{Key: se.FieldStudentScopeID, Value: studentID},
+				{Key: eventTypeKey, Value: eventType.String()},
+				{Key: se.FieldScopeStudentID, Value: studentID},
 				{Key: FieldIEPServiceScopeID, Value: iepServiceID},
 			},
 		})
@@ -32,8 +32,8 @@ func streamQuery(iepServiceID, studentID string) eventstore.Query {
 	for _, eventType := range studentEventTypes {
 		criteria = append(criteria, eventstore.Criterion{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: eventType},
-				{Key: se.FieldStudentScopeID, Value: studentID},
+				{Key: eventTypeKey, Value: eventType.String()},
+				{Key: se.FieldScopeStudentID, Value: studentID},
 			},
 		})
 	}

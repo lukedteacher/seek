@@ -356,9 +356,9 @@ form.seek-form {
     flex-direction: column;
     gap: var(--size-3);
     background: linear-gradient(
-      to top right,
-      var(--neutral-3),
-      var(--neutral-4)
+      to bottom right,
+      var(--neutral-4),
+      var(--neutral-3)
     );
     border-color: var(--neutral-3-dim);
     border-style: solid;
@@ -657,4 +657,9 @@ span[data-service='OT'] {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
+}
+
+.fluid-size-6 {
+  width: var(--size-6);
+  height: var(--size-6);
 }

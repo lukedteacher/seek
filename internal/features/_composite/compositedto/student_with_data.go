@@ -71,13 +71,8 @@ func valueExtractor(m *StudentWithData, field string) string {
 	case "Grade":
 		return m.Grade.Ordinal()
 	case "Homeroom":
-		if m.Homeroom != "" {
-			return m.Homeroom
-		}
-		return ""
-	case "CaseManager":
-		if m.CaseManagerID != "" {
-			return m.CaseManager.NameInitial()
+		if m.HomeroomID != "" {
+			return m.HomeroomID
 		}
 		return ""
 	default:

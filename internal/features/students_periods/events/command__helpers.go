@@ -14,25 +14,25 @@ func periodStreamQuery(periodID string) eventstore.Query {
 	criteria := []eventstore.Criterion{
 		{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: pe.PeriodCreated},
+				{Key: eventTypeKey, Value: pe.EventPeriodCreated.String()},
 				{Key: pe.FieldPeriodScopeID, Value: periodID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: pe.PeriodUpdated},
+				{Key: eventTypeKey, Value: pe.EventPeriodUpdated.String()},
 				{Key: pe.FieldPeriodScopeID, Value: periodID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: pe.PeriodArchived},
+				{Key: eventTypeKey, Value: pe.EventPeriodArchived.String()},
 				{Key: pe.FieldPeriodScopeID, Value: periodID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: pe.PeriodDeleted},
+				{Key: eventTypeKey, Value: pe.EventPeriodDeleted.String()},
 				{Key: pe.FieldPeriodScopeID, Value: periodID},
 			},
 		},
@@ -56,52 +56,52 @@ func studentPeriodStreamQuery(periodID, studentID string) eventstore.Query {
 	criteria := []eventstore.Criterion{
 		{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: pe.PeriodCreated},
+				{Key: eventTypeKey, Value: pe.EventPeriodCreated.String()},
 				{Key: pe.FieldPeriodScopeID, Value: periodID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: pe.PeriodArchived},
+				{Key: eventTypeKey, Value: pe.EventPeriodArchived.String()},
 				{Key: pe.FieldPeriodScopeID, Value: periodID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: pe.PeriodDeleted},
+				{Key: eventTypeKey, Value: pe.EventPeriodDeleted.String()},
 				{Key: pe.FieldPeriodScopeID, Value: periodID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: se.StudentCreated},
-				{Key: se.FieldStudentScopeID, Value: studentID},
+				{Key: eventTypeKey, Value: se.EventStudentCreated.String()},
+				{Key: se.FieldScopeStudentID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: se.StudentArchived},
-				{Key: se.FieldStudentScopeID, Value: studentID},
+				{Key: eventTypeKey, Value: se.EventStudentArchived.String()},
+				{Key: se.FieldScopeStudentID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
-				{Key: eventTypeKey, Value: se.StudentDeleted},
-				{Key: se.FieldStudentScopeID, Value: studentID},
+				{Key: eventTypeKey, Value: se.EventStudentDeleted.String()},
+				{Key: se.FieldScopeStudentID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
 				{Key: eventTypeKey, Value: StudentAddedToPeriod},
 				{Key: pe.FieldPeriodScopeID, Value: periodID},
-				{Key: se.FieldStudentScopeID, Value: studentID},
+				{Key: se.FieldScopeStudentID, Value: studentID},
 			},
 		},
 		{
 			Tags: []eventstore.Tag{
 				{Key: eventTypeKey, Value: StudentRemovedFromPeriod},
 				{Key: pe.FieldPeriodScopeID, Value: periodID},
-				{Key: se.FieldStudentScopeID, Value: studentID},
+				{Key: se.FieldScopeStudentID, Value: studentID},
 			},
 		},
 	}

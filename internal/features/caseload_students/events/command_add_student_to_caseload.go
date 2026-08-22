@@ -118,17 +118,17 @@ func (m *addStudentToCaseloadContext) isStudentActive() error {
 
 func (m *addStudentToCaseloadContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case ee.EducatorCreated:
+	case ee.EventEducatorCreated:
 		m.educatorCreated = true
-	case ee.EducatorArchived:
+	case ee.EventEducatorArchived:
 		m.educatorArchived = true
-	case ee.EducatorDeleted:
+	case ee.EventEducatorDeleted:
 		m.educatorDeleted = true
-	case se.StudentCreated:
+	case se.EventStudentCreated:
 		m.studentCreated = true
-	case se.StudentArchived:
+	case se.EventStudentArchived:
 		m.studentArchived = true
-	case se.StudentDeleted:
+	case se.EventStudentDeleted:
 		m.studentDeleted = true
 	case StudentAddedToCaseload:
 		m.added = true

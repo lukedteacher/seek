@@ -24,7 +24,8 @@ type GetEducatorByUsernameWithCaseloadRes struct {
 	StudentEmail      *string `json:"student_email"`
 	StudentUsername   *string `json:"student_username"`
 	Grade             *int64  `json:"grade"`
-	Homeroom          *string `json:"homeroom"`
+	HomeroomId        *string `json:"homeroom_id"`
+	PlanType          *int64  `json:"plan_type"`
 	StudentCreatedAt  *string `json:"student_created_at"`
 	StudentUpdatedAt  *string `json:"student_updated_at"`
 }
@@ -55,7 +56,8 @@ SELECT
     s.email as student_email,
     s.username as student_username,
     s.grade,
-    s.homeroom,
+    s.homeroom_id,
+		s.plan_type,
     s.created_at AS student_created_at,
     s.updated_at AS student_updated_at
 FROM educators e
@@ -162,19 +164,24 @@ func (ps *GetEducatorByUsernameWithCaseloadStmt) Run(
 			tmp := stmt.ColumnInt64(15)
 			row.Grade = &tmp
 		}
-		isNullHomeroom := stmt.ColumnIsNull(16)
-		if !isNullHomeroom {
+		isNullHomeroomId := stmt.ColumnIsNull(16)
+		if !isNullHomeroomId {
 			tmp := stmt.ColumnText(16)
-			row.Homeroom = &tmp
+			row.HomeroomId = &tmp
 		}
-		isNullStudentCreatedAt := stmt.ColumnIsNull(17)
+		isNullPlanType := stmt.ColumnIsNull(17)
+		if !isNullPlanType {
+			tmp := stmt.ColumnInt64(17)
+			row.PlanType = &tmp
+		}
+		isNullStudentCreatedAt := stmt.ColumnIsNull(18)
 		if !isNullStudentCreatedAt {
-			tmp := stmt.ColumnText(17)
+			tmp := stmt.ColumnText(18)
 			row.StudentCreatedAt = &tmp
 		}
-		isNullStudentUpdatedAt := stmt.ColumnIsNull(18)
+		isNullStudentUpdatedAt := stmt.ColumnIsNull(19)
 		if !isNullStudentUpdatedAt {
-			tmp := stmt.ColumnText(18)
+			tmp := stmt.ColumnText(19)
 			row.StudentUpdatedAt = &tmp
 		}
 		res = append(res, row)

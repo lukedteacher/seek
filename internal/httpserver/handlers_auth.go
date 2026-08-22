@@ -22,7 +22,6 @@ func (s Server) authRoutes(r chi.Router) {
 	r.With(noCache).Get("/reset-password/{token}", func(w http.ResponseWriter, r *http.Request) {
 		_ = corepages.ResetPassword(chi.URLParam(r, "token"), nil).Render(r.Context(), w)
 	})
-	r.With(noCache, resetPasswordRateLimit).Post("/reset-password/{token}", s.resetPassword)
 }
 
 func (s Server) register(w http.ResponseWriter, r *http.Request) {
@@ -89,20 +88,5 @@ func (s Server) forgotPassword(w http.ResponseWriter, r *http.Request) {
 		EmailAddress: r.FormValue("email"),
 		Metadata:     eventstore.HTTPCommandMetadata(r, ""),
 	}, s.PasswordCredentials, s.EventSaver, s.EventRetriever, s.PIIKeys)
-	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return sse.Redirect("/login") })
-}
-
-func (s Server) resetPassword(w http.ResponseWriter, r *http.Request) {
-	setRequestAction(r, "auth.reset_password", nil)
-	_ = r.ParseForm()
-	token := chi.URLParam(r, "token")
-	if err := auth.ResetPasswordCommandHandler(r.Context(), auth.ResetPasswordCommand{
-		Token:    token,
-		Password: r.FormValue("password"),
-		Metadata: eventstore.HTTPCommandMetadata(r, ""),
-	}, s.Verifications, s.AuthUsers, s.EventSaver, s.EventRetriever); err != nil {
-		patchTempl(w, r, corepages.ResetPasswordForm(token, map[string]string{"error": err.Error()}), datastar.WithSelectorID("auth-page"))
-		return
-	}
 	writeSSE(w, r, func(sse *datastar.ServerSentEventGenerator) error { return sse.Redirect("/login") })
 }

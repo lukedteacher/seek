@@ -48,9 +48,6 @@ func (c *ReadModelContainer) Reset(ctx context.Context, db *appdb.DB) error {
 		if err := dbsql.OnceResetReadModelAuthAccounts(conn); err != nil {
 			return err
 		}
-		if err := dbsql.OnceResetReadModelAuthVerifications(conn); err != nil {
-			return err
-		}
 		if err := dbsql.OnceResetReadModelProfiles(conn); err != nil {
 			return err
 		}

@@ -56,15 +56,15 @@ func UpdateEducatorCommandHandler(
 			Email:      command.Email,
 			Username:   deriveUsername(command.Email),
 			Roles:      command.Roles,
+			UpdatedAt:  time.Now(),
 		},
-		UpdatedAt: time.Now(),
-		Scope:     educatorScope(model.id),
+		Scope: educatorScope(model.id),
 	}
 
 	// wrap data in a domain event
 	event := eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: EducatorUpdated,
+		EventType: EventEducatorUpdated,
 		Data:      eventstore.MustData(eventData),
 		Metadata:  metadataWithQuery(command.Metadata, model.query),
 	}
@@ -128,26 +128,24 @@ func (m *updateEducatorContext) isActive() bool {
 func (m *updateEducatorContext) handle(resolved eventstore.ResolvedEvent) {
 	rawData := resolved.Event.RawData
 	switch resolved.Event.EventType {
-	case EducatorCreated:
+	case EventEducatorCreated:
 		var event EducatorCreatedEvent
 		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
 			slog.Error("educator update handle create unmarshal", "err", err)
 			return
 		}
 		m.created = true
-		m.archived = false
-		m.deleted = false
 		m.EducatorState = event.EducatorState
-	case EducatorUpdated:
+	case EventEducatorUpdated:
 		var event EducatorUpdatedEvent
 		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
 			slog.Error("educator update handle update unmarshal", "err", err)
 			return
 		}
 		m.EducatorState = event.EducatorState
-	case EducatorArchived:
+	case EventEducatorArchived:
 		m.archived = true
-	case EducatorDeleted:
+	case EventEducatorDeleted:
 		m.deleted = true
 	}
 	if resolved.Position.After(m.position) {

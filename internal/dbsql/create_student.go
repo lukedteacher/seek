@@ -16,8 +16,8 @@ type CreateStudentParams struct {
 	Email                    string `json:"email"`
 	Username                 string `json:"username"`
 	Grade                    int64  `json:"grade"`
-	Homeroom                 string `json:"homeroom"`
-	CaseManager              string `json:"case_manager"`
+	HomeroomId               string `json:"homeroom_id"`
+	PlanType                 int64  `json:"plan_type"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	CreatedAt                string `json:"created_at"`
@@ -41,8 +41,8 @@ INSERT INTO students (
 	email,
 	username,
 	grade, 
-	homeroom, 
-	case_manager, 
+	homeroom_id, 
+	plan_type, 
 	last_event_commit_position,
 	last_event_prepare_position,
 	created_at, 
@@ -125,10 +125,10 @@ func (ps *CreateStudentStmt) Run(
 	stmt.BindInt64(bindIndex, params.Grade)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.Homeroom)
+	stmt.BindText(bindIndex, params.HomeroomId)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.CaseManager)
+	stmt.BindInt64(bindIndex, params.PlanType)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)

@@ -12,7 +12,8 @@ import (
 
 templ FormSections(view dto.EducatorFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	<section>
+	<fieldset>
+		<legend>name</legend>
 		@forms.TextInputWithLabel(
 			"given-name-label",
 			"given name",
@@ -34,8 +35,9 @@ templ FormSections(view dto.EducatorFormView) {
 			"educator.family_name",
 			view.FamilyName,
 		)
-	</section>
-	<section>
+	</fieldset>
+	<fieldset>
+		<legend>email</legend>
 		@forms.TextInputWithLabel(
 			"email-label",
 			"email",
@@ -43,8 +45,9 @@ templ FormSections(view dto.EducatorFormView) {
 			"educator.email",
 			view.Email,
 		)
-	</section>
-	<section>
+	</fieldset>
+	<fieldset>
+		<legend>role</legend>
 		@selectbox.SelectBox() {
 			@label.Label(label.Props{
 				Class: "text-neutral-content/70 mb-3",
@@ -77,5 +80,5 @@ templ FormSections(view dto.EducatorFormView) {
 			}
 		}
 		@selectbox.Script()
-	</section>
+	</fieldset>
 }

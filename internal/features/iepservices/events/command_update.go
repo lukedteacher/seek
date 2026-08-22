@@ -11,6 +11,7 @@ import (
 
 type UpdateIEPServiceCommand struct {
 	IEPServiceID    string
+	IEPID           string
 	StudentID       string
 	ServiceName     string
 	ServiceType     string
@@ -18,10 +19,10 @@ type UpdateIEPServiceCommand struct {
 	DirectMinutes   int
 	FrequencyCount  int
 	FrequencyType   string
-	Location        string
+	LocationID      string
 	StartDate       string
 	EndDate         string
-	Provider        string
+	ProviderID      string
 	Metadata        CommandMetadata
 }
 
@@ -64,10 +65,10 @@ func UpdateIEPServiceCommandHandler(
 		command.DirectMinutes,
 		command.FrequencyCount,
 		command.FrequencyType,
-		command.Location,
+		command.LocationID,
 		command.StartDate,
 		command.EndDate,
-		command.Provider,
+		command.ProviderID,
 		time.Now(),
 		metadataWithQuery(command.Metadata, model.query),
 	)
@@ -80,10 +81,13 @@ func UpdateIEPServiceCommandHandler(
 
 type updateIEPServiceContext struct {
 	serviceExists   bool
+	serviceArchived bool
 	serviceDeleted  bool
 	studentExists   bool
+	studentArchived bool
 	studentDeleted  bool
 	iepServiceID    string
+	iepID           string
 	studentID       string
 	serviceName     string
 	serviceType     string
@@ -91,10 +95,10 @@ type updateIEPServiceContext struct {
 	directMinutes   int
 	frequencyCount  int
 	frequencyType   string
-	location        string
+	locationID      string
 	startDate       string
 	endDate         string
-	provider        string
+	providerID      string
 	position        eventstore.Position
 	events          []eventstore.ResolvedEvent
 	query           eventstore.Query
@@ -145,47 +149,48 @@ func (m *updateIEPServiceContext) isSame(cmd UpdateIEPServiceCommand) bool {
 		m.directMinutes == cmd.DirectMinutes &&
 		m.frequencyCount == cmd.FrequencyCount &&
 		m.frequencyType == cmd.FrequencyType &&
-		m.location == cmd.Location &&
+		m.locationID == cmd.LocationID &&
 		m.startDate == cmd.StartDate &&
 		m.endDate == cmd.EndDate &&
-		m.provider == cmd.Provider
+		m.providerID == cmd.ProviderID
 }
 
 func (m *updateIEPServiceContext) handle(resolved eventstore.ResolvedEvent) {
 	data := resolved.Event.Data
 	switch resolved.Event.EventType {
-	case se.StudentCreated:
+	case se.EventStudentCreated:
 		m.studentExists = true
-		m.studentDeleted = false
-	case se.StudentDeleted:
+	case se.EventStudentArchived:
+		m.studentArchived = true
+	case se.EventStudentDeleted:
 		m.studentDeleted = true
-	case EventTypeIEPServiceAddedToStudent:
+	case EventServiceAddedToIEP:
 		m.serviceExists = true
 		m.serviceDeleted = false
-		m.studentID, _ = data[FieldIEPServiceStudentID].(string)
+		m.iepID, _ = data[FieldIEPServiceIEPID].(string)
 		m.serviceName, _ = data[FieldIEPServiceServiceName].(string)
 		m.serviceType, _ = data[FieldIEPServiceServiceType].(string)
 		m.indirectMinutes = int(data[FieldIEPServiceIndirectMinutes].(float64))
 		m.directMinutes = int(data[FieldIEPServiceDirectMinutes].(float64))
 		m.frequencyCount = int(data[FieldIEPServiceFrequencyCount].(float64))
 		m.frequencyType, _ = data[FieldIEPServiceFrequencyType].(string)
-		m.location, _ = data[FieldIEPServiceLocation].(string)
+		m.locationID, _ = data[FieldIEPServiceLocationID].(string)
 		m.startDate, _ = data[FieldIEPServiceStartDate].(string)
 		m.endDate, _ = data[FieldIEPServiceEndDate].(string)
-		m.provider, _ = data[FieldIEPServiceProvider].(string)
-	case EventTypeIEPServiceUpdated:
-		m.studentID, _ = data[FieldIEPServiceStudentID].(string)
+		m.providerID, _ = data[FieldIEPServiceProviderID].(string)
+	case EventIEPServiceUpdated:
+		m.iepID, _ = data[FieldIEPServiceIEPID].(string)
 		m.serviceName, _ = data[FieldIEPServiceServiceName].(string)
 		m.serviceType, _ = data[FieldIEPServiceServiceType].(string)
 		m.indirectMinutes = int(data[FieldIEPServiceIndirectMinutes].(float64))
 		m.directMinutes = int(data[FieldIEPServiceDirectMinutes].(float64))
 		m.frequencyCount = int(data[FieldIEPServiceFrequencyCount].(float64))
 		m.frequencyType, _ = data[FieldIEPServiceFrequencyType].(string)
-		m.location, _ = data[FieldIEPServiceLocation].(string)
+		m.locationID, _ = data[FieldIEPServiceLocationID].(string)
 		m.startDate, _ = data[FieldIEPServiceStartDate].(string)
 		m.endDate, _ = data[FieldIEPServiceEndDate].(string)
-		m.provider, _ = data[FieldIEPServiceProvider].(string)
-	case EventTypeIEPServiceDeleted:
+		m.providerID, _ = data[FieldIEPServiceProviderID].(string)
+	case EventIEPServiceDeleted:
 		m.serviceDeleted = true
 	}
 	if resolved.Position.After(m.position) {

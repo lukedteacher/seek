@@ -1,10 +1,7 @@
 CREATE TABLE IF NOT EXISTS profile_stats (
 	user_id TEXT PRIMARY KEY,
-	email TEXT,
-	username TEXT,
-	image TEXT,
+	avatar TEXT,
 	bio TEXT,
-	header_image_url TEXT,
 	last_event_commit_position INTEGER NOT NULL,
 	last_event_prepare_position INTEGER NOT NULL,
 	created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,

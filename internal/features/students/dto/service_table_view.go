@@ -44,8 +44,8 @@ func serviceValueExtractor(m *models.IEPService, field string) string {
 		return strconv.Itoa(m.FrequencyCount)
 	case "FrequencyType":
 		return m.FrequencyType
-	case "Location":
-		return m.Location
+	case "LocationID":
+		return m.LocationID
 	case "Provider":
 		return m.Provider
 	case "StartDate":

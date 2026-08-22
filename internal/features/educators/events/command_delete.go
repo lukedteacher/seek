@@ -45,7 +45,7 @@ func DeleteEducatorCommandHandler(
 	// wrap data in a domain event
 	event := eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: EducatorDeleted,
+		EventType: EventEducatorDeleted,
 		Data:      eventstore.MustData(eventData),
 		Metadata:  metadataWithQuery(command.Metadata, model.query),
 	}
@@ -101,10 +101,11 @@ func (m *deleteEducatorContext) isActive() bool {
 
 func (m *deleteEducatorContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case EducatorCreated:
+	case EventEducatorCreated:
 		m.created = true
-		m.deleted = false
-	case EducatorDeleted:
+	case EventEducatorArchived:
+		m.archived = true
+	case EventEducatorDeleted:
 		m.deleted = true
 	}
 	if resolved.Position.After(m.position) {

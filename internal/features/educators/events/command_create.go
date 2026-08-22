@@ -12,12 +12,8 @@ import (
 )
 
 type CreateEducatorCommand struct {
-	GivenName  string
-	ChosenName string
-	FamilyName string
-	Email      string
-	Roles      []string
-	Metadata   CommandMetadata
+	EducatorState
+	Metadata CommandMetadata
 }
 
 type CreateEducatorResult struct {
@@ -40,23 +36,16 @@ func CreateEducatorCommandHandler(
 
 	// build event data struct directly
 	eventData := EducatorCreatedEvent{
-		EventID: eventID,
-		EducatorState: EducatorState{
-			GivenName:  model.givenName,
-			ChosenName: model.chosenName,
-			FamilyName: model.familyName,
-			Email:      model.email,
-			Username:   model.username,
-			Roles:      model.roles,
-		},
-		CreatedAt: time.Now(),
-		Scope:     educatorScope(model.id),
+		EventID:       eventID,
+		EducatorState: model.EducatorState,
+		Scope:         educatorScope(eventID),
 	}
+	eventData.CreatedAt = time.Now()
 
 	// wrap data in a domain event
 	event := eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: EducatorCreated,
+		EventType: EventEducatorCreated,
 		Data:      eventstore.MustData(eventData),
 		Metadata:  metadataWithQuery(command.Metadata, model.query),
 	}
@@ -71,34 +60,25 @@ func CreateEducatorCommandHandler(
 		return CreateEducatorResult{}, fmt.Errorf("saving educator created event: %w", err)
 	}
 
-	return CreateEducatorResult{EventID: model.id}, nil
+	return CreateEducatorResult{EventID: eventID}, nil
 }
 
 type createEducatorContext struct {
-	id         string
-	givenName  string
-	chosenName string
-	familyName string
-	email      string
-	username   string
-	roles      []string
-	query      eventstore.Query
+	EducatorState
+	query eventstore.Query
 }
 
 // minimal logic here, since the educator is its own event root
 // TODO consider creating an educator model and using that for validation
 func newCreateEducatorContext(command CreateEducatorCommand, eventID string) (*createEducatorContext, error) {
 	username := deriveUsername(command.Email)
-	return &createEducatorContext{
-		id:         eventID,
-		givenName:  command.GivenName,
-		chosenName: command.ChosenName,
-		familyName: command.FamilyName,
-		email:      command.Email,
-		username:   username,
-		roles:      command.Roles,
-		query:      streamQuery(eventID),
-	}, nil
+	educator := createEducatorContext{
+		EducatorState: command.EducatorState,
+		query:         streamQuery(eventID),
+	}
+	educator.ID = eventID
+	educator.Username = username
+	return &educator, nil
 }
 
 func deriveUsername(email string) string {

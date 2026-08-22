@@ -47,7 +47,7 @@ func valueExtractor(m *models.Student, field string) string {
 	case "Grade":
 		return m.Grade.Ordinal()
 	case "Homeroom":
-		return m.Homeroom
+		return m.HomeroomID
 	case "CaseManagerID":
 		return m.CaseManagerID
 	default:

@@ -82,13 +82,11 @@ func (m *archivePeriodContext) isActive() error {
 
 func (m *archivePeriodContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
-	case PeriodCreated:
+	case EventPeriodCreated:
 		m.created = true
-		m.archived = false
-		m.deleted = false
-	case PeriodArchived:
+	case EventPeriodArchived:
 		m.archived = true
-	case PeriodDeleted:
+	case EventPeriodDeleted:
 		m.deleted = true
 	}
 	if resolved.Position.After(m.position) {

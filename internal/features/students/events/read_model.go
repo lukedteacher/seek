@@ -51,9 +51,9 @@ func (m *ReadModel) GetByID(ctx context.Context, studentID string) (*models.Stud
 			Email:      row.Email,
 			Username:   row.Username,
 		},
-		Grade:         sharedmodels.Grade(row.Grade),
-		Homeroom:      row.Homeroom,
-		CaseManagerID: row.CaseManager,
+		Grade:      sharedmodels.Grade(row.Grade),
+		HomeroomID: row.HomeroomId,
+		PlanType:   sharedmodels.PlanType(row.PlanType),
 	}
 
 	return student, nil
@@ -82,9 +82,9 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 			Email:      row.Email,
 			Username:   row.Username,
 		},
-		Grade:         sharedmodels.Grade(row.Grade),
-		Homeroom:      row.Homeroom,
-		CaseManagerID: row.CaseManager,
+		Grade:      sharedmodels.Grade(row.Grade),
+		HomeroomID: row.HomeroomId,
+		PlanType:   sharedmodels.PlanType(row.PlanType),
 	}
 
 	return student, nil
@@ -161,7 +161,7 @@ func (m *ReadModel) listAllWithSorting(
 		"family_name":  true,
 		"email":        true,
 		"grade":        true,
-		"homeroom":     true,
+		"homeroom_id":  true,
 		"case_manager": true,
 		"created_at":   true,
 		"updated_at":   true,
@@ -190,7 +190,7 @@ func (m *ReadModel) listAllWithSorting(
 	query := fmt.Sprintf(`
 			SELECT 
 				id, marss_id, given_name, chosen_name, family_name,
-				email, username, grade, homeroom, case_manager,
+				email, username, grade, homeroom_id, plan_type,
 				created_at, updated_at
 			FROM students
 			WHERE %s
@@ -211,8 +211,8 @@ func (m *ReadModel) listAllWithSorting(
 				student.Email = stmt.ColumnText(5)
 				student.Username = stmt.ColumnText(6)
 				student.Grade = sharedmodels.Grade(stmt.ColumnInt64(7))
-				student.Homeroom = stmt.ColumnText(8)
-				student.CaseManagerID = stmt.ColumnText(9)
+				student.HomeroomID = stmt.ColumnText(8)
+				student.PlanType = sharedmodels.PlanType(stmt.ColumnInt(9))
 				student.CreatedAt = parseDBTime(stmt.ColumnText(10))
 				student.UpdatedAt = parseDBTime(stmt.ColumnText(11))
 				students = append(students, student)
@@ -248,9 +248,9 @@ func (m *ReadModel) listAll(ctx context.Context) ([]models.Student, error) {
 				Email:      rows[i].Email,
 				Username:   rows[i].Username,
 			},
-			Grade:         sharedmodels.Grade(rows[i].Grade),
-			Homeroom:      rows[i].Homeroom,
-			CaseManagerID: rows[i].CaseManager,
+			Grade:      sharedmodels.Grade(rows[i].Grade),
+			HomeroomID: rows[i].HomeroomId,
+			PlanType:   sharedmodels.PlanType(rows[i].PlanType),
 		}
 	}
 	return students, nil
@@ -282,9 +282,9 @@ func (m *ReadModel) listByGrade(ctx context.Context, grades []int) ([]models.Stu
 				Email:      rows[i].Email,
 				Username:   rows[i].Username,
 			},
-			Grade:         sharedmodels.Grade(rows[i].Grade),
-			Homeroom:      rows[i].Homeroom,
-			CaseManagerID: rows[i].CaseManager,
+			Grade:      sharedmodels.Grade(rows[i].Grade),
+			HomeroomID: rows[i].HomeroomId,
+			PlanType:   sharedmodels.PlanType(rows[i].PlanType),
 		}
 	}
 	return students, nil
@@ -317,11 +317,11 @@ func (m *ReadModel) listWithServices(ctx context.Context) ([]models.Student, err
 					Email:      row.Email,
 					Username:   row.Username,
 				},
-				Grade:         sharedmodels.Grade(row.Grade),
-				Homeroom:      row.Homeroom,
-				CaseManagerID: row.CaseManager,
-				CreatedAt:     parseDBTime(row.CreatedAt),
-				UpdatedAt:     parseDBTime(row.UpdatedAt),
+				Grade:      sharedmodels.Grade(row.Grade),
+				HomeroomID: row.HomeroomId,
+				PlanType:   sharedmodels.PlanType(row.PlanType),
+				CreatedAt:  parseDBTime(row.CreatedAt),
+				UpdatedAt:  parseDBTime(row.UpdatedAt),
 			}
 			studentMap[row.StudentId] = len(students)
 			students = append(students, student)
@@ -338,7 +338,7 @@ func (m *ReadModel) listWithServices(ctx context.Context) ([]models.Student, err
 		// 		DirectMinutes:   int(*row.DirectMinutes),
 		// 		FrequencyCount:  int(*row.FrequencyCount),
 		// 		FrequencyType:   *row.FrequencyType,
-		// 		Location:        *row.Location,
+		// 		LocationID:        *row.Location,
 		// 		StartDate:       sharedmodels.DateOnly(parseDBTime(*row.StartDate)),
 		// 		EndDate:         sharedmodels.DateOnly(parseDBTime(*row.EndDate)),
 		// 		Provider:        *row.Provider,
@@ -374,9 +374,9 @@ func (m *ReadModel) ListByIEPServiceType(ctx context.Context, serviceType string
 				Email:      rows[i].Email,
 				Username:   rows[i].Username,
 			},
-			Grade:         sharedmodels.Grade(rows[i].Grade),
-			Homeroom:      rows[i].Homeroom,
-			CaseManagerID: rows[i].CaseManager,
+			Grade:      sharedmodels.Grade(rows[i].Grade),
+			HomeroomID: rows[i].HomeroomId,
+			PlanType:   sharedmodels.PlanType(rows[i].PlanType),
 		}
 	}
 	return students, nil
@@ -387,7 +387,7 @@ func (m *ReadModel) ListByIEPServiceType(ctx context.Context, serviceType string
 func (m *ReadModel) Create(ctx context.Context, event StudentCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceCreateStudent(conn, dbsql.CreateStudentParams{
-			Id:                       event.StudentID,
+			Id:                       event.ID,
 			MarssId:                  event.MARSSID,
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
@@ -395,8 +395,8 @@ func (m *ReadModel) Create(ctx context.Context, event StudentCreatedProjection) 
 			Email:                    event.Email,
 			Username:                 event.Username,
 			Grade:                    int64(event.Grade),
-			Homeroom:                 event.Homeroom,
-			CaseManager:              event.CaseManager,
+			HomeroomId:               event.HomeroomID,
+			PlanType:                 int64(event.PlanType),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			CreatedAt:                appdb.SQLTime(event.CreatedAt),
@@ -407,6 +407,7 @@ func (m *ReadModel) Create(ctx context.Context, event StudentCreatedProjection) 
 func (m *ReadModel) Update(ctx context.Context, event StudentUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateStudent(conn, dbsql.UpdateStudentParams{
+			Id:                       event.ID,
 			MarssId:                  event.MARSSID,
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
@@ -414,12 +415,11 @@ func (m *ReadModel) Update(ctx context.Context, event StudentUpdatedProjection) 
 			Email:                    event.Email,
 			Username:                 event.Username,
 			Grade:                    int64(event.Grade),
-			Homeroom:                 event.Homeroom,
-			CaseManager:              event.CaseManager,
+			HomeroomId:               event.HomeroomID,
+			PlanType:                 int64(event.PlanType),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),
-			Id:                       event.StudentID,
 		})
 	})
 }

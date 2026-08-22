@@ -37,17 +37,17 @@ func (m *ReadModel) Get(ctx context.Context, id string) (*models.IEPService, err
 
 	service := &models.IEPService{
 		ID:              row.Id,
-		StudentID:       row.StudentId,
+		IEPID:           row.IepId,
 		ServiceName:     row.ServiceName,
 		ServiceType:     sharedmodels.ServiceType(row.ServiceType),
 		IndirectMinutes: int(row.IndirectMinutes),
 		DirectMinutes:   int(row.DirectMinutes),
 		FrequencyCount:  int(row.FrequencyCount),
 		FrequencyType:   row.FrequencyType,
-		Location:        row.Location,
+		LocationID:      row.LocationId,
 		StartDate:       sharedmodels.DateOnly(parseDBTime(row.StartDate)),
 		EndDate:         sharedmodels.DateOnly(parseDBTime(row.EndDate)),
-		Provider:        row.Provider,
+		ProviderID:      row.ProviderId,
 		CreatedAt:       parseDBTime(row.CreatedAt),
 		UpdatedAt:       parseDBTime(row.UpdatedAt),
 	}
@@ -69,17 +69,17 @@ func (m *ReadModel) List(ctx context.Context) ([]models.IEPService, error) {
 	for i := range rows {
 		services[i] = models.IEPService{
 			ID:              rows[i].Id,
-			StudentID:       rows[i].StudentId,
+			IEPID:           rows[i].IepId,
 			ServiceName:     rows[i].ServiceName,
 			ServiceType:     sharedmodels.ServiceType(rows[i].ServiceType),
 			IndirectMinutes: int(rows[i].IndirectMinutes),
 			DirectMinutes:   int(rows[i].DirectMinutes),
 			FrequencyCount:  int(rows[i].FrequencyCount),
 			FrequencyType:   rows[i].FrequencyType,
-			Location:        rows[i].Location,
+			LocationID:      rows[i].LocationId,
 			StartDate:       sharedmodels.DateOnly(parseDBTime(rows[i].StartDate)),
 			EndDate:         sharedmodels.DateOnly(parseDBTime(rows[i].EndDate)),
-			Provider:        rows[i].Provider,
+			Provider:        rows[i].ProviderId,
 			CreatedAt:       parseDBTime(rows[i].CreatedAt),
 			UpdatedAt:       parseDBTime(rows[i].UpdatedAt),
 		}
@@ -87,11 +87,11 @@ func (m *ReadModel) List(ctx context.Context) ([]models.IEPService, error) {
 	return services, nil
 }
 
-func (m *ReadModel) ListIEPServicesForStudent(ctx context.Context, studentID string) ([]models.IEPService, error) {
-	var rows []dbsql.ListIepservicesForStudentRes
+func (m *ReadModel) ListServicesForIEP(ctx context.Context, studentID string) ([]models.IEPService, error) {
+	var rows []dbsql.ListServicesForIepRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
-		rows, err = dbsql.OnceListIepservicesForStudent(conn, studentID)
+		rows, err = dbsql.OnceListServicesForIep(conn, studentID)
 		return err
 	}); err != nil {
 		return nil, err
@@ -101,17 +101,17 @@ func (m *ReadModel) ListIEPServicesForStudent(ctx context.Context, studentID str
 	for i := range rows {
 		services[i] = models.IEPService{
 			ID:              rows[i].Id,
-			StudentID:       rows[i].StudentId,
+			IEPID:           rows[i].IepId,
 			ServiceName:     rows[i].ServiceName,
 			ServiceType:     sharedmodels.ServiceType(rows[i].ServiceType),
 			IndirectMinutes: int(rows[i].IndirectMinutes),
 			DirectMinutes:   int(rows[i].DirectMinutes),
 			FrequencyCount:  int(rows[i].FrequencyCount),
 			FrequencyType:   rows[i].FrequencyType,
-			Location:        rows[i].Location,
+			LocationID:      rows[i].LocationId,
 			StartDate:       sharedmodels.DateOnly(parseDBTime(rows[i].StartDate)),
 			EndDate:         sharedmodels.DateOnly(parseDBTime(rows[i].EndDate)),
-			Provider:        rows[i].Provider,
+			Provider:        rows[i].ProviderId,
 			CreatedAt:       parseDBTime(rows[i].CreatedAt),
 			UpdatedAt:       parseDBTime(rows[i].UpdatedAt),
 		}
@@ -121,21 +121,20 @@ func (m *ReadModel) ListIEPServicesForStudent(ctx context.Context, studentID str
 
 // read model writer functions
 
-func (m *ReadModel) AddIEPServiceToStudent(ctx context.Context, event IEPServiceAddedToStudentProjection) error {
+func (m *ReadModel) AddServiceToIEP(ctx context.Context, event ServiceAddedToIEPProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceAddIepserviceToStudent(conn, dbsql.AddIepserviceToStudentParams{
+		return dbsql.OnceAddServiceToIep(conn, dbsql.AddServiceToIepParams{
 			Id:              event.IEPServiceID,
-			StudentId:       event.StudentID,
 			ServiceName:     event.ServiceName,
 			ServiceType:     event.ServiceType,
 			IndirectMinutes: int64(event.IndirectMinutes),
 			DirectMinutes:   int64(event.DirectMinutes),
 			FrequencyCount:  int64(event.FrequencyCount),
 			FrequencyType:   event.FrequencyType,
-			Location:        event.Location,
+			LocationId:      event.LocationID,
 			StartDate:       event.StartDate,
 			EndDate:         event.EndDate,
-			Provider:        event.Provider,
+			ProviderId:      event.ProviderID,
 			CreatedAt:       appdb.SQLTime(event.CreatedAt),
 		})
 	})
@@ -145,17 +144,16 @@ func (m *ReadModel) UpdateIEPService(ctx context.Context, event IEPServiceUpdate
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateIepservice(conn, dbsql.UpdateIepserviceParams{
 			Id:              event.IEPServiceID,
-			StudentId:       event.StudentID,
 			ServiceName:     event.ServiceName,
 			ServiceType:     event.ServiceType,
 			IndirectMinutes: int64(event.IndirectMinutes),
 			DirectMinutes:   int64(event.DirectMinutes),
 			FrequencyCount:  int64(event.FrequencyCount),
 			FrequencyType:   event.FrequencyType,
-			Location:        event.Location,
+			LocationId:      event.LocationID,
 			StartDate:       event.StartDate,
 			EndDate:         event.EndDate,
-			Provider:        event.Provider,
+			ProviderId:      event.ProviderID,
 			UpdatedAt:       appdb.SQLTime(event.UpdatedAt),
 		})
 	})

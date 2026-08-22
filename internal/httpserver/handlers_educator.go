@@ -188,14 +188,18 @@ func (s Server) postEducatorCreate(w http.ResponseWriter, r *http.Request) {
 		s.Logger.ErrorContext(ctx, "post educator create signals", "error", err)
 		return
 	}
-	result, err := events.CreateEducatorCommandHandler(ctx, events.CreateEducatorCommand{
+	educator := events.EducatorState{
 		GivenName:  signals.Educator.GivenName,
 		ChosenName: signals.Educator.ChosenName,
 		FamilyName: signals.Educator.FamilyName,
 		Email:      signals.Educator.Email,
 		Roles:      strings.Split(signals.Educator.Role, ","),
-		Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-	}, s.EventSaver)
+	}
+	cmd := events.CreateEducatorCommand{
+		EducatorState: educator,
+		Metadata:      eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+	}
+	result, err := events.CreateEducatorCommandHandler(ctx, cmd, s.EventSaver)
 	if err != nil {
 		s.Logger.ErrorContext(ctx, "post educator create command handler", "error", err)
 		return

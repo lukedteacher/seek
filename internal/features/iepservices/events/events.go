@@ -6,25 +6,28 @@ import (
 	"seek/internal/eventstore"
 )
 
+type eventType = eventstore.EventType
+
 // event types
 const (
-	EventTypeIEPServiceAddedToStudent     = "IEPServiceAddedToStudent"
-	EventTypeIEPServiceRemovedFromStudent = "IEPServiceRemovedFromStudent"
-	EventTypeIEPServiceUpdated            = "IEPServiceUpdated"
-	EventTypeIEPServiceArchived           = "IEPServiceArchived"
-	EventTypeIEPServiceDeleted            = "IEPServiceDeleted"
+	EventServiceAddedToIEP     eventType = "service_added_to_iep_event"
+	EventServiceRemovedFromIEP eventType = "service_removed_from_iep_event"
+	EventIEPServiceUpdated     eventType = "iep_service_updated_event"
+	EventIEPServiceArchived    eventType = "iep_service_archived_event"
+	EventIEPServiceDeleted     eventType = "iep_service_deleted_event"
 )
 
 // event fields for event IDs
 const (
-	FieldIEPServiceEventIDIEPServiceAddedToStudent = "iep_service_added_to_student_event_id"
-	FieldIEPServiceEventIDIEPServiceUpdated        = "iep_service_updated_event_id"
-	FieldIEPServiceEventIDIEPServiceDeleted        = "iep_service_deleted_event_id"
+	FieldServiceAddedToIEPEventID = "iep_service_added_to_student_event_id"
+	FieldIEPServiceUpdatedEventID = "iep_service_updated_event_id"
+	FieldIEPServiceDeletedEventID = "iep_service_deleted_event_id"
 )
 
 // event fields
 const (
 	FieldIEPServiceID              = "iep_service_id"
+	FieldIEPServiceIEPID           = "iep_id"
 	FieldIEPServiceStudentID       = "student_id"
 	FieldIEPServiceServiceName     = "service_name"
 	FieldIEPServiceServiceType     = "service_type"
@@ -32,10 +35,10 @@ const (
 	FieldIEPServiceDirectMinutes   = "direct_minutes"
 	FieldIEPServiceFrequencyCount  = "frequency_count"
 	FieldIEPServiceFrequencyType   = "frequency_type"
-	FieldIEPServiceLocation        = "location"
+	FieldIEPServiceLocationID      = "location_id"
 	FieldIEPServiceStartDate       = "start_date"
 	FieldIEPServiceEndDate         = "end_date"
-	FieldIEPServiceProvider        = "provider"
+	FieldIEPServiceProviderID      = "provider_id"
 	FieldIEPServiceAddedAt         = "added_at"
 	FieldIEPServiceUpdatedAt       = "updated_at"
 	FieldIEPServiceArchivedAt      = "archived_at"
@@ -53,7 +56,7 @@ type IEPServiceAddedToStudentEvent struct {
 	DirectMinutes   int             `json:"direct_minutes"`
 	FrequencyCount  int             `json:"frequency_count"`
 	FrequencyType   string          `json:"frequency_type"`
-	Location        string          `json:"location"`
+	LocationID      string          `json:"location_id"`
 	StartDate       string          `json:"start_date"`
 	EndDate         string          `json:"end_date"`
 	Provider        string          `json:"provider"`
@@ -71,7 +74,7 @@ type IEPServiceUpdatedEvent struct {
 	DirectMinutes   int             `json:"direct_minutes"`
 	FrequencyCount  int             `json:"frequency_count"`
 	FrequencyType   string          `json:"frequency_type"`
-	Location        string          `json:"location"`
+	LocationID      string          `json:"location_id"`
 	StartDate       string          `json:"start_date"`
 	EndDate         string          `json:"end_date"`
 	Provider        string          `json:"provider"`
@@ -92,7 +95,7 @@ type IEPServiceScope struct {
 
 func NewIEPServiceAddedToStudentEvent(
 	eventID string,
-	command AddIEPServiceToStudentCommand,
+	command AddServiceToIEPCommand,
 	addedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
@@ -106,7 +109,7 @@ func NewIEPServiceAddedToStudentEvent(
 		DirectMinutes:   command.DirectMinutes,
 		FrequencyCount:  command.FrequencyCount,
 		FrequencyType:   command.FrequencyType,
-		Location:        command.Location,
+		LocationID:      command.LocationID,
 		StartDate:       command.StartDate,
 		EndDate:         command.EndDate,
 		Provider:        command.Provider,
@@ -115,7 +118,7 @@ func NewIEPServiceAddedToStudentEvent(
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: EventTypeIEPServiceAddedToStudent,
+		EventType: EventServiceAddedToIEP,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}
@@ -148,7 +151,7 @@ func NewIEPServiceUpdatedEvent(
 		DirectMinutes:   directMinutes,
 		FrequencyCount:  frequencyCount,
 		FrequencyType:   frequencyType,
-		Location:        location,
+		LocationID:      location,
 		StartDate:       startDate,
 		EndDate:         endDate,
 		Provider:        provider,
@@ -157,7 +160,7 @@ func NewIEPServiceUpdatedEvent(
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: EventTypeIEPServiceUpdated,
+		EventType: EventIEPServiceUpdated,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}
@@ -177,7 +180,7 @@ func NewIEPServiceDeletedEvent(
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: EventTypeIEPServiceDeleted,
+		EventType: EventIEPServiceDeleted,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}

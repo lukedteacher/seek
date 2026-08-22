@@ -13,7 +13,7 @@ type StudentListView struct {
 	Email         string `json:"email"`
 	Username      string `json:"username"`
 	Grade         string `json:"grade"`
-	Homeroom      string `json:"homeroom"`
+	HomeroomID    string `json:"homeroom_id"`
 	CaseManagerID string `json:"case_manager_id"`
 }
 
@@ -24,7 +24,7 @@ func NewStudentListView(s *models.Student) *StudentListView {
 		ChosenName:    s.ChosenName,
 		FamilyName:    s.FamilyName,
 		Grade:         s.Grade.Ordinal(),
-		Homeroom:      s.Homeroom,
+		HomeroomID:    s.HomeroomID,
 		CaseManagerID: s.CaseManagerID,
 	}
 }

@@ -1,0 +1,57 @@
+package blocks
+
+import "fmt"
+
+var avatars = []string{
+	"skunk",
+	"alien",
+	"rainbow_flag",
+	"pirate_flag",
+	"pizza",
+	"mushroom",
+	"basketball",
+	"trophy",
+	"mountain",
+	"dice",
+	"camping",
+	"lightbulb",
+	"shooting_star",
+	"cheese",
+	"tooth",
+	"flamingo",
+	"toilet_paper",
+	"brain",
+	"chat_bubble",
+	"snail",
+	"bee",
+	"invader",
+	"bullseye",
+	"8ball",
+	"flower",
+	"fawkes_mask",
+	"call_box",
+	"soccer_ball",
+	"cat_heart",
+	"chick_egg",
+	"flame",
+	"heart",
+	"recycle",
+	"arrowed_heart",
+	"avocado",
+	"bat",
+}
+
+templ AvatarChooser(active string) {
+	<div class="flex flex-wrap gap-2">
+		for _, avatar := range avatars {
+			<button
+				type="button"
+				class="bg-neutral-content hover:bg-primary/90 rounded-full p-1"
+				data-on:click={ fmt.Sprintf("$profile.avatar='%s'", avatar) }
+				data-class:bg-primary={ fmt.Sprintf("$profile.avatar=='%s'", avatar) }
+			>
+				<img class="fluid-size-6" src={ fmt.Sprintf("/static/images/avatars/om_%s.svg", avatar) }/>
+			</button>
+		}
+	</div>
+}

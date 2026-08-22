@@ -9,17 +9,17 @@ import (
 
 type ListIepservicesRes struct {
 	Id              string `json:"id"`
-	StudentId       string `json:"student_id"`
+	IepId           string `json:"iep_id"`
 	ServiceName     string `json:"service_name"`
 	ServiceType     string `json:"service_type"`
 	IndirectMinutes int64  `json:"indirect_minutes"`
 	DirectMinutes   int64  `json:"direct_minutes"`
 	FrequencyCount  int64  `json:"frequency_count"`
 	FrequencyType   string `json:"frequency_type"`
-	Location        string `json:"location"`
+	LocationId      string `json:"location_id"`
 	StartDate       string `json:"start_date"`
 	EndDate         string `json:"end_date"`
-	Provider        string `json:"provider"`
+	ProviderId      string `json:"provider_id"`
 	CreatedAt       string `json:"created_at"`
 	UpdatedAt       string `json:"updated_at"`
 }
@@ -34,22 +34,22 @@ type ListIepservicesStmt struct {
 func ListIepservices(tx *sqlite.Conn) *ListIepservicesStmt {
 	const querySQL = `
 SELECT id, 
-	student_id, 
+	iep_id, 
 	service_name,
 	service_type, 
 	indirect_minutes,
 	direct_minutes,
 	frequency_count,
 	frequency_type,
-	location,
+	location_id,
 	start_date,
 	end_date,
-	provider, 
+	provider_id, 
 	created_at, 
 	updated_at
 FROM iep_services
 WHERE archived_at IS NULL
-ORDER BY student_id DESC, service_type DESC
+ORDER BY service_type DESC, service_name DESC
     `
 
 	ps := &ListIepservicesStmt{
@@ -93,17 +93,17 @@ func (ps *ListIepservicesStmt) Run() (
 
 		row := ListIepservicesRes{}
 		row.Id = stmt.ColumnText(0)
-		row.StudentId = stmt.ColumnText(1)
+		row.IepId = stmt.ColumnText(1)
 		row.ServiceName = stmt.ColumnText(2)
 		row.ServiceType = stmt.ColumnText(3)
 		row.IndirectMinutes = stmt.ColumnInt64(4)
 		row.DirectMinutes = stmt.ColumnInt64(5)
 		row.FrequencyCount = stmt.ColumnInt64(6)
 		row.FrequencyType = stmt.ColumnText(7)
-		row.Location = stmt.ColumnText(8)
+		row.LocationId = stmt.ColumnText(8)
 		row.StartDate = stmt.ColumnText(9)
 		row.EndDate = stmt.ColumnText(10)
-		row.Provider = stmt.ColumnText(11)
+		row.ProviderId = stmt.ColumnText(11)
 		row.CreatedAt = stmt.ColumnText(12)
 		row.UpdatedAt = stmt.ColumnText(13)
 		res = append(res, row)

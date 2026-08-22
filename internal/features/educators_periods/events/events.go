@@ -8,8 +8,8 @@ import (
 
 // EVENT NAMES
 const (
-	EducatorAddedToPeriod     = "EducatorAddedToPeriod"
-	EducatorRemovedFromPeriod = "EducatorRemovedFromPeriod"
+	EducatorAddedToPeriod     = "educator_added_to_period_event"
+	EducatorRemovedFromPeriod = "educator_removed_from_period_event"
 )
 
 // EVENT FIELDS

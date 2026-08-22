@@ -7,12 +7,14 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 )
 
+type eventType = eventstore.EventType
+
 // event types
 const (
-	PeriodCreated  = "PeriodCreated"
-	PeriodUpdated  = "PeriodUpdated"
-	PeriodArchived = "PeriodArchived"
-	PeriodDeleted  = "PeriodDeleted"
+	EventPeriodCreated  eventType = "period_created_event"
+	EventPeriodUpdated  eventType = "period_updated_event"
+	EventPeriodArchived eventType = "period_archived_event"
+	EventPeriodDeleted  eventType = "period_deleted_event"
 )
 
 // event ID fields
@@ -102,7 +104,7 @@ func NewPeriodCreatedEvent(
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: PeriodCreated,
+		EventType: EventPeriodCreated,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}
@@ -131,7 +133,7 @@ func NewPeriodUpdatedEvent(
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: PeriodUpdated,
+		EventType: EventPeriodUpdated,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}
@@ -150,7 +152,7 @@ func NewPeriodArchivedEvent(
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: PeriodArchived,
+		EventType: EventPeriodArchived,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}
@@ -169,7 +171,7 @@ func NewPeriodDeletedEvent(
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
-		EventType: PeriodDeleted,
+		EventType: EventPeriodDeleted,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}
