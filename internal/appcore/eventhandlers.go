@@ -43,6 +43,19 @@ func EventHandlerFactories(
 ) []eventHandlerFactory {
 	return []eventHandlerFactory{
 		{
+			name: "auth user projection",
+			create: func() (eventHandler, error) {
+				return auth.NewAuthUserProjectionEventHandler(
+					store,
+					checkpointer,
+					store,
+					authUsers,
+					piiKeys,
+					logger,
+				)
+			},
+		},
+		{
 			name: "password reset email",
 			create: func() (eventHandler, error) {
 				return auth.NewPasswordResetEmailToBeSentEventHandler(
@@ -52,19 +65,6 @@ func EventHandlerFactories(
 					store,
 					emailSender,
 					cfg.AppURL,
-					piiKeys,
-					logger,
-				)
-			},
-		},
-		{
-			name: "auth user projection",
-			create: func() (eventHandler, error) {
-				return auth.NewAuthUserProjectionEventHandler(
-					store,
-					checkpointer,
-					store,
-					authUsers,
 					piiKeys,
 					logger,
 				)

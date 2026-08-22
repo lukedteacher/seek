@@ -19,7 +19,7 @@ templ Edit(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("edit period")
 			<section class="w-full flex flex-col md:flex-row gap-4 h-full">
-				@blocks.FormEdit(view, schedules)
+				@blocks.PeriodForm(view, schedules)
 				@sblocks.ScheduleComponent(schedules)
 			</section>
 		</main>

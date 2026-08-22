@@ -1,0 +1,28 @@
+package blocks
+
+import (
+	"fmt"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/periods/dto"
+	scheduleDTO "seek/internal/features/schedules/dto"
+	"seek/internal/ui/core/coreblocks/forms"
+
+	"github.com/starfederation/datastar-go/datastar"
+)
+
+templ PeriodForm(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<form
+		id={ fmt.Sprintf("period-%s-form", view.FormType) }
+		class="w-full md:max-w-128 gap-8 flex flex-col"
+		data-on:submit={ datastar.PostSSE("%s", url) }
+	>
+		<div class="w-full gap-6 flex flex-wrap">
+			@FormSections(view, schedules)
+		</div>
+		<footer class="md:max-w-128 flex gap-6">
+			@forms.CancelButton("/periods")
+			@forms.SaveButton()
+		</footer>
+	</form>
+}

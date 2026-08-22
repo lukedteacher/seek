@@ -4,47 +4,103 @@ import (
 	"fmt"
 
 	"seek/internal/features/students/dto"
-	"seek/pkg/templui/components/badge"
-	"seek/pkg/templui/components/button"
+	"seek/internal/ui/core/coreblocks/cards"
 	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
 )
 
 templ Card(view dto.StudentView) {
-	@card.Card(card.Props{
-		ID:    fmt.Sprintf("student-%s-card", view.Username),
-		Class: "student-card bg-neutral max-w-128 h-min border-muted",
-		Attributes: templ.Attributes{
-			"style": "background-color: var(--neutral-4);",
-		},
-	}) {
-		@card.Header() {
-			@card.Title() {
-				{ view.GivenName } { view.FamilyName }
-			}
-		}
-		@card.Content(card.ContentProps{
-			Class: "text-sm w-1/2 flex flex-col gap-2",
+	<div class="flex flex-wrap gap-8">
+		@card.Card(card.Props{
+			ID:    fmt.Sprintf("student-%s-card", view.Username),
+			Class: "student-card w-110 h-min bg-linear-3-4 border-muted",
 		}) {
-			<p class="flex justify-between">
-				<span class="text-neutral-content/80">grade</span>
-				@badge.Badge() {
-					{ view.Grade.Ordinal() }
+			@card.Header() {
+				@card.Title() {
+					<div class="flex items-center gap-2">
+						@icon.User()
+						<span>name</span>
+					</div>
 				}
-			</p>
-			<p class="flex justify-between"><span class="text-neutral-content/80">homeroom</span>{ view.HomeroomID }</p>
-		}
-		@card.Footer(card.FooterProps{
-			Class: "flex justify-end items-center",
-		}) {
-			@button.Button(button.Props{
-				Href: fmt.Sprintf("/students/%s/edit", view.Username),
+			}
+			@card.Content(card.ContentProps{
+				Class: "text-sm flex flex-col gap-3",
 			}) {
-				@icon.Pencil(icon.Props{
-					Size: "16",
+				@cards.TextLine(cards.TextLineProps{
+					Key:   "given",
+					Value: view.GivenName,
 				})
-				<span>edit</span>
+				if view.ChosenName != "" {
+					@cards.TextLine(cards.TextLineProps{
+						Key:   "chosen",
+						Value: view.ChosenName,
+					})
+				}
+				@cards.TextLine(cards.TextLineProps{
+					Key:   "family",
+					Value: view.FamilyName,
+				})
 			}
 		}
-	}
+		@card.Card(card.Props{
+			ID:    fmt.Sprintf("student-%s-card", view.Username),
+			Class: "student-card w-110 h-min bg-linear-3-4 border-muted",
+		}) {
+			@card.Header() {
+				@card.Title() {
+					<div class="flex items-center gap-2">
+						@icon.Mail()
+						<span>site</span>
+					</div>
+				}
+			}
+			@card.Content(card.ContentProps{
+				Class: "text-sm flex flex-col gap-3",
+			}) {
+				@cards.TextLine(cards.TextLineProps{
+					Key:   "email",
+					Value: view.Email,
+				})
+				@cards.TextLine(cards.TextLineProps{
+					Key:   "username",
+					Value: view.Username,
+				})
+			}
+		}
+		@card.Card(card.Props{
+			ID:    fmt.Sprintf("student-%s-card", view.Username),
+			Class: "student-card w-110 h-min bg-linear-3-4 border-muted",
+		}) {
+			@card.Header() {
+				@card.Title() {
+					<div class="flex items-center gap-2">
+						@icon.School()
+						<span>school</span>
+					</div>
+				}
+			}
+			@card.Content(card.ContentProps{
+				Class: "text-sm flex flex-col gap-3",
+			}) {
+				@cards.BadgeLine(cards.BadgeLineProps{
+					Key:   "grade",
+					Value: view.Grade.Ordinal(),
+				})
+				@cards.TextLine(cards.TextLineProps{
+					Key:   "homeroom",
+					Value: view.HomeroomID,
+				})
+				@cards.BadgeLine(cards.BadgeLineProps{
+					Key:   "plan type",
+					Value: view.PlanType.Description(),
+				})
+				if view.PlanType.Int() == 3 {
+					@cards.BadgeLine(cards.BadgeLineProps{
+						Key:   "case manager",
+						Value: view.CaseManagerView.NameInitial(),
+					})
+				}
+			}
+		}
+	</div>
 }

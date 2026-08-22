@@ -6,20 +6,23 @@ import (
 	"seek/internal/ui/core/coreblocks/forms"
 	"seek/pkg/templui/components/selectbox"
 
+	"fmt"
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ StudentEditForm(view dto.StudentFormView) {
+templ StudentForm(view dto.StudentFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@selectbox.Script()
 	<form
-		id="student-edit-form"
-		class="seek-form w-128"
+		id={ fmt.Sprintf("student-%s-form", view.FormType) }
+		class="w-full max-w-264 gap-10 flex flex-col"
 		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
-		@FormSections(view)
-		<footer>
-			@forms.CancelButton()
+		<div class="w-full gap-8 flex flex-wrap">
+			@FormSections(view)
+		</div>
+		<footer class="w-full flex gap-8">
+			@forms.CancelButton("/students")
 			@forms.SaveButton()
 		</footer>
 	</form>

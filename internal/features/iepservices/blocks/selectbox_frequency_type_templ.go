@@ -66,7 +66,7 @@ func FrequencyTypeSelect(selected string) templ.Component {
 			})
 			templ_7745c5c3_Err = label.Label(label.Props{
 				For:   "frequency-type-multiselect",
-				Class: "text-xs text-neutral-content/90 mb-3",
+				Class: "text-xs text-neutral-content/90",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -88,7 +88,7 @@ func FrequencyTypeSelect(selected string) templ.Component {
 				}
 				ctx = templ.InitializeContext(ctx)
 				templ_7745c5c3_Err = selectbox.Value(selectbox.ValueProps{
-					Placeholder: "no frequency selected",
+					Placeholder: "-",
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -96,7 +96,8 @@ func FrequencyTypeSelect(selected string) templ.Component {
 				return nil
 			})
 			templ_7745c5c3_Err = selectbox.Trigger(selectbox.TriggerProps{
-				ID: "frequency-type-multiselect",
+				ID:    "frequency-type-multiselect",
+				Class: "min-w-32",
 				Attributes: templ.Attributes{
 					"data-bind:iepservice.frequency_type": "",
 				},
@@ -243,7 +244,8 @@ func FrequencyTypeSelect(selected string) templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = selectbox.SelectBox(selectbox.Props{
-			ID: "frequency-type-multiselect-container",
+			ID:    "frequency-type-multiselect-container",
+			Class: "flex flex-col gap-2",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

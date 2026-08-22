@@ -1,0 +1,21 @@
+package cards
+
+import "seek/pkg/templui/components/badge"
+
+type BadgeLineProps struct {
+	Key   string
+	Value string
+}
+
+templ BadgeLine(p BadgeLineProps) {
+	<p class="flex justify-between">
+		<span class="text-neutral-content/80">{ p.Key }</span>
+		@badge.Badge() {
+			if p.Value != "" {
+				{ p.Value }
+			} else {
+				-
+			}
+		}
+	</p>
+}

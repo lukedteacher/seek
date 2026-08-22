@@ -62,12 +62,13 @@ type LabelProps struct {
 }
 
 type ItemProps struct {
-	ID         string
-	Class      string
-	Attributes templ.Attributes
-	Value      string
-	Selected   bool
-	Disabled   bool
+	ID          string
+	Class       string
+	Attributes  templ.Attributes
+	Value       string
+	ValueNumber int
+	Selected    bool
+	Disabled    bool
 }
 
 templ SelectBox(props ...Props) {
@@ -254,7 +255,7 @@ templ Value(props ...ValueProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={ utils.TwMerge("block truncate select-value text-muted-foreground", p.Class) }
+		class={ utils.TwMerge("block truncate select-value text-muted-foreground text-sm", p.Class) }
 		if p.Placeholder != "" {
 			data-tui-selectbox-placeholder={ p.Placeholder }
 		}

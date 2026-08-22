@@ -10,13 +10,13 @@ import (
 
 	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
+	educatorModels "seek/internal/features/educators/models"
 	"seek/internal/features/iepservices/dto"
 	"seek/internal/features/iepservices/events"
 	"seek/internal/features/iepservices/models"
 	"seek/internal/features/iepservices/pages"
 	sevents "seek/internal/features/students/events"
 	studentEvents "seek/internal/features/students/events"
-	studentModels "seek/internal/features/students/models"
 	"seek/internal/ui/core/coreblocks/toasts"
 	"seek/internal/viewstore"
 
@@ -34,7 +34,7 @@ func (s Server) iepServiceRoutes(r chi.Router) {
 	r.Post("/iepservices/create", postIEPServiceCreate(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Get("/iepservices/{id}", getIEPServiceView(s.Logger))
 	r.Get("/iepservices/{id}/stream", getIEPServiceViewStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.IEPServices))
-	r.Get("/iepservices/{id}/edit", getIEPServiceEdit(s.Logger, *s.ReadModels.IEPServices, *s.ReadModels.Students))
+	r.Get("/iepservices/{id}/edit", getIEPServiceEdit(s.Logger))
 	r.Get("/iepservices/{id}/edit/stream", getIEPServiceEditStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.IEPServices, *s.ReadModels.Students))
 	r.Post("/iepservices/{id}/edit", postIEPServiceEdit(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Post("/iepservices/{id}/edit/validate", postIEPServiceEditValidate(s.Logger, s.ViewStore))
@@ -101,8 +101,7 @@ func getIEPServiceCreate(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		view := dto.NewIEPServiceFormView(&models.IEPService{}, []studentModels.Student{})
-		_ = pages.Create(view).Render(ctx, w)
+		_ = pages.Create(dto.IEPServiceFormView{FormType: "create"}).Render(ctx, w)
 	}
 }
 
@@ -135,7 +134,12 @@ func getIEPServiceCreateStream(
 		if err != nil {
 			l.ErrorContext(ctx, "service create stream list students", "err", err)
 		}
-		view := dto.NewIEPServiceFormView(&models.IEPService{}, students)
+		view := dto.NewIEPServiceFormView(
+			"create",
+			&models.IEPService{},
+			students,
+			[]educatorModels.Educator{},
+		)
 		sse.PatchElementTempl(pages.Create(view))
 
 		for {
@@ -152,7 +156,12 @@ func getIEPServiceCreateStream(
 					return
 				}
 				students, _ := studentReadModel.List(ctx)
-				view := dto.NewIEPServiceFormView(model, students)
+				view := dto.NewIEPServiceFormView(
+					"create",
+					model,
+					students,
+					[]educatorModels.Educator{},
+				)
 				sse.PatchElementTempl(pages.Create(view))
 			}
 		}
@@ -311,21 +320,11 @@ func getIEPServiceViewStream(
 
 // GET request to /iepservices/{id}/edit
 func getIEPServiceEdit(
-	l *slog.Logger,
-	serviceReadModel events.ReadModel,
-	studentReadModel studentEvents.ReadModel,
+	_ *slog.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		iepServiceID := chi.URLParam(r, "id")
-		model, err := serviceReadModel.Get(ctx, iepServiceID)
-		if err != nil {
-			l.ErrorContext(ctx, "iep service edit db get", "err", err)
-			return
-		}
-		students, _ := studentReadModel.List(ctx)
-		view := dto.NewIEPServiceFormView(model, students)
-		_ = pages.Edit(view).Render(ctx, w)
+		_ = pages.Edit(dto.IEPServiceFormView{FormType: "edit"}).Render(ctx, w)
 	}
 }
 
@@ -397,7 +396,12 @@ func getIEPServiceEditStream(
 					return
 				}
 				students, _ := studentReadModel.List(ctx)
-				view := dto.NewIEPServiceFormView(model, students)
+				view := dto.NewIEPServiceFormView(
+					"edit",
+					model,
+					students,
+					[]educatorModels.Educator{},
+				)
 				sse.PatchElementTempl(pages.Edit(view))
 			}
 		}

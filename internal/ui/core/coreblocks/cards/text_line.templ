@@ -1,0 +1,19 @@
+package cards
+
+type TextLineProps struct {
+	Key   string
+	Value string
+}
+
+templ TextLine(p TextLineProps) {
+	<p class="flex justify-between">
+		<span class="text-neutral-content/80">{ p.Key }</span>
+		<span>
+			if p.Value != "" {
+				{ p.Value }
+			} else {
+				-
+			}
+		</span>
+	</p>
+}

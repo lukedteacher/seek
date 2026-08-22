@@ -2,6 +2,18 @@
 
 updates for SEEK
 
+## v0.8.3 (26.08.22) styling and bugs
+
+- improved form styling
+  - service form
+  - fluid sized for input and gaps in fieldset
+- combined form into one component for most forms
+- added card text and badge line components
+- improved student view styling
+  - broke info into multiple cards
+  - added icons
+- fixed weird hidden input bug
+
 ## v0.8.2 (26.08.22) fixed educator and student bugs
 
 - fixed some lingering issues with the event refactor

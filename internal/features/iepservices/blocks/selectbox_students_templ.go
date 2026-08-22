@@ -9,12 +9,12 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/features/students/dto"
+	studentDTO "seek/internal/features/students/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-func IEPServiceStudentSelectBox(views []dto.StudentSelectBoxView) templ.Component {
+func ServiceStudentSelectBox(students []studentDTO.SelectStudentOption) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -121,7 +121,7 @@ func IEPServiceStudentSelectBox(views []dto.StudentSelectBoxView) templ.Componen
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				for i := range views {
+				for i := range students {
 					templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 						templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 						templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -135,9 +135,9 @@ func IEPServiceStudentSelectBox(views []dto.StudentSelectBoxView) templ.Componen
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var7 string
-						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(views[i].Student.NameInitial())
+						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(students[i].Student.NameInitial())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iepservices/blocks/selectbox_students.templ`, Line: 35, Col: 37}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iepservices/blocks/selectbox_students.templ`, Line: 35, Col: 40}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -146,8 +146,8 @@ func IEPServiceStudentSelectBox(views []dto.StudentSelectBoxView) templ.Componen
 						return nil
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-						Value:    views[i].Student.ID,
-						Selected: views[i].Selected,
+						Value:    students[i].Student.ID,
+						Selected: students[i].IsSelected,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -164,10 +164,6 @@ func IEPServiceStudentSelectBox(views []dto.StudentSelectBoxView) templ.Componen
 		templ_7745c5c3_Err = selectbox.SelectBox(selectbox.Props{
 			ID: "student-multiselect-container",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = selectbox.Script().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

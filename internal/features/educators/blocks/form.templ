@@ -1,6 +1,8 @@
 package blocks
 
 import (
+	"fmt"
+
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/dto"
 	"seek/internal/ui/core/coreblocks/forms"
@@ -8,16 +10,18 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ EducatorCreateForm(view dto.EducatorFormView) {
+templ EducatorForm(view dto.EducatorFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
-		id="educator-create-form"
-		class="seek-form w-128"
+		id={ fmt.Sprintf("educator-%s-form", view.FormType) }
+		class="w-full max-w-264 gap-10 flex flex-col"
 		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
-		@FormSections(view)
-		<footer>
-			@forms.CancelButton()
+		<div class="w-full gap-8 flex flex-wrap">
+			@FormSections(view)
+		</div>
+		<footer class="flex gap-8">
+			@forms.CancelButton("/educators")
 			@forms.SaveButton()
 		</footer>
 	</form>

@@ -10,43 +10,39 @@ import (
 
 templ FormSections(view dto.EducatorFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	<fieldset>
-		<input class="hidden" data-bind:educator.id value={ view.ID }/>
-		<legend>name</legend>
-		@forms.TextInputWithLabel(
-			"given-name",
-			"given name",
-			url,
-			"educator.given_name",
-			view.GivenName,
-		)
-		@forms.TextInputWithLabel(
-			"chosen-name",
-			"chosen name",
-			url,
-			"educator.chosen_name",
-			view.ChosenName,
-		)
-		@forms.TextInputWithLabel(
-			"family-name",
-			"family name",
-			url,
-			"educator.family_name",
-			view.FamilyName,
-		)
-	</fieldset>
-	<fieldset>
-		<legend>email</legend>
-		@forms.TextInputWithLabel(
-			"email",
-			"email",
-			url,
-			"educator.email",
-			view.Email,
-		)
-	</fieldset>
-	<fieldset>
-		<legend>role</legend>
+	@selectbox.Script()
+	@HiddenInputs(view)
+	@forms.Fieldset("name") {
+		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
+			ID:        "given-name",
+			LabelText: "given name",
+			Value:     view.GivenName,
+			Bind:      "educator.given_name",
+			URL:       url,
+		})
+		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
+			ID:        "chosen-name",
+			LabelText: "chosen name",
+			Value:     view.ChosenName,
+			Bind:      "educator.chosen_name",
+			URL:       url,
+		})
+		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
+			ID:        "family-name",
+			LabelText: "family name",
+			Value:     view.FamilyName,
+			Bind:      "educator.family_name",
+			URL:       url,
+		})
+	}
+	@forms.Fieldset("school") {
+		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
+			ID:        "email",
+			LabelText: "email",
+			Value:     view.Email,
+			Bind:      "educator.email",
+			URL:       url,
+		})
 		@selectbox.SelectBox() {
 			@label.Label(label.Props{
 				Class: "text-neutral-content/70 mb-3",
@@ -78,6 +74,10 @@ templ FormSections(view dto.EducatorFormView) {
 				}
 			}
 		}
-		@selectbox.Script()
-	</fieldset>
+	}
+}
+
+templ HiddenInputs(view dto.EducatorFormView) {
+	<input id="educator-id" class="hidden" data-bind:educator.id value={ view.ID }/>
+	<input id="educator-username" class="hidden" data-bind:educator.username value={ view.Username }/>
 }

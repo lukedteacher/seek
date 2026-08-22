@@ -247,7 +247,8 @@ a {
 .textarea,
 .file-input {
   width: 100%;
-  min-height: 2.75rem;
+  height: clamp(1.75rem, var(--size-5), var(--size-5));
+  font-size: clamp(0.8rem, var(--size--1), var(--size--1));
   border-color: color-mix(
     in oklab,
     var(--color-base-300) 76%,

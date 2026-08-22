@@ -69,7 +69,7 @@ func SelectboxServiceType(url, object string, selected sharedmodels.ServiceType)
 				return nil
 			})
 			templ_7745c5c3_Err = label.Label(label.Props{
-				Class: "mb-3 text-muted-foreground",
+				Class: "mb-3 text-neutral-content/90",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -91,7 +91,7 @@ func SelectboxServiceType(url, object string, selected sharedmodels.ServiceType)
 				}
 				ctx = templ.InitializeContext(ctx)
 				templ_7745c5c3_Err = selectbox.Value(selectbox.ValueProps{
-					Placeholder: "select a service type",
+					Placeholder: "no service type selected",
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

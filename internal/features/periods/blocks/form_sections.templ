@@ -18,9 +18,8 @@ import (
 
 templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithScheduleView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	<fieldset>
-		<legend>main info</legend>
-		<input class="hidden" data-bind:period.id value={ view.ID }/>
+	@forms.Fieldset("core info") {
+		<input id="period-id" class="hidden" data-bind:period.id value={ view.ID }/>
 		<div>
 			@label.Label(label.Props{
 				ID:    "period-educator-select-box-label",
@@ -69,22 +68,22 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 			})
 		</div>
 		@forms.SelectboxServiceType(url, "period", view.ServiceType)
-	</fieldset>
-	<fieldset>
-		<legend>time</legend>
-		<div class="flex justify-between h-min">
+	}
+	@forms.Fieldset("time") {
+		<div class="w-full flex gap-8 items-center">
 			@FormTimePickers(view)
 			@DurationSlider(view)
-			@forms.DayButtons(view)
 		</div>
-	</fieldset>
-	<fieldset>
-		<legend>students</legend>
+	}
+	@forms.Fieldset("days") {
+		@forms.DayButtons(view)
+	}
+	@forms.Fieldset("student(s)") {
 		@sblocks.StudentMultiselect(url, "period", view.StudentOptions)
 		if len(schedules) > 1 {
 			@SelectedScheduleList(url, schedules)
 		}
-	</fieldset>
+	}
 }
 
 // only renders when the passed value includes more than just the base schedule

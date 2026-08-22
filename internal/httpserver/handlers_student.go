@@ -198,7 +198,7 @@ func postStudentsList(
 func getStudentCreate(_ *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.Create(dto.StudentFormView{}).Render(ctx, w)
+		_ = pages.Create(dto.StudentFormView{FormType: "create"}).Render(ctx, w)
 	}
 }
 
@@ -228,12 +228,12 @@ func getStudentCreateStream(
 		defer watcher.Stop()
 
 		// populate the case managers for the select
-		studentFormView := dto.NewStudentFormView(&models.Student{Grade: -1})
+		studentFormView := dto.NewStudentFormView("create", &models.Student{Grade: -1})
 		caseManagers, _ := educatorReadModel.List(
 			ctx,
 			eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 		)
-
+		studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, sharedmodels.PlanTypeNone)
 		studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{""})
 		sse.PatchElementTempl(pages.Create(studentFormView))
 
@@ -250,12 +250,12 @@ func getStudentCreateStream(
 					l.ErrorContext(ctx, "student create stream json", "err", err)
 					return
 				}
-				studentFormView := dto.NewStudentFormView(student)
+				studentFormView := dto.NewStudentFormView("create", student)
 				caseManagers, _ := educatorReadModel.List(
 					ctx,
 					eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 				)
-
+				studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, student.PlanType)
 				studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{student.CaseManagerID})
 				sse.PatchElementTempl(pages.Create(studentFormView))
 			}
@@ -697,13 +697,14 @@ func getStudentEditStream(
 					l.ErrorContext(ctx, "student edit stream json read", "err", err)
 					return
 				}
-				studentFormView := dto.NewStudentFormView(student)
+				studentFormView := dto.NewStudentFormView("edit", student)
 
 				// list current case managers to populate form
 				caseManagers, _ := educatorReadModel.List(
 					ctx,
 					eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 				)
+				studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, student.PlanType)
 				studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{student.CaseManagerID})
 
 				// patch data to page
@@ -728,8 +729,12 @@ func postStudentEditValidate(
 			l.ErrorContext(ctx, "student edit validate read signals", "err", err)
 			return
 		}
+		if signals.Student.ID == "" {
+			l.ErrorContext(ctx, "student edit validate no student id")
+			return
+		}
 		student := dto.NewStudentModelFromView(&signals.Student)
-		viewstore.PutState(ctx, vs, username, student)
+		viewstore.PutState(ctx, vs, username+".edit", student)
 	}
 }
 
@@ -749,7 +754,6 @@ func postStudentEdit(
 			l.ErrorContext(ctx, "post student edit read signals", "err", err)
 			return
 		}
-
 		student := events.StudentState{
 			ID:         signals.Student.ID,
 			MARSSID:    signals.Student.MARSSID,

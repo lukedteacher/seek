@@ -16,8 +16,8 @@ templ Edit(view dto.StudentFormView) {
 	@corelayouts.LayoutBase("SEEK: edit student") {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("edit student")
-			<section>
-				@blocks.StudentEditForm(view)
+			<section class="w-full">
+				@blocks.StudentForm(view)
 			</section>
 		</main>
 	}

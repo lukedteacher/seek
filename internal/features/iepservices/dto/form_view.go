@@ -1,25 +1,35 @@
 package dto
 
 import (
+	educatorDTO "seek/internal/features/educators/dto"
+	educatorModels "seek/internal/features/educators/models"
 	"seek/internal/features/iepservices/models"
-	dto "seek/internal/features/students/dto"
-	sm "seek/internal/features/students/models"
+	studentDTO "seek/internal/features/students/dto"
+	studentModels "seek/internal/features/students/models"
 )
 
 type IEPServiceFormView struct {
+	FormType   string
 	IEPService IEPServiceView
-	Students   []dto.StudentSelectBoxView
-	URL        string
+	Students   []studentDTO.SelectStudentOption
+	Providers  []educatorDTO.EducatorSelectBoxView
 }
 
-func NewIEPServiceFormView(model *models.IEPService, students []sm.Student) IEPServiceFormView {
+func NewIEPServiceFormView(
+	formType string,
+	model *models.IEPService,
+	students []studentModels.Student,
+	providers []educatorModels.Educator,
+) IEPServiceFormView {
 	if model == nil {
 		return IEPServiceFormView{}
 	}
-	studentViews := dto.NewStudentSelectBoxViews(students, []string{model.StudentID})
+	studentViews := studentDTO.NewSelectStudentOptions(students, []string{model.StudentID})
+	providerViews := educatorDTO.NewEducatorSelectBoxViews(providers, []string{model.ProviderID})
 	view := NewIEPServiceView(model)
 	return IEPServiceFormView{
 		IEPService: view,
 		Students:   studentViews,
+		Providers:  providerViews,
 	}
 }

@@ -13,6 +13,7 @@ import (
 )
 
 type PeriodFormView struct {
+	FormType        string
 	ID              string                   `json:"id"`
 	Title           string                   `json:"title"`
 	ServiceType     sharedmodels.ServiceType `json:"service_type"`
@@ -23,7 +24,7 @@ type PeriodFormView struct {
 	EducatorIDs     string                   `json:"educator_ids"`
 	StudentIDs      string                   `json:"student_ids"`
 	Validation      map[string]events.Validation
-	StudentOptions  []sdto.StudentSelectBoxView
+	StudentOptions  []sdto.SelectStudentOption
 	EducatorOptions []edto.EducatorSelectBoxView
 }
 
@@ -46,7 +47,7 @@ func NewPeriodFormView(
 		EducatorIDs:     strings.Join(p.EducatorIDs, ","),
 		StudentIDs:      strings.Join(p.StudentIDs, ","),
 		Validation:      events.Validate(p),
-		StudentOptions:  sdto.NewStudentSelectBoxViews(allStudents, p.StudentIDs),
+		StudentOptions:  sdto.NewSelectStudentOptions(allStudents, p.StudentIDs),
 		EducatorOptions: edto.NewEducatorSelectBoxViews(allEducators, p.EducatorIDs),
 	}
 }

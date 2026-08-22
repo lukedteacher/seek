@@ -18,7 +18,7 @@ templ FormTimePickers(view dto.PeriodFormView) {
 		minTime := time.Date(now.Year(), now.Month(), now.Day(), 8, 0, 0, 0, now.Location())
 		maxTime := time.Date(now.Year(), now.Month(), now.Day(), 16, 0, 0, 0, now.Location())
 	}}
-	<div class="flex flex-col">
+	<div class="flex flex-col w-full">
 		@label.Label(label.Props{
 			For:   "period-start-time-picker",
 			Class: "mb-3 text-muted-foreground",
@@ -38,7 +38,7 @@ templ FormTimePickers(view dto.PeriodFormView) {
 			DataText:    "$period.start_time",
 		})
 	</div>
-	<div class="flex flex-col">
+	<div class="flex flex-col w-full">
 		@label.Label(label.Props{
 			For:   "period-end-time-picker",
 			Class: "mb-3 text-muted-foreground",

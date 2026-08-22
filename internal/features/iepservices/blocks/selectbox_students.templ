@@ -1,12 +1,12 @@
 package blocks
 
 import (
-	"seek/internal/features/students/dto"
+	studentDTO "seek/internal/features/students/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ IEPServiceStudentSelectBox(views []dto.StudentSelectBoxView) {
+templ ServiceStudentSelectBox(students []studentDTO.SelectStudentOption) {
 	@selectbox.SelectBox(selectbox.Props{
 		ID: "student-multiselect-container",
 	}) {
@@ -27,15 +27,14 @@ templ IEPServiceStudentSelectBox(views []dto.StudentSelectBoxView) {
 			})
 		}
 		@selectbox.Content() {
-			for i := range views {
+			for i := range students {
 				@selectbox.Item(selectbox.ItemProps{
-					Value:    views[i].Student.ID,
-					Selected: views[i].Selected,
+					Value:    students[i].Student.ID,
+					Selected: students[i].IsSelected,
 				}) {
-					{ views[i].Student.NameInitial() }
+					{ students[i].Student.NameInitial() }
 				}
 			}
 		}
 	}
-	@selectbox.Script()
 }

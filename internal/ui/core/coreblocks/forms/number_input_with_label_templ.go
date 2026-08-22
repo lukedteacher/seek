@@ -15,7 +15,15 @@ import (
 	"seek/pkg/templui/components/label"
 )
 
-func NumberInputWithLabel(id, labelText, url, bind string, value int) templ.Component {
+type NumberInputWithLabelProps struct {
+	ID        string
+	LabelText string
+	Value     int
+	Bind      string
+	URL       string
+}
+
+func NumberInputWithLabel(p NumberInputWithLabelProps) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -36,6 +44,10 @@ func NumberInputWithLabel(id, labelText, url, bind string, value int) templ.Comp
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col gap-2\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -49,9 +61,9 @@ func NumberInputWithLabel(id, labelText, url, bind string, value int) templ.Comp
 			}
 			ctx = templ.InitializeContext(ctx)
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(labelText)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(p.LabelText)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/number_input_with_label.templ`, Line: 16, Col: 13}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/number_input_with_label.templ`, Line: 25, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -60,23 +72,28 @@ func NumberInputWithLabel(id, labelText, url, bind string, value int) templ.Comp
 			return nil
 		})
 		templ_7745c5c3_Err = label.Label(label.Props{
-			ID:    "label" + id,
-			For:   "input" + id,
-			Class: "mb-3 text-xs text-neutral-content/90",
+			ID:    fmt.Sprintf("%s-label", p.ID),
+			For:   fmt.Sprintf("%s-input", p.ID),
+			Class: "text-xs text-neutral-content/90 flex-grow",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = input.Input(input.Props{
-			ID:          "input" + id,
-			Name:        id,
+			ID:          fmt.Sprintf("%s-input", p.ID),
+			Name:        p.ID,
 			Type:        input.TypeNumber,
-			ValueNumber: value,
+			ValueNumber: p.Value,
+			Class:       "aspect-square text-center",
 			Attributes: templ.Attributes{
-				"data-bind":     bind,
-				"data-on:click": fmt.Sprintf("@post('%s')", url),
+				"data-bind":                     p.Bind,
+				"data-on:input__debounce.250ms": fmt.Sprintf("@post('%s/validate')", p.URL),
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

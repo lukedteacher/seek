@@ -1,0 +1,46 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/students/dto"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
+)
+
+templ SelectPlanType(views []dto.SelectPlanTypeOption) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	@selectbox.SelectBox(selectbox.Props{
+		ID: "student-plan-type-select-container",
+	}) {
+		@label.Label(label.Props{
+			For:   "student-plan-type-select",
+			Class: "text-neutral-content/90 mb-3",
+		}) {
+			plan type
+		}
+		@selectbox.Trigger(selectbox.TriggerProps{
+			ID:           "student-plan-type-select",
+			DataBind:     "student.plan_type",
+			DataOnChange: fmt.Sprintf("@post('%s/validate')", url),
+		}) {
+			@selectbox.Value(selectbox.ValueProps{
+				Placeholder: "no plan type selected",
+			})
+		}
+		@selectbox.Content(selectbox.ContentProps{
+			NoSearch: true,
+		}) {
+			for i := range views {
+				@selectbox.Item(selectbox.ItemProps{
+					Value:    views[i].PlanType.String(),
+					Selected: views[i].IsSelected,
+				}) {
+					{ views[i].PlanType.Description() }
+				}
+			}
+		}
+	}
+	@selectbox.Script()
+}

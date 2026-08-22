@@ -1,6 +1,8 @@
 package blocks
 
 import (
+	"fmt"
+
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iepservices/dto"
 	"seek/internal/ui/core/coreblocks/forms"
@@ -8,16 +10,16 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ EditServiceForm(view dto.IEPServiceFormView) {
+templ ServiceForm(view dto.IEPServiceFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
-		id="edit-iep-service-form"
+		id={ fmt.Sprintf("form-iep-service-%s", view.FormType) }
 		class="seek-form"
 		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
 		@FormSections(view)
 		<footer>
-			@forms.CancelButton()
+			@forms.CancelButton("/iepservices")
 			@forms.SaveButton()
 		</footer>
 	</form>

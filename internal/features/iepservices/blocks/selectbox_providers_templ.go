@@ -9,12 +9,12 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"seek/internal/features/students/dto"
+	educatorDTO "seek/internal/features/educators/dto"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-func StudentSelect(views []dto.StudentSelectBoxView) templ.Component {
+func ServiceProviderSelectBox(providers []educatorDTO.EducatorSelectBoxView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -59,14 +59,14 @@ func StudentSelect(views []dto.StudentSelectBoxView) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "student")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "provider")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				return nil
 			})
 			templ_7745c5c3_Err = label.Label(label.Props{
-				For:   "student-multiselect",
+				For:   "provider-multiselect",
 				Class: "text-neutral-content/80 mb-3",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -89,7 +89,7 @@ func StudentSelect(views []dto.StudentSelectBoxView) templ.Component {
 				}
 				ctx = templ.InitializeContext(ctx)
 				templ_7745c5c3_Err = selectbox.Value(selectbox.ValueProps{
-					Placeholder: "no student selected",
+					Placeholder: "no provider selected",
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -97,9 +97,9 @@ func StudentSelect(views []dto.StudentSelectBoxView) templ.Component {
 				return nil
 			})
 			templ_7745c5c3_Err = selectbox.Trigger(selectbox.TriggerProps{
-				ID: "student-multiselect",
+				ID: "provider-multiselect",
 				Attributes: templ.Attributes{
-					"data-bind:iepservice.student_id": "",
+					"data-bind:iepservice.provider_id": "",
 				},
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -121,7 +121,7 @@ func StudentSelect(views []dto.StudentSelectBoxView) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				for i := range views {
+				for i := range providers {
 					templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 						templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 						templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -135,9 +135,9 @@ func StudentSelect(views []dto.StudentSelectBoxView) templ.Component {
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var7 string
-						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(views[i].Student.NameInitial())
+						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(providers[i].Educator.NameInitial())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select.templ`, Line: 35, Col: 37}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iepservices/blocks/selectbox_providers.templ`, Line: 35, Col: 42}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -146,8 +146,8 @@ func StudentSelect(views []dto.StudentSelectBoxView) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-						Value:    views[i].Student.ID,
-						Selected: views[i].Selected,
+						Value:    providers[i].Educator.ID,
+						Selected: providers[i].IsSelected,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -162,12 +162,8 @@ func StudentSelect(views []dto.StudentSelectBoxView) templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = selectbox.SelectBox(selectbox.Props{
-			ID: "student-multiselect-container",
+			ID: "provider-multiselect-container",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = selectbox.Script().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

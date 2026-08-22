@@ -7,22 +7,33 @@ import (
 	"seek/pkg/templui/components/label"
 )
 
-templ NumberInputWithLabel(id, labelText, url, bind string, value int) {
-	@label.Label(label.Props{
-		ID:    "label" + id,
-		For:   "input" + id,
-		Class: "mb-3 text-xs text-neutral-content/90",
-	}) {
-		{ labelText }
-	}
-	@input.Input(input.Props{
-		ID:          "input" + id,
-		Name:        id,
-		Type:        input.TypeNumber,
-		ValueNumber: value,
-		Attributes: templ.Attributes{
-			"data-bind":     bind,
-			"data-on:click": fmt.Sprintf("@post('%s')", url),
-		},
-	})
+type NumberInputWithLabelProps struct {
+	ID        string
+	LabelText string
+	Value     int
+	Bind      string
+	URL       string
+}
+
+templ NumberInputWithLabel(p NumberInputWithLabelProps) {
+	<div class="flex flex-col gap-2">
+		@label.Label(label.Props{
+			ID:    fmt.Sprintf("%s-label", p.ID),
+			For:   fmt.Sprintf("%s-input", p.ID),
+			Class: "text-xs text-neutral-content/90 flex-grow",
+		}) {
+			{ p.LabelText }
+		}
+		@input.Input(input.Props{
+			ID:          fmt.Sprintf("%s-input", p.ID),
+			Name:        p.ID,
+			Type:        input.TypeNumber,
+			ValueNumber: p.Value,
+			Class:       "aspect-square text-center",
+			Attributes: templ.Attributes{
+				"data-bind":                     p.Bind,
+				"data-on:input__debounce.250ms": fmt.Sprintf("@post('%s/validate')", p.URL),
+			},
+		})
+	</div>
 }

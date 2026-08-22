@@ -108,12 +108,14 @@ func EducatorReadModelEventHandlerQuery() eventstore.Query {
 }
 
 func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
+	println("educator read model handle")
 	data := resolved.Event.Data
 	rawData := resolved.Event.RawData
 	scope := eventstore.Scope(data)
 	educatorID, _ := scope[FieldEducatorID].(string)
 	switch resolved.Event.EventType {
 	case EventEducatorCreated:
+		println("handle educator created")
 		var event EducatorCreatedEvent
 		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
 			return err
@@ -125,6 +127,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 			return err
 		}
 	case EventEducatorUpdated:
+		println("handle educator updated")
 		var event EducatorUpdatedEvent
 		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
 			return err

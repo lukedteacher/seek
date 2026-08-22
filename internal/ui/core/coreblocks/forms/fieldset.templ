@@ -1,0 +1,8 @@
+package forms
+
+templ Fieldset(title string) {
+	<fieldset class="flex flex-col border-muted w-full md:max-w-128 min-w-80">
+		<legend>{ title }</legend>
+		{ children... }
+	</fieldset>
+}

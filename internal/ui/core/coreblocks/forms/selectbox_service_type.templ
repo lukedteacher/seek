@@ -12,7 +12,7 @@ import (
 templ SelectboxServiceType(url, object string, selected sharedmodels.ServiceType) {
 	@selectbox.SelectBox() {
 		@label.Label(label.Props{
-			Class: "mb-3 text-muted-foreground",
+			Class: "mb-3 text-neutral-content/90",
 		}) {
 			service type
 		}
@@ -21,7 +21,7 @@ templ SelectboxServiceType(url, object string, selected sharedmodels.ServiceType
 			DataOnChange: fmt.Sprintf("@post('%s/validate')", url),
 		}) {
 			@selectbox.Value(selectbox.ValueProps{
-				Placeholder: "select a service type",
+				Placeholder: "no service type selected",
 			})
 		}
 		@selectbox.Content() {

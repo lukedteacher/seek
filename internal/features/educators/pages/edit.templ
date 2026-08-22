@@ -17,7 +17,7 @@ templ Edit(view dto.EducatorFormView) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("edit educator")
 			<section class="w-full flex items-center justify-center">
-				@blocks.EducatorEditForm(view)
+				@blocks.EducatorForm(view)
 			</section>
 		</main>
 	}

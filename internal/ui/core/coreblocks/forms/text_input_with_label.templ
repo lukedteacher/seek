@@ -7,23 +7,31 @@ import (
 	"seek/pkg/templui/components/label"
 )
 
-templ TextInputWithLabel(id, labelText, url, bind, value string) {
+type TextInputWithLabelProps struct {
+	ID        string
+	LabelText string
+	Value     string
+	Bind      string
+	URL       string
+}
+
+templ TextInputWithLabel(p TextInputWithLabelProps) {
 	<div class="flex flex-col">
 		@label.Label(label.Props{
-			ID:    fmt.Sprintf("%s-label", id),
-			For:   fmt.Sprintf("%s-input", id),
+			ID:    fmt.Sprintf("%s-label", p.ID),
+			For:   fmt.Sprintf("%s-input", p.ID),
 			Class: "mb-3 text-muted-foreground",
 		}) {
-			{ labelText }
+			{ p.LabelText }
 		}
 		@input.Input(input.Props{
-			ID:    fmt.Sprintf("%s-input", id),
-			Name:  id,
+			ID:    fmt.Sprintf("%s-input", p.ID),
+			Name:  p.ID,
 			Type:  input.TypeText,
-			Value: value,
+			Value: p.Value,
 			Attributes: templ.Attributes{
-				"data-bind":     bind,
-				"data-on:input": fmt.Sprintf("@post('%s/validate')", url),
+				"data-bind":                     p.Bind,
+				"data-on:input__debounce.250ms": fmt.Sprintf("@post('%s/validate')", p.URL),
 			},
 		})
 	</div>

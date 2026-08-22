@@ -2,21 +2,15 @@ package blocks
 
 import (
 	"fmt"
+
 	"seek/internal/features/students/dto"
-	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ StudentMultiselect(url, object string, views []dto.StudentSelectBoxView) {
+templ StudentMultiselect(url, object string, views []dto.SelectStudentOption) {
 	@selectbox.SelectBox(selectbox.Props{
 		ID: "student-multiselect-container",
 	}) {
-		@label.Label(label.Props{
-			For:   "student-multiselect",
-			Class: "text-muted-foreground mb-3",
-		}) {
-			student(s)
-		}
 		@selectbox.Trigger(selectbox.TriggerProps{
 			ID:           "student-multiselect",
 			ShowPills:    true,
@@ -31,7 +25,7 @@ templ StudentMultiselect(url, object string, views []dto.StudentSelectBoxView) {
 			for i := range views {
 				@selectbox.Item(selectbox.ItemProps{
 					Value:    views[i].Student.ID,
-					Selected: views[i].Selected,
+					Selected: views[i].IsSelected,
 				}) {
 					{ views[i].Student.NameInitial() }
 				}

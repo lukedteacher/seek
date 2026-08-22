@@ -7,22 +7,24 @@ import (
 
 templ FrequencyTypeSelect(selected string) {
 	@selectbox.SelectBox(selectbox.Props{
-		ID: "frequency-type-multiselect-container",
+		ID:    "frequency-type-multiselect-container",
+		Class: "flex flex-col gap-2",
 	}) {
 		@label.Label(label.Props{
 			For:   "frequency-type-multiselect",
-			Class: "text-xs text-neutral-content/90 mb-3",
+			Class: "text-xs text-neutral-content/90",
 		}) {
 			type
 		}
 		@selectbox.Trigger(selectbox.TriggerProps{
-			ID: "frequency-type-multiselect",
+			ID:    "frequency-type-multiselect",
+			Class: "min-w-32",
 			Attributes: templ.Attributes{
 				"data-bind:iepservice.frequency_type": "",
 			},
 		}) {
 			@selectbox.Value(selectbox.ValueProps{
-				Placeholder: "no frequency selected",
+				Placeholder: "-",
 			})
 		}
 		@selectbox.Content(selectbox.ContentProps{

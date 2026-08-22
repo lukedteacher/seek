@@ -48,7 +48,10 @@ func (p Person) Name() string {
 
 // returns the preferred name + last initial of a person
 func (p Person) NameInitial() string {
-	return p.Name() + " " + string([]rune(p.FamilyName)[0])
+	if p.Name() != "" && p.FamilyName != "" {
+		return p.Name() + " " + string([]rune(p.FamilyName)[0])
+	}
+	return "none"
 }
 
 // returns the preferred + family name of a person

@@ -5,83 +5,51 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks/forms"
-	"seek/pkg/templui/components/button"
-	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
-	"seek/pkg/templui/components/tooltip"
 )
 
 templ FormSections(view dto.StudentFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	<input class="hidden" data-bind:student.id value={ view.Student.ID }/>
-	<fieldset>
-		<legend>required</legend>
-		@forms.TextInputWithLabel(
-			"marss-id",
-			"MARSS ID",
-			url,
-			"student.marss_id",
-			view.Student.MARSSID,
-		)
-		<div class="relative">
-			@forms.TextInputWithLabel(
-				"given-name",
-				"given name",
-				url,
-				"student.given_name",
-				view.Student.GivenName,
-			)
-			@tooltip.Tooltip() {
-				@tooltip.Trigger() {
-					@button.Button(button.Props{
-						Class:   "absolute top-[67%] -translate-y-[50%] right-0 translate-x-[160%]",
-						Variant: button.VariantGhost,
-						Attributes: templ.Attributes{
-							"data-on:click": "$_chosen_name.show = !$_chosen_name.show;",
-						},
-					}) {
-						@icon.ChevronDown(icon.Props{
-							Class: "size-5",
-						})
-					}
-				}
-				@tooltip.Content(tooltip.ContentProps{
-					HoverDelay:    100,
-					HoverOutDelay: 250,
-					Class:         "text-sm",
-				}) {
-					show chosen name
-				}
-			}
-		</div>
-		<div style="display: none;" data-signals:_chosen_name.show={ view.Student.ChosenName != "" } data-show="$_chosen_name.show">
-			@forms.TextInputWithLabel(
-				"chosen-name",
-				"chosen name",
-				url,
-				"student.chosen_name",
-				view.Student.ChosenName,
-			)
-		</div>
-		@forms.TextInputWithLabel(
-			"family-name",
-			"family name",
-			url,
-			"student.family_name",
-			view.Student.FamilyName,
-		)
-		@forms.TextInputWithLabel(
-			"email",
-			"email",
-			url,
-			"student.email",
-			view.Student.Email,
-		)
-		<input class="hidden" data-bind:student.username value={ view.Student.Username }/>
-	</fieldset>
-	<fieldset>
-		<legend>optional</legend>
+	@HiddenInputs(view.Student)
+	@forms.Fieldset("name") {
+		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
+			ID:        "given-name",
+			LabelText: "given name",
+			Value:     view.Student.GivenName,
+			Bind:      "student.given_name",
+			URL:       url,
+		})
+		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
+			ID:        "chosen-name",
+			LabelText: "chosen name",
+			Value:     view.Student.ChosenName,
+			Bind:      "student.chosen_name",
+			URL:       url,
+		})
+		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
+			ID:        "family-name",
+			LabelText: "family name",
+			Value:     view.Student.FamilyName,
+			Bind:      "student.family_name",
+			URL:       url,
+		})
+	}
+	@forms.Fieldset("school") {
+		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
+			ID:        "email",
+			LabelText: "email",
+			Value:     view.Student.Email,
+			Bind:      "student.email",
+			URL:       url,
+		})
+		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
+			ID:        "marss-id",
+			LabelText: "MARSS ID",
+			Value:     view.Student.MARSSID,
+			Bind:      "student.marss_id",
+			URL:       url,
+		})
 		@selectbox.SelectBox() {
 			@label.Label(label.Props{
 				ID:    "student-grade-label",
@@ -112,43 +80,53 @@ templ FormSections(view dto.StudentFormView) {
 				}
 			}
 		}
-		@forms.TextInputWithLabel(
-			"homeroom",
-			"homeroom",
-			url,
-			"student.homeroom",
-			view.Student.HomeroomID,
-		)
-		@selectbox.SelectBox() {
-			@label.Label(label.Props{
-				For:   "student-case-manager-select-box",
-				Class: "mb-3 text-neutral-content/80",
-			}) {
-				case manager
-			}
-			@selectbox.Trigger(selectbox.TriggerProps{
-				ID:           "student-case-manager-select",
-				DataBind:     "student.case_manager_id",
-				DataOnChange: fmt.Sprintf("@post('%s/validate')", url),
-			}) {
-				@selectbox.Value(selectbox.ValueProps{
-					Placeholder: "select a case manager",
-					Class:       "text-sm",
-				})
-			}
-			@selectbox.Content(selectbox.ContentProps{
-				NoSearch: true,
-			}) {
-				for _, cm := range view.CaseManagers {
-					@selectbox.Item(selectbox.ItemProps{
-						Value:    cm.Educator.ID,
-						Selected: cm.IsSelected,
-					}) {
-						{ cm.Educator.NameInitial() }
+		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
+			ID:        "homeroom-id",
+			LabelText: "homeroom id",
+			Value:     view.Student.HomeroomID,
+			Bind:      "student.homeroom_id",
+			URL:       url,
+		})
+	}
+	@forms.Fieldset("special") {
+		@SelectPlanType(view.PlanTypeOptions)
+		if view.Student.PlanType.Int() == 3 {
+			@selectbox.SelectBox() {
+				@label.Label(label.Props{
+					For:   "student-case-manager-select-box",
+					Class: "mb-3 text-neutral-content/80",
+				}) {
+					case manager
+				}
+				@selectbox.Trigger(selectbox.TriggerProps{
+					ID:           "student-case-manager-select",
+					DataBind:     "student.case_manager_id",
+					DataOnChange: fmt.Sprintf("@post('%s/validate')", url),
+				}) {
+					@selectbox.Value(selectbox.ValueProps{
+						Placeholder: "select a case manager",
+						Class:       "text-sm",
+					})
+				}
+				@selectbox.Content(selectbox.ContentProps{
+					NoSearch: true,
+				}) {
+					for _, cm := range view.CaseManagers {
+						@selectbox.Item(selectbox.ItemProps{
+							Value:    cm.Educator.ID,
+							Selected: cm.IsSelected,
+						}) {
+							{ cm.Educator.NameInitial() }
+						}
 					}
 				}
 			}
 		}
 		@selectbox.Script()
-	</fieldset>
+	}
+}
+
+templ HiddenInputs(s dto.StudentView) {
+	<input id="student-id" class="hidden" data-bind:student.id value={ s.ID }/>
+	<input id="student-username" class="hidden" data-bind:student.username value={ s.Username }/>
 }

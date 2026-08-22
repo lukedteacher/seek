@@ -14,7 +14,7 @@ import (
 	"seek/pkg/templui/components/icon"
 )
 
-func CancelButton() templ.Component {
+func CancelButton(href string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -61,10 +61,8 @@ func CancelButton() templ.Component {
 		})
 		templ_7745c5c3_Err = button.Button(button.Props{
 			Type:  "button",
-			Class: "btn-warning",
-			Attributes: templ.Attributes{
-				"style": "flex: 1;",
-			},
+			Href:  href,
+			Class: "btn-warning flex-grow basis-1",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -120,10 +118,7 @@ func SaveButton() templ.Component {
 		})
 		templ_7745c5c3_Err = button.Button(button.Props{
 			Type:  "submit",
-			Class: "btn-success bg-success/80 hover:bg-success/90 active:bg-success",
-			Attributes: templ.Attributes{
-				"style": "flex: 1;",
-			},
+			Class: "flex-grow basis-1 btn-success bg-success/80 hover:bg-success/90 active:bg-success",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -179,10 +174,9 @@ func ArchiveButton(object, id string) templ.Component {
 		})
 		templ_7745c5c3_Err = button.Button(button.Props{
 			Type:  "button",
-			Class: "btn-info",
+			Class: "btn-info flex-grow basis-1",
 			Attributes: templ.Attributes{
 				"data-on:click": fmt.Sprintf("@post('/%s/%s/archive'", object, id),
-				"style":         "flex: 1;",
 			},
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -239,10 +233,9 @@ func DeleteButton(object, id string) templ.Component {
 		})
 		templ_7745c5c3_Err = button.Button(button.Props{
 			Type:  "button",
-			Class: "btn-destructive",
+			Class: "btn-destructive flex-grow basis-1",
 			Attributes: templ.Attributes{
 				"data-on:click": fmt.Sprintf("@post('/%s/%s'", object, id),
-				"style":         "flex: 1;",
 			},
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

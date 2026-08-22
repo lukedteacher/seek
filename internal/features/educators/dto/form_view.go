@@ -6,6 +6,7 @@ import (
 )
 
 type EducatorFormView struct {
+	FormType            string
 	sharedmodels.Person                             // embeds given, chosen, & family name, username & email fields
 	ID                  string                      `json:"id"`
 	Role                string                      `json:"role"`

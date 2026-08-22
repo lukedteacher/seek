@@ -490,9 +490,7 @@ func getEducatorEditStream(
 			return
 		}
 		defer watcher.Stop()
-		l.Debug("test")
 		if err := refreshEducatorEditState(ctx, l, vs, username, educatorReadModel); err != nil {
-			l.Debug("test2")
 			if err.Error() == "educator not found" {
 				sse.PatchElementTempl(pages.NotFound())
 			}

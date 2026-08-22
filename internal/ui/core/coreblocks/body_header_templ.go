@@ -122,7 +122,7 @@ func HeaderBodyStyles() templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<style>\n\t\tbody {\n\t\t\t&> header {\n\t\t\t\tcolor: var(--primary-5-on);\n\t\t\t\tbackground-color: var(--primary-5);\n\t\t\t\twidth: 100%;\n\t\t\t\theight: 4rem;\n\t\t\t\talign-items: center;\n\t\t\t\tdisplay: flex;\n\t\t\t\tflex-direction: row;\n\t\t\t\tpadding: 0 var(--size-4);\n\n\t\t\t\thgroup {\n\t\t\t\t\th1 {\n\t\t\t\t\t\tcolor: var(--primary-6-on);\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\tnav {\n\t\t\t\t\tmargin-left: var(--size-6);\n\t\t\t\t\tmargin-right: auto;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<style>\r\n\t\tbody {\r\n\t\t\t&> header {\r\n\t\t\t\tcolor: var(--primary-5-on);\r\n\t\t\t\tbackground-color: var(--primary-5);\r\n\t\t\t\twidth: 100%;\r\n\t\t\t\theight: 4rem;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\tflex-direction: row;\r\n\t\t\t\tpadding: 0 var(--size-4);\r\n\r\n\t\t\t\thgroup {\r\n\t\t\t\t\th1 {\r\n\t\t\t\t\t\tcolor: var(--primary-6-on);\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\r\n\t\t\t\tnav {\r\n\t\t\t\t\tmargin-left: var(--size-6);\r\n\t\t\t\t\tmargin-right: auto;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -17,7 +17,7 @@ templ Edit(view dto.IEPServiceFormView) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("edit IEP service")
 			<section>
-				@blocks.EditServiceForm(view)
+				@blocks.ServiceForm(view)
 			</section>
 		</main>
 	}

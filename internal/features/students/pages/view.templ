@@ -54,17 +54,19 @@ templ View(view dto.StudentView, scheduleView sdto.PersonWithScheduleView, servi
 						})
 						<span class="hidden md:flex">schedule</span>
 					}
-					@button.Button(button.Props{
-						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/students/%s/services", view.Username),
-						Attributes: templ.Attributes{
-							"data-tab-active": active == "services",
-						},
-					}) {
-						@icon.Blocks(icon.Props{
-							Class: "size-4",
-						})
-						<span class="hidden md:flex">services</span>
+					if view.PlanType == 3 {
+						@button.Button(button.Props{
+							Class: "basis-1 flex-grow py-1 h-auto",
+							Href:  fmt.Sprintf("/students/%s/services", view.Username),
+							Attributes: templ.Attributes{
+								"data-tab-active": active == "services",
+							},
+						}) {
+							@icon.Blocks(icon.Props{
+								Class: "size-4",
+							})
+							<span class="hidden md:flex">services</span>
+						}
 					}
 				}
 				switch active {

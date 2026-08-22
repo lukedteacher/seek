@@ -15,7 +15,15 @@ import (
 	"seek/pkg/templui/components/label"
 )
 
-func TextInputWithLabel(id, labelText, url, bind, value string) templ.Component {
+type TextInputWithLabelProps struct {
+	ID        string
+	LabelText string
+	Value     string
+	Bind      string
+	URL       string
+}
+
+func TextInputWithLabel(p TextInputWithLabelProps) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -53,9 +61,9 @@ func TextInputWithLabel(id, labelText, url, bind, value string) templ.Component 
 			}
 			ctx = templ.InitializeContext(ctx)
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(labelText)
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(p.LabelText)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/text_input_with_label.templ`, Line: 17, Col: 14}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/text_input_with_label.templ`, Line: 25, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -64,21 +72,21 @@ func TextInputWithLabel(id, labelText, url, bind, value string) templ.Component 
 			return nil
 		})
 		templ_7745c5c3_Err = label.Label(label.Props{
-			ID:    fmt.Sprintf("%s-label", id),
-			For:   fmt.Sprintf("%s-input", id),
+			ID:    fmt.Sprintf("%s-label", p.ID),
+			For:   fmt.Sprintf("%s-input", p.ID),
 			Class: "mb-3 text-muted-foreground",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = input.Input(input.Props{
-			ID:    fmt.Sprintf("%s-input", id),
-			Name:  id,
+			ID:    fmt.Sprintf("%s-input", p.ID),
+			Name:  p.ID,
 			Type:  input.TypeText,
-			Value: value,
+			Value: p.Value,
 			Attributes: templ.Attributes{
-				"data-bind":     bind,
-				"data-on:input": fmt.Sprintf("@post('%s/validate')", url),
+				"data-bind":                     p.Bind,
+				"data-on:input__debounce.250ms": fmt.Sprintf("@post('%s/validate')", p.URL),
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

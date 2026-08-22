@@ -16,8 +16,8 @@ templ Create(view dto.StudentFormView) {
 	@corelayouts.LayoutBase("SEEK: create student") {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("create student")
-			<section>
-				@blocks.StudentCreateForm(view)
+			<section class="w-full">
+				@blocks.StudentForm(view)
 			</section>
 		</main>
 	}
