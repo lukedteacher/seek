@@ -2,6 +2,10 @@
 
 updates for SEEK
 
+## v0.8.2 (26.08.22) fixed educator and student bugs
+
+- fixed some lingering issues with the event refactor
+
 ## v0.8.1 (26.08.21) finished http handler refactor
 
 - finished moving all http handlers to use dependency injection

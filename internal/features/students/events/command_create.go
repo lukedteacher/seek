@@ -16,24 +16,25 @@ type CreateStudentCommand struct {
 
 type CreateStudentResult struct {
 	EventID string
+	Student StudentState
 }
 
 func CreateStudentCommandHandler(
 	ctx context.Context,
-	command CreateStudentCommand,
+	cmd CreateStudentCommand,
 	saver eventstore.Saver,
 ) (
 	CreateStudentResult,
 	error,
 ) {
-	model, err := newCreateStudentContext(command)
+	model, err := newCreateStudentContext(cmd)
 	if err != nil {
 		return CreateStudentResult{}, err
 	}
 	event := NewStudentCreatedEvent(
 		model.StudentState,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 	if _, err := saver.SaveEvents(
 		ctx,
@@ -44,7 +45,7 @@ func CreateStudentCommandHandler(
 	); err != nil {
 		return CreateStudentResult{}, err
 	}
-	return CreateStudentResult{EventID: model.ID}, nil
+	return CreateStudentResult{EventID: model.ID, Student: model.StudentState}, nil
 }
 
 type createStudentContext struct {

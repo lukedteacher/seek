@@ -17,19 +17,20 @@ type UpdateStudentCommand struct {
 
 type UpdateStudentResult struct {
 	EventID string
+	Student StudentState
 	Skipped bool
 }
 
 func UpdateStudentCommandHandler(
 	ctx context.Context,
-	command UpdateStudentCommand,
+	cmd UpdateStudentCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	UpdateStudentResult,
 	error,
 ) {
-	model, err := loadUpdateStudentContext(ctx, retriever, command.ID)
+	model, err := loadUpdateStudentContext(ctx, retriever, cmd.ID)
 	if err != nil {
 		return UpdateStudentResult{}, err
 	}
@@ -38,19 +39,19 @@ func UpdateStudentCommandHandler(
 	}
 
 	// TODO add skip logic
-
+	cmd.Username = deriveUsername(cmd.Email)
 	eventID := uuidv7.NewString()
 	event := NewStudentUpdatedEvent(
 		eventID,
-		command.StudentState,
+		cmd.StudentState,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return UpdateStudentResult{}, err
 	}
-	return UpdateStudentResult{EventID: eventID}, nil
+	return UpdateStudentResult{EventID: eventID, Student: cmd.StudentState}, nil
 }
 
 type updateStudentContext struct {
@@ -75,12 +76,10 @@ func loadUpdateStudentContext(
 	if err != nil {
 		return nil, err
 	}
-
 	model := &updateStudentContext{position: eventstore.NoEventPosition, events: events, query: query}
 	for _, event := range events {
 		model.handle(event)
 	}
-
 	return model, nil
 }
 

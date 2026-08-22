@@ -109,12 +109,13 @@ func EducatorReadModelEventHandlerQuery() eventstore.Query {
 
 func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
+	rawData := resolved.Event.RawData
 	scope := eventstore.Scope(data)
-	educatorCreatedEventID, _ := scope[FieldEducatorCreatedEventID].(string)
+	educatorID, _ := scope[FieldEducatorID].(string)
 	switch resolved.Event.EventType {
 	case EventEducatorCreated:
 		var event EducatorCreatedEvent
-		if err := json.Unmarshal([]byte(resolved.Event.RawData), &event); err != nil {
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
 			return err
 		}
 		if err := h.readModel.Create(ctx, EducatorCreatedProjection{
@@ -125,7 +126,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 		}
 	case EventEducatorUpdated:
 		var event EducatorUpdatedEvent
-		if err := json.Unmarshal([]byte(resolved.Event.RawData), &event); err != nil {
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
 			return err
 		}
 		if err := h.readModel.Update(ctx, EducatorUpdatedProjection{
@@ -137,7 +138,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 	case EventEducatorArchived:
 		if err := h.readModel.Archive(ctx, EducatorArchivedProjection{
 			Position:   resolved.Position,
-			ID:         educatorCreatedEventID,
+			ID:         educatorID,
 			ArchivedAt: parseTime(data[FieldEducatorArchivedAt]),
 		}); err != nil {
 			return err
@@ -145,7 +146,7 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 	case EventEducatorDeleted:
 		if err := h.readModel.Delete(ctx, EducatorDeletedProjection{
 			Position:  resolved.Position,
-			ID:        educatorCreatedEventID,
+			ID:        educatorID,
 			DeletedAt: parseTime(data[FieldEducatorDeletedAt]),
 		}); err != nil {
 			return err
@@ -157,8 +158,8 @@ func (h *EducatorReadModelEventHandler) handle(ctx context.Context, resolved eve
 	// s.Subscriber.Subscribe(ctx, educator.Channel(educatorID).. etc)
 	return h.publisher.Publish(
 		ctx,
-		Channel(educatorCreatedEventID),
-		map[string]string{"educatorID": educatorCreatedEventID},
+		Channel(educatorID),
+		map[string]string{"educatorID": educatorID, "type": resolved.Event.EventType.String()},
 	)
 }
 

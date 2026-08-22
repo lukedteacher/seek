@@ -466,7 +466,6 @@ func getEducatorEditStream(
 		ctx := r.Context()
 		username := chi.URLParam(r, "username")
 		sse := newSSE(w, r)
-		l.Debug("test", "u:", username)
 		// subscribes to the channel which publishes changes to the underlying model
 		notifier := NewDedupeNotifier()
 		sub, err := subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
@@ -491,8 +490,9 @@ func getEducatorEditStream(
 			return
 		}
 		defer watcher.Stop()
-
+		l.Debug("test")
 		if err := refreshEducatorEditState(ctx, l, vs, username, educatorReadModel); err != nil {
+			l.Debug("test2")
 			if err.Error() == "educator not found" {
 				sse.PatchElementTempl(pages.NotFound())
 			}
@@ -566,7 +566,6 @@ func postEducatorEdit(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		username := chi.URLParam(r, "username")
 		signals := &struct {
 			Educator dto.EducatorFormView `json:"educator"`
 		}{}
@@ -592,12 +591,9 @@ func postEducatorEdit(
 			l.ErrorContext(ctx, "post educator edit command handler", "err", err)
 			return
 		}
-		if result.Skipped == true {
-			l.InfoContext(ctx, "post educator edit command handler", "skipped", result.Skipped)
-			return
-		}
+		l.InfoContext(ctx, "post educator edit command handler", "eventID", result.EventID, "skipped", result.Skipped)
 		sse := newSSE(w, r)
-		sse.Redirect(fmt.Sprintf("/educators/%s", username))
+		sse.Redirect(fmt.Sprintf("/educators/%s", result.Educator.Username))
 	}
 }
 
@@ -645,7 +641,7 @@ func refreshEducatorViewState(
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, vs, educator.ID+".view", educator)
+	return viewstore.PutState(ctx, vs, educator.Username+".view", educator)
 }
 
 func refreshEducatorEditState(

@@ -135,7 +135,6 @@ func postProfileEdit(
 			Profile models.Profile `json:"profile"`
 		}{}
 		datastar.ReadSignals(r, signals)
-		l.Debug("post profile edit", "a", signals.Profile.Avatar)
 		sse := newSSE(w, r)
 		sse.Redirect("/profile")
 	}
@@ -167,7 +166,7 @@ func profileUser(
 	user, err := profileReadModel.GetUserProfileByID(ctx, current.UserRegisteredID)
 	if err != nil {
 		if errors.Is(err, appdb.ErrNoRows) {
-			l.DebugContext(ctx, "returning current user due to no profile entry in db")
+			l.InfoContext(ctx, "returning current user due to no profile entry in db")
 			return current, nil
 		}
 		return um.User{}, err

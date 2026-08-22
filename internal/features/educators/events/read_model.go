@@ -350,6 +350,7 @@ func (m *ReadModel) Create(ctx context.Context, event EducatorCreatedProjection)
 func (m *ReadModel) Update(ctx context.Context, event EducatorUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateEducator(conn, dbsql.UpdateEducatorParams{
+			Id:                       event.ID,
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
@@ -358,7 +359,6 @@ func (m *ReadModel) Update(ctx context.Context, event EducatorUpdatedProjection)
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),
-			Id:                       event.ID,
 		})
 	})
 }
@@ -366,10 +366,10 @@ func (m *ReadModel) Update(ctx context.Context, event EducatorUpdatedProjection)
 func (m *ReadModel) Archive(ctx context.Context, event EducatorArchivedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceArchiveEducator(conn, dbsql.ArchiveEducatorParams{
+			Id:                       event.ID,
 			ArchivedAt:               appdb.SQLTime(event.ArchivedAt),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
-			Id:                       event.ID,
 		})
 	})
 }

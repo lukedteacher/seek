@@ -16,20 +16,21 @@ type UpdateEducatorCommand struct {
 }
 
 type UpdateEducatorResult struct {
-	EventID string
-	Skipped bool
+	EventID  string
+	Educator EducatorState
+	Skipped  bool
 }
 
 func UpdateEducatorCommandHandler(
 	ctx context.Context,
-	command UpdateEducatorCommand,
+	cmd UpdateEducatorCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	UpdateEducatorResult,
 	error,
 ) {
-	model, err := loadUpdateEducatorContext(ctx, retriever, command.ID)
+	model, err := loadUpdateEducatorContext(ctx, retriever, cmd.ID)
 	if err != nil {
 		return UpdateEducatorResult{}, err
 	}
@@ -38,30 +39,28 @@ func UpdateEducatorCommandHandler(
 	}
 	// TODO add skip logic
 
-	// create the event id since we'll be needing it shortly
-	eventID := uuidv7.NewString()
-
-	// build event data struct directly
+	// build event
 	eventData := EducatorUpdatedEvent{
-		EventID: eventID,
+		EventID: uuidv7.NewString(),
 		EducatorState: EducatorState{
-			GivenName:  command.GivenName,
-			ChosenName: command.ChosenName,
-			FamilyName: command.FamilyName,
-			Email:      command.Email,
-			Username:   deriveUsername(command.Email),
-			Roles:      command.Roles,
+			ID:         cmd.ID,
+			GivenName:  cmd.GivenName,
+			ChosenName: cmd.ChosenName,
+			FamilyName: cmd.FamilyName,
+			Email:      cmd.Email,
+			Username:   deriveUsername(cmd.Email),
+			Roles:      cmd.Roles,
 			UpdatedAt:  time.Now(),
 		},
-		Scope: educatorScope(model.id),
+		Scope: educatorScope(cmd.ID),
 	}
 
-	// wrap data in a domain event
+	// wrap in domain event
 	event := eventstore.DomainEvent{
-		EventID:   eventID,
+		EventID:   eventData.EventID,
 		EventType: EventEducatorUpdated,
 		Data:      eventstore.MustData(eventData),
-		Metadata:  metadataWithQuery(command.Metadata, model.query),
+		Metadata:  metadataWithQuery(cmd.Metadata, model.query),
 	}
 
 	if _, err := saver.SaveEvents(
@@ -73,14 +72,13 @@ func UpdateEducatorCommandHandler(
 	); err != nil {
 		return UpdateEducatorResult{}, err
 	}
-	return UpdateEducatorResult{EventID: eventID}, nil
+	return UpdateEducatorResult{EventID: eventData.EventID, Educator: eventData.EducatorState}, nil
 }
 
 type updateEducatorContext struct {
 	created  bool
 	archived bool
 	deleted  bool
-	id       string
 	EducatorState
 	position eventstore.Position
 	events   []eventstore.ResolvedEvent
@@ -101,7 +99,6 @@ func loadUpdateEducatorContext(
 		return nil, err
 	}
 	model := &updateEducatorContext{
-		id:       educatorID,
 		position: eventstore.NoEventPosition,
 		events:   events,
 		query:    query,

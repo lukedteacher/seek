@@ -5,6 +5,15 @@ import (
 	"seek/internal/features/students/models"
 )
 
+type StudentTableState struct {
+	Sort   shareddto.TableSort `json:"sort"`
+	Filter StudentTableFilter  `json:"filter"`
+}
+
+type StudentTableFilter struct {
+	Grade map[string]bool `json:"grade"`
+}
+
 var StudentColumns = []shareddto.ColumnView{
 	{Field: "MARSSID", Display: "MARSS ID"},
 	{Field: "GivenName", Display: "given", Group: "name"},

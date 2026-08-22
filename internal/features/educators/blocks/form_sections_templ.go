@@ -56,7 +56,7 @@ func FormSections(view dto.EducatorFormView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
-			"given-name-label",
+			"given-name",
 			"given name",
 			url,
 			"educator.given_name",
@@ -66,7 +66,7 @@ func FormSections(view dto.EducatorFormView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
-			"chosen-name-label",
+			"chosen-name",
 			"chosen name",
 			url,
 			"educator.chosen_name",
@@ -76,7 +76,7 @@ func FormSections(view dto.EducatorFormView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
-			"family-name-label",
+			"family-name",
 			"family name",
 			url,
 			"educator.family_name",
@@ -90,7 +90,7 @@ func FormSections(view dto.EducatorFormView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = forms.TextInputWithLabel(
-			"email-label",
+			"email",
 			"email",
 			url,
 			"educator.email",

@@ -78,6 +78,7 @@ templ FormSections(view dto.StudentFormView) {
 			"student.email",
 			view.Student.Email,
 		)
+		<input class="hidden" data-bind:student.username value={ view.Student.Username }/>
 	</fieldset>
 	<fieldset>
 		<legend>optional</legend>

@@ -131,15 +131,7 @@ func getStudentsListStream(
 				toastMsg := fmt.Sprintf("Updated: %s", msg["studentID"]) // example
 
 				type tableSignals struct {
-					Table struct {
-						Sort struct {
-							Column    string
-							Direction string
-						} `json:"sort"`
-						Filter struct {
-							Grade map[string]bool `json:"grade"`
-						} `json:"filter"`
-					} `json:"table"`
+					Table dto.StudentTableState `json:"table"`
 				}
 				signals, ok, err := viewstore.GetState[tableSignals](ctx, vs, user.Username+".students.list")
 				if err != nil {
@@ -165,15 +157,7 @@ func getStudentsListStream(
 					return
 				}
 				signals := &struct {
-					Table struct {
-						Sort struct {
-							Column    string
-							Direction string
-						} `json:"sort"`
-						Filter struct {
-							Grade map[string]bool `json:"grade"`
-						} `json:"filter"`
-					} `json:"table"`
+					Table dto.StudentTableState `json:"table"`
 				}{}
 				if err := entry.JSON(signals); err != nil {
 					l.ErrorContext(ctx, "student create stream json", "err", err)
@@ -203,15 +187,7 @@ func postStudentsList(
 		ctx := r.Context()
 		user := currentUser(r)
 		signals := &struct {
-			Table struct {
-				Sort struct {
-					Column    string
-					Direction string
-				} `json:"sort"`
-				Filter struct {
-					Grade map[string]bool `json:"grade"`
-				} `json:"filter"`
-			} `json:"table"`
+			Table dto.StudentTableState `json:"table"`
 		}{}
 		datastar.ReadSignals(r, signals)
 		viewstore.PutState(ctx, vs, user.Username+".students.list", signals)
@@ -330,11 +306,13 @@ func postStudentCreate(
 			return
 		}
 		student := events.StudentState{
+			ID:         signals.Student.ID,
 			MARSSID:    signals.Student.MARSSID,
 			GivenName:  signals.Student.GivenName,
 			ChosenName: signals.Student.ChosenName,
 			FamilyName: signals.Student.FamilyName,
 			Email:      signals.Student.Email,
+			Username:   signals.Student.Username,
 			Grade:      int(signals.Student.Grade),
 			HomeroomID: signals.Student.HomeroomID,
 			PlanType:   int(signals.Student.PlanType),
@@ -350,8 +328,7 @@ func postStudentCreate(
 		}
 
 		sse := newSSE(w, r)
-		sse.Redirect(fmt.Sprintf("/students/%s", result.EventID))
-		toastSuccess(sse, "student created")
+		sse.Redirect(fmt.Sprintf("/students/%s", result.Student.Username))
 	}
 }
 
@@ -389,8 +366,8 @@ func getStudentViewInfoStream(
 		username := chi.URLParam(r, "username")
 		sse := newSSE(w, r)
 
-		notifier := NewDedupeNotifier()
 		// subscribes to the channel which publishes changes to the underlying model
+		notifier := NewDedupeNotifier()
 		sub, err := subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
 			notifier.Notify()
 		})
@@ -765,7 +742,6 @@ func postStudentEdit(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		username := chi.URLParam(r, "username")
 		signals := &struct {
 			Student dto.StudentView `json:"student"`
 		}{}
@@ -775,12 +751,14 @@ func postStudentEdit(
 		}
 
 		student := events.StudentState{
+			ID:         signals.Student.ID,
 			MARSSID:    signals.Student.MARSSID,
 			GivenName:  signals.Student.GivenName,
 			ChosenName: signals.Student.ChosenName,
 			FamilyName: signals.Student.FamilyName,
 			Email:      signals.Student.Email,
 			Grade:      int(signals.Student.Grade),
+			Username:   signals.Student.Username,
 			HomeroomID: signals.Student.HomeroomID,
 			PlanType:   int(signals.Student.PlanType),
 		}
@@ -813,7 +791,7 @@ func postStudentEdit(
 		// 	}
 		// }
 		sse := newSSE(w, r)
-		sse.Redirect(fmt.Sprintf("/students/%s/info", username))
+		sse.Redirect(fmt.Sprintf("/students/%s/info", result.Student.Username))
 	}
 }
 
@@ -857,10 +835,11 @@ func deleteStudent(
 			l.ErrorContext(ctx, "delete student db get by username", "err", err)
 			return
 		}
-		result, err := events.DeleteStudentCommandHandler(ctx, events.DeleteStudentCommand{
+		cmd := events.DeleteStudentCommand{
 			StudentID: student.ID,
 			Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-		}, saver, retriever)
+		}
+		result, err := events.DeleteStudentCommandHandler(ctx, cmd, saver, retriever)
 		if err != nil {
 			l.ErrorContext(ctx, "delete student command handler", "err", err)
 			return
