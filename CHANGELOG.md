@@ -2,6 +2,11 @@
 
 updates for SEEK
 
+## v0.8.3 (26.08.22) plan type filter and button group styling
+
+- copied the grade filte and added plan type filte
+- improved button group styling using a grid
+
 ## v0.8.3 (26.08.22) styling and bugs
 
 - improved form styling

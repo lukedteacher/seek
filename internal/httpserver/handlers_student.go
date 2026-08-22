@@ -103,9 +103,13 @@ func getStudentsListStream(
 		}
 		defer watcher.Stop()
 
-		defaultFilter := make(map[string]bool, 9)
+		defaultGradeFilter := make(map[string]bool, 9)
 		for _, grade := range sharedmodels.GradeList {
-			defaultFilter[grade.Str()] = true
+			defaultGradeFilter[grade.Str()] = true
+		}
+		defaultPlanTypeFilter := make(map[string]bool, 4)
+		for _, planType := range sharedmodels.PlanTypeList {
+			defaultPlanTypeFilter[planType.String()] = true
 		}
 		listView := createListView(
 			ctx,
@@ -113,7 +117,10 @@ func getStudentsListStream(
 			studentReadModel,
 			"family_name",
 			"ASC",
-			defaultFilter,
+			dto.StudentTableFilter{
+				Grade:    defaultGradeFilter,
+				PlanType: defaultPlanTypeFilter,
+			},
 			educatorReadModel,
 		)
 		sse.PatchElementTempl(pages.List(listView))
@@ -147,7 +154,7 @@ func getStudentsListStream(
 					studentReadModel,
 					signals.Table.Sort.Column,
 					signals.Table.Sort.Direction,
-					signals.Table.Filter.Grade,
+					signals.Table.Filter,
 					educatorReadModel,
 				)
 				sse.PatchElementTempl(pages.List(listView))
@@ -169,7 +176,7 @@ func getStudentsListStream(
 					studentReadModel,
 					signals.Table.Sort.Column,
 					signals.Table.Sort.Direction,
-					signals.Table.Filter.Grade,
+					signals.Table.Filter,
 					educatorReadModel,
 				)
 				sse.PatchElementTempl(pages.List(listView))
@@ -862,12 +869,13 @@ func createListView(
 	studentReadModel events.ReadModel,
 	sortCol,
 	sortDir string,
-	studentFilter map[string]bool,
+	filters dto.StudentTableFilter,
 	educatorReadModel eevents.ReadModel,
 ) pages.ListView {
 	// get students data from db
-	gradeFilter := buildGradeFilter(studentFilter)
-	students, err := studentReadModel.List(ctx, events.WithSort(sortCol, sortDir), events.WithGradeFilter(gradeFilter))
+	gradeFilter := buildFilterMap(filters.Grade)
+	planTypeFilter := buildFilterMap(filters.PlanType)
+	students, err := studentReadModel.List(ctx, events.WithSort(sortCol, sortDir), events.WithGradeFilter(gradeFilter), events.WithPlanFilter(planTypeFilter))
 	if err != nil {
 		l.ErrorContext(ctx, "create students view", "err", err)
 		return pages.ListView{}
@@ -896,12 +904,15 @@ func createListView(
 	})
 
 	return pages.ListView{
-		Table:        studentTableView,
-		FilterGrades: studentFilter,
+		Table: studentTableView,
+		Filters: dto.StudentTableFilter{
+			Grade:    filters.Grade,
+			PlanType: filters.PlanType,
+		},
 	}
 }
 
-func buildGradeFilter(m map[string]bool) []int {
+func buildFilterMap(m map[string]bool) []int {
 	var result []int
 	for k, v := range m {
 		if v {

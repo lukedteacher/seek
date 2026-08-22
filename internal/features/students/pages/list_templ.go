@@ -14,6 +14,7 @@ import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/students/blocks"
+	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/tables"
 	"seek/internal/ui/core/corelayouts"
@@ -23,8 +24,8 @@ import (
 )
 
 type ListView struct {
-	Table        shareddto.TableView
-	FilterGrades map[string]bool
+	Table   shareddto.TableView
+	Filters dto.StudentTableFilter
 }
 
 func List(view ListView) templ.Component {
@@ -68,7 +69,7 @@ func List(view ListView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/list.templ`, Line: 25, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/pages/list.templ`, Line: 26, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -130,7 +131,7 @@ func List(view ListView) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = blocks.StudentFilters(view.FilterGrades).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = blocks.StudentFilters(view.Filters).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

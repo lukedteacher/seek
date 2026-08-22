@@ -649,11 +649,8 @@ span[data-service='OT'] {
 }
 
 .button-group {
-  display: flex;
-  width: 100%;
-
   & button {
-    flex: 1;
+    width: 100%;
   }
 
   & button:not(:first-child) {

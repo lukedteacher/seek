@@ -27,6 +27,7 @@ var StudentWithDataColumns = []shareddto.ColumnView{
 	{Field: "Email", Display: "email", Signal: "email"},
 	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center", Signal: "grade"},
 	{Field: "Homeroom", Display: "homeroom", Signal: "homeroom"},
+	{Field: "PlanType", Display: "plan", Renderer: "badge", Alignment: "center", Signal: "plan_type"},
 	{Field: "CaseManager", Display: "case manager", RenderFunc: caseManagerRenderer, Signal: "case_manager"},
 }
 
@@ -75,6 +76,8 @@ func valueExtractor(m *StudentWithData, field string) string {
 			return m.HomeroomID
 		}
 		return ""
+	case "PlanType":
+		return m.PlanType.Description()
 	default:
 		return ""
 	}

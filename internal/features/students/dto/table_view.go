@@ -11,7 +11,8 @@ type StudentTableState struct {
 }
 
 type StudentTableFilter struct {
-	Grade map[string]bool `json:"grade"`
+	Grade    map[string]bool `json:"grade"`
+	PlanType map[string]bool `json:"plan_type"`
 }
 
 var StudentColumns = []shareddto.ColumnView{
@@ -22,6 +23,7 @@ var StudentColumns = []shareddto.ColumnView{
 	{Field: "Email", Display: "email"},
 	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center"},
 	{Field: "Homeroom", Display: "homeroom"},
+	{Field: "PlanType", Display: "plan", Renderer: "badge", Alignment: "center"},
 	{Field: "CaseManagerID", Display: "case manager ID"},
 }
 
@@ -57,6 +59,8 @@ func valueExtractor(m *models.Student, field string) string {
 		return m.Grade.Ordinal()
 	case "Homeroom":
 		return m.HomeroomID
+	case "PlanType":
+		return m.PlanType.Description()
 	case "CaseManagerID":
 		return m.CaseManagerID
 	default:

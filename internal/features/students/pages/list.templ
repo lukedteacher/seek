@@ -6,6 +6,7 @@ import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/students/blocks"
+	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/tables"
 	"seek/internal/ui/core/corelayouts"
@@ -16,7 +17,7 @@ import (
 
 type ListView struct {
 	Table        shareddto.TableView
-	FilterGrades map[string]bool
+	Filters dto.StudentTableFilter
 }
 
 templ List(view ListView) {
@@ -33,7 +34,7 @@ templ List(view ListView) {
 						<span>create</span>
 					}
 				</div>
-				@blocks.StudentFilters(view.FilterGrades)
+				@blocks.StudentFilters(view.Filters)
 			}
 		</main>
 	}

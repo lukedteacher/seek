@@ -96,6 +96,7 @@ type listConfig struct {
 	withCaseManager bool
 	withServices    bool
 	withGradeFilter []int
+	withPlanFilter  []int
 	withSort        struct {
 		column    string
 		direction string
@@ -127,6 +128,12 @@ func WithGradeFilter(grades []int) ListOption {
 	}
 }
 
+func WithPlanFilter(plans []int) ListOption {
+	return func(c *listConfig) {
+		c.withPlanFilter = plans
+	}
+}
+
 func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Student, error) {
 	cfg := &listConfig{}
 	for _, opt := range opts {
@@ -137,7 +144,7 @@ func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Stud
 	}
 	// TODO fix this
 	if cfg.withSort.column != "" && cfg.withSort.direction != "" {
-		return m.listAllWithSorting(ctx, cfg.withSort.column, cfg.withSort.direction, cfg.withGradeFilter)
+		return m.listAllWithSorting(ctx, cfg.withSort.column, cfg.withSort.direction, cfg.withGradeFilter, cfg.withPlanFilter)
 	}
 	if len(cfg.withGradeFilter) > 0 && len(cfg.withGradeFilter) < 9 {
 		return m.listByGrade(ctx, cfg.withGradeFilter)
@@ -153,6 +160,7 @@ func (m *ReadModel) listAllWithSorting(
 	sortBy,
 	sortDir string,
 	grades []int,
+	plans []int,
 ) ([]models.Student, error) {
 	allowedColumns := map[string]bool{
 		"marss_id":     true,
@@ -162,6 +170,7 @@ func (m *ReadModel) listAllWithSorting(
 		"email":        true,
 		"grade":        true,
 		"homeroom_id":  true,
+		"plan_type":    true,
 		"case_manager": true,
 		"created_at":   true,
 		"updated_at":   true,
@@ -184,6 +193,14 @@ func (m *ReadModel) listAllWithSorting(
 		where += " AND grade IN (" + placeholders + ")"
 		for _, g := range grades {
 			args = append(args, g)
+		}
+	}
+	if len(plans) > 0 {
+		placeholders := strings.Repeat("?,", len(plans))
+		placeholders = placeholders[:len(placeholders)-1] // trim trailing comma
+		where += " AND plan_type IN (" + placeholders + ")"
+		for _, p := range plans {
+			args = append(args, p)
 		}
 	}
 
