@@ -9,6 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/iepservices/blocks"
 	"seek/internal/features/iepservices/dto"
 	"seek/internal/ui/core/coreblocks"
@@ -37,6 +40,7 @@ func Create(view dto.IEPServiceFormView) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		url := sharedmodels.GetURLFromContext(ctx)
 		templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -54,9 +58,9 @@ func Create(view dto.IEPServiceFormView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE("/iepservices/create/stream"))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iepservices/pages/create.templ`, Line: 13, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/iepservices/pages/create.templ`, Line: 17, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {

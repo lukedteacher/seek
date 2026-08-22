@@ -11,13 +11,8 @@ import (
 )
 
 type UpdateEducatorCommand struct {
-	EducatorID string
-	GivenName  string
-	ChosenName string
-	FamilyName string
-	Email      string
-	Roles      []string
-	Metadata   CommandMetadata
+	EducatorState
+	Metadata CommandMetadata
 }
 
 type UpdateEducatorResult struct {
@@ -34,7 +29,7 @@ func UpdateEducatorCommandHandler(
 	UpdateEducatorResult,
 	error,
 ) {
-	model, err := loadUpdateEducatorContext(ctx, retriever, command.EducatorID)
+	model, err := loadUpdateEducatorContext(ctx, retriever, command.ID)
 	if err != nil {
 		return UpdateEducatorResult{}, err
 	}

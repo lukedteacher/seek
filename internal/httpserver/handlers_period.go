@@ -28,125 +28,21 @@ import (
 )
 
 func (s Server) periodRoutes(r chi.Router) {
-	r.Get(
-		"/periods",
-		getPeriodsList(
-			s.Logger,
-		),
-	)
-	r.Get(
-		"/periods/stream",
-		getPeriodsListStream(
-			s.Logger,
-			s.Subscriber,
-			s.ReadModels.Periods,
-			s.ReadModels.EducatorPeriods,
-			s.ReadModels.StudentPeriods,
-		),
-	)
-	r.Get(
-		"/periods/create",
-		getPeriodCreate(
-			s.Logger,
-		),
-	)
-	r.Get(
-		"/periods/create/stream",
-		getPeriodCreateStream(
-			s.Logger,
-			s.ViewStore,
-			s.ReadModels.Periods,
-			s.ReadModels.Students,
-			s.ReadModels.Educators,
-		),
-	)
-	r.Post(
-		"/periods/create/validate",
-		postPeriodCreateValidate(
-			s.Logger,
-			s.ViewStore,
-		),
-	)
-	r.Post(
-		"/periods/create/validate/{field}",
-		postPeriodCreateValidateField(
-			s.Logger,
-			s.ViewStore,
-		),
-	)
-	r.Post(
-		"/periods/create",
-		postPeriodCreate(
-			s.Logger,
-			s.EventSaver,
-			s.EventRetriever,
-		),
-	)
-	r.Get(
-		"/periods/{id}",
-		getPeriodView(
-			s.Logger,
-		),
-	)
-	r.Get(
-		"/periods/{id}/stream",
-		getPeriodViewStream(
-			s.Logger,
-			s.Subscriber,
-			s.ViewStore,
-			s.ReadModels.Periods,
-			s.ReadModels.Educators,
-			s.ReadModels.Students,
-		),
-	)
-	r.Get(
-		"/periods/{id}/edit",
-		getPeriodEdit(
-			s.Logger,
-		),
-	)
-	r.Get(
-		"/periods/{id}/edit/stream",
-		getPeriodEditStream(
-			s.Logger,
-			s.Subscriber,
-			s.ViewStore,
-			s.ReadModels.Periods,
-			s.ReadModels.Students,
-			s.ReadModels.Educators,
-		),
-	)
-	r.Post(
-		"/periods/{id}/edit/validate",
-		postPeriodEditValidate(
-			s.Logger,
-			s.ViewStore,
-		),
-	)
-	r.Post(
-		"/periods/{id}/edit",
-		postPeriodEdit(
-			s.Logger,
-			s.EventSaver,
-			s.EventRetriever,
-		),
-	)
-	r.Post(
-		"/periods/{id}/archive",
-		postPeriodArchive(
-			s.Logger,
-			s.EventSaver,
-			s.EventRetriever,
-		),
-	)
-	r.Delete(
-		"/periods/{id}",
-		deletePeriod(
-			s.Logger,
-			s.EventSaver,
-			s.EventRetriever,
-		),
-	)
+	r.Get("/periods", getPeriodsList(s.Logger))
+	r.Get("/periods/stream", getPeriodsListStream(s.Logger, s.Subscriber, s.ReadModels.Periods, s.ReadModels.EducatorPeriods, s.ReadModels.StudentPeriods))
+	r.Get("/periods/create", getPeriodCreate(s.Logger))
+	r.Get("/periods/create/stream", getPeriodCreateStream(s.Logger, s.ViewStore, s.ReadModels.Periods, s.ReadModels.Students, s.ReadModels.Educators))
+	r.Post("/periods/create/validate", postPeriodCreateValidate(s.Logger, s.ViewStore))
+	r.Post("/periods/create/validate/{field}", postPeriodCreateValidateField(s.Logger, s.ViewStore))
+	r.Post("/periods/create", postPeriodCreate(s.Logger, s.EventSaver, s.EventRetriever))
+	r.Get("/periods/{id}", getPeriodView(s.Logger))
+	r.Get("/periods/{id}/stream", getPeriodViewStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Periods, s.ReadModels.Educators, s.ReadModels.Students))
+	r.Get("/periods/{id}/edit", getPeriodEdit(s.Logger))
+	r.Get("/periods/{id}/edit/stream", getPeriodEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Periods, s.ReadModels.Students, s.ReadModels.Educators))
+	r.Post("/periods/{id}/edit/validate", postPeriodEditValidate(s.Logger, s.ViewStore))
+	r.Post("/periods/{id}/edit", postPeriodEdit(s.Logger, s.EventSaver, s.EventRetriever))
+	r.Post("/periods/{id}/archive", postPeriodArchive(s.Logger, s.EventSaver, s.EventRetriever))
+	r.Delete("/periods/{id}", deletePeriod(s.Logger, s.EventSaver, s.EventRetriever))
 }
 
 // GET request to /periods

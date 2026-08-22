@@ -24,74 +24,96 @@ type profileViewState struct {
 }
 
 func (s Server) profileRoutes(r chi.Router) {
-	r.Get("/profile", s.getProfile)
-	r.Get("/profile/stream", s.getProfileStream)
-	r.Get("/profile/edit", s.getEdit)
+	r.Get("/profile", getProfile(s.Logger, *s.ReadModels.Profiles))
+	r.Get("/profile/stream", getProfileStream(s.Logger, s.Subscriber, s.ViewStore, s.sessionID, *s.ReadModels.Profiles))
+	r.Get("/profile/edit", getEdit(s.Logger))
 	r.Post("/profile/edit", postProfileEdit(s.Logger, s.EventSaver, s.EventRetriever, s.PIIKeys, *s.ReadModels.Profiles))
 }
 
 // GET request to /profile
-func (s Server) getProfile(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user, err := profileUser(ctx, s.Logger, currentUser(r), *s.ReadModels.Profiles)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+func getProfile(
+	l *slog.Logger,
+	profileReadModel events.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		user, err := profileUser(ctx, l, currentUser(r), profileReadModel)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		_ = pages.Profile(user, nil).Render(ctx, w)
 	}
-	_ = pages.Profile(user, nil).Render(ctx, w)
 }
 
-func (s Server) getProfileStream(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	user := currentUser(r)
-	sse := newSSE(w, r)
-	key := viewstore.ProfileKey(s.sessionID(r), user.UserRegisteredID)
+func getProfileStream(
+	l *slog.Logger,
+	subscriber MessageSubscriber,
+	vs viewstore.Store,
+	sessionID func(r *http.Request) string,
+	profileReadModel events.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		user := currentUser(r)
+		sse := newSSE(w, r)
+		key := viewstore.ProfileKey(sessionID(r), user.UserRegisteredID)
 
-	notifier := NewDedupeNotifier()
-	// subscribes to the channel which publishes changes to this profile
-	sub, err := s.Subscriber.Subscribe(ctx, events.Channel(user.UserRegisteredID), func(context.Context, []byte) {
-		notifier.Notify()
-	})
-	if err != nil {
-		s.Logger.ErrorContext(ctx, "get profile stream subscribe", "err", err)
-		return
-	}
-	defer sub.Close()
-
-	watcher, err := s.ViewStore.Watch(ctx, key, viewstore.WatchOptions{IgnoreDeletes: true})
-	if err != nil {
-		s.Logger.ErrorContext(ctx, "get profile stream watcher", "err", err)
-		return
-	}
-	defer watcher.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
+		notifier := NewDedupeNotifier()
+		// subscribes to the channel which publishes changes to this profile
+		sub, err := subscriber.Subscribe(ctx, events.Channel(user.UserRegisteredID), func(context.Context, []byte) {
+			notifier.Notify()
+		})
+		if err != nil {
+			l.ErrorContext(ctx, "get profile stream subscribe", "err", err)
 			return
-		case <-notifier.Signal():
-			if err := s.refreshProfileViewState(ctx, key, user); err != nil {
-				s.Logger.ErrorContext(ctx, "get profile stream refresh", "err", err)
+		}
+		defer sub.Close()
+
+		watcher, err := vs.Watch(ctx, key, viewstore.WatchOptions{IgnoreDeletes: true})
+		if err != nil {
+			l.ErrorContext(ctx, "get profile stream watcher", "err", err)
+			return
+		}
+		defer watcher.Stop()
+
+		if err := refreshProfileViewState(ctx, l, vs, key, user, profileReadModel); err != nil {
+			l.ErrorContext(ctx, "get profile stream refresh", "err", err)
+			return
+		}
+
+		for {
+			select {
+			case <-ctx.Done():
 				return
+			case <-notifier.Signal():
+				if err := refreshProfileViewState(ctx, l, vs, key, user, profileReadModel); err != nil {
+					l.ErrorContext(ctx, "get profile stream refresh", "err", err)
+					return
+				}
+			case entry, ok := <-watcher.Updates():
+				if !ok {
+					return
+				}
+				var state profileViewState
+				if err := entry.JSON(&state); err != nil {
+					l.ErrorContext(ctx, "get profile stream json read", "err", err)
+					return
+				}
+				sse.PatchElementTempl(pages.Profile(user, nil))
 			}
-		case entry, ok := <-watcher.Updates():
-			if !ok {
-				return
-			}
-			var state profileViewState
-			if err := entry.JSON(&state); err != nil {
-				s.Logger.ErrorContext(ctx, "get profile stream json read", "err", err)
-				return
-			}
-			sse.PatchElementTempl(pages.Profile(user, nil))
 		}
 	}
 }
 
 // GET request to /profile/edit
-func (s Server) getEdit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	_ = pages.EditProfile(nil).Render(ctx, w)
+func getEdit(
+	_ *slog.Logger,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		_ = pages.EditProfile(nil).Render(ctx, w)
+	}
 }
 
 // POST request to /profile/edit
@@ -120,12 +142,19 @@ func postProfileEdit(
 }
 
 // refreshes profile view state in kv store when there is an update for the SSE stream
-func (s Server) refreshProfileViewState(ctx context.Context, key string, current um.User) error {
-	user, err := profileUser(ctx, s.Logger, current, *s.ReadModels.Profiles)
+func refreshProfileViewState(
+	ctx context.Context,
+	l *slog.Logger,
+	vs viewstore.Store,
+	key string,
+	current um.User,
+	profileReadModel events.ReadModel,
+) error {
+	user, err := profileUser(ctx, l, current, profileReadModel)
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, s.ViewStore, key, profileViewState{User: user})
+	return viewstore.PutState(ctx, vs, key, profileViewState{User: user})
 }
 
 // helper to get profile for the user

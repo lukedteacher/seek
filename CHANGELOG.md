@@ -2,6 +2,11 @@
 
 updates for SEEK
 
+## v0.8.1 (26.08.21) finished http handler refactor
+
+- finished moving all http handlers to use dependency injection
+- cleaned up various handlers to follow the new model
+
 ## v0.8.0 (26.08.21) major event refactor, other things
 
 - adjusted most events to use 'state' model instead of individual fields

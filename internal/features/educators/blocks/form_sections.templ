@@ -1,8 +1,6 @@
 package blocks
 
 import (
-	"fmt"
-
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/dto"
 	"seek/internal/ui/core/coreblocks/forms"
@@ -13,25 +11,26 @@ import (
 templ FormSections(view dto.EducatorFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<fieldset>
+		<input class="hidden" data-bind:educator.id value={ view.ID }/>
 		<legend>name</legend>
 		@forms.TextInputWithLabel(
 			"given-name-label",
 			"given name",
-			fmt.Sprintf("%s/validate", url),
+			url,
 			"educator.given_name",
 			view.GivenName,
 		)
 		@forms.TextInputWithLabel(
 			"chosen-name-label",
 			"chosen name",
-			fmt.Sprintf("%s/validate", url),
+			url,
 			"educator.chosen_name",
 			view.ChosenName,
 		)
 		@forms.TextInputWithLabel(
 			"family-name-label",
 			"family name",
-			fmt.Sprintf("%s/validate", url),
+			url,
 			"educator.family_name",
 			view.FamilyName,
 		)
@@ -41,7 +40,7 @@ templ FormSections(view dto.EducatorFormView) {
 		@forms.TextInputWithLabel(
 			"email-label",
 			"email",
-			fmt.Sprintf("%s/validate", url),
+			url,
 			"educator.email",
 			view.Email,
 		)
