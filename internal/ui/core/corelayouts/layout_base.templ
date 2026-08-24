@@ -17,7 +17,8 @@ templ LayoutBase(title string) {
 			<script>
 				if (localStorage.getItem('theme') === null) {
 					console.log("no value found")
-					//document.documentElement.setAttribute('data-theme', 'light');
+					document.documentElement.setAttribute('data-theme', 'light');
+					localStorage.setItem('theme', 'light')
 				} else {
 					console.log(localStorage.getItem('theme'))
 					document.documentElement.setAttribute(

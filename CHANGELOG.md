@@ -2,9 +2,14 @@
 
 updates for SEEK
 
+## v0.8.4 (26.08.24) style bug fixes
+
+- fixed unstyled content bug
+- fixed hero card image overflow issue
+
 ## v0.8.3 (26.08.22) plan type filter and button group styling
 
-- copied the grade filte and added plan type filte
+- copied the grade filter and added plan type filter
 - improved button group styling using a grid
 
 ## v0.8.3 (26.08.22) styling and bugs

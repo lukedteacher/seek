@@ -228,7 +228,7 @@ func HeroCard() templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = card.Card(card.Props{
-			Class: "border-muted bg-linear-23 accent-blue flex flex-col md:flex-row w-fit",
+			Class: "border-muted bg-linear-23 accent-blue flex flex-col md:flex-row w-fit overflow-hidden",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
