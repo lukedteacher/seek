@@ -9,40 +9,29 @@ import (
 	"seek/pkg/uuidv7"
 )
 
-type AddServiceToIEPCommand struct {
-	IEPID           string
-	StudentID       string
-	ServiceName     string
-	ServiceType     string
-	IndirectMinutes int
-	DirectMinutes   int
-	FrequencyCount  int
-	FrequencyType   string
-	LocationID      string
-	StartDate       string
-	EndDate         string
-	ProviderID      string
-	Metadata        CommandMetadata
+type AddIEPToStudentCommand struct {
+	IEP      IEPState
+	Metadata CommandMetadata
 }
 
-type AddIEPServiceToStudentResult struct {
+type AddStudentIEPToStudentResult struct {
 	EventID string
 	Skipped bool
 }
 
-func AddServiceToIEPCommandHandler(
+func AddIEPToStudentCommandHandler(
 	ctx context.Context,
-	command AddServiceToIEPCommand,
+	command AddIEPToStudentCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
-	*AddIEPServiceToStudentResult,
+	*AddStudentIEPToStudentResult,
 	error,
 ) {
-	model, err := loadAddIEPServiceToStudentContext(
+	model, err := loadAddStudentIEPToStudentContext(
 		ctx,
 		retriever,
-		command.StudentID,
+		command.IEP.StudentID,
 	)
 	if err != nil {
 		return nil, err
@@ -51,7 +40,7 @@ func AddServiceToIEPCommandHandler(
 		return nil, err
 	}
 	eventID := uuidv7.NewString()
-	event := NewIEPServiceAddedToStudentEvent(
+	event := NewStudentIEPAddedToStudentEvent(
 		eventID,
 		command,
 		time.Now(),
@@ -66,10 +55,10 @@ func AddServiceToIEPCommandHandler(
 	); err != nil {
 		return nil, err
 	}
-	return &AddIEPServiceToStudentResult{EventID: eventID, Skipped: false}, nil
+	return &AddStudentIEPToStudentResult{EventID: eventID, Skipped: false}, nil
 }
 
-type addIEPServiceToStudentContext struct {
+type addStudentIEPToStudentContext struct {
 	studentCreated  bool
 	studentArchived bool
 	studentDeleted  bool
@@ -78,12 +67,12 @@ type addIEPServiceToStudentContext struct {
 	query           eventstore.Query
 }
 
-func loadAddIEPServiceToStudentContext(
+func loadAddStudentIEPToStudentContext(
 	ctx context.Context,
 	retriever eventstore.Retriever,
 	studentID string,
 ) (
-	*addIEPServiceToStudentContext,
+	*addStudentIEPToStudentContext,
 	error,
 ) {
 	query := events.StreamQuery(studentID)
@@ -97,7 +86,7 @@ func loadAddIEPServiceToStudentContext(
 	if err != nil {
 		return nil, err
 	}
-	model := &addIEPServiceToStudentContext{
+	model := &addStudentIEPToStudentContext{
 		position: eventstore.NoEventPosition,
 		events:   events,
 		query:    query,
@@ -109,14 +98,14 @@ func loadAddIEPServiceToStudentContext(
 	return model, nil
 }
 
-func (m *addIEPServiceToStudentContext) isStudentActive() error {
+func (m *addStudentIEPToStudentContext) isStudentActive() error {
 	if !m.studentCreated || m.studentArchived || m.studentDeleted {
 		return eventstore.ErrPeriodNotFound
 	}
 	return nil
 }
 
-func (m *addIEPServiceToStudentContext) handle(resolved eventstore.ResolvedEvent) {
+func (m *addStudentIEPToStudentContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case events.EventStudentCreated:
 		m.studentCreated = true

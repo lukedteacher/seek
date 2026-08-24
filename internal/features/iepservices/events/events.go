@@ -59,7 +59,7 @@ type IEPServiceAddedToStudentEvent struct {
 	LocationID      string          `json:"location_id"`
 	StartDate       string          `json:"start_date"`
 	EndDate         string          `json:"end_date"`
-	Provider        string          `json:"provider"`
+	ProviderID      string          `json:"provider_id"`
 	AddedAt         string          `json:"added_at"`
 	Scope           IEPServiceScope `json:"scope"`
 }
@@ -112,7 +112,7 @@ func NewIEPServiceAddedToStudentEvent(
 		LocationID:      command.LocationID,
 		StartDate:       command.StartDate,
 		EndDate:         command.EndDate,
-		Provider:        command.Provider,
+		ProviderID:      command.ProviderID,
 		AddedAt:         addedAt.Format(time.RFC3339),
 		Scope:           iepServiceScope(eventID, command.StudentID),
 	}

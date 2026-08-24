@@ -33,8 +33,8 @@ func CompareIEPServices(db, csv []*IEPService) []sharedmodels.Diff[IEPService] {
 		if a.LocationID != b.LocationID {
 			changed = append(changed, "LocationID")
 		}
-		if a.Provider != b.Provider {
-			changed = append(changed, "Provider")
+		if a.ProviderID != b.ProviderID {
+			changed = append(changed, "ProviderID")
 		}
 		if a.StartDate != b.StartDate {
 			changed = append(changed, "StartDate")
@@ -42,7 +42,6 @@ func CompareIEPServices(db, csv []*IEPService) []sharedmodels.Diff[IEPService] {
 		if a.EndDate != b.EndDate {
 			changed = append(changed, "EndDate")
 		}
-		// skip ID, CreatedAt, UpdatedAt, ArchivedAt
 		return changed
 	}
 

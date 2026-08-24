@@ -10,7 +10,6 @@ import (
 type AddIeptoStudentParams struct {
 	Id                       string `json:"id"`
 	StudentId                string `json:"student_id"`
-	CaseManagerId            string `json:"case_manager_id"`
 	StartDate                string `json:"start_date"`
 	EndDate                  string `json:"end_date"`
 	AmendedDate              string `json:"amended_date"`
@@ -31,7 +30,6 @@ func AddIeptoStudent(tx *sqlite.Conn) *AddIeptoStudentStmt {
 INSERT INTO student_ieps (
 	id, 
 	student_id,
-	case_manager_id, 
 	start_date,
 	end_date,
 	amended_date,
@@ -43,14 +41,13 @@ INSERT INTO student_ieps (
 VALUES (
 	?1, 
 	?2,
-	?3, 
+	?3,
 	?4,
 	?5,
-	?6,
-	?7, 
-	?8,
-	?9, 
-	?9
+	?6, 
+	?7,
+	?8, 
+	?8
 )
 ON CONFLICT (id) DO NOTHING
     `
@@ -93,9 +90,6 @@ func (ps *AddIeptoStudentStmt) Run(
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.StudentId)
-
-	bindIndex++
-	stmt.BindText(bindIndex, params.CaseManagerId)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.StartDate)

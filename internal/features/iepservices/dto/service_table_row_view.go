@@ -19,7 +19,6 @@ var IEPServiceColumns = []shareddto.ColumnView{
 	{Field: "Provider", Display: "provider"},
 	{Field: "StartDate", Display: "start", Group: "date", Alignment: "center"},
 	{Field: "EndDate", Display: "end", Group: "date", Alignment: "center"},
-	// id, created_at, updated_at, archived_at omitted from display
 }
 
 // extract values from an iep service by field name

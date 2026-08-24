@@ -1,0 +1,10 @@
+package blocks
+
+import (
+	"seek/internal/features/_shared/shareddto"
+	"seek/internal/ui/core/coreblocks/tables"
+)
+
+templ List(view shareddto.TableView) {
+	@tables.DataTable(view)
+}

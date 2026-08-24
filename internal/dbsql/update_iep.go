@@ -7,7 +7,7 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type UpdateIepdatesParams struct {
+type UpdateIepParams struct {
 	StartDate                string `json:"start_date"`
 	EndDate                  string `json:"end_date"`
 	AmendedDate              string `json:"amended_date"`
@@ -17,14 +17,14 @@ type UpdateIepdatesParams struct {
 	Id                       string `json:"id"`
 }
 
-type UpdateIepdatesStmt struct {
+type UpdateIepStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func UpdateIepdates(tx *sqlite.Conn) *UpdateIepdatesStmt {
+func UpdateIep(tx *sqlite.Conn) *UpdateIepStmt {
 	const querySQL = `
 UPDATE student_ieps
 SET 
@@ -37,7 +37,7 @@ SET
 WHERE id = ?7
     `
 
-	ps := &UpdateIepdatesStmt{
+	ps := &UpdateIepStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -50,8 +50,8 @@ WHERE id = ?7
 	return ps
 }
 
-func (ps *UpdateIepdatesStmt) Run(
-	params UpdateIepdatesParams,
+func (ps *UpdateIepStmt) Run(
+	params UpdateIepParams,
 ) (
 	err error,
 ) {
@@ -95,19 +95,19 @@ func (ps *UpdateIepdatesStmt) Run(
 
 	// Execute the query
 	if _, err := stmt.Step(); err != nil {
-		return fmt.Errorf("failed to execute updateiepdates SQL: %w", err)
+		return fmt.Errorf("failed to execute updateiep SQL: %w", err)
 	}
 
 	return nil
 }
 
-func OnceUpdateIepdates(
+func OnceUpdateIep(
 	tx *sqlite.Conn,
-	params UpdateIepdatesParams,
+	params UpdateIepParams,
 ) (
 	err error,
 ) {
-	ps := UpdateIepdates(tx)
+	ps := UpdateIep(tx)
 
 	return ps.Run(
 		params,

@@ -11,13 +11,15 @@ import (
 
 var (
 	ErrUserNotActive      = errors.New("user not active")
-	ErrServiceNotActive   = errors.New("service not active")
 	ErrEducatorNotFound   = errors.New("educator not found")
 	ErrEducatorNotActive  = errors.New("educator not active")
 	ErrPeriodNotFound     = errors.New("period not found")
 	ErrPeriodNotActive    = errors.New("period not active")
 	ErrStudentNotFound    = errors.New("student not found")
 	ErrStudentNotActive   = errors.New("student not active")
+	ErrIEPNotFound        = errors.New("iep not found")
+	ErrIEPNotActive       = errors.New("iep not active")
+	ErrServiceNotActive   = errors.New("service not active")
 	ErrConflict           = errors.New("event position conflict")
 	ErrInvalidEvent       = errors.New("invalid event")
 	ErrSubjectKeyNotFound = errors.New("subject key not found")

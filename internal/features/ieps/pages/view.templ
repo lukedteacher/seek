@@ -1,0 +1,24 @@
+package pages
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/iepservices/blocks"
+	"seek/internal/features/iepservices/dto"
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+)
+
+templ View(view dto.IEPServiceView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	@corelayouts.LayoutBase("SEEK: IEP service") {
+		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain("view IEP service")
+			<section class="w-full flex flex-col items-center">
+				@blocks.Card(view)
+			</section>
+		</main>
+	}
+}

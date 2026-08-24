@@ -12,6 +12,7 @@ import (
 	caseloadStudentsEvents "seek/internal/features/caseload_students/events"
 	educatorEvents "seek/internal/features/educators/events"
 	educatorPeriodEvents "seek/internal/features/educators_periods/events"
+	iepEvents "seek/internal/features/ieps/events"
 	iepServiceEvents "seek/internal/features/iepservices/events"
 	periodEvents "seek/internal/features/periods/events"
 	profileEvents "seek/internal/features/profiles/events"
@@ -138,6 +139,18 @@ func EventHandlerFactories(
 					store,
 					checkpointer,
 					readModels.Students,
+					bus,
+					logger,
+				)
+			},
+		},
+		{
+			name: "iep read model",
+			create: func() (eventHandler, error) {
+				return iepEvents.NewIEPReadModelEventHandler(
+					store,
+					checkpointer,
+					readModels.IEPs,
 					bus,
 					logger,
 				)

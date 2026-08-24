@@ -7,6 +7,7 @@ import (
 	caseloadStudentsEvents "seek/internal/features/caseload_students/events"
 	educatorEvents "seek/internal/features/educators/events"
 	educatorPeriodEvents "seek/internal/features/educators_periods/events"
+	iepEvents "seek/internal/features/ieps/events"
 	iepServiceEvents "seek/internal/features/iepservices/events"
 	periodEvents "seek/internal/features/periods/events"
 	profileEvents "seek/internal/features/profiles/events"
@@ -24,6 +25,7 @@ type ReadModelContainer struct {
 	Periods          *periodEvents.ReadModel
 	Profiles         *profileEvents.ReadModel
 	Students         *studentEvents.ReadModel
+	IEPs             *iepEvents.ReadModel
 	StudentPeriods   *studentPeriodEvents.ReadModel
 }
 
@@ -36,6 +38,7 @@ func NewReadModelContainer(db *appdb.DB) *ReadModelContainer {
 		Periods:          periodEvents.NewReadModel(db),
 		Profiles:         profileEvents.NewReadModel(db),
 		Students:         studentEvents.NewReadModel(db),
+		IEPs:             iepEvents.NewReadModel(db),
 		StudentPeriods:   studentPeriodEvents.NewReadModel(db),
 	}
 }
