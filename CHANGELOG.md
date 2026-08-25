@@ -2,6 +2,10 @@
 
 updates for SEEK
 
+## v0.9.0 (26.08.24) ieps!
+
+- implemented IEPs (copied from IEP service)
+
 ## v0.8.4 (26.08.24) style bug fixes
 
 - fixed unstyled content bug

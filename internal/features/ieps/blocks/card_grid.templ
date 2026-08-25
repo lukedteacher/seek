@@ -1,8 +1,8 @@
 package blocks
 
-import "seek/internal/features/iepservices/dto"
+import "seek/internal/features/ieps/dto"
 
-templ CardGrid(views []dto.IEPServiceView) {
+templ CardGrid(views []dto.IEPView) {
 	<div class="service-minutes-card-grid">
 		for i := range views {
 			@Card(views[i])

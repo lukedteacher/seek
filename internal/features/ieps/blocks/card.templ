@@ -3,11 +3,12 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/features/iepservices/dto"
+	"seek/internal/features/ieps/dto"
+	"seek/internal/ui/core/coreblocks/cards"
 	"seek/pkg/templui/components/card"
 )
 
-templ Card(view dto.IEPServiceView) {
+templ Card(view dto.IEPView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("period-%s-card", view.ID),
 		Class: "iep-service-card bg-linear-1 w-full",
@@ -19,33 +20,16 @@ templ Card(view dto.IEPServiceView) {
 			@card.Title(card.TitleProps{
 				Class: "text-sm",
 			}) {
-				{ view.ServiceType }
+				so and so's IEP
 			}
 		}
 		@card.Content(card.ContentProps{
 			Class: "flex justify-around gap-4 text-sm",
 		}) {
-			<div>
-				<p class="text-md font-medium">location id</p>
-				<p class="text-sm">{ view.LocationID }</p>
-			</div>
-			<div>
-				<p class="text-md font-medium">minutes</p>
-				<p class="text-sm">indirect: { view.IndirectMinutes }</p>
-				<p class="text-sm">direct: { view.DirectMinutes }</p>
-			</div>
-			<div>
-				<p class="text-md font-medium">frequency</p>
-				<p class="text-sm">{ view.FrequencyCount } x per { view.FrequencyType }</p>
-			</div>
-			<div>
-				<p class="text-md font-medium">provider id</p>
-				<p class="text-sm">{ view.ProviderID }</p>
-			</div>
-			<div>
-				<p class="text-md font-medium">dates</p>
-				<p class="text-sm">{ view.StartDate.String() } - { view.EndDate.String() }</p>
-			</div>
+			@cards.TextLine(cards.TextLineProps{
+				Key:   "start",
+				Value: view.StartDate.String(),
+			})
 		}
 	}
 }

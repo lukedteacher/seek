@@ -27,22 +27,22 @@ type StudentIEPReadModelWriter interface {
 
 type IEPAddedToStudentProjection struct {
 	Position eventstore.Position
-	IEP      IEPState
+	IEPState
 }
 
 type IEPUpdatedProjection struct {
 	Position eventstore.Position
-	IEP      IEPState
+	IEPState
 }
 
 type IEPArchivedProjection struct {
 	Position eventstore.Position
-	IEP      IEPState
+	IEPState
 }
 
 type IEPDeletedProjection struct {
 	Position eventstore.Position
-	IEP      IEPState
+	IEPState
 }
 
 type IEPReadModelEventHandler struct {
@@ -111,37 +111,37 @@ func (h *IEPReadModelEventHandler) handle(ctx context.Context, resolved eventsto
 	studentID, _ := scope[FieldIEPStudentID].(string)
 	switch resolved.Event.EventType {
 	case EventIEPAddedToStudent:
-		event := IEPAddedToStudentEvent{}
+		var event IEPAddedToStudentEvent
 		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
-			slog.Error("iep read model handle add unmarshal", "err", err)
+			return err
 		}
 		projection := IEPAddedToStudentProjection{
 			Position: resolved.Position,
-			IEP:      event.IEP,
+			IEPState: event.IEPState,
 		}
 		if err := h.readModel.AddIEPToStudent(ctx, projection); err != nil {
 			return err
 		}
 	case EventIEPUpdated:
-		event := IEPUpdatedEvent{}
+		var event IEPUpdatedEvent
 		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
 			slog.Error("iep read model handle update unmarshal", "err", err)
 		}
 		projection := IEPUpdatedProjection{
 			Position: resolved.Position,
-			IEP:      event.IEP,
+			IEPState: event.IEPState,
 		}
 		if err := h.readModel.UpdateIEP(ctx, projection); err != nil {
 			return err
 		}
 	case EventIEPDeleted:
-		event := IEPDeletedEvent{}
+		var event IEPDeletedEvent
 		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
 			slog.Error("iep read model handle delete unmarshal", "err", err)
 		}
 		projection := IEPDeletedProjection{
 			Position: resolved.Position,
-			IEP:      event.IEP,
+			IEPState: event.IEPState,
 		}
 		if err := h.readModel.DeleteIEP(ctx, projection); err != nil {
 			return err

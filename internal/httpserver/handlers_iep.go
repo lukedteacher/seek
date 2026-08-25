@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"seek/internal/eventstore"
-	educatorModels "seek/internal/features/educators/models"
 	"seek/internal/features/ieps/dto"
 	"seek/internal/features/ieps/events"
 	"seek/internal/features/ieps/models"
@@ -64,10 +63,19 @@ func getIEPsListStream(
 			notifier.Notify()
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "iep services list stream subscribe", "err", err)
+			l.ErrorContext(ctx, "iep list stream subscribe", "err", err)
 			return
 		}
 		defer sub.Close()
+
+		ieps, err := iepReadModel.List(ctx)
+		l.Debug("test", "l", len(ieps))
+		if err != nil {
+			l.ErrorContext(ctx, "iep list stream db list", "err", err)
+			return
+		}
+		view := dto.NewIEPTableView(ieps)
+		sse.PatchElementTempl(pages.List(view))
 
 		for {
 			select {
@@ -76,12 +84,13 @@ func getIEPsListStream(
 			case <-notifier.Signal(): // triggers when the read model publishes
 				// for now just refreshes the page
 				// consider adding a view store for the list
-				services, err := iepReadModel.List(ctx)
+				ieps, err := iepReadModel.List(ctx)
+				l.Debug("test", "l", len(ieps))
 				if err != nil {
-					l.ErrorContext(ctx, "iep services list stream db list", "err", err)
+					l.ErrorContext(ctx, "iep list stream db list", "err", err)
 					return
 				}
-				view := dto.NewIEPTableView(services)
+				view := dto.NewIEPTableView(ieps)
 				sse.PatchElementTempl(pages.List(view))
 			}
 		}
@@ -131,7 +140,6 @@ func getIEPCreateStream(
 			"create",
 			&models.IEP{},
 			students,
-			[]educatorModels.Educator{},
 		)
 		sse.PatchElementTempl(pages.Create(view))
 
@@ -153,7 +161,6 @@ func getIEPCreateStream(
 					"create",
 					model,
 					students,
-					[]educatorModels.Educator{},
 				)
 				sse.PatchElementTempl(pages.Create(view))
 			}
@@ -179,7 +186,7 @@ func postIEPCreateValidate(
 		// saves the state to a view store so that the SSE can update
 		// TODO look into a better name for the channel
 		if err := viewstore.PutState(ctx, vs, "new", model); err != nil {
-			l.ErrorContext(ctx, "post iep services create validate viewstore", "err", err)
+			l.ErrorContext(ctx, "post iep create validate viewstore", "err", err)
 		}
 	}
 }
@@ -197,7 +204,7 @@ func postIEPCreate(
 			View dto.IEPView `json:"iep"`
 		}{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "post iep services create signals", "err", err)
+			l.ErrorContext(ctx, "post iep create signals", "err", err)
 			return
 		}
 		if signals.View.StudentID == "" {
@@ -205,26 +212,23 @@ func postIEPCreate(
 			sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantError, "no student selected"))
 			return
 		}
-		model := dto.NewModelFromView(&signals.View)
-		cmd := events.AddServiceToIEPCommand{
-			StudentID:       model.StudentID,
-			ServiceType:     signals.View.ServiceType.ShortString(),
-			IndirectMinutes: model.IndirectMinutes,
-			DirectMinutes:   model.DirectMinutes,
-			FrequencyCount:  model.FrequencyCount,
-			FrequencyType:   model.FrequencyType,
-			LocationID:      model.LocationID,
-			ProviderID:      model.ProviderID,
-			StartDate:       model.StartDate.String(),
-			EndDate:         model.EndDate.String(),
-			Metadata:        eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+		iep := events.IEPState{
+			StudentID:   signals.View.StudentID,
+			StartDate:   signals.View.StartDate.String(),
+			EndDate:     signals.View.EndDate.String(),
+			AmendedDate: signals.View.AmendedDate.String(),
 		}
-		result, err := events.AddServiceToIEPCommandHandler(ctx, cmd, saver, retriever)
+		cmd := events.AddIEPToStudentCommand{
+			IEPState: iep,
+			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+		}
+		result, err := events.AddIEPToStudentCommandHandler(ctx, cmd, saver, retriever)
+		sse := newSSE(w, r)
 		if err != nil {
-			l.ErrorContext(ctx, "post iep services create command handler", "err", err)
+			l.ErrorContext(ctx, "post iep create command handler", "err", err)
+			sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantError, err.Error()))
 			return
 		}
-		sse := newSSE(w, r)
 		sse.Redirect(fmt.Sprintf("/ieps/%s", result.EventID))
 	}
 }
@@ -393,7 +397,6 @@ func getIEPEditStream(
 					"edit",
 					model,
 					students,
-					[]educatorModels.Educator{},
 				)
 				sse.PatchElementTempl(pages.Edit(view))
 			}

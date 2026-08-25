@@ -55,11 +55,9 @@ func (h *ReadModelEventHandler) StopSubscribing() {
 }
 
 func (h *ReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
-	println("*** handle profile read model called ***")
 	var userRegisteredID string
 	switch resolved.Event.EventType {
 	case auth.UserRegistered:
-		println("*****************************************************************************")
 		userRegisteredID, _ = resolved.Event.Data[auth.UserRegisteredEventID].(string)
 		if err := h.readModel.CreateProfileForUser(ctx, resolved, h.keys); err != nil {
 			return err

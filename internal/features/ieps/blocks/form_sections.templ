@@ -1,28 +1,17 @@
 package blocks
 
 import (
-	"seek/internal/features/_shared/sharedmodels"
-	"seek/internal/features/iepservices/dto"
+	"seek/internal/features/ieps/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 	"seek/pkg/templui/components/datepicker"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ FormSections(view dto.IEPServiceFormView) {
-	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+templ FormSections(view dto.IEPFormView) {
 	@HiddenInputs(view)
 	@forms.Fieldset("people") {
 		@ServiceStudentSelectBox(view.Students)
-		@ServiceProviderSelectBox(view.Providers)
-	}
-	@forms.Fieldset("type") {
-		@forms.SelectboxServiceType(url, "iepservice", view.IEPService.ServiceType)
-		<div class="flex gap-10">
-			@ServiceMinutes(view)
-			@ServiceFrequency(view)
-		</div>
-		@ServiceLocationSelect(view.IEPService.LocationID)
 	}
 	@forms.Fieldset("dates") {
 		@ServiceDates(view)
@@ -31,53 +20,11 @@ templ FormSections(view dto.IEPServiceFormView) {
 	@datepicker.Script()
 }
 
-templ HiddenInputs(view dto.IEPServiceFormView) {
-	<input id="service-id" class="hidden" data-bind="iepservice.id" value={ view.IEPService.ID }/>
-	<input id="service-service-name" class="hidden" data-bind="iepservice.service_name" value={ view.IEPService.ServiceName }/>
+templ HiddenInputs(view dto.IEPFormView) {
+	<input id="service-id" class="hidden" data-bind="iep.id" value={ view.IEP.ID }/>
 }
 
-templ ServiceMinutes(view dto.IEPServiceFormView) {
-	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	<div class="flex flex-col gap-2">
-		<p class="text-sm text-neutral-content/80">minutes</p>
-		<div class="flex gap-6">
-			@forms.NumberInputWithLabel(forms.NumberInputWithLabelProps{
-				ID:        "iep-service-indirect-minutes",
-				LabelText: "indirect",
-				Value:     view.IEPService.IndirectMinutes,
-				Bind:      "iepservice.indirect_minutes",
-				URL:       url,
-			})
-			@forms.NumberInputWithLabel(forms.NumberInputWithLabelProps{
-				ID:        "iep-service-direct-minutes",
-				LabelText: "direct",
-				Value:     view.IEPService.DirectMinutes,
-				Bind:      "iepservice.direct_minutes",
-				URL:       url,
-			})
-		</div>
-	</div>
-}
-
-templ ServiceFrequency(view dto.IEPServiceFormView) {
-	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	<div class="flex flex-col gap-2">
-		<p class="text-sm text-neutral-content/80">frequency</p>
-		<div class="flex items-center gap-3">
-			@forms.NumberInputWithLabel(forms.NumberInputWithLabelProps{
-				ID:        "service-frequency-count",
-				LabelText: "count",
-				Value:     view.IEPService.FrequencyCount,
-				Bind:      "iepservice.frequency_count",
-				URL:       url,
-			})
-			<span>x</span>
-			@FrequencyTypeSelect(view.IEPService.FrequencyType)
-		</div>
-	</div>
-}
-
-templ ServiceDates(view dto.IEPServiceFormView) {
+templ ServiceDates(view dto.IEPFormView) {
 	<div class="flex gap-3">
 		<div class="flex-grow">
 			@label.Label(label.Props{
@@ -89,10 +36,10 @@ templ ServiceDates(view dto.IEPServiceFormView) {
 			@datepicker.DatePicker(datepicker.Props{
 				ID:       "start-date-input",
 				Class:    "input",
-				DataBind: "iepservice.start_date",
-				Value:    view.IEPService.StartDate.Time(),
+				DataBind: "iep.start_date",
+				Value:    view.IEP.StartDate.Time(),
 				Attributes: templ.Attributes{
-					"data-text": "$iepservice.start_date",
+					"data-text": "$iep.start_date",
 				},
 			})
 		</div>
@@ -106,10 +53,10 @@ templ ServiceDates(view dto.IEPServiceFormView) {
 			@datepicker.DatePicker(datepicker.Props{
 				ID:       "end-date-input",
 				Class:    "input",
-				DataBind: "iepservice.end_date",
-				Value:    view.IEPService.EndDate.Time(),
+				DataBind: "iep.end_date",
+				Value:    view.IEP.EndDate.Time(),
 				Attributes: templ.Attributes{
-					"data-text": "$iepservice.end_date",
+					"data-text": "$iep.end_date",
 				},
 			})
 		</div>

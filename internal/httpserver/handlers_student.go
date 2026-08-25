@@ -650,8 +650,8 @@ func getStudentEditStream(
 		username := chi.URLParam(r, "username")
 		sse := newSSE(w, r)
 
-		notifier := NewDedupeNotifier()
 		// subscribes to the channel which publishes changes to the underlying model
+		notifier := NewDedupeNotifier()
 		sub, err := subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
 			notifier.Notify()
 		})

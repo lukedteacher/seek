@@ -22,7 +22,6 @@ const (
 	FieldStudentUpdatedEventID  = "student_updated_event_id"
 	FieldStudentArchivedEventID = "student_archived_event_id"
 	FieldStudentDeletedEventID  = "student_deleted_event_id"
-	FieldScopeStudentID         = "scope.student_id"
 )
 
 // student event fields
@@ -41,6 +40,7 @@ const (
 	FieldStudentUpdatedAt  = "updated_at"
 	FieldStudentArchivedAt = "archived_at"
 	FieldStudentDeletedAt  = "deleted_at"
+	FieldScopeStudentID    = "scope.student_id"
 )
 
 type StudentCreatedEvent struct {

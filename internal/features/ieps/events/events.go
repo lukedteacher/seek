@@ -28,7 +28,7 @@ const (
 
 // event fields
 const (
-	FieldIEPID          = "iep_id"
+	FieldIEPID          = "id"
 	FieldIEPStudentID   = "student_id"
 	FieldIEPStartDate   = "start_date"
 	FieldIEPEndDate     = "end_date"
@@ -41,39 +41,46 @@ const (
 )
 
 type IEPState struct {
-	ID          string    `json:"iep_id"`
+	ID          string    `json:"id"`
 	StudentID   string    `json:"student_id"`
-	StartDate   string    `json:"start_date,omitempty"`
-	EndDate     string    `json:"end_date,omitempty"`
-	AmendedDate string    `json:"amended_date,omitempty"`
-	AddedAt     time.Time `json:"added_at,omitempty"`
-	UpdatedAt   time.Time `json:"updated_at,omitempty"`
-	ArchivedAt  time.Time `json:"archived_at,omitempty"`
-	DeletedAt   time.Time `json:"deleted_at,omitempty"`
+	StartDate   string    `json:"start_date"`
+	EndDate     string    `json:"end_date"`
+	AmendedDate string    `json:"amended_date"`
+	AddedAt     time.Time `json:"added_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	ArchivedAt  time.Time `json:"archived_at"`
+	DeletedAt   time.Time `json:"deleted_at"`
+}
+
+type StudentState struct {
+	isCreated    bool
+	isArchived   bool
+	isDeleted    bool
+	hasActiveIEP bool
 }
 
 type IEPAddedToStudentEvent struct {
-	EventID string   `json:"iep_added_to_student_event_id"`
-	IEP     IEPState `json:"iep"`
-	Scope   IEPScope `json:"scope"`
+	EventID string `json:"iep_added_to_student_event_id"`
+	IEPState
+	Scope IEPScope `json:"scope"`
 }
 
 type IEPUpdatedEvent struct {
-	EventID string   `json:"iep_updated_event_id"`
-	IEP     IEPState `json:"iep"`
-	Scope   IEPScope `json:"scope"`
+	EventID string `json:"iep_updated_event_id"`
+	IEPState
+	Scope IEPScope `json:"scope"`
 }
 
 type IEPArchivedEvent struct {
-	EventID string   `json:"iep_archived_event_id"`
-	IEP     IEPState `json:"iep"`
-	Scope   IEPScope `json:"scope"`
+	EventID string `json:"iep_archived_event_id"`
+	IEPState
+	Scope IEPScope `json:"scope"`
 }
 
 type IEPDeletedEvent struct {
-	EventID string   `json:"student_iep_deleted_event_id"`
-	IEP     IEPState `json:"iep"`
-	Scope   IEPScope `json:"scope"`
+	EventID string `json:"student_iep_deleted_event_id"`
+	IEPState
+	Scope IEPScope `json:"scope"`
 }
 
 type IEPScope struct {
@@ -81,35 +88,36 @@ type IEPScope struct {
 	StudentID string `json:"student_id"`
 }
 
-func NewStudentIEPAddedToStudentEvent(
-	eventID string,
-	command AddIEPToStudentCommand,
+func NewIEPAddedToStudentEvent(
+	iep IEPState,
 	addedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
+	iep.AddedAt = addedAt
+	iep.UpdatedAt = addedAt
 	event := IEPAddedToStudentEvent{
-		EventID: eventID,
-		IEP:     command.IEP,
-		Scope:   iepScope(eventID, command.IEP.StudentID),
+		EventID:  iep.ID,
+		IEPState: iep,
+		Scope:    iepScope(iep.ID, iep.StudentID),
 	}
 	return eventstore.DomainEvent{
-		EventID:   eventID,
+		EventID:   iep.ID,
 		EventType: EventIEPAddedToStudent,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
 	}
 }
 
-func NewStudentIEPUpdatedEvent(
+func NewIEPUpdatedEvent(
 	eventID string,
 	command UpdateIEPCommand,
 	updatedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := IEPUpdatedEvent{
-		EventID: eventID,
-		IEP:     command.IEP,
-		Scope:   iepScope(command.IEP.ID, command.IEP.StudentID),
+		EventID:  eventID,
+		IEPState: command.IEP,
+		Scope:    iepScope(command.IEP.ID, command.IEP.StudentID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
@@ -119,7 +127,7 @@ func NewStudentIEPUpdatedEvent(
 	}
 }
 
-func NewStudentIEPDeletedEvent(
+func NewIEPDeletedEvent(
 	eventID string,
 	IEPID string,
 	studentID string,

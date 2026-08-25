@@ -8,46 +8,46 @@ import (
 	"seek/pkg/uuidv7"
 )
 
-type DeleteStudentIEPCommand struct {
-	StudentIEPID string
-	StudentID    string
-	Metadata     CommandMetadata
+type DeleteIEPCommand struct {
+	IEPID     string
+	StudentID string
+	Metadata  CommandMetadata
 }
 
-type DeleteStudentIEPResult struct {
+type DeleteIEPResult struct {
 	EventID string
 }
 
-func DeleteStudentIEPCommandHandler(
+func DeleteIEPCommandHandler(
 	ctx context.Context,
-	command DeleteStudentIEPCommand,
+	command DeleteIEPCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
-	DeleteStudentIEPResult,
+	DeleteIEPResult,
 	error,
 ) {
-	model, err := loadDeleteStudentIEPContext(ctx, retriever, command.StudentIEPID, command.StudentID)
+	model, err := loadDeleteIEPContext(ctx, retriever, command.IEPID, command.StudentID)
 	if err != nil {
-		return DeleteStudentIEPResult{}, err
+		return DeleteIEPResult{}, err
 	}
 	if !model.isActive() {
-		return DeleteStudentIEPResult{}, eventstore.ErrIEPNotActive
+		return DeleteIEPResult{}, eventstore.ErrIEPNotActive
 	}
 
 	eventID := uuidv7.NewString()
-	event := NewStudentIEPDeletedEvent(
+	event := NewIEPDeletedEvent(
 		eventID,
-		command.StudentIEPID,
+		command.IEPID,
 		command.StudentID,
 		time.Now(),
 		metadataWithQuery(command.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
-		return DeleteStudentIEPResult{}, err
+		return DeleteIEPResult{}, err
 	}
-	return DeleteStudentIEPResult{EventID: eventID}, nil
+	return DeleteIEPResult{EventID: eventID}, nil
 }
 
 type deleteStudentIEPContext struct {
@@ -59,7 +59,7 @@ type deleteStudentIEPContext struct {
 	query    eventstore.Query
 }
 
-func loadDeleteStudentIEPContext(ctx context.Context, retriever eventstore.Retriever, studentIEPID, studentID string) (*deleteStudentIEPContext, error) {
+func loadDeleteIEPContext(ctx context.Context, retriever eventstore.Retriever, studentIEPID, studentID string) (*deleteStudentIEPContext, error) {
 	query := streamQuery(studentIEPID, studentID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {

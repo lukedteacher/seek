@@ -88,6 +88,7 @@ func (s Server) Routes() http.Handler {
 		s.iepServiceRoutes(r)
 		s.periodRoutes(r)
 		s.studentRoutes(r)
+		s.iepRoutes(r)
 		s.profileRoutes(r)
 	})
 

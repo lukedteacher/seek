@@ -46,7 +46,7 @@ func UpdateIEPCommandHandler(
 	// }
 
 	eventID := uuidv7.NewString()
-	event := NewStudentIEPUpdatedEvent(
+	event := NewIEPUpdatedEvent(
 		eventID,
 		command,
 		time.Now(),
@@ -125,14 +125,14 @@ func (m *updateStudentIEPContext) handle(resolved eventstore.ResolvedEvent) {
 			slog.Error("iep update handle add unmarshal", "err", err)
 			return
 		}
-		m.iep = event.IEP
+		m.iep = event.IEPState
 	case EventIEPUpdated:
 		event := IEPUpdatedEvent{}
 		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
 			slog.Error("iep update handle update unmarshal", "err", err)
 			return
 		}
-		m.iep = event.IEP
+		m.iep = event.IEPState
 	case EventIEPArchived:
 		m.iepArchived = true
 	case EventIEPDeleted:

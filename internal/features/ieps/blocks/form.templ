@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/sharedmodels"
-	"seek/internal/features/iepservices/dto"
+	"seek/internal/features/ieps/dto"
 	"seek/internal/ui/core/coreblocks/forms"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-templ ServiceForm(view dto.IEPServiceFormView) {
+templ ServiceForm(view dto.IEPFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
 		id={ fmt.Sprintf("form-iep-service-%s", view.FormType) }
@@ -19,7 +19,7 @@ templ ServiceForm(view dto.IEPServiceFormView) {
 	>
 		@FormSections(view)
 		<footer>
-			@forms.CancelButton("/iepservices")
+			@forms.CancelButton("/ieps")
 			@forms.SaveButton()
 		</footer>
 	</form>

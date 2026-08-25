@@ -16,6 +16,7 @@ type CreateStudentCommand struct {
 
 type CreateStudentResult struct {
 	EventID string
+	Skipped bool
 	Student StudentState
 }
 
