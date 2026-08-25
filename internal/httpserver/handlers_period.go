@@ -40,6 +40,7 @@ func (s Server) periodRoutes(r chi.Router) {
 	r.Get("/periods/{id}/edit", getPeriodEdit(s.Logger))
 	r.Get("/periods/{id}/edit/stream", getPeriodEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Periods, s.ReadModels.Students, s.ReadModels.Educators))
 	r.Post("/periods/{id}/edit/validate", postPeriodEditValidate(s.Logger, s.ViewStore))
+	r.Post("/periods/{id}/edit/validate/{field}", postPeriodEditValidateField(s.Logger, s.ViewStore))
 	r.Post("/periods/{id}/edit", postPeriodEdit(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Post("/periods/{id}/archive", postPeriodArchive(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Delete("/periods/{id}", deletePeriod(s.Logger, s.EventSaver, s.EventRetriever))
@@ -319,7 +320,7 @@ func postPeriodCreate(
 		// sync students
 		spcmd := spevents.SyncStudentsInPeriodCommand{
 			PeriodID:           periodID,
-			ProposedStudentIDs: strings.Split(signals.Period.StudentIDs, ","),
+			ProposedStudentIDs: signals.Period.StudentIDs,
 		}
 		if _, err := spevents.SyncStudentsInPeriodCommandHandler(ctx, spcmd, saver, retriever); err != nil {
 			l.ErrorContext(ctx, "post period create sync students", "err", err)
@@ -567,6 +568,59 @@ func postPeriodEditValidate(
 	}
 }
 
+func postPeriodEditValidateField(
+	l *slog.Logger,
+	vs viewstore.Store,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		periodID := chi.URLParam(r, "id")
+		signals := &struct {
+			Period dto.PeriodFormView `json:"period"`
+		}{}
+		if err := datastar.ReadSignals(r, signals); err != nil {
+			l.ErrorContext(ctx, "pcvf signal read", "error", err)
+			return
+		}
+		field := chi.URLParam(r, "field")
+
+		// convert the form view to a temporary Period for business logic
+		temp := signals.Period.ToPeriod()
+
+		switch field {
+		case "starttime":
+			// update start time → recalculate end time using current duration
+			temp.UpdateStartTime(signals.Period.StartTime)
+			// copy back the recalculated end time (duration unchanged)
+			signals.Period.EndTime = temp.EndTime
+
+		case "endtime":
+			// update end time → recalculate duration using current start time
+			temp.UpdateEndTime(signals.Period.EndTime)
+			// copy back the new duration (end time already set)
+			signals.Period.Duration = temp.Duration
+			signals.Period.StartTime = temp.StartTime
+
+		case "duration":
+			// update duration → recalculate end time using current start time
+			temp.UpdateDuration(signals.Period.Duration)
+			// copy back the recalculated end time
+			signals.Period.EndTime = temp.EndTime
+
+		default:
+			l.WarnContext(ctx, "unknown validation field", "field", field)
+			http.Error(w, "unknown field", http.StatusBadRequest)
+			return
+		}
+
+		// save the updated signals to the view store so the SSE can refresh the form
+		key := periodID + ".edit"
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
+			l.ErrorContext(ctx, "view store error", "error", err)
+		}
+	}
+}
+
 // POST request to /periods/{id}/edit
 // reads the form signals, updates the period, syncs educators and students,
 // then redirects to the period view page.
@@ -620,7 +674,7 @@ func postPeriodEdit(
 		// sync students
 		spcmd := spevents.SyncStudentsInPeriodCommand{
 			PeriodID:           periodID,
-			ProposedStudentIDs: strings.Split(signals.Period.StudentIDs, ","),
+			ProposedStudentIDs: signals.Period.StudentIDs,
 		}
 		if _, err := spevents.SyncStudentsInPeriodCommandHandler(ctx, spcmd, saver, retriever); err != nil {
 			l.ErrorContext(ctx, "post period edit sync students", "err", err)

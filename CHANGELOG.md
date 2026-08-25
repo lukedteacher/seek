@@ -2,6 +2,11 @@
 
 updates for SEEK
 
+## v0.9.1 (26.08.24) period form work
+
+- new student multiselect component using neopover
+- handler now uses array of student ids instead of concatenated string
+
 ## v0.9.0 (26.08.24) ieps!
 
 - implemented IEPs (copied from IEP service)

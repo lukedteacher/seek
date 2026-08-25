@@ -68,20 +68,33 @@ func DurationSlider(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<neo-popover placement=\"bottom-start\"><input data-neo-popover-trigger id=\"period-duration-slider-trigger\" type=\"number\" inputmode=\"numeric\" pattern=\"[0-9]*\" class=\"input text-lg text-center\" style=\"width: 3rem;\" data-bind:period.duration value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<neo-popover placement=\"bottom\"><input data-neo-popover-trigger id=\"period-duration-slider-trigger\" type=\"number\" inputmode=\"numeric\" pattern=\"[0-9]*\" class=\"input text-lg text-center\" style=\"width: 3rem;\" data-bind:period.duration data-on:input=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(view.Duration)
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("@post('%s/validate/duration')", url))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/duration_slider.templ`, Line: 31, Col: 25}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/duration_slider.templ`, Line: 31, Col: 69}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\"><div data-neo-popover-content class=\"flex flex-col gap-2 p-3 pt-6 h-full w-full\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(view.Duration)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/duration_slider.templ`, Line: 32, Col: 25}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><div data-neo-popover-content class=\"flex flex-col gap-2 p-3 pt-6 h-full w-full\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -98,7 +111,7 @@ func DurationSlider(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"period-duration-slider-marks w-full flex justify-between font-xs\"><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span></div></div></neo-popover>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"period-duration-slider-marks w-full flex justify-between font-xs\"><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span></div></div></neo-popover>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -106,7 +119,7 @@ func DurationSlider(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -130,12 +143,12 @@ func DurationSliderStyles() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var4 == nil {
-			templ_7745c5c3_Var4 = templ.NopComponent
+		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var5 == nil {
+			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<style>\r\n\t\tinput#period-duration-slider-trigger {\r\n\t\t\twidth: 3rem;\r\n\t\t\tanchor-name: --period-duration-slider-trigger;\r\n\t\t\tfont-size: var(--font-size-1);\r\n\t\t\ttext-align: center;\r\n\t\t\tjustify-content: center;\r\n\r\n\t\t\t&::-webkit-outer-spin-button,\r\n\t\t\t&::-webkit-inner-spin-button {\r\n\t\t\t\t-webkit-appearance: none;\r\n\t\t\t\tdisplay: none;\r\n\t\t\t}\r\n\t\t}\r\n\r\n\t\tdiv#period-duration-slider-content {\r\n\t\t\twidth: 20rem;\r\n\t\t}\r\n\r\n\t\tdiv.period-duration-slider-marks {\r\n\t\t\tdisplay: flex;\r\n\t\t\tjustify-content: space-between;\r\n\t\t\tfont-size: var(--font-size--2);\r\n\t\t\tpadding: 0 0.1rem;\r\n\r\n\t\t\tspan {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tjustify-content: center;\r\n\t\t\t\tflex: 1;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<style>\r\n\t\tinput#period-duration-slider-trigger {\r\n\t\t\twidth: 3rem;\r\n\t\t\tanchor-name: --period-duration-slider-trigger;\r\n\t\t\tfont-size: var(--font-size-1);\r\n\t\t\ttext-align: center;\r\n\t\t\tjustify-content: center;\r\n\r\n\t\t\t&::-webkit-outer-spin-button,\r\n\t\t\t&::-webkit-inner-spin-button {\r\n\t\t\t\t-webkit-appearance: none;\r\n\t\t\t\tdisplay: none;\r\n\t\t\t}\r\n\t\t}\r\n\r\n\t\tdiv#period-duration-slider-content {\r\n\t\t\twidth: 20rem;\r\n\t\t}\r\n\r\n\t\tdiv.period-duration-slider-marks {\r\n\t\t\tdisplay: flex;\r\n\t\t\tjustify-content: space-between;\r\n\t\t\tfont-size: var(--font-size--2);\r\n\t\t\tpadding: 0 0.1rem;\r\n\r\n\t\t\tspan {\r\n\t\t\t\tdisplay: flex;\r\n\t\t\t\talign-items: center;\r\n\t\t\t\tjustify-content: center;\r\n\t\t\t\tflex: 1;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

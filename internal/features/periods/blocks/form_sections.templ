@@ -79,7 +79,7 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 		@forms.DayButtons(view)
 	}
 	@forms.Fieldset("student(s)") {
-		@sblocks.StudentMultiselect(url, "period", view.StudentOptions)
+		@sblocks.StudentMultiselectNew("period", view.StudentOptions, view.StudentIDs)
 		if len(schedules) > 1 {
 			@SelectedScheduleList(url, schedules)
 		}

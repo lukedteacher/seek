@@ -22,7 +22,7 @@ type PeriodFormView struct {
 	Duration        int                      `json:"duration"`
 	Days            shareddto.DaysFormView   `json:"days"`
 	EducatorIDs     string                   `json:"educator_ids"`
-	StudentIDs      string                   `json:"student_ids"`
+	StudentIDs      []string                 `json:"student_ids"`
 	Validation      map[string]events.Validation
 	StudentOptions  []sdto.SelectStudentOption
 	EducatorOptions []edto.EducatorSelectBoxView
@@ -45,7 +45,7 @@ func NewPeriodFormView(
 		Duration:        p.Duration,
 		Days:            shareddto.DaysBitmaskToFormView(p.DaysBitmask),
 		EducatorIDs:     strings.Join(p.EducatorIDs, ","),
-		StudentIDs:      strings.Join(p.StudentIDs, ","),
+		StudentIDs:      p.StudentIDs,
 		Validation:      events.Validate(p),
 		StudentOptions:  sdto.NewSelectStudentOptions(allStudents, p.StudentIDs),
 		EducatorOptions: edto.NewEducatorSelectBoxViews(allEducators, p.EducatorIDs),
@@ -62,6 +62,6 @@ func (v PeriodFormView) ToPeriod() models.Period {
 		Duration:    v.Duration,
 		DaysBitmask: v.Days.ToBitmask(),
 		EducatorIDs: strings.Split(v.EducatorIDs, ","),
-		StudentIDs:  strings.Split(v.StudentIDs, ","),
+		StudentIDs:  v.StudentIDs,
 	}
 }

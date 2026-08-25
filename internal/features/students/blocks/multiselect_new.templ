@@ -1,0 +1,49 @@
+package blocks
+
+import (
+	"fmt"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/students/dto"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/utils"
+)
+
+templ StudentMultiselectNew(target string, students []dto.SelectStudentOption, selected []string) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<div class="flex flex-col">
+		@label.Label(label.Props{
+			For:   "test",
+			Class: "mb-3 text-neutral-content/90",
+		}) {
+			students
+		}
+		<neo-popover placement="top">
+			<input
+				id="test"
+				class="input"
+				data-neo-popover-trigger
+			/>
+			<ul
+				data-neo-popover-content
+				class="flex flex-col gap-1 w-full"
+				data-signals:period.student_ids={ templ.JSONString(selected) }
+			>
+				for _, student := range students {
+					<li
+						data-on:click={ fmt.Sprintf("$period.student_ids = $period.student_ids.includes('%[1]s') ? $period.student_ids.filter(id => id !== '%[1]s') : [...$period.student_ids, '%[1]s']; @post('%[2]s/validate')", student.Student.ID, url) }
+						class={ utils.TwMerge(
+							"text-sm flex items-center justify-between cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
+							utils.If(student.IsSelected, "bg-primary"),
+						) }
+					>
+						<span>{ student.Student.NameInitial() }</span>
+						if student.IsSelected {
+							@icon.Check(icon.Props{Class: "size-4"})
+						}
+					</li>
+				}
+			</ul>
+		</neo-popover>
+	</div>
+}
