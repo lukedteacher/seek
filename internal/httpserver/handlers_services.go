@@ -76,6 +76,14 @@ func getServicesListStream(
 		}
 		defer sub.Close()
 
+		services, err := serviceReadModel.List(ctx)
+		if err != nil {
+			l.ErrorContext(ctx, "iep services list stream db list", "err", err)
+			return
+		}
+		view := dto.NewServiceTableView(services)
+		sse.PatchElementTempl(pages.List(view))
+
 		for {
 			select {
 			case <-ctx.Done():
@@ -229,7 +237,6 @@ func postServiceCreate(
 			EndDate:         model.EndDate.String(),
 			Metadata:        eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
-		l.Debug("testing", "iep id", cmd.IEPID, "sid", cmd.StudentID)
 		result, err := events.AddServiceToIEPCommandHandler(ctx, cmd, saver, retriever)
 		if err != nil {
 			l.ErrorContext(ctx, "post iep services create command handler", "err", err)
@@ -465,17 +472,16 @@ func postServiceEdit(
 			ProviderID:      signals.View.ProviderID,
 			Metadata:        eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
-		l.Debug("testing", "iep id", cmd.IEPID, "sid", cmd.StudentID)
-		// result, err := events.UpdateServiceCommandHandler(ctx, cmd, saver, retriever)
-		// if err != nil {
-		// 	l.ErrorContext(ctx, "post iep service edit command handler", "err", err)
-		// 	return
-		// }
-		// if result.Skipped == true {
-		// 	l.Info("post iep service edit command handler", "skipped", result.Skipped)
-		// }
-		// sse := newSSE(w, r)
-		// sse.Redirect(fmt.Sprintf("/services/%s", serviceID))
+		result, err := events.UpdateServiceCommandHandler(ctx, cmd, saver, retriever)
+		if err != nil {
+			l.ErrorContext(ctx, "post iep service edit command handler", "err", err)
+			return
+		}
+		if result.Skipped == true {
+			l.Info("post iep service edit command handler", "skipped", result.Skipped)
+		}
+		sse := newSSE(w, r)
+		sse.Redirect(fmt.Sprintf("/services/%s", serviceID))
 	}
 }
 

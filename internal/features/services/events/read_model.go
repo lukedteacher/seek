@@ -125,6 +125,7 @@ func (m *ReadModel) AddServiceToIEP(ctx context.Context, event ServiceAddedToIEP
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceAddServiceToIep(conn, dbsql.AddServiceToIepParams{
 			Id:              event.ServiceID,
+			IepId:           event.IEPID,
 			ServiceName:     event.ServiceName,
 			ServiceType:     event.ServiceType,
 			IndirectMinutes: int64(event.IndirectMinutes),

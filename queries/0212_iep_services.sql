@@ -19,7 +19,8 @@ WHERE archived_at IS NULL
 	AND id = @id;
 
 -- name: ListServices :many
-SELECT id, 
+SELECT
+	id, 
 	iep_id, 
 	service_name,
 	service_type, 
@@ -38,7 +39,8 @@ WHERE archived_at IS NULL
 ORDER BY service_type DESC, service_name DESC;
 
 -- name: ListServicesForIEP :many
-SELECT id, 
+SELECT
+	id, 
 	iep_id, 
 	service_name,
 	service_type, 

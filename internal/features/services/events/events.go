@@ -49,7 +49,7 @@ const (
 type ServiceAddedToStudentEvent struct {
 	EventID         string       `json:"iep_service_added_to_student_event_id"`
 	ServiceID       string       `json:"iep_service_id"`
-	StudentID       string       `json:"student_id"`
+	IEPID           string       `json:"iep_id"`
 	ServiceName     string       `json:"service_name"`
 	ServiceType     string       `json:"service_type"`
 	IndirectMinutes int          `json:"indirect_minutes"`
@@ -67,7 +67,7 @@ type ServiceAddedToStudentEvent struct {
 type ServiceUpdatedEvent struct {
 	EventID         string       `json:"iep_service_updated_event_id"`
 	ServiceID       string       `json:"iep_service_id"`
-	StudentID       string       `json:"student_id"`
+	IEPID           string       `json:"iep_id"`
 	ServiceName     string       `json:"service_name"`
 	ServiceType     string       `json:"service_type"`
 	IndirectMinutes int          `json:"indirect_minutes"`
@@ -90,31 +90,32 @@ type ServiceDeletedEvent struct {
 
 type ServiceScope struct {
 	ServiceID string `json:"iep_service_added_to_student_event_id"`
+	IEPID     string `json:"iep_id"`
 	StudentID string `json:"student_id"`
 }
 
 func NewServiceAddedToStudentEvent(
 	eventID string,
-	command AddServiceToIEPCommand,
+	cmd AddServiceToIEPCommand,
 	addedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := ServiceAddedToStudentEvent{
 		EventID:         eventID,
 		ServiceID:       eventID,
-		StudentID:       command.StudentID,
-		ServiceName:     command.ServiceName,
-		ServiceType:     command.ServiceType,
-		IndirectMinutes: command.IndirectMinutes,
-		DirectMinutes:   command.DirectMinutes,
-		FrequencyCount:  command.FrequencyCount,
-		FrequencyType:   command.FrequencyType,
-		LocationID:      command.LocationID,
-		StartDate:       command.StartDate,
-		EndDate:         command.EndDate,
-		ProviderID:      command.ProviderID,
+		IEPID:           cmd.IEPID,
+		ServiceName:     cmd.ServiceName,
+		ServiceType:     cmd.ServiceType,
+		IndirectMinutes: cmd.IndirectMinutes,
+		DirectMinutes:   cmd.DirectMinutes,
+		FrequencyCount:  cmd.FrequencyCount,
+		FrequencyType:   cmd.FrequencyType,
+		LocationID:      cmd.LocationID,
+		StartDate:       cmd.StartDate,
+		EndDate:         cmd.EndDate,
+		ProviderID:      cmd.ProviderID,
 		AddedAt:         addedAt.Format(time.RFC3339),
-		Scope:           serviceScope(eventID, command.StudentID),
+		Scope:           serviceScope(eventID, cmd.IEPID, cmd.StudentID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
@@ -127,6 +128,7 @@ func NewServiceAddedToStudentEvent(
 func NewServiceUpdatedEvent(
 	eventID,
 	serviceID,
+	iepID,
 	studentID,
 	serviceName,
 	serviceType string,
@@ -144,7 +146,7 @@ func NewServiceUpdatedEvent(
 	event := ServiceUpdatedEvent{
 		EventID:         eventID,
 		ServiceID:       serviceID,
-		StudentID:       studentID,
+		IEPID:           iepID,
 		ServiceName:     serviceName,
 		ServiceType:     serviceType,
 		IndirectMinutes: indirectMinutes,
@@ -156,7 +158,7 @@ func NewServiceUpdatedEvent(
 		EndDate:         endDate,
 		Provider:        provider,
 		UpdatedAt:       updatedAt.Format(time.RFC3339),
-		Scope:           serviceScope(serviceID, studentID),
+		Scope:           serviceScope(serviceID, iepID, studentID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
@@ -167,8 +169,9 @@ func NewServiceUpdatedEvent(
 }
 
 func NewServiceDeletedEvent(
-	eventID string,
-	serviceID string,
+	eventID,
+	serviceID,
+	iepID,
 	studentID string,
 	deletedAt time.Time,
 	metadata map[string]any,
@@ -176,7 +179,7 @@ func NewServiceDeletedEvent(
 	event := ServiceDeletedEvent{
 		EventID:   eventID,
 		DeletedAt: deletedAt.Format(time.RFC3339),
-		Scope:     serviceScope(serviceID, studentID),
+		Scope:     serviceScope(serviceID, iepID, studentID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
@@ -186,9 +189,10 @@ func NewServiceDeletedEvent(
 	}
 }
 
-func serviceScope(serviceID, studentID string) ServiceScope {
+func serviceScope(serviceID, iepID, studentID string) ServiceScope {
 	return ServiceScope{
 		ServiceID: serviceID,
+		IEPID:     iepID,
 		StudentID: studentID,
 	}
 }

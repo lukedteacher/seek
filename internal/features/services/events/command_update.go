@@ -33,14 +33,14 @@ type UpdateServiceResult struct {
 
 func UpdateServiceCommandHandler(
 	ctx context.Context,
-	command UpdateServiceCommand,
+	cmd UpdateServiceCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	UpdateServiceResult,
 	error,
 ) {
-	model, err := loadUpdateServiceContext(ctx, retriever, command.ServiceID, command.StudentID)
+	model, err := loadUpdateServiceContext(ctx, retriever, cmd.ServiceID, cmd.StudentID)
 	if err != nil {
 		return UpdateServiceResult{}, err
 	}
@@ -50,27 +50,28 @@ func UpdateServiceCommandHandler(
 	if err := model.isStudentActive(); err != nil {
 		return UpdateServiceResult{}, err
 	}
-	if model.isSame(command) {
+	if model.isSame(cmd) {
 		return UpdateServiceResult{Skipped: true}, nil
 	}
 
 	eventID := uuidv7.NewString()
 	event := NewServiceUpdatedEvent(
 		eventID,
-		command.ServiceID,
-		command.StudentID,
-		command.ServiceName,
-		command.ServiceType,
-		command.IndirectMinutes,
-		command.DirectMinutes,
-		command.FrequencyCount,
-		command.FrequencyType,
-		command.LocationID,
-		command.StartDate,
-		command.EndDate,
-		command.ProviderID,
+		cmd.ServiceID,
+		cmd.IEPID,
+		cmd.StudentID,
+		cmd.ServiceName,
+		cmd.ServiceType,
+		cmd.IndirectMinutes,
+		cmd.DirectMinutes,
+		cmd.FrequencyCount,
+		cmd.FrequencyType,
+		cmd.LocationID,
+		cmd.StartDate,
+		cmd.EndDate,
+		cmd.ProviderID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {

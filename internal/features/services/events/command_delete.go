@@ -10,6 +10,7 @@ import (
 
 type DeleteServiceCommand struct {
 	ServiceID string
+	IEPID     string
 	StudentID string
 	Metadata  CommandMetadata
 }
@@ -20,14 +21,14 @@ type DeleteServiceResult struct {
 
 func DeleteServiceCommandHandler(
 	ctx context.Context,
-	command DeleteServiceCommand,
+	cmd DeleteServiceCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	DeleteServiceResult,
 	error,
 ) {
-	model, err := loadDeleteServiceContext(ctx, retriever, command.ServiceID, command.StudentID)
+	model, err := loadDeleteServiceContext(ctx, retriever, cmd.ServiceID, cmd.IEPID, cmd.StudentID)
 	if err != nil {
 		return DeleteServiceResult{}, err
 	}
@@ -38,10 +39,11 @@ func DeleteServiceCommandHandler(
 	eventID := uuidv7.NewString()
 	event := NewServiceDeletedEvent(
 		eventID,
-		command.ServiceID,
-		command.StudentID,
+		cmd.ServiceID,
+		cmd.IEPID,
+		cmd.StudentID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
@@ -58,7 +60,16 @@ type deleteServiceContext struct {
 	query    eventstore.Query
 }
 
-func loadDeleteServiceContext(ctx context.Context, retriever eventstore.Retriever, serviceID, studentID string) (*deleteServiceContext, error) {
+func loadDeleteServiceContext(
+	ctx context.Context,
+	retriever eventstore.Retriever,
+	serviceID,
+	iepID,
+	studentID string,
+) (
+	*deleteServiceContext,
+	error,
+) {
 	query := streamQuery(serviceID, studentID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {

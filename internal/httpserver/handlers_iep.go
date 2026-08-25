@@ -69,7 +69,6 @@ func getIEPsListStream(
 		defer sub.Close()
 
 		ieps, err := iepReadModel.List(ctx)
-		l.Debug("test", "l", len(ieps))
 		if err != nil {
 			l.ErrorContext(ctx, "iep list stream db list", "err", err)
 			return
@@ -85,7 +84,6 @@ func getIEPsListStream(
 				// for now just refreshes the page
 				// consider adding a view store for the list
 				ieps, err := iepReadModel.List(ctx)
-				l.Debug("test", "l", len(ieps))
 				if err != nil {
 					l.ErrorContext(ctx, "iep list stream db list", "err", err)
 					return

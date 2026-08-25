@@ -1,6 +1,8 @@
 package pages
 
 import (
+	"fmt"
+
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/services/blocks"
@@ -12,7 +14,7 @@ import (
 templ List(view shareddto.TableView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: IEP services") {
-		<main data-signals:view={ view } data-init={ sse.LongRunningGetSSE(url) }>
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("IEP services")
 			@blocks.List(view)
 		</main>
