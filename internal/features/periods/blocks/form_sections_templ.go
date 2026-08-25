@@ -239,8 +239,8 @@ func FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSch
 				ID:    "period-title-input",
 				Value: view.Title,
 				Attributes: templ.Attributes{
-					"data-bind":     "period.title",
-					"data-on:input": fmt.Sprintf("@post('%s/validate')", url),
+					"data-bind":                     "period.title",
+					"data-on:input__debounce.250ms": fmt.Sprintf("@post('%s/validate')", url),
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -434,8 +434,8 @@ func SelectedScheduleItem(url string, student scheduledto.PersonWithScheduleView
 			Checked: student.IsVisible,
 			Name:    "schedules",
 			Attributes: templ.Attributes{
-				"data-bind":      fmt.Sprintf("schedules.%s", student.Person.Username),
-				"data-on:change": fmt.Sprintf("@post('%s/validate')", url),
+				"data-bind":                      fmt.Sprintf("schedules.%s", student.Person.Username),
+				"data-on:change__debounce.250ms": fmt.Sprintf("@post('%s/validate')", url),
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

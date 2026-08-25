@@ -227,7 +227,7 @@ templ Trigger(props ...TriggerProps) {
 					data-bind={ p.DataBind }
 				}
 				if p.DataOnChange != "" {
-					data-on:change__debounce.200ms={ p.DataOnChange }
+					data-on:change__debounce.250ms={ p.DataOnChange }
 				}
 			/>
 			{ children... }

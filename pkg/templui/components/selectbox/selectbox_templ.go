@@ -662,7 +662,7 @@ func Trigger(props ...TriggerProps) templ.Component {
 					}
 				}
 				if p.DataOnChange != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, " data-on:change__debounce.200ms=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, " data-on:change__debounce.250ms=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

@@ -28,7 +28,7 @@ templ DurationSlider(view dto.PeriodFormView) {
 				class="input text-lg text-center"
 				style="width: 3rem;"
 				data-bind:period.duration
-				data-on:input={ fmt.Sprintf("@post('%s/validate/duration')", url) }
+				data-on:input__debounce.250ms={ fmt.Sprintf("@post('%s/validate/duration')", url) }
 				value={ view.Duration }
 			/>
 			<div data-neo-popover-content class="flex flex-col gap-2 p-3 pt-6 h-full w-full">

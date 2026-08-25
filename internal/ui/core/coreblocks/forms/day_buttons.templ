@@ -26,7 +26,7 @@ templ DayButtons(view dto.PeriodFormView) {
 					if view.Days.IsDaySet(sharedmodels.Days[i]) {
 						checked
 					}
-					data-on:change={ fmt.Sprintf("@post('%s/validate')", url) }
+					data-on:change__debounce.250ms={ fmt.Sprintf("@post('%s/validate')", url) }
 				/>
 			</label>
 		}

@@ -33,7 +33,8 @@ type ListServicesForIepStmt struct {
 
 func ListServicesForIep(tx *sqlite.Conn) *ListServicesForIepStmt {
 	const querySQL = `
-SELECT id, 
+SELECT
+	id, 
 	iep_id, 
 	service_name,
 	service_type, 

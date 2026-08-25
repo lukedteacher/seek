@@ -7,6 +7,7 @@ updates for SEEK
 - renamed service to service
 - switched create viewstore to rely on user
 - re-added roles to educator list
+- rate limit bug
 
 ## v0.9.1 (26.08.24) period form work
 

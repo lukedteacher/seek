@@ -38,8 +38,8 @@ const (
 var (
 	loginRateLimit = rateLimit(rateLimitOptions{
 		name:    "login",
-		window:  15 * minute,
-		max:     envPositiveInt("LOGIN_RATE_LIMIT_MAX", 10),
+		window:  5 * minute,
+		max:     envPositiveInt("LOGIN_RATE_LIMIT_MAX", 120),
 		methods: methods(http.MethodPost),
 	})
 	signupRateLimit = rateLimit(rateLimitOptions{
@@ -59,20 +59,6 @@ var (
 		window:  15 * minute,
 		max:     envPositiveInt("PASSWORD_RESET_SUBMIT_RATE_LIMIT_MAX", 8),
 		methods: methods(http.MethodPost),
-	})
-	otpResendRateLimit = rateLimit(rateLimitOptions{
-		name:    "otp-resend",
-		window:  15 * minute,
-		max:     envPositiveInt("OTP_RESEND_RATE_LIMIT_MAX", 3),
-		methods: methods(http.MethodPost),
-		key:     ipAndURLParamKey("userID"),
-	})
-	otpValidateRateLimit = rateLimit(rateLimitOptions{
-		name:    "otp-validate",
-		window:  15 * minute,
-		max:     envPositiveInt("OTP_VALIDATE_RATE_LIMIT_MAX", 10),
-		methods: methods(http.MethodPost),
-		key:     ipAndURLParamKey("userID"),
 	})
 )
 
