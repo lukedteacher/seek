@@ -85,7 +85,7 @@ func (s Server) Routes() http.Handler {
 		r.Use(s.requireUserLoggedIn)
 		r.Use(addPathToContext(s.Logger))
 		s.educatorRoutes(r)
-		s.iepServiceRoutes(r)
+		s.serviceRoutes(r)
 		s.periodRoutes(r)
 		s.studentRoutes(r)
 		s.iepRoutes(r)

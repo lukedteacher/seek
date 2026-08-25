@@ -10,7 +10,7 @@ DELETE FROM auth_user;
 -- name: ResetReadModelProfiles :exec
 DELETE FROM profile_stats;
 
--- name: ResetReadModelIEPServices :exec
+-- name: ResetReadModelServices :exec
 DELETE FROM iep_services;
 
 -- name: ResetReadModelPeriods :exec

@@ -7,8 +7,9 @@ import (
 	educatorBlocks "seek/internal/features/educators/blocks"
 	educatorDTO "seek/internal/features/educators/dto"
 	educatorModels "seek/internal/features/educators/models"
-	serviceDTO "seek/internal/features/iepservices/dto"
-	serviceModels "seek/internal/features/iepservices/models"
+	iepModels "seek/internal/features/ieps/models"
+	serviceDTO "seek/internal/features/services/dto"
+	serviceModels "seek/internal/features/services/models"
 	studentModels "seek/internal/features/students/models"
 
 	"github.com/a-h/templ"
@@ -16,8 +17,9 @@ import (
 
 type StudentWithData struct {
 	studentModels.Student
+	IEP         iepModels.IEP
 	CaseManager educatorModels.Educator
-	Services    []serviceModels.IEPService
+	Services    []serviceModels.Service
 }
 
 var StudentWithDataColumns = []shareddto.ColumnView{
@@ -41,7 +43,7 @@ var StudentWithDataTableConfig = shareddto.TableConfig[StudentWithData]{
 	ValueExtractor:  valueExtractor,
 	TargetExtractor: targetExtractor,
 	SubTableBuilder: func(student StudentWithData) shareddto.TableView {
-		return serviceDTO.NewIEPServiceTableView(student.Services)
+		return serviceDTO.NewServiceTableView(student.Services)
 	},
 }
 

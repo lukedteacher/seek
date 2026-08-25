@@ -2,7 +2,6 @@ package seed
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"seek/internal/auth"
@@ -113,34 +112,14 @@ func SeedEducators(
 	[]string,
 	error,
 ) {
-	data := []struct {
-		GivenName  string
-		ChosenName string
-		FamilyName string
-		Email      string
-		Role       string
-	}{
-		{"luke", "!uke", "earley", "luke.e@schoolofnorthernlights.org", "service provider,resource room teacher"},
-		{"Sarah", "Sally", "Chen", "sarah.c@schoolofnorthernlights.org", "co-teacher,case manager"},
-		{"Michael", "Mike", "O'Brien", "michael.o@schoolofnorthernlights.org", "educational assistant"},
-		{"Emily", "Em", "Kim", "emily.k@schoolofnorthernlights.org", "admin"},
-		{"David", "Dave", "Singh", "david.s@schoolofnorthernlights.org", "general education teacher"},
-		{"Jessica", "Jess", "Taylor", "jessica.t@schoolofnorthernlights.org", "service provider,co-teacher,case manager"},
-		{"Daniel", "Dan", "Martinez", "daniel.m@schoolofnorthernlights.org", "educational assistant"},
-		{"Ashley", "Ash", "Johnson", "ashley.j@schoolofnorthernlights.org", "co-teacher,case manager"},
-		{"Christopher", "Chris", "Lee", "chris.l@schoolofnorthernlights.org", "admin"},
-		{"Amanda", "Mandy", "Garcia", "amanda.g@schoolofnorthernlights.org", "service provider,co-teacher,case manager"},
-	}
-
-	ids := make([]string, 0, len(data))
-	for _, d := range data {
+	ids := make([]string, 0, len(educatorData))
+	for _, d := range educatorData {
 		cmd := ee.CreateEducatorCommand{
 			EducatorState: ee.EducatorState{
 				GivenName:  d.GivenName,
 				ChosenName: d.ChosenName,
 				FamilyName: d.FamilyName,
 				Email:      d.Email,
-				Roles:      strings.Split(d.Role, ","),
 			},
 		}
 		res, err := ee.CreateEducatorCommandHandler(ctx, cmd, saver)

@@ -1,3 +1,9 @@
+-- name: GetRolesForEducator :many
+SELECT
+	role
+FROM educator_roles
+WHERE educator_id = @educator_id;
+
 -- name: AddRoleToEducator :exec
 INSERT INTO educator_roles ( 
 	educator_id, 

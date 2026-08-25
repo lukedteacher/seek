@@ -65,8 +65,9 @@ templ UserHeaderDropdown(user models.User) {
 					</div>
 				}
 				@dropdown.Item(dropdown.ItemProps{
-					Class: "px-4 py-2",
-					Href:  "/profile",
+					Disabled: true,
+					Class:    "px-4 py-2",
+					Href:     "/profile",
 				}) {
 					<div class="flex items-center space-x-3">
 						@icon.User(icon.Props{Class: "size-4"})
@@ -74,7 +75,9 @@ templ UserHeaderDropdown(user models.User) {
 					</div>
 				}
 				@dropdown.Item(dropdown.ItemProps{
-					Class: "px-4 py-2",
+					Disabled: true,
+					Class:    "px-4 py-2",
+					Href:     "/settings",
 				}) {
 					<div class="flex items-center space-x-3">
 						@icon.Settings(icon.Props{Class: "size-4"})
@@ -85,7 +88,8 @@ templ UserHeaderDropdown(user models.User) {
 			@separator.Separator()
 			<div class="py-1">
 				@dropdown.Item(dropdown.ItemProps{
-					Class: "px-4 py-2",
+					Disabled: true,
+					Class:    "px-4 py-2",
 				}) {
 					<div class="flex items-center space-x-3">
 						@icon.CircleQuestionMark(icon.Props{Class: "size-4"})

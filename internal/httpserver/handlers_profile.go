@@ -70,7 +70,13 @@ func getProfileStream(
 		}
 		defer sub.Close()
 
-		watcher, err := vs.Watch(ctx, key, viewstore.WatchOptions{IgnoreDeletes: true})
+		watcher, err := vs.Watch(
+			ctx,
+			key,
+			viewstore.WatchOptions{
+				IgnoreDeletes: true,
+			},
+		)
 		if err != nil {
 			l.ErrorContext(ctx, "get profile stream watcher", "err", err)
 			return

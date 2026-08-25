@@ -14,10 +14,10 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	edto "seek/internal/features/educators/dto"
 	eevents "seek/internal/features/educators/events"
-	idto "seek/internal/features/iepservices/dto"
-	serviceEvents "seek/internal/features/iepservices/events"
 	periodEvents "seek/internal/features/periods/events"
 	scheduledto "seek/internal/features/schedules/dto"
+	idto "seek/internal/features/services/dto"
+	serviceEvents "seek/internal/features/services/events"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/students/events"
 	"seek/internal/features/students/models"
@@ -44,7 +44,7 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students/{username}/schedule", getStudentViewSchedule(s.Logger))
 	r.Get("/students/{username}/schedule/stream", getStudentViewScheduleStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.Periods))
 	r.Get("/students/{username}/services", getStudentViewServices(s.Logger))
-	r.Get("/students/{username}/services/stream", getStudentViewServicesStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.IEPServices))
+	r.Get("/students/{username}/services/stream", getStudentViewServicesStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.Services))
 	r.Get("/students/{username}/edit", getStudentEdit(s.Logger))
 	r.Get("/students/{username}/edit/stream", getStudentEditStream(s.Logger, s.ViewStore, s.Subscriber, *s.ReadModels.Students, *s.ReadModels.Educators))
 	r.Post("/students/{username}/edit/validate", postStudentEditValidate(s.Logger, s.ViewStore))
@@ -217,13 +217,14 @@ func getStudentCreateStream(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		user := currentUser(r)
 		sse := newSSE(w, r)
 
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
 		watcher, err := vs.Watch(
 			ctx,
-			"newstudent",
+			user.Username+".students.create",
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -277,6 +278,7 @@ func postStudentCreateValidate(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		user := currentUser(r)
 		signals := &struct {
 			Student dto.StudentView `json:"student"`
 		}{}
@@ -285,7 +287,7 @@ func postStudentCreateValidate(
 			return
 		}
 		student := dto.NewStudentModelFromView(&signals.Student)
-		if err := viewstore.PutState(ctx, vs, "newstudent", student); err != nil {
+		if err := viewstore.PutState(ctx, vs, user.Username+".students.create", student); err != nil {
 			l.ErrorContext(ctx, "student create validate put state", "err", err)
 			return
 		}
@@ -356,7 +358,7 @@ func getStudentViewInfo(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.View(dto.StudentView{}, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "info").Render(ctx, w)
+		_ = pages.View(dto.StudentView{}, scheduledto.PersonWithScheduleView{}, []idto.ServiceView{}, "info").Render(ctx, w)
 	}
 }
 
@@ -437,7 +439,7 @@ func getStudentViewInfoStream(
 				} else {
 					studentView = dto.NewStudentView(student, nil)
 				}
-				sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "info"))
+				sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.ServiceView{}, "info"))
 			}
 		}
 	}
@@ -449,7 +451,7 @@ func getStudentViewSchedule(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.View(dto.StudentView{}, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "schedule").Render(ctx, w)
+		_ = pages.View(dto.StudentView{}, scheduledto.PersonWithScheduleView{}, []idto.ServiceView{}, "schedule").Render(ctx, w)
 	}
 }
 
@@ -528,7 +530,7 @@ func getStudentViewScheduleStream(
 					return
 				}
 				personScheduleView := scheduledto.NewPersonScheduleView(student.Person, periods, true, 1)
-				sse.PatchElementTempl(pages.View(studentView, personScheduleView, []idto.IEPServiceView{}, "schedule"))
+				sse.PatchElementTempl(pages.View(studentView, personScheduleView, []idto.ServiceView{}, "schedule"))
 			}
 		}
 	}
@@ -540,7 +542,7 @@ func getStudentViewServices(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.View(dto.StudentView{}, scheduledto.PersonWithScheduleView{}, []idto.IEPServiceView{}, "services").Render(ctx, w)
+		_ = pages.View(dto.StudentView{}, scheduledto.PersonWithScheduleView{}, []idto.ServiceView{}, "services").Render(ctx, w)
 	}
 }
 
@@ -550,7 +552,7 @@ func getStudentViewServicesStream(
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
 	studentReadModel events.ReadModel,
-	iepServiceReadModel serviceEvents.ReadModel,
+	serviceReadModel serviceEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -612,13 +614,13 @@ func getStudentViewServicesStream(
 				studentView := dto.NewStudentView(student, nil)
 
 				// get the list of services for the student and make views
-				services, err := iepServiceReadModel.ListServicesForIEP(ctx, studentView.ID)
+				services, err := serviceReadModel.ListServicesForIEP(ctx, studentView.ID)
 				if err != nil {
 					l.ErrorContext(ctx, "get student view db list services", "err", err)
 				}
-				serviceViews := make([]idto.IEPServiceView, len(services))
+				serviceViews := make([]idto.ServiceView, len(services))
 				for i, service := range services {
-					serviceViews[i] = idto.NewIEPServiceView(&service)
+					serviceViews[i] = idto.NewServiceView(&service)
 				}
 
 				sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, serviceViews, "services"))

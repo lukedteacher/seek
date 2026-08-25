@@ -1,0 +1,24 @@
+package pages
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/services/blocks"
+	"seek/internal/features/services/dto"
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+)
+
+templ Create(view dto.ServiceFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	@corelayouts.LayoutBase("SEEK: create service") {
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain("create IEP service")
+			<section>
+				@blocks.ServiceForm(view)
+			</section>
+		</main>
+	}
+}

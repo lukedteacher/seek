@@ -1,11 +1,11 @@
 package blocks
 
 import (
-	"seek/internal/features/iepservices/blocks"
-	"seek/internal/features/iepservices/dto"
+	"seek/internal/features/services/blocks"
+	"seek/internal/features/services/dto"
 )
 
-templ Services(services []dto.IEPServiceView) {
+templ Services(services []dto.ServiceView) {
 	for _, service := range services {
 		@blocks.Card(service)
 	}

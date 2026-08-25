@@ -1,0 +1,67 @@
+package dto
+
+import (
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/services/models"
+	sdto "seek/internal/features/students/dto"
+)
+
+type ServiceView struct {
+	ID              string                   `json:"id"`
+	IEPID           string                   `json:"iep_id"`
+	ServiceName     string                   `json:"service_name"`
+	ServiceType     sharedmodels.ServiceType `json:"service_type"`
+	IndirectMinutes int                      `json:"indirect_minutes"`
+	DirectMinutes   int                      `json:"direct_minutes"`
+	FrequencyCount  int                      `json:"frequency_count"`
+	FrequencyType   string                   `json:"frequency_type"`
+	LocationID      string                   `json:"location_id"`
+	StartDate       sharedmodels.DateOnly    `json:"start_date"`
+	EndDate         sharedmodels.DateOnly    `json:"end_date"`
+	Provider        string                   `json:"provider"`
+	ProviderID      string                   `json:"provider_id"`
+	StudentID       string                   `json:"student_id"`
+	StudentView     sdto.StudentView
+}
+
+func NewServiceView(sm *models.Service) ServiceView {
+	if sm == nil {
+		return ServiceView{}
+	}
+	return ServiceView{
+		ID:              sm.ID,
+		IEPID:           sm.IEPID,
+		ServiceName:     sm.ServiceName,
+		ServiceType:     sm.ServiceType,
+		IndirectMinutes: sm.IndirectMinutes,
+		DirectMinutes:   sm.DirectMinutes,
+		FrequencyCount:  sm.FrequencyCount,
+		FrequencyType:   sm.FrequencyType,
+		LocationID:      sm.LocationID,
+		StartDate:       sm.StartDate,
+		EndDate:         sm.EndDate,
+		Provider:        sm.Provider,
+		StudentID:       sm.StudentID,
+	}
+}
+
+func NewModelFromView(v *ServiceView) models.Service {
+	if v == nil {
+		return models.Service{}
+	}
+	return models.Service{
+		ID:              v.ID,
+		IEPID:           v.IEPID,
+		ServiceName:     v.ServiceName,
+		ServiceType:     v.ServiceType,
+		IndirectMinutes: v.IndirectMinutes,
+		DirectMinutes:   v.DirectMinutes,
+		FrequencyCount:  v.FrequencyCount,
+		FrequencyType:   v.FrequencyType,
+		LocationID:      v.LocationID,
+		StartDate:       v.StartDate,
+		EndDate:         v.EndDate,
+		Provider:        v.Provider,
+		StudentID:       v.StudentID,
+	}
+}

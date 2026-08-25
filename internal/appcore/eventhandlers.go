@@ -13,9 +13,9 @@ import (
 	educatorEvents "seek/internal/features/educators/events"
 	educatorPeriodEvents "seek/internal/features/educators_periods/events"
 	iepEvents "seek/internal/features/ieps/events"
-	iepServiceEvents "seek/internal/features/iepservices/events"
 	periodEvents "seek/internal/features/periods/events"
 	profileEvents "seek/internal/features/profiles/events"
+	serviceEvents "seek/internal/features/services/events"
 	studentEvents "seek/internal/features/students/events"
 	periodStudentEvents "seek/internal/features/students_periods/events"
 	"seek/internal/natsbus"
@@ -159,10 +159,10 @@ func EventHandlerFactories(
 		{
 			name: "iep service read model",
 			create: func() (eventHandler, error) {
-				return iepServiceEvents.NewIEPServiceReadModelEventHandler(
+				return serviceEvents.NewServiceReadModelEventHandler(
 					store,
 					checkpointer,
-					readModels.IEPServices,
+					readModels.Services,
 					bus,
 					logger,
 				)

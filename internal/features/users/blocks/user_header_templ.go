@@ -301,8 +301,9 @@ func UserHeaderDropdown(user models.User) templ.Component {
 					return nil
 				})
 				templ_7745c5c3_Err = dropdown.Item(dropdown.ItemProps{
-					Class: "px-4 py-2",
-					Href:  "/profile",
+					Disabled: true,
+					Class:    "px-4 py-2",
+					Href:     "/profile",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var12), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -334,7 +335,9 @@ func UserHeaderDropdown(user models.User) templ.Component {
 					return nil
 				})
 				templ_7745c5c3_Err = dropdown.Item(dropdown.ItemProps{
-					Class: "px-4 py-2",
+					Disabled: true,
+					Class:    "px-4 py-2",
+					Href:     "/settings",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -378,7 +381,8 @@ func UserHeaderDropdown(user models.User) templ.Component {
 					return nil
 				})
 				templ_7745c5c3_Err = dropdown.Item(dropdown.ItemProps{
-					Class: "px-4 py-2",
+					Disabled: true,
+					Class:    "px-4 py-2",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

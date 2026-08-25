@@ -8,9 +8,9 @@ import (
 	educatorEvents "seek/internal/features/educators/events"
 	educatorPeriodEvents "seek/internal/features/educators_periods/events"
 	iepEvents "seek/internal/features/ieps/events"
-	iepServiceEvents "seek/internal/features/iepservices/events"
 	periodEvents "seek/internal/features/periods/events"
 	profileEvents "seek/internal/features/profiles/events"
+	serviceEvents "seek/internal/features/services/events"
 	studentEvents "seek/internal/features/students/events"
 	studentPeriodEvents "seek/internal/features/students_periods/events"
 
@@ -21,7 +21,7 @@ type ReadModelContainer struct {
 	CaseloadStudents *caseloadStudentsEvents.ReadModel
 	Educators        *educatorEvents.ReadModel
 	EducatorPeriods  *educatorPeriodEvents.ReadModel
-	IEPServices      *iepServiceEvents.ReadModel
+	Services         *serviceEvents.ReadModel
 	Periods          *periodEvents.ReadModel
 	Profiles         *profileEvents.ReadModel
 	Students         *studentEvents.ReadModel
@@ -34,7 +34,7 @@ func NewReadModelContainer(db *appdb.DB) *ReadModelContainer {
 		CaseloadStudents: caseloadStudentsEvents.NewReadModel(db),
 		Educators:        educatorEvents.NewReadModel(db),
 		EducatorPeriods:  educatorPeriodEvents.NewReadModel(db),
-		IEPServices:      iepServiceEvents.NewReadModel(db),
+		Services:         serviceEvents.NewReadModel(db),
 		Periods:          periodEvents.NewReadModel(db),
 		Profiles:         profileEvents.NewReadModel(db),
 		Students:         studentEvents.NewReadModel(db),
@@ -54,7 +54,7 @@ func (c *ReadModelContainer) Reset(ctx context.Context, db *appdb.DB) error {
 		if err := dbsql.OnceResetReadModelProfiles(conn); err != nil {
 			return err
 		}
-		if err := dbsql.OnceResetReadModelIepservices(conn); err != nil {
+		if err := dbsql.OnceResetReadModelServices(conn); err != nil {
 			return err
 		}
 		if err := dbsql.OnceResetReadModelPeriods(conn); err != nil {

@@ -9,7 +9,7 @@ type CommandMetadata = eventstore.CommandMetadata
 
 var eventTypeKey = eventstore.EventTypeKey
 
-func streamQuery(iepID, studentID string) eventstore.Query {
+func StreamQuery(iepID, studentID string) eventstore.Query {
 	iepEventTypes := []eventType{
 		EventIEPAddedToStudent,
 		EventIEPRemovedFromStudent,

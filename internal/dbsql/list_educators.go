@@ -38,7 +38,7 @@ SELECT
 	updated_at
 FROM educators
 WHERE archived_at IS NULL
-ORDER BY family_name DESC, given_name DESC
+ORDER BY family_name ASC, given_name ASC
     `
 
 	ps := &ListEducatorsStmt{

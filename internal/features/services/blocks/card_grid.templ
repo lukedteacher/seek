@@ -1,0 +1,11 @@
+package blocks
+
+import "seek/internal/features/services/dto"
+
+templ CardGrid(views []dto.ServiceView) {
+	<div class="service-minutes-card-grid">
+		for i := range views {
+			@Card(views[i])
+		}
+	</div>
+}

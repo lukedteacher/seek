@@ -148,6 +148,7 @@ func getPeriodCreateStream(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		user := currentUser(r)
 		sse := newSSE(w, r)
 
 		// initial load: empty period, empty schedules
@@ -162,7 +163,13 @@ func getPeriodCreateStream(
 		sse.PatchElementTempl(pages.Create(view, scheduleViews))
 
 		// watch for view store changes
-		watcher, err := vs.Watch(ctx, "new", viewstore.WatchOptions{IgnoreDeletes: true})
+		watcher, err := vs.Watch(
+			ctx,
+			user.Username+".periods.create",
+			viewstore.WatchOptions{
+				IgnoreDeletes: true,
+			},
+		)
 		if err != nil {
 			l.ErrorContext(ctx, "watch", "err", err)
 			return
@@ -203,7 +210,7 @@ func postPeriodCreateValidate(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-
+		user := currentUser(r)
 		signals := &struct {
 			Period    dto.PeriodFormView `json:"period"`
 			Schedules map[string]bool    `json:"schedules"`
@@ -214,7 +221,7 @@ func postPeriodCreateValidate(
 		}
 
 		// store the signals under key "new" so the create stream can react
-		if err := viewstore.PutState(ctx, vs, "new", signals); err != nil {
+		if err := viewstore.PutState(ctx, vs, user.Username+".periods.create", signals); err != nil {
 			l.ErrorContext(ctx, "post period create validate viewstore", "err", err)
 		}
 	}
@@ -483,7 +490,13 @@ func getPeriodEditStream(
 		}
 
 		// subscribe to the kv store for changes to the edit view state
-		watcher, err := vs.Watch(ctx, periodID+".edit", viewstore.WatchOptions{IgnoreDeletes: true})
+		watcher, err := vs.Watch(
+			ctx,
+			periodID+".edit",
+			viewstore.WatchOptions{
+				IgnoreDeletes: true,
+			},
+		)
 		if err != nil {
 			l.ErrorContext(ctx, "edit view stream watcher", "err", err)
 			return

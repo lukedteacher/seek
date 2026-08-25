@@ -4,11 +4,11 @@ import (
 	"strconv"
 
 	"seek/internal/features/_shared/shareddto"
-	"seek/internal/features/iepservices/models"
+	"seek/internal/features/services/models"
 )
 
 // columns for the iep service table
-var IEPServiceColumns = []shareddto.ColumnView{
+var ServiceColumns = []shareddto.ColumnView{
 	{Field: "ServiceName", Display: "name"},
 	{Field: "ServiceType", Display: "type", Renderer: "badge", Alignment: "center"},
 	{Field: "IndirectMinutes", Display: "indirect", Group: "minutes", Alignment: "center"},
@@ -23,7 +23,7 @@ var IEPServiceColumns = []shareddto.ColumnView{
 }
 
 // extract values from an iep service by field name
-func serviceValueExtractor(m *models.IEPService, field string) string {
+func serviceValueExtractor(m *models.Service, field string) string {
 	if m == nil {
 		return ""
 	}
@@ -61,18 +61,18 @@ func serviceValueExtractor(m *models.IEPService, field string) string {
 	}
 }
 
-func serviceTargetExtractor(m *models.IEPService) string {
+func serviceTargetExtractor(m *models.Service) string {
 	return m.ID
 }
 
 // table config for IEP service (used by both regular and diff tables)
-var IEPServiceTableConfig = shareddto.TableConfig[models.IEPService]{
-	Name:            "iepservices",
-	Columns:         IEPServiceColumns,
+var ServiceTableConfig = shareddto.TableConfig[models.Service]{
+	Name:            "services",
+	Columns:         ServiceColumns,
 	ValueExtractor:  serviceValueExtractor,
 	TargetExtractor: serviceTargetExtractor,
 }
 
-func NewIEPServiceTableView(services []models.IEPService) shareddto.TableView {
-	return shareddto.NewTableView(services, IEPServiceTableConfig)
+func NewServiceTableView(services []models.Service) shareddto.TableView {
+	return shareddto.NewTableView(services, ServiceTableConfig)
 }

@@ -349,7 +349,7 @@ func (m *ReadModel) Create(ctx context.Context, event EducatorCreatedProjection)
 
 func (m *ReadModel) Update(ctx context.Context, event EducatorUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
-		return dbsql.OnceUpdateEducator(conn, dbsql.UpdateEducatorParams{
+		if err := dbsql.OnceUpdateEducator(conn, dbsql.UpdateEducatorParams{
 			Id:                       event.ID,
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
@@ -359,7 +359,49 @@ func (m *ReadModel) Update(ctx context.Context, event EducatorUpdatedProjection)
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),
-		})
+		}); err != nil {
+			return err
+		}
+		var previousRoles []string
+		if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+			var err error
+			previousRoles, err = dbsql.OnceGetRolesForEducator(conn, event.ID)
+			return err
+		}); err != nil {
+			return err
+		}
+		previousRoleMap := make(map[string]struct{}, len(previousRoles))
+		for _, role := range previousRoles {
+			previousRoleMap[role] = struct{}{}
+		}
+		proposedRoleMap := make(map[string]struct{}, len(event.Roles))
+		for _, role := range event.Roles {
+			proposedRoleMap[role] = struct{}{}
+			_, ok := previousRoleMap[role]
+			if !ok {
+				if err := dbsql.OnceAddRoleToEducator(conn, dbsql.AddRoleToEducatorParams{
+					EducatorId:               event.ID,
+					Role:                     role,
+					LastEventCommitPosition:  event.Position.Commit,
+					LastEventPreparePosition: event.Position.Prepare,
+					CreatedAt:                appdb.SQLTime(event.CreatedAt),
+				}); err != nil {
+					return err
+				}
+			}
+		}
+		for _, role := range previousRoles {
+			_, ok := proposedRoleMap[role]
+			if !ok {
+				if err := dbsql.OnceRemoveRoleFromEducator(conn, dbsql.RemoveRoleFromEducatorParams{
+					EducatorId: event.ID,
+					Role:       role,
+				}); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
 	})
 }
 

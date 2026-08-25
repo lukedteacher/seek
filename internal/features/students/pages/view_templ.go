@@ -12,9 +12,9 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/sharedmodels"
-	idto "seek/internal/features/iepservices/dto"
 	sblocks "seek/internal/features/schedules/blocks"
 	sdto "seek/internal/features/schedules/dto"
+	idto "seek/internal/features/services/dto"
 	"seek/internal/features/students/blocks"
 	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
@@ -25,7 +25,7 @@ import (
 	"seek/pkg/templui/components/tabs"
 )
 
-func View(view dto.StudentView, scheduleView sdto.PersonWithScheduleView, services []idto.IEPServiceView, active string) templ.Component {
+func View(view dto.StudentView, scheduleView sdto.PersonWithScheduleView, services []idto.ServiceView, active string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

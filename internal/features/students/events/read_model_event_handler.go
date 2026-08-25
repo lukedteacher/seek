@@ -17,7 +17,7 @@ type StudentReadModelReader interface {
 	GetByID(ctx context.Context, studentID string) (*models.Student, error)
 	GetByUsername(ctx context.Context, username string) (*models.Student, error)
 	List(ctx context.Context, opts ...ListOption) ([]models.Student, error)
-	ListByIEPServiceType(ctx context.Context, s string) ([]models.Student, error)
+	ListByServiceType(ctx context.Context, s string) ([]models.Student, error)
 }
 
 type StudentReadModelWriter interface {

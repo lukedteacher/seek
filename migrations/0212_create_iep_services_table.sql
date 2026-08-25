@@ -15,8 +15,7 @@ CREATE TABLE IF NOT EXISTS iep_services (
 	last_event_prepare_position INTEGER NOT NULL,
 	created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	archived_at TEXT,
-	FOREIGN KEY (iep_id) REFERENCES student_ieps(id) ON DELETE CASCADE
+	archived_at TEXT
 );
 
 CREATE INDEX IF NOT EXISTS iep_services_iep_id_idx ON iep_services(iep_id);

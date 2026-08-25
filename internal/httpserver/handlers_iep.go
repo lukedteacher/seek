@@ -115,13 +115,14 @@ func getIEPCreateStream(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		user := currentUser(r)
 		sse := newSSE(w, r)
 
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
 		watcher, err := vs.Watch(
 			ctx,
-			"new",
+			user.Username+".ieps.create",
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -175,6 +176,7 @@ func postIEPCreateValidate(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		user := currentUser(r)
 		signals := &struct {
 			View dto.IEPView `json:"iep"`
 		}{}
@@ -185,7 +187,7 @@ func postIEPCreateValidate(
 		model := dto.NewModelFromView(&signals.View)
 		// saves the state to a view store so that the SSE can update
 		// TODO look into a better name for the channel
-		if err := viewstore.PutState(ctx, vs, "new", model); err != nil {
+		if err := viewstore.PutState(ctx, vs, user.Username+".ieps.create", model); err != nil {
 			l.ErrorContext(ctx, "post iep create validate viewstore", "err", err)
 		}
 	}

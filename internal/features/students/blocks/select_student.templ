@@ -19,7 +19,7 @@ templ SelectStudent(views []dto.SelectStudentOption) {
 		@selectbox.Trigger(selectbox.TriggerProps{
 			ID: "student-multiselect",
 			Attributes: templ.Attributes{
-				"data-bind:iepservice.student_id": "",
+				"data-bind:service.student_id": "",
 			},
 		}) {
 			@selectbox.Value(selectbox.ValueProps{

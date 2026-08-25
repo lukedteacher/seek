@@ -180,7 +180,7 @@ func Hub() templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = HubCard(HubCardProps{
-				icon:        "file-type-corner",
+				icon:        "file-text",
 				title:       "IEPs",
 				description: "links for IEP specific resources",
 				links: []linkProps{

@@ -81,7 +81,7 @@ func loadUpdateStudentIEPContext(
 	*updateStudentIEPContext,
 	error,
 ) {
-	query := streamQuery(studentIEPID, studentID)
+	query := StreamQuery(studentIEPID, studentID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err

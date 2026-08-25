@@ -1,4 +1,4 @@
--- name: GetIEPService :one
+-- name: GetService :one
 SELECT 
 	id, 
 	iep_id, 
@@ -18,7 +18,7 @@ FROM iep_services
 WHERE archived_at IS NULL
 	AND id = @id;
 
--- name: ListIEPServices :many
+-- name: ListServices :many
 SELECT id, 
 	iep_id, 
 	service_name,
@@ -96,7 +96,7 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- name: UpdateIEPService :exec
+-- name: UpdateService :exec
 UPDATE iep_services
 SET
 	service_name = @service_name,
@@ -114,7 +114,7 @@ SET
 	updated_at = @updated_at
 WHERE id = @id;
 
--- name: ArchiveIEPService :exec
+-- name: ArchiveService :exec
 UPDATE iep_services
 SET
 	last_event_commit_position = @last_event_commit_position,
@@ -123,6 +123,6 @@ SET
 	archived_at = @archived_at
 WHERE id = @id;
 
--- name: DeleteIEPService :exec
+-- name: DeleteService :exec
 DELETE FROM iep_services
 WHERE id = @id;

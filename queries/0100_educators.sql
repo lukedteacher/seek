@@ -83,7 +83,7 @@ SELECT
 	updated_at
 FROM educators
 WHERE archived_at IS NULL
-ORDER BY family_name DESC, given_name DESC;
+ORDER BY family_name ASC, given_name ASC;
 
 -- name: ListEducatorsByRole :many
 SELECT
@@ -116,7 +116,7 @@ SELECT
 FROM educators e
 LEFT JOIN educator_roles er ON e.id = er.educator_id AND er.archived_at IS NULL
 WHERE e.archived_at IS NULL
-ORDER BY e.family_name DESC, e.given_name DESC, er.role ASC;
+ORDER BY e.family_name COLLATE NOCASE ASC, e.given_name ASC, er.role ASC;
 
 -- name: CreateEducator :exec
 INSERT INTO educators (

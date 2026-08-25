@@ -34,6 +34,7 @@ type EducatorCreatedProjection struct {
 type EducatorUpdatedProjection struct {
 	Position eventstore.Position
 	EducatorState
+	OldRoles []string
 }
 
 type EducatorArchivedProjection struct {

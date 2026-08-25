@@ -71,7 +71,7 @@ WHERE archived_at IS NULL
   AND grade IN (sqlc.slice('grades'))
 ORDER BY family_name DESC, given_name DESC;
 
--- name: ListStudentsByIEPServiceType :many
+-- name: ListStudentsByServiceType :many
 SELECT 
 	s.id, 
 	s.marss_id,
@@ -94,7 +94,33 @@ WHERE EXISTS (
 		AND s.archived_at IS NULL
 );
 
--- name: ListStudentsWithIEPServices :many
+-- name: ListOnlyStudentsWithIEPs :many
+SELECT
+	s.id AS student_id,
+	s.marss_id,
+	s.given_name,
+	s.chosen_name,
+	s.family_name,
+	s.email,
+	s.username,
+	s.grade,
+	s.homeroom_id, 
+	s.plan_type, 
+	s.created_at,
+	s.updated_at,
+	i.id AS iep_id,
+	i.start_date,
+	i.end_date,
+	i.amended_date,
+	i.created_at AS iep_created_at,
+	i.updated_at AS iep_updated_at
+FROM students s
+INNER JOIN student_ieps i ON s.id = i.student_id
+WHERE s.archived_at IS NULL
+  AND i.archived_at IS NULL
+ORDER BY s.family_name ASC, s.chosen_name ASC, s.given_name ASC;
+
+-- name: ListStudentsWithServices :many
 SELECT
 	s.id AS student_id,
 	s.marss_id,

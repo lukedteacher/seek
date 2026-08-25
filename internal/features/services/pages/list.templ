@@ -1,0 +1,20 @@
+package pages
+
+import (
+	"seek/internal/features/_shared/shareddto"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/services/blocks"
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+)
+
+templ List(view shareddto.TableView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	@corelayouts.LayoutBase("SEEK: IEP services") {
+		<main data-signals:view={ view } data-init={ sse.LongRunningGetSSE(url) }>
+			@coreblocks.HeaderMain("IEP services")
+			@blocks.List(view)
+		</main>
+	}
+}

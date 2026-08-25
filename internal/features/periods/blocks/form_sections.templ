@@ -18,6 +18,7 @@ import (
 
 templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithScheduleView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	@selectbox.Script()
 	@forms.Fieldset("core info") {
 		<input id="period-id" class="hidden" data-bind:period.id value={ view.ID }/>
 		<div>

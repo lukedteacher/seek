@@ -41,7 +41,7 @@ SELECT
 FROM educators e
 LEFT JOIN educator_roles er ON e.id = er.educator_id AND er.archived_at IS NULL
 WHERE e.archived_at IS NULL
-ORDER BY e.family_name DESC, e.given_name DESC, er.role ASC
+ORDER BY e.family_name COLLATE NOCASE ASC, e.given_name ASC, er.role ASC
     `
 
 	ps := &ListEducatorsWithRolesStmt{

@@ -57,7 +57,7 @@ func getEducatorsList(
 func getEducatorsListStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
-	educatorReadModele events.ReadModel,
+	educatorReadModel events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -73,7 +73,7 @@ func getEducatorsListStream(
 		}
 		defer sub.Close()
 
-		educators, err := educatorReadModele.List(ctx)
+		educators, err := educatorReadModel.ListWithRoles(ctx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -88,7 +88,7 @@ func getEducatorsListStream(
 			case <-notifier.Signal(): // triggers when the read model publishes
 				// for now just reloads the page
 				// consider adding a view store for the list
-				educators, err := educatorReadModele.List(ctx)
+				educators, err := educatorReadModel.ListWithRoles(ctx)
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
@@ -118,11 +118,12 @@ func getEducatorCreateStream(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		user := currentUser(r)
 		sse := newSSE(w, r)
 
 		watcher, err := vs.Watch(
 			ctx,
-			"neweducator",
+			user.Username+"educators.create",
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -163,6 +164,7 @@ func postEducatorCreateValidate(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		user := currentUser(r)
 		signals := &struct {
 			Educator dto.EducatorFormView `json:"educator"`
 		}{}
@@ -187,7 +189,7 @@ func postEducatorCreateValidate(
 		}
 		// saves the state to a view store so that the SSE can update
 		// TODO look into a better name for the channel
-		if err := viewstore.PutState(ctx, vs, "neweducator", model); err != nil {
+		if err := viewstore.PutState(ctx, vs, user.Username+".educators.create", model); err != nil {
 			l.ErrorContext(ctx, "educator create validate view store", "err", err)
 		}
 

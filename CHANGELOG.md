@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.9.2 (26.08.24) refactoring, bug fixing
+
+- renamed service to service
+- switched create viewstore to rely on user
+- re-added roles to educator list
+
 ## v0.9.1 (26.08.24) period form work
 
 - new student multiselect component using neopover

@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/sharedmodels"
-	idto "seek/internal/features/iepservices/dto"
 	sblocks "seek/internal/features/schedules/blocks"
 	sdto "seek/internal/features/schedules/dto"
+	idto "seek/internal/features/services/dto"
 	"seek/internal/features/students/blocks"
 	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
@@ -17,7 +17,7 @@ import (
 	"seek/pkg/templui/components/tabs"
 )
 
-templ View(view dto.StudentView, scheduleView sdto.PersonWithScheduleView, services []idto.IEPServiceView, active string) {
+templ View(view dto.StudentView, scheduleView sdto.PersonWithScheduleView, services []idto.ServiceView, active string) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: student") {
 		<main id="main" class="flex flex-col" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
