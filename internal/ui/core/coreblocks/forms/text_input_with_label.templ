@@ -20,7 +20,7 @@ templ TextInputWithLabel(p TextInputWithLabelProps) {
 		@label.Label(label.Props{
 			ID:    fmt.Sprintf("%s-label", p.ID),
 			For:   fmt.Sprintf("%s-input", p.ID),
-			Class: "mb-3 text-muted-foreground",
+			Class: "mb-3 text-neutral-content/90",
 		}) {
 			{ p.LabelText }
 		}

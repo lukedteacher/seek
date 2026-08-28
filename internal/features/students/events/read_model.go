@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -45,9 +46,11 @@ func (m *ReadModel) GetByID(ctx context.Context, studentID string) (*models.Stud
 		ID:      row.Id,
 		MARSSID: row.MarssId,
 		Person: sharedmodels.Person{
+			Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
 			GivenName:  row.GivenName,
 			ChosenName: row.ChosenName,
 			FamilyName: row.FamilyName,
+			Pronouns:   parsePronouns(row.Pronouns),
 			Email:      row.Email,
 			Username:   row.Username,
 		},
@@ -76,9 +79,11 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 		ID:      row.Id,
 		MARSSID: row.MarssId,
 		Person: sharedmodels.Person{
+			Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
 			GivenName:  row.GivenName,
 			ChosenName: row.ChosenName,
 			FamilyName: row.FamilyName,
+			Pronouns:   parsePronouns(row.Pronouns),
 			Email:      row.Email,
 			Username:   row.Username,
 		},
@@ -161,6 +166,7 @@ func (m *ReadModel) listAllWithSorting(
 ) ([]models.Student, error) {
 	allowedColumns := map[string]bool{
 		"marss_id":     true,
+		"birthdate":    true,
 		"given_name":   true,
 		"chosen_name":  true,
 		"family_name":  true,
@@ -203,7 +209,7 @@ func (m *ReadModel) listAllWithSorting(
 
 	query := fmt.Sprintf(`
 			SELECT 
-				id, marss_id, given_name, chosen_name, family_name,
+				id, marss_id, birthdate, given_name, chosen_name, family_name, pronouns,
 				email, username, grade, homeroom_id, plan_type,
 				created_at, updated_at
 			FROM students
@@ -219,16 +225,18 @@ func (m *ReadModel) listAllWithSorting(
 				var student models.Student
 				student.ID = stmt.ColumnText(0)
 				student.MARSSID = stmt.ColumnText(1)
-				student.GivenName = stmt.ColumnText(2)
-				student.ChosenName = stmt.ColumnText(3)
-				student.FamilyName = stmt.ColumnText(4)
-				student.Email = stmt.ColumnText(5)
-				student.Username = stmt.ColumnText(6)
-				student.Grade = sharedmodels.Grade(stmt.ColumnInt64(7))
-				student.HomeroomID = stmt.ColumnText(8)
-				student.PlanType = sharedmodels.PlanType(stmt.ColumnInt(9))
-				student.CreatedAt = parseDBTime(stmt.ColumnText(10))
-				student.UpdatedAt = parseDBTime(stmt.ColumnText(11))
+				student.Birthdate = sharedmodels.DateOnly(parseDBTime(stmt.ColumnText(2)))
+				student.GivenName = stmt.ColumnText(3)
+				student.ChosenName = stmt.ColumnText(4)
+				student.FamilyName = stmt.ColumnText(5)
+				student.Pronouns = parsePronouns(stmt.ColumnText(6))
+				student.Email = stmt.ColumnText(7)
+				student.Username = stmt.ColumnText(8)
+				student.Grade = sharedmodels.Grade(stmt.ColumnInt64(9))
+				student.HomeroomID = stmt.ColumnText(10)
+				student.PlanType = sharedmodels.PlanType(stmt.ColumnInt(11))
+				student.CreatedAt = parseDBTime(stmt.ColumnText(12))
+				student.UpdatedAt = parseDBTime(stmt.ColumnText(13))
 				students = append(students, student)
 				return nil
 			},
@@ -252,19 +260,22 @@ func (m *ReadModel) listAll(ctx context.Context) ([]models.Student, error) {
 
 	students := make([]models.Student, len(rows))
 	for i := range rows {
+		row := rows[i]
 		students[i] = models.Student{
-			ID:      rows[i].Id,
-			MARSSID: rows[i].MarssId,
+			ID:      row.Id,
+			MARSSID: row.MarssId,
 			Person: sharedmodels.Person{
-				GivenName:  rows[i].GivenName,
-				ChosenName: rows[i].ChosenName,
-				FamilyName: rows[i].FamilyName,
-				Email:      rows[i].Email,
-				Username:   rows[i].Username,
+				Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
+				GivenName:  row.GivenName,
+				ChosenName: row.ChosenName,
+				FamilyName: row.FamilyName,
+				Pronouns:   parsePronouns(row.Pronouns),
+				Email:      row.Email,
+				Username:   row.Username,
 			},
-			Grade:      sharedmodels.Grade(rows[i].Grade),
-			HomeroomID: rows[i].HomeroomId,
-			PlanType:   sharedmodels.PlanType(rows[i].PlanType),
+			Grade:      sharedmodels.Grade(row.Grade),
+			HomeroomID: row.HomeroomId,
+			PlanType:   sharedmodels.PlanType(row.PlanType),
 		}
 	}
 	return students, nil
@@ -286,19 +297,22 @@ func (m *ReadModel) listByGrade(ctx context.Context, grades []int) ([]models.Stu
 
 	students := make([]models.Student, len(rows))
 	for i := range rows {
+		row := rows[i]
 		students[i] = models.Student{
-			ID:      rows[i].Id,
-			MARSSID: rows[i].MarssId,
+			ID:      row.Id,
+			MARSSID: row.MarssId,
 			Person: sharedmodels.Person{
-				GivenName:  rows[i].GivenName,
-				ChosenName: rows[i].ChosenName,
-				FamilyName: rows[i].FamilyName,
-				Email:      rows[i].Email,
-				Username:   rows[i].Username,
+				Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
+				GivenName:  row.GivenName,
+				ChosenName: row.ChosenName,
+				FamilyName: row.FamilyName,
+				Pronouns:   parsePronouns(row.Pronouns),
+				Email:      row.Email,
+				Username:   row.Username,
 			},
-			Grade:      sharedmodels.Grade(rows[i].Grade),
-			HomeroomID: rows[i].HomeroomId,
-			PlanType:   sharedmodels.PlanType(rows[i].PlanType),
+			Grade:      sharedmodels.Grade(row.Grade),
+			HomeroomID: row.HomeroomId,
+			PlanType:   sharedmodels.PlanType(row.PlanType),
 		}
 	}
 	return students, nil
@@ -325,9 +339,11 @@ func (m *ReadModel) ListWithIEPs(ctx context.Context) ([]models.StudentWithIEP, 
 				ID:      row.StudentId,
 				MARSSID: row.MarssId,
 				Person: sharedmodels.Person{
+					Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
 					GivenName:  row.GivenName,
 					ChosenName: row.ChosenName,
 					FamilyName: row.FamilyName,
+					Pronouns:   parsePronouns(row.Pronouns),
 					Email:      row.Email,
 					Username:   row.Username,
 				},
@@ -369,19 +385,22 @@ func (m *ReadModel) ListByServiceType(ctx context.Context, serviceType string) (
 
 	students := make([]models.Student, len(rows))
 	for i := range rows {
+		row := rows[i]
 		students[i] = models.Student{
-			ID:      rows[i].Id,
-			MARSSID: rows[i].MarssId,
+			ID:      row.Id,
+			MARSSID: row.MarssId,
 			Person: sharedmodels.Person{
-				GivenName:  rows[i].GivenName,
-				ChosenName: rows[i].ChosenName,
-				FamilyName: rows[i].FamilyName,
-				Email:      rows[i].Email,
-				Username:   rows[i].Username,
+				Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
+				GivenName:  row.GivenName,
+				ChosenName: row.ChosenName,
+				FamilyName: row.FamilyName,
+				Pronouns:   parsePronouns(row.Pronouns),
+				Email:      row.Email,
+				Username:   row.Username,
 			},
-			Grade:      sharedmodels.Grade(rows[i].Grade),
-			HomeroomID: rows[i].HomeroomId,
-			PlanType:   sharedmodels.PlanType(rows[i].PlanType),
+			Grade:      sharedmodels.Grade(row.Grade),
+			HomeroomID: row.HomeroomId,
+			PlanType:   sharedmodels.PlanType(row.PlanType),
 		}
 	}
 	return students, nil
@@ -394,9 +413,11 @@ func (m *ReadModel) Create(ctx context.Context, event StudentCreatedProjection) 
 		return dbsql.OnceCreateStudent(conn, dbsql.CreateStudentParams{
 			Id:                       event.ID,
 			MarssId:                  event.MARSSID,
+			Birthdate:                event.Birthdate,
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
+			Pronouns:                 event.Pronouns,
 			Email:                    event.Email,
 			Username:                 event.Username,
 			Grade:                    int64(event.Grade),
@@ -414,9 +435,11 @@ func (m *ReadModel) Update(ctx context.Context, event StudentUpdatedProjection) 
 		return dbsql.OnceUpdateStudent(conn, dbsql.UpdateStudentParams{
 			Id:                       event.ID,
 			MarssId:                  event.MARSSID,
+			Birthdate:                event.Birthdate,
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
+			Pronouns:                 event.Pronouns,
 			Email:                    event.Email,
 			Username:                 event.Username,
 			Grade:                    int64(event.Grade),
@@ -463,4 +486,12 @@ func parseDBTime(value string) time.Time {
 		}
 	}
 	return time.Time{}
+}
+
+func parsePronouns(s string) []sharedmodels.Pronoun {
+	var p []sharedmodels.Pronoun
+	if s != "" {
+		_ = json.Unmarshal([]byte(s), &p)
+	}
+	return p
 }

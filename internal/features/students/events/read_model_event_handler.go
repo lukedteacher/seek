@@ -30,9 +30,11 @@ type StudentReadModelWriter interface {
 type StudentState struct {
 	ID         string    `json:"id"`
 	MARSSID    string    `json:"marss_id"`
+	Birthdate  string    `json:"birthdate"`
 	GivenName  string    `json:"given_name"`
 	ChosenName string    `json:"chosen_name"`
 	FamilyName string    `json:"family_name"`
+	Pronouns   string    `json:"pronouns"`
 	Email      string    `json:"email"`
 	Username   string    `json:"username"`
 	Grade      int       `json:"grade"`

@@ -77,7 +77,7 @@ func (g Grade) Word() string {
 	return wordMap[g]
 }
 
-func (g Grade) Str() string {
+func (g Grade) String() string {
 	strMap := map[Grade]string{
 		-1: "-1",
 		0:  "0",

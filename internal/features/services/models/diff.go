@@ -6,11 +6,11 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 )
 
-func CompareServices(db, csv []*Service) []sharedmodels.Diff[Service] {
-	keyFn := func(s *Service) string {
+func CompareServices(db, csv []Service) []sharedmodels.Diff[Service] {
+	keyFn := func(s Service) string {
 		return fmt.Sprintf("%s|%s|%d|%s", s.StudentID, s.ServiceName, s.FrequencyCount, s.FrequencyType)
 	}
-	diffFields := func(a, b *Service) []string {
+	diffFields := func(a, b Service) []string {
 		changed := []string{}
 		if a.ServiceName != b.ServiceName {
 			changed = append(changed, "ServiceName")

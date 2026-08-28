@@ -12,15 +12,18 @@ type GetEducatorByUsernameWithCaseloadRes struct {
 	GivenName         string  `json:"given_name"`
 	ChosenName        string  `json:"chosen_name"`
 	FamilyName        string  `json:"family_name"`
+	Pronouns          string  `json:"pronouns"`
 	Email             string  `json:"email"`
 	Username          string  `json:"username"`
 	CreatedAt         string  `json:"created_at"`
 	UpdatedAt         string  `json:"updated_at"`
 	StudentId         *string `json:"student_id"`
 	MarssId           *string `json:"marss_id"`
+	StudentBirthdate  *string `json:"student_birthdate"`
 	StudentGivenName  *string `json:"student_given_name"`
 	StudentChosenName *string `json:"student_chosen_name"`
 	StudentFamilyName *string `json:"student_family_name"`
+	StudentPronouns   *string `json:"student_pronouns"`
 	StudentEmail      *string `json:"student_email"`
 	StudentUsername   *string `json:"student_username"`
 	Grade             *int64  `json:"grade"`
@@ -40,26 +43,29 @@ type GetEducatorByUsernameWithCaseloadStmt struct {
 func GetEducatorByUsernameWithCaseload(tx *sqlite.Conn) *GetEducatorByUsernameWithCaseloadStmt {
 	const querySQL = `
 SELECT
-    e.id AS educator_id,
-    e.given_name,
-    e.chosen_name,
-    e.family_name,
-    e.email,
-    e.username,
-    e.created_at,
-    e.updated_at,
-    s.id AS student_id,
-    s.marss_id,
-    s.given_name as student_given_name,
-    s.chosen_name as student_chosen_name,
-    s.family_name as student_family_name,
-    s.email as student_email,
-    s.username as student_username,
-    s.grade,
-    s.homeroom_id,
-		s.plan_type,
-    s.created_at AS student_created_at,
-    s.updated_at AS student_updated_at
+	e.id AS educator_id,
+	e.given_name,
+	e.chosen_name,
+	e.family_name,
+	e.pronouns,
+	e.email,
+	e.username,
+	e.created_at,
+	e.updated_at,
+	s.id AS student_id,
+	s.marss_id,
+	s.birthdate AS student_birthdate,
+	s.given_name AS student_given_name,
+	s.chosen_name AS student_chosen_name,
+	s.family_name AS student_family_name,
+	s.pronouns AS student_pronouns,
+	s.email AS student_email,
+	s.username AS student_username,
+	s.grade,
+	s.homeroom_id,
+	s.plan_type,
+	s.created_at AS student_created_at,
+	s.updated_at AS student_updated_at
 FROM educators e
 LEFT JOIN caseload_students cl ON e.id = cl.educator_id
 LEFT JOIN students s ON cl.student_id = s.id AND s.archived_at IS NULL
@@ -120,68 +126,79 @@ func (ps *GetEducatorByUsernameWithCaseloadStmt) Run(
 		row.GivenName = stmt.ColumnText(1)
 		row.ChosenName = stmt.ColumnText(2)
 		row.FamilyName = stmt.ColumnText(3)
-		row.Email = stmt.ColumnText(4)
-		row.Username = stmt.ColumnText(5)
-		row.CreatedAt = stmt.ColumnText(6)
-		row.UpdatedAt = stmt.ColumnText(7)
-		isNullStudentId := stmt.ColumnIsNull(8)
+		row.Pronouns = stmt.ColumnText(4)
+		row.Email = stmt.ColumnText(5)
+		row.Username = stmt.ColumnText(6)
+		row.CreatedAt = stmt.ColumnText(7)
+		row.UpdatedAt = stmt.ColumnText(8)
+		isNullStudentId := stmt.ColumnIsNull(9)
 		if !isNullStudentId {
-			tmp := stmt.ColumnText(8)
+			tmp := stmt.ColumnText(9)
 			row.StudentId = &tmp
 		}
-		isNullMarssId := stmt.ColumnIsNull(9)
+		isNullMarssId := stmt.ColumnIsNull(10)
 		if !isNullMarssId {
-			tmp := stmt.ColumnText(9)
+			tmp := stmt.ColumnText(10)
 			row.MarssId = &tmp
 		}
-		isNullStudentGivenName := stmt.ColumnIsNull(10)
+		isNullStudentBirthdate := stmt.ColumnIsNull(11)
+		if !isNullStudentBirthdate {
+			tmp := stmt.ColumnText(11)
+			row.StudentBirthdate = &tmp
+		}
+		isNullStudentGivenName := stmt.ColumnIsNull(12)
 		if !isNullStudentGivenName {
-			tmp := stmt.ColumnText(10)
+			tmp := stmt.ColumnText(12)
 			row.StudentGivenName = &tmp
 		}
-		isNullStudentChosenName := stmt.ColumnIsNull(11)
+		isNullStudentChosenName := stmt.ColumnIsNull(13)
 		if !isNullStudentChosenName {
-			tmp := stmt.ColumnText(11)
+			tmp := stmt.ColumnText(13)
 			row.StudentChosenName = &tmp
 		}
-		isNullStudentFamilyName := stmt.ColumnIsNull(12)
+		isNullStudentFamilyName := stmt.ColumnIsNull(14)
 		if !isNullStudentFamilyName {
-			tmp := stmt.ColumnText(12)
+			tmp := stmt.ColumnText(14)
 			row.StudentFamilyName = &tmp
 		}
-		isNullStudentEmail := stmt.ColumnIsNull(13)
+		isNullStudentPronouns := stmt.ColumnIsNull(15)
+		if !isNullStudentPronouns {
+			tmp := stmt.ColumnText(15)
+			row.StudentPronouns = &tmp
+		}
+		isNullStudentEmail := stmt.ColumnIsNull(16)
 		if !isNullStudentEmail {
-			tmp := stmt.ColumnText(13)
+			tmp := stmt.ColumnText(16)
 			row.StudentEmail = &tmp
 		}
-		isNullStudentUsername := stmt.ColumnIsNull(14)
+		isNullStudentUsername := stmt.ColumnIsNull(17)
 		if !isNullStudentUsername {
-			tmp := stmt.ColumnText(14)
+			tmp := stmt.ColumnText(17)
 			row.StudentUsername = &tmp
 		}
-		isNullGrade := stmt.ColumnIsNull(15)
+		isNullGrade := stmt.ColumnIsNull(18)
 		if !isNullGrade {
-			tmp := stmt.ColumnInt64(15)
+			tmp := stmt.ColumnInt64(18)
 			row.Grade = &tmp
 		}
-		isNullHomeroomId := stmt.ColumnIsNull(16)
+		isNullHomeroomId := stmt.ColumnIsNull(19)
 		if !isNullHomeroomId {
-			tmp := stmt.ColumnText(16)
+			tmp := stmt.ColumnText(19)
 			row.HomeroomId = &tmp
 		}
-		isNullPlanType := stmt.ColumnIsNull(17)
+		isNullPlanType := stmt.ColumnIsNull(20)
 		if !isNullPlanType {
-			tmp := stmt.ColumnInt64(17)
+			tmp := stmt.ColumnInt64(20)
 			row.PlanType = &tmp
 		}
-		isNullStudentCreatedAt := stmt.ColumnIsNull(18)
+		isNullStudentCreatedAt := stmt.ColumnIsNull(21)
 		if !isNullStudentCreatedAt {
-			tmp := stmt.ColumnText(18)
+			tmp := stmt.ColumnText(21)
 			row.StudentCreatedAt = &tmp
 		}
-		isNullStudentUpdatedAt := stmt.ColumnIsNull(19)
+		isNullStudentUpdatedAt := stmt.ColumnIsNull(22)
 		if !isNullStudentUpdatedAt {
-			tmp := stmt.ColumnText(19)
+			tmp := stmt.ColumnText(22)
 			row.StudentUpdatedAt = &tmp
 		}
 		res = append(res, row)

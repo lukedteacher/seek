@@ -74,7 +74,7 @@ func TextInputWithLabel(p TextInputWithLabelProps) templ.Component {
 		templ_7745c5c3_Err = label.Label(label.Props{
 			ID:    fmt.Sprintf("%s-label", p.ID),
 			For:   fmt.Sprintf("%s-input", p.ID),
-			Class: "mb-3 text-muted-foreground",
+			Class: "mb-3 text-neutral-content/90",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

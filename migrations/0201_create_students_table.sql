@@ -2,9 +2,11 @@ CREATE TABLE IF NOT EXISTS
 	students (
 		id TEXT PRIMARY KEY,
 		marss_id TEXT NOT NULL,
+		birthdate TEXT NOT NULL,
 		given_name TEXT NOT NULL,
 		chosen_name TEXT NOT NULL,
 		family_name TEXT NOT NULL,
+		pronouns TEXT NOT NULL,
 		email TEXT NOT NULL,
 		username TEXT NOT NULL,
 		grade INTEGER NOT NULL,
@@ -18,6 +20,7 @@ CREATE TABLE IF NOT EXISTS
 	);
 
 CREATE INDEX IF NOT EXISTS students_marss_id_idx ON students(marss_id);
+CREATE INDEX IF NOT EXISTS students_birthdate_idx ON students(birthdate);
 CREATE INDEX IF NOT EXISTS students_given_name_idx ON students(given_name);
 CREATE INDEX IF NOT EXISTS students_chosen_name_idx ON students(chosen_name);
 CREATE INDEX IF NOT EXISTS students_family_name_idx ON students(family_name);

@@ -38,8 +38,8 @@ func NewCSVService() *Service {
 	return &Service{}
 }
 
-func (c CSVService) ToService() *Service {
-	return &Service{
+func (c CSVService) ToService() Service {
+	return Service{
 		ID:              c.ID,
 		StudentID:       c.StudentID,
 		StudentMARSSID:  c.StudentMARSSID,

@@ -45,6 +45,7 @@ type EducatorState struct {
 	GivenName  string    `json:"given_name"`
 	ChosenName string    `json:"chosen_name"`
 	FamilyName string    `json:"family_name"`
+	Pronouns   string    `json:"pronouns"`
 	Email      string    `json:"email"`
 	Username   string    `json:"username"`
 	Roles      []string  `json:"role"`

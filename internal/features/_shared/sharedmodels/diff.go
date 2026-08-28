@@ -34,12 +34,12 @@ func (ds DiffStatus) String() string {
 // keyFn generates a unique key for each item.
 // diffFields compares two items and returns a list of changed field names.
 func Compare[T any](
-	db []*T,
-	csv []*T,
-	keyFn func(*T) string,
-	diffFields func(*T, *T) []string,
+	db []T,
+	csv []T,
+	keyFn func(T) string,
+	diffFields func(T, T) []string,
 ) []Diff[T] {
-	dbMap := make(map[string]*T)
+	dbMap := make(map[string]T)
 	for _, s := range db {
 		dbMap[keyFn(s)] = s
 	}
@@ -55,22 +55,22 @@ func Compare[T any](
 				diffs = append(diffs, Diff[T]{
 					Key:           key,
 					Status:        DiffUpdated,
-					Old:           dbItem,
-					New:           csvItem,
+					Old:           &dbItem,
+					New:           &csvItem,
 					ChangedFields: fields,
 				})
 			} else {
 				diffs = append(diffs, Diff[T]{
 					Key:    key,
 					Status: DiffSame,
-					New:    csvItem,
+					New:    &csvItem,
 				})
 			}
 		} else {
 			diffs = append(diffs, Diff[T]{
 				Key:    key,
 				Status: DiffNew,
-				New:    csvItem,
+				New:    &csvItem,
 			})
 		}
 	}
@@ -80,7 +80,7 @@ func Compare[T any](
 			diffs = append(diffs, Diff[T]{
 				Key:    key,
 				Status: DiffAbsent,
-				Old:    dbItem,
+				Old:    &dbItem,
 			})
 		}
 	}

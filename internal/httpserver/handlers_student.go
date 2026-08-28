@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
 	"strconv"
 
 	"seek/internal/eventstore"
@@ -27,6 +28,7 @@ import (
 	"seek/pkg/templui/components/toast"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/gocarina/gocsv"
 	"github.com/starfederation/datastar-go/datastar"
 )
 
@@ -51,6 +53,8 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Post("/students/{username}/edit", postStudentEdit(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Post("/students/{username}/archive", postStudentArchive(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.Students))
 	r.Delete("/students/{username}", deleteStudent(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.Students))
+	r.Get("/students/csv", getStudentsCSV(s.Logger, *s.ReadModels.Students))
+	r.Post("/students/csv", postStudentsCSV(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.Students))
 }
 
 // GET request to /students
@@ -105,7 +109,7 @@ func getStudentsListStream(
 
 		defaultGradeFilter := make(map[string]bool, 9)
 		for _, grade := range sharedmodels.GradeList {
-			defaultGradeFilter[grade.Str()] = true
+			defaultGradeFilter[grade.String()] = true
 		}
 		defaultPlanTypeFilter := make(map[string]bool, 4)
 		for _, planType := range sharedmodels.PlanTypeList {
@@ -954,4 +958,133 @@ func refreshStudentEditState(
 		return err
 	}
 	return viewstore.PutState(ctx, vs, username+".edit", student)
+}
+
+// GET request to /students/csv
+func getStudentsCSV(
+	l *slog.Logger,
+	studentReadModel events.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		file, err := os.OpenFile("/home/lukeout/seek/students.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+		if err != nil {
+			http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		csvStudents := []models.Student{}
+		if err := gocsv.UnmarshalFile(file, &csvStudents); err != nil {
+			http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		dbStudents, err := studentReadModel.List(ctx)
+		if err != nil {
+			l.ErrorContext(ctx, "get students csv", "err", err)
+		}
+
+		diffs := models.CompareStudents(dbStudents, csvStudents)
+
+		// render view
+		view := dto.NewStudentsDiffTableView(diffs)
+		pages.ReadStudentCSV(view).Render(ctx, w)
+	}
+}
+
+// POST request to /students/csv
+func postStudentsCSV(
+	l *slog.Logger,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+	studentReadModel events.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		file, err := os.OpenFile("/home/lukeout/seek/students.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+		if err != nil {
+			http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		csvStudents := []models.Student{}
+		if err := gocsv.UnmarshalFile(file, &csvStudents); err != nil {
+			http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		dbStudents, err := studentReadModel.List(ctx)
+		if err != nil {
+			l.ErrorContext(ctx, "post students csv list", "err", err)
+		}
+
+		diffs := models.CompareStudents(dbStudents, csvStudents)
+
+		for _, diff := range diffs {
+			switch diff.Status {
+			case sharedmodels.DiffSame:
+				continue
+			case sharedmodels.DiffNew:
+				cmd := events.CreateStudentCommand{
+					StudentState: events.StudentState{
+						GivenName:  diff.New.GivenName,
+						ChosenName: diff.New.ChosenName,
+						FamilyName: diff.New.FamilyName,
+						Email:      diff.New.Email,
+						Username:   diff.New.Username,
+						Grade:      int(diff.New.Grade),
+					},
+				}
+				_, err := events.CreateStudentCommandHandler(
+					ctx,
+					cmd,
+					saver,
+				)
+				if err != nil {
+					l.ErrorContext(ctx, "post students csv create", "err", err)
+				}
+			case sharedmodels.DiffUpdated:
+				cmd := events.UpdateStudentCommand{
+					StudentState: events.StudentState{
+						ID:         diff.Old.ID,
+						GivenName:  diff.New.GivenName,
+						ChosenName: diff.New.ChosenName,
+						FamilyName: diff.New.FamilyName,
+						Email:      diff.New.Email,
+						Username:   diff.New.Username,
+						Grade:      int(diff.New.Grade),
+					},
+				}
+				_, err := events.UpdateStudentCommandHandler(
+					ctx,
+					cmd,
+					saver,
+					retriever,
+				)
+				if err != nil {
+					l.ErrorContext(ctx, "post students csv update", "err", err)
+				}
+			case sharedmodels.DiffAbsent:
+				cmd := events.ArchiveStudentCommand{
+					StudentID: diff.Old.ID,
+				}
+				_, err := events.ArchiveStudentCommandHandler(
+					ctx,
+					cmd,
+					saver,
+					retriever,
+				)
+				if err != nil {
+					l.ErrorContext(ctx, "post students csv archive", "err", err)
+				}
+			}
+		}
+
+		sse := newSSE(w, r)
+		sse.Redirect("/students")
+	}
 }

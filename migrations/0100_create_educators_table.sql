@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS educators (
 	given_name TEXT NOT NULL,
 	chosen_name TEXT NOT NULL,
 	family_name TEXT NOT NULL,
+	pronouns TEXT NOT NULL,
 	email TEXT NOT NULL,
 	username TEXT NOT NULL,
 	last_event_commit_position INTEGER NOT NULL,

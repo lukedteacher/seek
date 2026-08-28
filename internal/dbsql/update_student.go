@@ -9,9 +9,11 @@ import (
 
 type UpdateStudentParams struct {
 	MarssId                  string `json:"marss_id"`
+	Birthdate                string `json:"birthdate"`
 	GivenName                string `json:"given_name"`
 	ChosenName               string `json:"chosen_name"`
 	FamilyName               string `json:"family_name"`
+	Pronouns                 string `json:"pronouns"`
 	Email                    string `json:"email"`
 	Username                 string `json:"username"`
 	Grade                    int64  `json:"grade"`
@@ -35,18 +37,20 @@ func UpdateStudent(tx *sqlite.Conn) *UpdateStudentStmt {
 UPDATE students
 SET 
 	marss_id = ?1,
-	given_name = ?2,
-	chosen_name = ?3,
-	family_name = ?4,
-	email = ?5,
-	username = ?6,
-	grade = ?7,
-	homeroom_id = ?8,
-	plan_type = ?9,
-	last_event_commit_position = ?10,
-	last_event_prepare_position = ?11,
-	updated_at = ?12
-WHERE id = ?13
+	birthdate = ?2,
+	given_name = ?3,
+	chosen_name = ?4,
+	family_name = ?5,
+	pronouns = ?6,
+	email = ?7,
+	username = ?8,
+	grade = ?9,
+	homeroom_id = ?10,
+	plan_type = ?11,
+	last_event_commit_position = ?12,
+	last_event_prepare_position = ?13,
+	updated_at = ?14
+WHERE id = ?15
     `
 
 	ps := &UpdateStudentStmt{
@@ -86,6 +90,9 @@ func (ps *UpdateStudentStmt) Run(
 	stmt.BindText(bindIndex, params.MarssId)
 
 	bindIndex++
+	stmt.BindText(bindIndex, params.Birthdate)
+
+	bindIndex++
 	stmt.BindText(bindIndex, params.GivenName)
 
 	bindIndex++
@@ -93,6 +100,9 @@ func (ps *UpdateStudentStmt) Run(
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.FamilyName)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.Pronouns)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Email)

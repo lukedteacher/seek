@@ -524,14 +524,14 @@ func getCSV(
 		}
 		defer file.Close()
 
-		csvServices := []*models.CSVService{}
+		csvServices := []models.CSVService{}
 		if err := gocsv.UnmarshalFile(file, &csvServices); err != nil {
 			http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		// filter out unwanted services
-		filtered := make([]*models.CSVService, 0, len(csvServices))
+		filtered := make([]models.CSVService, 0, len(csvServices))
 		for _, svc := range csvServices {
 			if svc.ServiceName != "Shared paraprofessional" {
 				filtered = append(filtered, svc)
@@ -546,7 +546,7 @@ func getCSV(
 		}
 
 		// convert CSV rows with valid MARSS ID to domain models
-		converted := make([]*models.Service, 0)
+		converted := make([]models.Service, 0)
 		for _, csvSvc := range filtered {
 			key := strings.TrimSpace(csvSvc.StudentMARSSID)
 			if student_id, ok := marssMap[key]; ok {
@@ -561,13 +561,9 @@ func getCSV(
 			l.ErrorContext(ctx, "read csv list db services", "err", err)
 			return
 		}
-		dbPtrs := make([]*models.Service, len(dbServices))
-		for i := range dbServices {
-			dbPtrs[i] = &dbServices[i]
-		}
 
 		// compute diff
-		diffs := models.CompareServices(dbPtrs, converted)
+		diffs := models.CompareServices(dbServices, converted)
 
 		// render view
 		view := dto.NewServiceDiffTableView(diffs)
@@ -615,7 +611,7 @@ func postCSV(
 		}
 
 		// convert CSV rows with valid MARSS ID to domain models
-		converted := make([]*models.Service, 0)
+		converted := make([]models.Service, 0)
 		for _, csvSvc := range filtered {
 			key := strings.TrimSpace(csvSvc.StudentMARSSID)
 			if student_id, ok := marssMap[key]; ok {
@@ -630,13 +626,9 @@ func postCSV(
 			l.ErrorContext(ctx, "read csv list db services", "err", err)
 			return
 		}
-		dbPtrs := make([]*models.Service, len(dbServices))
-		for i := range dbServices {
-			dbPtrs[i] = &dbServices[i]
-		}
 
 		// compute diff
-		diffs := models.CompareServices(dbPtrs, converted)
+		diffs := models.CompareServices(dbServices, converted)
 
 		for _, diff := range diffs {
 			if diff.Status == sharedmodels.DiffNew {

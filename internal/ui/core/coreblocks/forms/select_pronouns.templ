@@ -1,0 +1,37 @@
+package forms
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/templui/components/label"
+)
+
+templ SelectPronouns(object string, selected map[sharedmodels.Pronoun]bool) {
+	<div class="flex flex-col gap-3">
+		@label.Label(label.Props{
+			ID:    fmt.Sprintf("%s-pronouns-label", object),
+			For:   fmt.Sprintf("%s-pronouns-select", object),
+			Class: "text-sm text-neutral-content/90",
+		}) {
+			pronoun(s)
+		}
+		<select
+			id={ fmt.Sprintf("%s-pronouns-select", object) }
+			class="input"
+			{ fmt.Sprintf("data-bind:%s.pronoun", object) }
+		>
+			<selectedcontent></selectedcontent>
+			for _, opt := range sharedmodels.PronounList {
+				<option
+					value={ opt.String() }
+					if selected[opt] {
+						selected
+					}
+				>
+					{ fmt.Sprintf("%s / %s", opt.Subject(), opt.Object()) }
+				</option>
+			}
+		</select>
+	</div>
+}

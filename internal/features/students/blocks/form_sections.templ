@@ -72,8 +72,8 @@ templ FormSections(view dto.StudentFormView) {
 			}) {
 				for i := range sharedmodels.GradeList {
 					@selectbox.Item(selectbox.ItemProps{
-						Value:    sharedmodels.GradeList[i].Str(),
-						Selected: sharedmodels.GradeList[i].Str() == view.Student.Grade.Str(),
+						Value:    sharedmodels.GradeList[i].String(),
+						Selected: sharedmodels.GradeList[i].String() == view.Student.Grade.String(),
 					}) {
 						{ sharedmodels.GradeList[i].Ordinal() }
 					}

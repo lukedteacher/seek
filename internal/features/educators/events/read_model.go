@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -82,6 +83,7 @@ func (m *ReadModel) GetByID(ctx context.Context, educatorID string) (*models.Edu
 			GivenName:  row.GivenName,
 			ChosenName: row.ChosenName,
 			FamilyName: row.FamilyName,
+			Pronouns:   parsePronouns(row.Pronouns),
 			Email:      row.Email,
 			Username:   row.Username,
 		},
@@ -110,6 +112,7 @@ func (m *ReadModel) getByUsername(ctx context.Context, username string) (*models
 			GivenName:  row.GivenName,
 			ChosenName: row.ChosenName,
 			FamilyName: row.FamilyName,
+			Pronouns:   parsePronouns(row.Pronouns),
 			Email:      row.Email,
 			Username:   row.Username,
 		},
@@ -138,6 +141,7 @@ func (m *ReadModel) getByUsernameWithRoles(ctx context.Context, username string)
 			GivenName:  rows[0].GivenName,
 			ChosenName: rows[0].ChosenName,
 			FamilyName: rows[0].FamilyName,
+			Pronouns:   parsePronouns(rows[0].Pronouns),
 			Email:      rows[0].Email,
 			Username:   rows[0].Username,
 		},
@@ -173,6 +177,7 @@ func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username stri
 				GivenName:  rows[0].GivenName,
 				ChosenName: rows[0].ChosenName,
 				FamilyName: rows[0].FamilyName,
+				Pronouns:   parsePronouns(rows[0].Pronouns),
 				Email:      rows[0].Email,
 				Username:   rows[0].Username,
 			},
@@ -234,14 +239,16 @@ func (m *ReadModel) listAll(ctx context.Context) ([]models.Educator, error) {
 
 	educators := make([]models.Educator, len(rows))
 	for i := range rows {
+		row := rows[i]
 		educators[i] = models.Educator{
-			ID: rows[i].Id,
+			ID: row.Id,
 			Person: sharedmodels.Person{
-				GivenName:  rows[i].GivenName,
-				ChosenName: rows[i].ChosenName,
-				FamilyName: rows[i].FamilyName,
-				Email:      rows[i].Email,
-				Username:   rows[i].Username,
+				GivenName:  row.GivenName,
+				ChosenName: row.ChosenName,
+				FamilyName: row.FamilyName,
+				Pronouns:   parsePronouns(row.Pronouns),
+				Email:      row.Email,
+				Username:   row.Username,
 			},
 		}
 	}
@@ -260,14 +267,16 @@ func (m *ReadModel) listByRole(ctx context.Context, role sharedmodels.EducatorRo
 
 	educators := make([]models.Educator, len(rows))
 	for i := range rows {
+		row := rows[i]
 		educators[i] = models.Educator{
-			ID: rows[i].Id,
+			ID: row.Id,
 			Person: sharedmodels.Person{
-				GivenName:  rows[i].GivenName,
-				ChosenName: rows[i].ChosenName,
-				FamilyName: rows[i].FamilyName,
-				Email:      rows[i].Email,
-				Username:   rows[i].Username,
+				GivenName:  row.GivenName,
+				ChosenName: row.ChosenName,
+				FamilyName: row.FamilyName,
+				Pronouns:   parsePronouns(row.Pronouns),
+				Email:      row.Email,
+				Username:   row.Username,
 			},
 		}
 	}
@@ -296,6 +305,7 @@ func (m *ReadModel) ListWithRoles(ctx context.Context) ([]models.Educator, error
 					GivenName:  row.GivenName,
 					ChosenName: row.ChosenName,
 					FamilyName: row.FamilyName,
+					Pronouns:   parsePronouns(row.Pronouns),
 					Email:      row.Email,
 					Username:   row.Username,
 				},
@@ -323,6 +333,7 @@ func (m *ReadModel) Create(ctx context.Context, event EducatorCreatedProjection)
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
+			Pronouns:                 event.Pronouns,
 			Email:                    event.Email,
 			Username:                 event.Username,
 			LastEventCommitPosition:  event.Position.Commit,
@@ -354,6 +365,7 @@ func (m *ReadModel) Update(ctx context.Context, event EducatorUpdatedProjection)
 			GivenName:                event.GivenName,
 			ChosenName:               event.ChosenName,
 			FamilyName:               event.FamilyName,
+			Pronouns:                 event.Pronouns,
 			Email:                    event.Email,
 			Username:                 event.Username,
 			LastEventCommitPosition:  event.Position.Commit,
@@ -439,4 +451,12 @@ func parseDBTime(value string) time.Time {
 		}
 	}
 	return time.Time{}
+}
+
+func parsePronouns(s string) []sharedmodels.Pronoun {
+	var p []sharedmodels.Pronoun
+	if s != "" {
+		_ = json.Unmarshal([]byte(s), &p)
+	}
+	return p
 }

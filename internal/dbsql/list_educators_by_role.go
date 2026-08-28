@@ -12,6 +12,7 @@ type ListEducatorsByRoleRes struct {
 	GivenName  string `json:"given_name"`
 	ChosenName string `json:"chosen_name"`
 	FamilyName string `json:"family_name"`
+	Pronouns   string `json:"pronouns"`
 	Email      string `json:"email"`
 	Username   string `json:"username"`
 	CreatedAt  string `json:"created_at"`
@@ -29,15 +30,16 @@ type ListEducatorsByRoleStmt struct {
 func ListEducatorsByRole(tx *sqlite.Conn) *ListEducatorsByRoleStmt {
 	const querySQL = `
 SELECT
-    e.id,
-    e.given_name,
-    e.chosen_name,
-    e.family_name,
-    e.email,
-    e.username,
-    e.created_at,
-    e.updated_at,
-    er.role
+	e.id,
+	e.given_name,
+	e.chosen_name,
+	e.family_name,
+	e.pronouns,
+	e.email,
+	e.username,
+	e.created_at,
+	e.updated_at,
+	er.role
 FROM educators e
 INNER JOIN educator_roles er ON e.id = er.educator_id AND er.archived_at IS NULL
 WHERE e.archived_at IS NULL
@@ -97,11 +99,12 @@ func (ps *ListEducatorsByRoleStmt) Run(
 		row.GivenName = stmt.ColumnText(1)
 		row.ChosenName = stmt.ColumnText(2)
 		row.FamilyName = stmt.ColumnText(3)
-		row.Email = stmt.ColumnText(4)
-		row.Username = stmt.ColumnText(5)
-		row.CreatedAt = stmt.ColumnText(6)
-		row.UpdatedAt = stmt.ColumnText(7)
-		row.Role = stmt.ColumnText(8)
+		row.Pronouns = stmt.ColumnText(4)
+		row.Email = stmt.ColumnText(5)
+		row.Username = stmt.ColumnText(6)
+		row.CreatedAt = stmt.ColumnText(7)
+		row.UpdatedAt = stmt.ColumnText(8)
+		row.Role = stmt.ColumnText(9)
 		res = append(res, row)
 	}
 

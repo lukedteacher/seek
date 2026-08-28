@@ -12,6 +12,7 @@ type GetEducatorWithRolesByUsernameRes struct {
 	GivenName  string  `json:"given_name"`
 	ChosenName string  `json:"chosen_name"`
 	FamilyName string  `json:"family_name"`
+	Pronouns   string  `json:"pronouns"`
 	Email      string  `json:"email"`
 	Username   string  `json:"username"`
 	CreatedAt  string  `json:"created_at"`
@@ -33,6 +34,7 @@ SELECT
 	e.given_name,
 	e.chosen_name,
 	e.family_name,
+	e.pronouns,
 	e.email,
 	e.username,
 	e.created_at,
@@ -96,13 +98,14 @@ func (ps *GetEducatorWithRolesByUsernameStmt) Run(
 		row.GivenName = stmt.ColumnText(1)
 		row.ChosenName = stmt.ColumnText(2)
 		row.FamilyName = stmt.ColumnText(3)
-		row.Email = stmt.ColumnText(4)
-		row.Username = stmt.ColumnText(5)
-		row.CreatedAt = stmt.ColumnText(6)
-		row.UpdatedAt = stmt.ColumnText(7)
-		isNullRole := stmt.ColumnIsNull(8)
+		row.Pronouns = stmt.ColumnText(4)
+		row.Email = stmt.ColumnText(5)
+		row.Username = stmt.ColumnText(6)
+		row.CreatedAt = stmt.ColumnText(7)
+		row.UpdatedAt = stmt.ColumnText(8)
+		isNullRole := stmt.ColumnIsNull(9)
 		if !isNullRole {
-			tmp := stmt.ColumnText(8)
+			tmp := stmt.ColumnText(9)
 			row.Role = &tmp
 		}
 		res = append(res, row)

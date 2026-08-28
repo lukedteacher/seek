@@ -12,11 +12,13 @@ var (
 )
 
 type Person struct {
-	GivenName  string `json:"given_name" `
-	ChosenName string `json:"chosen_name"`
-	FamilyName string `json:"family_name"`
-	Email      string `json:"email"`
-	Username   string `json:"username"`
+	Birthdate  DateOnly  `json:"birthdate" csv:"birthdate"`
+	GivenName  string    `json:"given_name" csv:"given"`
+	ChosenName string    `json:"chosen_name" csv:"chosen"`
+	FamilyName string    `json:"family_name" csv:"family"`
+	Pronouns   []Pronoun `json:"pronouns" csv:"pronouns"`
+	Email      string    `json:"email" csv:"email"`
+	Username   string    `json:"username" csv:"username"`
 }
 
 func NewPerson(given, chosen, family, email string) (Person, error) {

@@ -2,6 +2,14 @@
 
 updates for SEEK
 
+## v0.9.3 (26.08.28) student data changes
+
+- implemented student CSV creation
+- pronouns and birthdate for person model
+- pronoun select
+- pronouns field added for educator and student
+- birthdate added for student
+
 ## v0.9.2 (26.08.24) refactoring, bug fixing
 
 - renamed service to service

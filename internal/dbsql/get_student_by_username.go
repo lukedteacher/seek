@@ -10,9 +10,11 @@ import (
 type GetStudentByUsernameRes struct {
 	Id         string `json:"id"`
 	MarssId    string `json:"marss_id"`
+	Birthdate  string `json:"birthdate"`
 	GivenName  string `json:"given_name"`
 	ChosenName string `json:"chosen_name"`
 	FamilyName string `json:"family_name"`
+	Pronouns   string `json:"pronouns"`
 	Email      string `json:"email"`
 	Username   string `json:"username"`
 	Grade      int64  `json:"grade"`
@@ -34,9 +36,11 @@ func GetStudentByUsername(tx *sqlite.Conn) *GetStudentByUsernameStmt {
 SELECT 
 	id, 
 	marss_id,
+	birthdate,
 	given_name, 
 	chosen_name, 
 	family_name, 
+	pronouns,
 	email,
 	username,
 	grade, 
@@ -95,16 +99,18 @@ func (ps *GetStudentByUsernameStmt) Run(
 		row := GetStudentByUsernameRes{}
 		row.Id = stmt.ColumnText(0)
 		row.MarssId = stmt.ColumnText(1)
-		row.GivenName = stmt.ColumnText(2)
-		row.ChosenName = stmt.ColumnText(3)
-		row.FamilyName = stmt.ColumnText(4)
-		row.Email = stmt.ColumnText(5)
-		row.Username = stmt.ColumnText(6)
-		row.Grade = stmt.ColumnInt64(7)
-		row.HomeroomId = stmt.ColumnText(8)
-		row.PlanType = stmt.ColumnInt64(9)
-		row.CreatedAt = stmt.ColumnText(10)
-		row.UpdatedAt = stmt.ColumnText(11)
+		row.Birthdate = stmt.ColumnText(2)
+		row.GivenName = stmt.ColumnText(3)
+		row.ChosenName = stmt.ColumnText(4)
+		row.FamilyName = stmt.ColumnText(5)
+		row.Pronouns = stmt.ColumnText(6)
+		row.Email = stmt.ColumnText(7)
+		row.Username = stmt.ColumnText(8)
+		row.Grade = stmt.ColumnInt64(9)
+		row.HomeroomId = stmt.ColumnText(10)
+		row.PlanType = stmt.ColumnInt64(11)
+		row.CreatedAt = stmt.ColumnText(12)
+		row.UpdatedAt = stmt.ColumnText(13)
 		res = &row
 	}
 

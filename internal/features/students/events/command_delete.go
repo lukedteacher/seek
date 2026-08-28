@@ -17,8 +17,16 @@ type DeleteStudentResult struct {
 	EventID string
 }
 
-func DeleteStudentCommandHandler(ctx context.Context, command DeleteStudentCommand, saver eventstore.Saver, retriever eventstore.Retriever) (DeleteStudentResult, error) {
-	model, err := loadDeleteStudentContext(ctx, retriever, command.StudentID)
+func DeleteStudentCommandHandler(
+	ctx context.Context,
+	cmd DeleteStudentCommand,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+) (
+	DeleteStudentResult,
+	error,
+) {
+	model, err := loadDeleteStudentContext(ctx, retriever, cmd.StudentID)
 	if err != nil {
 		return DeleteStudentResult{}, err
 	}
@@ -27,7 +35,12 @@ func DeleteStudentCommandHandler(ctx context.Context, command DeleteStudentComma
 	}
 
 	eventID := uuidv7.NewString()
-	event := NewStudentDeletedEvent(eventID, command.StudentID, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewStudentDeletedEvent(
+		eventID,
+		cmd.StudentID,
+		time.Now(),
+		metadataWithQuery(cmd.Metadata, model.query),
+	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return DeleteStudentResult{}, err

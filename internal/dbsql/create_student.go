@@ -10,9 +10,11 @@ import (
 type CreateStudentParams struct {
 	Id                       string `json:"id"`
 	MarssId                  string `json:"marss_id"`
+	Birthdate                string `json:"birthdate"`
 	GivenName                string `json:"given_name"`
 	ChosenName               string `json:"chosen_name"`
 	FamilyName               string `json:"family_name"`
+	Pronouns                 string `json:"pronouns"`
 	Email                    string `json:"email"`
 	Username                 string `json:"username"`
 	Grade                    int64  `json:"grade"`
@@ -35,9 +37,11 @@ func CreateStudent(tx *sqlite.Conn) *CreateStudentStmt {
 INSERT INTO students (
 	id, 
 	marss_id,
+	birthdate,
 	given_name, 
 	chosen_name, 
 	family_name, 
+	pronouns,
 	email,
 	username,
 	grade, 
@@ -51,18 +55,20 @@ INSERT INTO students (
 VALUES (
 	?1, 
 	?2,
-	?3, 
+	?3,
 	?4, 
 	?5, 
-	?6,
+	?6, 
 	?7,
-	?8, 
-	?9, 
+	?8,
+	?9,
 	?10, 
 	?11, 
-	?12,
+	?12, 
 	?13, 
-	?13
+	?14,
+	?15, 
+	?15
 )
 ON CONFLICT (id) DO NOTHING
     `
@@ -107,6 +113,9 @@ func (ps *CreateStudentStmt) Run(
 	stmt.BindText(bindIndex, params.MarssId)
 
 	bindIndex++
+	stmt.BindText(bindIndex, params.Birthdate)
+
+	bindIndex++
 	stmt.BindText(bindIndex, params.GivenName)
 
 	bindIndex++
@@ -114,6 +123,9 @@ func (ps *CreateStudentStmt) Run(
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.FamilyName)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.Pronouns)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.Email)

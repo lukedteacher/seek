@@ -250,8 +250,8 @@ func FormSections(view dto.StudentFormView) templ.Component {
 							return nil
 						})
 						templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-							Value:    sharedmodels.GradeList[i].Str(),
-							Selected: sharedmodels.GradeList[i].Str() == view.Student.Grade.Str(),
+							Value:    sharedmodels.GradeList[i].String(),
+							Selected: sharedmodels.GradeList[i].String() == view.Student.Grade.String(),
 						}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err

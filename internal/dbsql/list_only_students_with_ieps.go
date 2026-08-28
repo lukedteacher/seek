@@ -10,9 +10,11 @@ import (
 type ListOnlyStudentsWithIepsRes struct {
 	StudentId    string `json:"student_id"`
 	MarssId      string `json:"marss_id"`
+	Birthdate    string `json:"birthdate"`
 	GivenName    string `json:"given_name"`
 	ChosenName   string `json:"chosen_name"`
 	FamilyName   string `json:"family_name"`
+	Pronouns     string `json:"pronouns"`
 	Email        string `json:"email"`
 	Username     string `json:"username"`
 	Grade        int64  `json:"grade"`
@@ -40,9 +42,11 @@ func ListOnlyStudentsWithIeps(tx *sqlite.Conn) *ListOnlyStudentsWithIepsStmt {
 SELECT
 	s.id AS student_id,
 	s.marss_id,
+	s.birthdate,
 	s.given_name,
 	s.chosen_name,
 	s.family_name,
+	s.pronouns,
 	s.email,
 	s.username,
 	s.grade,
@@ -105,22 +109,24 @@ func (ps *ListOnlyStudentsWithIepsStmt) Run() (
 		row := ListOnlyStudentsWithIepsRes{}
 		row.StudentId = stmt.ColumnText(0)
 		row.MarssId = stmt.ColumnText(1)
-		row.GivenName = stmt.ColumnText(2)
-		row.ChosenName = stmt.ColumnText(3)
-		row.FamilyName = stmt.ColumnText(4)
-		row.Email = stmt.ColumnText(5)
-		row.Username = stmt.ColumnText(6)
-		row.Grade = stmt.ColumnInt64(7)
-		row.HomeroomId = stmt.ColumnText(8)
-		row.PlanType = stmt.ColumnInt64(9)
-		row.CreatedAt = stmt.ColumnText(10)
-		row.UpdatedAt = stmt.ColumnText(11)
-		row.IepId = stmt.ColumnText(12)
-		row.StartDate = stmt.ColumnText(13)
-		row.EndDate = stmt.ColumnText(14)
-		row.AmendedDate = stmt.ColumnText(15)
-		row.IepCreatedAt = stmt.ColumnText(16)
-		row.IepUpdatedAt = stmt.ColumnText(17)
+		row.Birthdate = stmt.ColumnText(2)
+		row.GivenName = stmt.ColumnText(3)
+		row.ChosenName = stmt.ColumnText(4)
+		row.FamilyName = stmt.ColumnText(5)
+		row.Pronouns = stmt.ColumnText(6)
+		row.Email = stmt.ColumnText(7)
+		row.Username = stmt.ColumnText(8)
+		row.Grade = stmt.ColumnInt64(9)
+		row.HomeroomId = stmt.ColumnText(10)
+		row.PlanType = stmt.ColumnInt64(11)
+		row.CreatedAt = stmt.ColumnText(12)
+		row.UpdatedAt = stmt.ColumnText(13)
+		row.IepId = stmt.ColumnText(14)
+		row.StartDate = stmt.ColumnText(15)
+		row.EndDate = stmt.ColumnText(16)
+		row.AmendedDate = stmt.ColumnText(17)
+		row.IepCreatedAt = stmt.ColumnText(18)
+		row.IepUpdatedAt = stmt.ColumnText(19)
 		res = append(res, row)
 	}
 
