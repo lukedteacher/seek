@@ -64,7 +64,7 @@ FROM students s
 INNER JOIN student_ieps i ON s.id = i.student_id
 WHERE s.archived_at IS NULL
   AND i.archived_at IS NULL
-ORDER BY s.family_name ASC, s.chosen_name ASC, s.given_name ASC
+ORDER BY s.family_name COLLATE NOCASE ASC, s.chosen_name COLLATE NOCASE ASC, s.given_name COLLATE NOCASE ASC
     `
 
 	ps := &ListOnlyStudentsWithIepsStmt{

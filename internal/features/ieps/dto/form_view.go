@@ -22,10 +22,10 @@ func NewIEPFormView(
 	if model == nil {
 		return IEPFormView{}
 	}
-	studentViews := studentDTO.NewSelectStudentOptions(students, []string{model.StudentID})
+	studentViews := studentDTO.NewSelectStudentOptions(nil, students, []string{model.StudentID})
 	view := NewIEPView(model)
 	return IEPFormView{
 		IEP:      view,
-		Students: studentViews,
+		Students: studentViews.Options,
 	}
 }

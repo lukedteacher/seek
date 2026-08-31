@@ -1,62 +1,119 @@
 package blocks
 
 import (
-	"time"
-
 	"fmt"
+
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/dto"
+	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
-	"seek/pkg/templui/components/timepicker"
+	"seek/pkg/utils"
 )
 
 templ FormTimePickers(view dto.PeriodFormView) {
+	@TimePickerField("period", "start", view.StartTime)
+	@TimePickerField("period", "end", view.EndTime)
+}
+
+templ TimePickerField(target, field string, value sharedmodels.TimeOnly) {
+	<div
+		class="flex flex-col gap-3 w-full"
+	>
+		@label.Label(label.Props{
+			For:   fmt.Sprintf("%s-%s-time-picker", target, field),
+			Class: "text-neutral-content/90",
+		}) {
+			{ field }
+		}
+		<div class="relative w-full">
+			@icon.Clock(icon.Props{
+				Class: "text-neutral-content/80 size-4 absolute left-2 top-1/2 transform -translate-y-1/2 z-1 pointer-events-none",
+			})
+			<neo-popover
+				class="w-full"
+				data-signals={ fmt.Sprintf("{%s: {%s: {hour: '%s', minute: '%s'}}}", target, field, value.Hour(), value.Minute()) }
+				placement="bottom"
+			>
+				<input
+					class="hidden"
+					id={ fmt.Sprintf("%s-%s-time-picker", target, field) }
+					data-bind={ fmt.Sprintf("%s.%s_time", target, field) }
+				/>
+				<button
+					class="input w-full justify-end"
+					data-text={ fmt.Sprintf("$%s.%s_time", target, field) }
+					data-effect={ fmt.Sprintf("$%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute", target, field) }
+					data-neo-popover-trigger
+				></button>
+				@TimePickerLists(target, field, value)
+			</neo-popover>
+		</div>
+	</div>
+}
+
+templ TimePickerLists(target, field string, value sharedmodels.TimeOnly) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	{{
-		// create min and max times for scool hours (8 AM to 4 PM)
-		now := time.Now()
-		minTime := time.Date(now.Year(), now.Month(), now.Day(), 8, 0, 0, 0, now.Location())
-		maxTime := time.Date(now.Year(), now.Month(), now.Day(), 16, 0, 0, 0, now.Location())
+		hours := []string{
+			"08",
+			"09",
+			"10",
+			"11",
+			"12",
+			"13",
+			"14",
+			"15",
+		}
+		minutes := []string{
+			"00",
+			"05",
+			"10",
+			"15",
+			"20",
+			"25",
+			"30",
+			"35",
+			"40",
+			"45",
+			"50",
+			"55",
+		}
 	}}
-	<div class="flex flex-col w-full">
-		@label.Label(label.Props{
-			For:   "period-start-time-picker",
-			Class: "mb-3 text-muted-foreground",
-		}) {
-			start
-		}
-		@timepicker.TimePicker(timepicker.Props{
-			ID:          "period-start-time-picker",
-			MinTime:     minTime,
-			MaxTime:     maxTime,
-			Step:        5,
-			Placeholder: "start time",
-			Class:       "input min-w-24 text-right",
-			Value:       view.StartTime.Time(),
-			DataBind:    "period.start_time",
-			DataOnInput: fmt.Sprintf("@post('%s/validate/starttime')", url),
-			DataText:    "$period.start_time",
-		})
+	<div
+		class="flex h-64"
+		data-neo-popover-content
+	>
+		<ul
+			class="flex flex-col gap-1 overflow-y-auto w-full"
+		>
+			for _, hour := range hours {
+				{{
+					isSelected := false
+					if value.Hour() == hour {
+						isSelected = true
+					}
+				}}
+				<li
+					class={ "text-sm px-2 py-1 rounded-md hover:bg-primary/80 cursor-pointer text-center", utils.If(isSelected, "bg-primary") }
+					data-on:click={ fmt.Sprintf("$%[1]s.%[2]s.hour='%[3]s'; $%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute; @post('%[4]s/validate/%[2]s_time')", target, field, hour, url) }
+				>{ hour }</li>
+			}
+		</ul>
+		<ul
+			class="flex flex-col gap-1 overflow-y-auto w-full"
+		>
+			for _, minute := range minutes {
+				{{
+					isSelected := false
+					if value.Minute() == minute {
+						isSelected = true
+					}
+				}}
+				<li
+					class={ "text-sm px-2 py-1 rounded-md hover:bg-primary/80 cursor-pointer text-center", utils.If(isSelected, "bg-primary") }
+					data-on:click={ fmt.Sprintf("$%[1]s.%[2]s.minute='%[3]s'; $%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute; @post('%[4]s/validate/%[2]s_time')", target, field, minute, url) }
+				>{ minute }</li>
+			}
+		</ul>
 	</div>
-	<div class="flex flex-col w-full">
-		@label.Label(label.Props{
-			For:   "period-end-time-picker",
-			Class: "mb-3 text-muted-foreground",
-		}) {
-			end
-		}
-		@timepicker.TimePicker(timepicker.Props{
-			ID:          "period-end-time-picker",
-			MinTime:     minTime,
-			MaxTime:     maxTime,
-			Step:        5,
-			Placeholder: "end time",
-			Class:       "input",
-			Value:       view.EndTime.Time(),
-			DataBind:    "period.end_time",
-			DataOnInput: fmt.Sprintf("@post('%s/validate/endtime')", url),
-			DataText:    "$period.end_time",
-		})
-	</div>
-	@timepicker.Script()
 }

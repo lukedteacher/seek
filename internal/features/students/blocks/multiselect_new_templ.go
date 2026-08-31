@@ -55,7 +55,7 @@ func StudentMultiselectNew(target string, students []dto.SelectStudentOption, se
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "students")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "select a student")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -68,7 +68,7 @@ func StudentMultiselectNew(target string, students []dto.SelectStudentOption, se
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<neo-popover placement=\"top\"><input id=\"test\" class=\"input\" data-neo-popover-trigger><ul data-neo-popover-content class=\"flex flex-col gap-1 w-full\" data-signals:period.student_ids=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<neo-popover class=\"w-full\" placement=\"top\"><input id=\"test\" class=\"input\" data-neo-popover-trigger><ul data-neo-popover-content class=\"flex flex-col gap-1 w-full\" data-signals:period.student_ids=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

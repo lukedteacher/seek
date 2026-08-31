@@ -28,6 +28,14 @@ func (t TimeOnly) String() string {
 	return time.Time(t).Format("15:04")
 }
 
+func (t TimeOnly) Hour() string {
+	return time.Time(t).Format("15")
+}
+
+func (t TimeOnly) Minute() string {
+	return time.Time(t).Format("04")
+}
+
 func (t TimeOnly) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t.String()) // returns "15:04" as quoted string
 }

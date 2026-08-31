@@ -10,41 +10,53 @@ import (
 	"seek/pkg/templui/components/separator"
 )
 
-templ StudentFilters(filters dto.StudentTableFilter) {
-	<div class="flex flex-col gap-4">
+templ StudentFilters(target, url string, filters dto.StudentFilter) {
+	<neo-popover>
 		@button.Button(button.Props{
 			Attributes: templ.Attributes{
-				"data-on:click": "$show_filter = !$show_filter",
+				"data-neo-popover-trigger": "",
 			},
 		}) {
 			@icon.ListFilter()
 			<span>filter</span>
 		}
 		<div
-			style="display: none;"
-			class="rounded-md border border-muted bg-linear-3-4 p-4 flex flex-col gap-3"
-			data-signals:show_filter="false"
-			data-show="$show_filter"
+			class="p-3"
+			data-neo-popover-content
 		>
-			@StudentGradesFilter(filters.Grade)
+			@StudentGradesFilter(target, url, filters.Grade)
 			@separator.Separator(separator.Props{
 				Class: "mt-4 mb-2",
 			})
-			@StudentPlanTypesFilter(filters.PlanType)
+			@StudentPlanTypesFilter(target, url, filters.PlanType)
 		</div>
+	</neo-popover>
+	<div class="flex gap-2 items-center">
+		@icon.Search()
+		<input
+			id="students-list-search"
+			class="input"
+			{ fmt.Sprintf("data-bind:%s.filter.search", target) }
+			data-on:input__debounce.250ms={ fmt.Sprintf("@post('%s')", url) }
+			type="search"
+		/>
 	</div>
 }
 
-templ StudentGradesFilter(gradesFilter map[string]bool) {
-	<div class="flex flex-col gap-3" data-signals:table.filter.grade={ templ.JSONString(gradesFilter) }>
+templ StudentGradesFilter(target, url string, gradesFilter map[string]bool) {
+	{{ filter, _ := templ.JSONString(gradesFilter) }}
+	<div
+		class="flex flex-col gap-3"
+		{ fmt.Sprintf("data-signals:%s.filter.grade=%s", target, filter) }
+	>
 		<h4>grades</h4>
 		<div class="button-group grid grid-cols-9 w-fit">
 			for _, grade := range sharedmodels.GradeList {
 				@button.Button(button.Props{
 					Variant: button.VariantOutline,
 					Attributes: templ.Attributes{
-						"data-class:bg-primary": fmt.Sprintf("$table.filter.grade.%d", grade),
-						"data-on:click":         fmt.Sprintf("$table.filter.grade.%[1]d = !$table.filter.grade.%[1]d; @post('/students')", grade),
+						"data-class:bg-primary": fmt.Sprintf("$%s.filter.grade.%d", target, grade),
+						"data-on:click":         fmt.Sprintf("$%[1]s.filter.grade.%[2]d = !$%[1]s.filter.grade.%[2]d; @post('%[3]s')", target, grade, url),
 					},
 				}) {
 					{ grade.Ordinal() }
@@ -54,16 +66,20 @@ templ StudentGradesFilter(gradesFilter map[string]bool) {
 	</div>
 }
 
-templ StudentPlanTypesFilter(planTypesFilter map[string]bool) {
-	<div class="flex flex-col gap-3" data-signals:table.filter.plan_type={ templ.JSONString(planTypesFilter) }>
+templ StudentPlanTypesFilter(target, url string, planTypesFilter map[string]bool) {
+	{{ filter, _ := templ.JSONString(planTypesFilter) }}
+	<div
+		class="flex flex-col gap-3"
+		{ fmt.Sprintf("data-signals:%s.filter.plan_type=%s", target, filter) }
+	>
 		<h4>plan types</h4>
 		<div class="button-group grid grid-cols-4 w-fit">
 			for _, plan := range sharedmodels.PlanTypeList {
 				@button.Button(button.Props{
 					Variant: button.VariantOutline,
 					Attributes: templ.Attributes{
-						"data-class:bg-primary": fmt.Sprintf("$table.filter.plan_type.%d", plan),
-						"data-on:click":         fmt.Sprintf("$table.filter.plan_type.%[1]d = !$table.filter.plan_type.%[1]d; @post('/students')", plan),
+						"data-class:bg-primary": fmt.Sprintf("$%s.filter.plan_type.%d", target, plan),
+						"data-on:click":         fmt.Sprintf("$%[1]s.filter.plan_type.%[2]d = !$%[1]s.filter.plan_type.%[2]d; @post('%[3]s')", target, plan, url),
 					},
 				}) {
 					{ plan.Description() }

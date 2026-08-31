@@ -98,11 +98,12 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 type ListOption func(*listConfig)
 
 type listConfig struct {
-	withCaseManager bool
-	withServices    bool
-	withGradeFilter []int
-	withPlanFilter  []int
-	withSort        struct {
+	withCaseManager  bool
+	withServices     bool
+	withGradeFilter  []int
+	withPlanFilter   []int
+	withSearchFilter string
+	withSort         struct {
 		column    string
 		direction string
 	}
@@ -139,20 +140,37 @@ func WithPlanFilter(plans []int) ListOption {
 	}
 }
 
+func WithSearchFilter(search string) ListOption {
+	return func(c *listConfig) {
+		c.withSearchFilter = search
+	}
+}
+
 func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Student, error) {
 	cfg := &listConfig{}
 	for _, opt := range opts {
 		opt(cfg)
 	}
-	if cfg.withCaseManager {
-		// TODO later?
-	}
 	// TODO fix this
 	if cfg.withSort.column != "" && cfg.withSort.direction != "" {
-		return m.listAllWithSorting(ctx, cfg.withSort.column, cfg.withSort.direction, cfg.withGradeFilter, cfg.withPlanFilter)
+		return m.listAllWithSorting(
+			ctx,
+			cfg.withSort.column,
+			cfg.withSort.direction,
+			cfg.withGradeFilter,
+			cfg.withPlanFilter,
+			cfg.withSearchFilter,
+		)
 	}
-	if len(cfg.withGradeFilter) > 0 && len(cfg.withGradeFilter) < 9 {
-		return m.listByGrade(ctx, cfg.withGradeFilter)
+	if len(cfg.withGradeFilter) > 0 {
+		return m.listAllWithSorting(
+			ctx,
+			"family_name",
+			"ASC",
+			cfg.withGradeFilter,
+			cfg.withPlanFilter,
+			cfg.withSearchFilter,
+		)
 	}
 	return m.listAll(ctx)
 }
@@ -163,6 +181,7 @@ func (m *ReadModel) listAllWithSorting(
 	sortDir string,
 	grades []int,
 	plans []int,
+	search string,
 ) ([]models.Student, error) {
 	allowedColumns := map[string]bool{
 		"marss_id":     true,
@@ -184,10 +203,10 @@ func (m *ReadModel) listAllWithSorting(
 		sortBy = "family_name"
 	}
 	if !allowedDirs[sortDir] {
-		sortDir = "DESC"
+		sortDir = "ASC"
 	}
 
-	// Build WHERE clause
+	// build WHERE clause
 	where := "archived_at IS NULL"
 	args := []any{}
 	if len(grades) > 0 {
@@ -205,6 +224,20 @@ func (m *ReadModel) listAllWithSorting(
 		for _, p := range plans {
 			args = append(args, p)
 		}
+	}
+	if search != "" {
+		searchTerm := "%" + search + "%"
+		where += " AND ("
+		// list columns to search
+		columns := []string{"given_name", "family_name", "chosen_name"}
+		for i, col := range columns {
+			if i > 0 {
+				where += " OR "
+			}
+			where += col + " LIKE ?"
+			args = append(args, searchTerm)
+		}
+		where += ")"
 	}
 
 	query := fmt.Sprintf(`

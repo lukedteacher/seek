@@ -50,7 +50,7 @@ SELECT
 	updated_at
 FROM students
 WHERE archived_at IS NULL
-ORDER BY family_name DESC, given_name DESC
+ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC
     `
 
 	ps := &ListStudentsStmt{

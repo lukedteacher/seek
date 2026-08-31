@@ -3,12 +3,12 @@ package dto
 import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
-	edto "seek/internal/features/educators/dto"
-	emodels "seek/internal/features/educators/models"
+	educatorDTO "seek/internal/features/educators/dto"
+	educatorModels "seek/internal/features/educators/models"
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
-	sdto "seek/internal/features/students/dto"
-	smodels "seek/internal/features/students/models"
+	studentDTO "seek/internal/features/students/dto"
+	studentModels "seek/internal/features/students/models"
 	"strings"
 )
 
@@ -24,14 +24,15 @@ type PeriodFormView struct {
 	EducatorIDs     string                   `json:"educator_ids"`
 	StudentIDs      []string                 `json:"student_ids"`
 	Validation      map[string]events.Validation
-	StudentOptions  []sdto.SelectStudentOption
-	EducatorOptions []edto.EducatorSelectBoxView
+	StudentOptions  studentDTO.SelectStudentOptions `json:"student_options"`
+	EducatorOptions []educatorDTO.EducatorSelectBoxView
 }
 
 func NewPeriodFormView(
 	p *models.Period,
-	allStudents []smodels.Student,
-	allEducators []emodels.Educator,
+	allStudents []studentModels.Student,
+	studentFilters *studentDTO.StudentFilter,
+	allEducators []educatorModels.Educator,
 ) PeriodFormView {
 	if p == nil {
 		return PeriodFormView{}
@@ -47,8 +48,8 @@ func NewPeriodFormView(
 		EducatorIDs:     strings.Join(p.EducatorIDs, ","),
 		StudentIDs:      p.StudentIDs,
 		Validation:      events.Validate(p),
-		StudentOptions:  sdto.NewSelectStudentOptions(allStudents, p.StudentIDs),
-		EducatorOptions: edto.NewEducatorSelectBoxViews(allEducators, p.EducatorIDs),
+		StudentOptions:  studentDTO.NewSelectStudentOptions(studentFilters, allStudents, p.StudentIDs),
+		EducatorOptions: educatorDTO.NewEducatorSelectBoxViews(allEducators, p.EducatorIDs),
 	}
 }
 

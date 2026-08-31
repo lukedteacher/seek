@@ -6,7 +6,7 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/dto"
 	scheduledto "seek/internal/features/schedules/dto"
-	sblocks "seek/internal/features/students/blocks"
+	studentBlocks "seek/internal/features/students/blocks"
 	"seek/internal/ui/core/coreblocks/forms"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/checkbox"
@@ -76,11 +76,12 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 			@DurationSlider(view)
 		</div>
 	}
-	@forms.Fieldset("days") {
+	@forms.Fieldset("day(s)") {
 		@forms.DayButtons(view)
 	}
 	@forms.Fieldset("student(s)") {
-		@sblocks.StudentMultiselectNew("period", view.StudentOptions, view.StudentIDs)
+		@studentBlocks.StudentFilters("period.student_options", url+"/validate", view.StudentOptions.Filter)
+		@studentBlocks.StudentMultiselectNew("period", view.StudentOptions.Options, view.StudentIDs)
 		if len(schedules) > 1 {
 			@SelectedScheduleList(url, schedules)
 		}

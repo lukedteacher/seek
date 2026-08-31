@@ -2,6 +2,16 @@
 
 updates for SEEK
 
+## v0.9.4 (26.08.30) period form updates
+
+- revamped time picker to use neo-popover
+- fixed need for clicking twice
+- fixed validation issues for period form
+- added filter to student select
+- revamped period form view to use embedded filter
+- genericized StudentTableFilter and added method for creating options
+-
+
 ## v0.9.3 (26.08.28) student data changes
 
 - implemented student CSV creation

@@ -56,7 +56,7 @@ SELECT
 	updated_at
 FROM students
 WHERE archived_at IS NULL
-ORDER BY family_name DESC, given_name DESC;
+ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC;
 
 -- name: ListStudentsByGrade :many
 SELECT 
@@ -77,7 +77,7 @@ SELECT
 FROM students
 WHERE archived_at IS NULL
   AND grade IN (sqlc.slice('grades'))
-ORDER BY family_name DESC, given_name DESC;
+ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC;
 
 -- name: ListStudentsByServiceType :many
 SELECT 
@@ -130,7 +130,7 @@ FROM students s
 INNER JOIN student_ieps i ON s.id = i.student_id
 WHERE s.archived_at IS NULL
   AND i.archived_at IS NULL
-ORDER BY s.family_name ASC, s.chosen_name ASC, s.given_name ASC;
+ORDER BY s.family_name COLLATE NOCASE ASC, s.chosen_name COLLATE NOCASE ASC, s.given_name COLLATE NOCASE ASC;
 
 -- name: ListStudentsWithServices :many
 SELECT
@@ -165,7 +165,7 @@ FROM students s
 LEFT JOIN iep_services i ON s.id = i.student_id
 WHERE s.archived_at IS NULL
   AND i.archived_at IS NULL
-ORDER BY s.family_name DESC, s.chosen_name DESC, s.given_name DESC, i.service_type ASC;
+ORDER BY s.family_name COLLATE NOCASE ASC, s.chosen_name COLLATE NOCASE ASC, s.given_name COLLATE NOCASE ASC, i.service_type ASC;
 
 -- name: ListStudentsForPeriod :many
 SELECT
@@ -186,7 +186,7 @@ SELECT
 FROM students s
 JOIN periods_students ps ON s.id = ps.student_id
 WHERE ps.period_id = @period_id
-ORDER BY family_name DESC, given_name DESC;
+ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC;
 
 -- name: CreateStudent :exec
 INSERT INTO students (

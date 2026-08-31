@@ -78,7 +78,7 @@ FROM students s
 LEFT JOIN iep_services i ON s.id = i.student_id
 WHERE s.archived_at IS NULL
   AND i.archived_at IS NULL
-ORDER BY s.family_name DESC, s.chosen_name DESC, s.given_name DESC, i.service_type ASC
+ORDER BY s.family_name COLLATE NOCASE ASC, s.chosen_name COLLATE NOCASE ASC, s.given_name COLLATE NOCASE ASC, i.service_type ASC
     `
 
 	ps := &ListStudentsWithServicesStmt{

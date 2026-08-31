@@ -53,7 +53,7 @@ SELECT
 FROM students
 WHERE archived_at IS NULL
   AND grade IN (/*SLICE:grades*/?)
-ORDER BY family_name DESC, given_name DESC
+ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC
     `
 
 	ps := &ListStudentsByGradeStmt{

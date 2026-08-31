@@ -51,7 +51,7 @@ SELECT
 FROM students s
 JOIN periods_students ps ON s.id = ps.student_id
 WHERE ps.period_id = ?1
-ORDER BY family_name DESC, given_name DESC
+ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC
     `
 
 	ps := &ListStudentsForPeriodStmt{

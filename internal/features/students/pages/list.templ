@@ -16,8 +16,8 @@ import (
 )
 
 type ListView struct {
-	Table        shareddto.TableView
-	Filters dto.StudentTableFilter
+	Table   shareddto.TableView
+	Filters dto.StudentFilter
 }
 
 templ List(view ListView) {
@@ -34,7 +34,9 @@ templ List(view ListView) {
 						<span>create</span>
 					}
 				</div>
-				@blocks.StudentFilters(view.Filters)
+				<div class="flex gap-8 w-100">
+					@blocks.StudentFilters("table", url, view.Filters)
+				</div>
 			}
 		</main>
 	}

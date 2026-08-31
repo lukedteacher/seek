@@ -121,9 +121,10 @@ func getStudentsListStream(
 			studentReadModel,
 			"family_name",
 			"ASC",
-			dto.StudentTableFilter{
+			dto.StudentFilter{
 				Grade:    defaultGradeFilter,
 				PlanType: defaultPlanTypeFilter,
+				Search:   "",
 			},
 			educatorReadModel,
 		)
@@ -875,13 +876,19 @@ func createListView(
 	studentReadModel events.ReadModel,
 	sortCol,
 	sortDir string,
-	filters dto.StudentTableFilter,
+	filters dto.StudentFilter,
 	educatorReadModel eevents.ReadModel,
 ) pages.ListView {
 	// get students data from db
 	gradeFilter := buildFilterMap(filters.Grade)
 	planTypeFilter := buildFilterMap(filters.PlanType)
-	students, err := studentReadModel.List(ctx, events.WithSort(sortCol, sortDir), events.WithGradeFilter(gradeFilter), events.WithPlanFilter(planTypeFilter))
+	students, err := studentReadModel.List(
+		ctx,
+		events.WithSort(sortCol, sortDir),
+		events.WithGradeFilter(gradeFilter),
+		events.WithPlanFilter(planTypeFilter),
+		events.WithSearchFilter(filters.Search),
+	)
 	if err != nil {
 		l.ErrorContext(ctx, "create students view", "err", err)
 		return pages.ListView{}
@@ -911,7 +918,7 @@ func createListView(
 
 	return pages.ListView{
 		Table: studentTableView,
-		Filters: dto.StudentTableFilter{
+		Filters: dto.StudentFilter{
 			Grade:    filters.Grade,
 			PlanType: filters.PlanType,
 		},
