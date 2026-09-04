@@ -32,3 +32,9 @@ templ EducatorAvatar(e dto.EducatorView) {
 		}
 	}
 }
+
+templ EducatorAvatars(educators []dto.EducatorView) {
+	for _, educator := range educators {
+		@EducatorAvatar(educator)
+	}
+}

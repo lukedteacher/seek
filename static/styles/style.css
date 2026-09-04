@@ -7162,6 +7162,11 @@
     margin-block-start: calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)));
   }
+  :where(.-space-x-10 > :not(:last-child)) {
+    --tw-space-x-reverse: 0;
+    margin-inline-start: calc(calc(var(--spacing) * -10) * var(--tw-space-x-reverse));
+    margin-inline-end: calc(calc(var(--spacing) * -10) * calc(1 - var(--tw-space-x-reverse)));
+  }
   :where(.space-x-2 > :not(:last-child)) {
     --tw-space-x-reverse: 0;
     margin-inline-start: calc(calc(var(--spacing) * 2) * var(--tw-space-x-reverse));
@@ -7553,6 +7558,9 @@
       background-image: none;
       border-color: currentColor;
     }
+  }
+  .border-black {
+    border-color: var(--color-black);
   }
   .border-primary {
     border-color: var(--color-primary);
@@ -9726,6 +9734,9 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   @media (hover: hover) {
+    .hover\:z-10:hover {
+      z-index: 10;
+    }
     .hover\:bg-accent:hover {
       background-color: var(--color-accent);
     }
@@ -10341,6 +10352,10 @@
   }
   .bg-neutral-bright {
     background-color: var(--color-neutral-bright);
+  }
+  .btn-destructive {
+    background-color: var(--error-6);
+    color: var(--error-6-on);
   }
 }
 html {
@@ -11144,8 +11159,8 @@ a {
       --color-success-content: oklch(14% 0.024 158);
       --color-warning: oklch(78% 0.15 78);
       --color-warning-content: oklch(19% 0.034 68);
-      --color-error: oklch(66% 0.181 18);
-      --color-error-content: oklch(99% 0.012 16);
+      --color-error: var(--color-error-6);
+      --color-error-content: var(--color-error-6-on);
       --radius-selector: 0.5rem;
       --radius-field: 0.5rem;
       --radius-box: 0.5rem;
@@ -11183,8 +11198,8 @@ a {
     --color-success-content: oklch(14% 0.024 158);
     --color-warning: oklch(78% 0.15 78);
     --color-warning-content: oklch(19% 0.034 68);
-    --color-error: oklch(66% 0.181 18);
-    --color-error-content: oklch(99% 0.012 16);
+    --color-error: var(--color-error-6);
+    --color-error-content: var(--color-error-6-on);
     --radius-selector: 0.5rem;
     --radius-field: 0.5rem;
     --radius-box: 0.5rem;
@@ -11221,8 +11236,8 @@ a {
     --color-success-content: oklch(98% 0.012 157);
     --color-warning: oklch(62% 0.152 75);
     --color-warning-content: oklch(98% 0.012 75);
-    --color-error: oklch(55% 0.175 18);
-    --color-error-content: oklch(99% 0.012 16);
+    --color-error: var(--color-error-6);
+    --color-error-content: var(--color-error-6-on);
     --radius-selector: 0.5rem;
     --radius-field: 0.5rem;
     --radius-box: 0.5rem;

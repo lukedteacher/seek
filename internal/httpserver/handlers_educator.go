@@ -355,7 +355,7 @@ func getEducatorViewSchedule(
 			return
 		}
 
-		scheduleView := scheduledto.NewPersonScheduleView(educator.Person, periods, true, 1)
+		scheduleView := scheduledto.NewPersonScheduleView(educator.ID, educator.Person, periods, true, 1)
 		_ = pages.View(educatorView, scheduleView, []studentdto.StudentView{}, "schedule").Render(ctx, w)
 	}
 }

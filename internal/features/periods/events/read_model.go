@@ -114,6 +114,43 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Period, error) {
 	return periods, nil
 }
 
+func (m *ReadModel) ListWithIDs(ctx context.Context) ([]models.Period, error) {
+	var rows []dbsql.ListPeriodsWithIdsRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceListPeriodsWithIds(conn)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+	periods := make([]models.Period, 0, len(rows))
+	for _, row := range rows {
+
+		var educatorIDs []string
+		if err := json.Unmarshal([]byte(row.EducatorIds), &educatorIDs); err != nil {
+			return nil, err
+		}
+		var studentIDs []string
+		if err := json.Unmarshal([]byte(row.StudentIds), &studentIDs); err != nil {
+			return nil, err
+		}
+		periods = append(periods, models.Period{
+			ID:          row.Id,
+			Title:       row.Title,
+			ServiceType: sharedmodels.ServiceType(row.ServiceType),
+			StartTime:   parseDBTimeOnly(row.StartTime),
+			EndTime:     parseDBTimeOnly(row.StartTime).Add(int(row.Duration)),
+			Duration:    int(row.Duration),
+			DaysBitmask: sharedmodels.DaysBitmask(row.DaysBitmask),
+			EducatorIDs: educatorIDs,
+			StudentIDs:  studentIDs,
+			CreatedAt:   row.CreatedAt,
+			UpdatedAt:   row.UpdatedAt,
+		})
+	}
+	return periods, nil
+}
+
 func (m *ReadModel) ListPeriodsForEducator(ctx context.Context, educatorID string) ([]models.Period, error) {
 	var rows []dbsql.ListPeriodsForEducatorRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {

@@ -186,7 +186,7 @@ func ArchiveButton(object, id string) templ.Component {
 	})
 }
 
-func DeleteButton(object, id string) templ.Component {
+func DeleteButton(objectType, id string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -233,9 +233,9 @@ func DeleteButton(object, id string) templ.Component {
 		})
 		templ_7745c5c3_Err = button.Button(button.Props{
 			Type:  "button",
-			Class: "btn-destructive flex-grow basis-1",
+			Class: "flex-grow basis-1 btn-destructive",
 			Attributes: templ.Attributes{
-				"data-on:click": fmt.Sprintf("@post('/%s/%s'", object, id),
+				"data-on:click": fmt.Sprintf("@delete('/%ss/%s')", objectType, id),
 			},
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

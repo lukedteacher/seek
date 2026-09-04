@@ -7,14 +7,16 @@ import (
 )
 
 type PersonWithScheduleView struct {
+	ID        string // TODO fix this
 	Person    sharedmodels.Person
 	Periods   []dto.PeriodScheduleView
 	Color     string
 	IsVisible bool
 }
 
-func NewPersonScheduleView(person sharedmodels.Person, periods []models.Period, isVisible bool, index int) PersonWithScheduleView {
+func NewPersonScheduleView(id string, person sharedmodels.Person, periods []models.Period, isVisible bool, index int) PersonWithScheduleView {
 	return PersonWithScheduleView{
+		ID:        id,
 		Person:    person,
 		Periods:   dto.NewPeriodScheduleViews(periods...),
 		Color:     nextColor(index),

@@ -21,6 +21,7 @@ templ PeriodForm(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithSche
 			@FormSections(view, schedules)
 		</div>
 		<footer class="md:max-w-128 flex gap-6">
+			@forms.DeleteButton("period", view.ID)
 			@forms.CancelButton("/periods")
 			@forms.SaveButton()
 		</footer>

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"seek/internal/features/periods/dto"
+	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/tooltip"
 )
@@ -35,10 +36,6 @@ templ PeriodCard(view dto.PeriodScheduleView, color string) {
 				HoverOutDelay: 800,
 			}) {
 				<p class="flex justify-between">
-					<span>provider:</span>
-					<span>{ len(view.Educators) }</span>
-				</p>
-				<p class="flex justify-between">
 					<span>start:</span>
 					<span>{ view.StartTime.String() }</span>
 				</p>
@@ -46,9 +43,15 @@ templ PeriodCard(view dto.PeriodScheduleView, color string) {
 					<span>end:</span>
 					<span>{ view.EndTime.String() }</span>
 				</p>
-				<p class="flex justify-between">
-					<span>students:</span>
-					<span>{ len(view.Students) }</span>
+				<p class="flex justify-center">
+					<a href={ fmt.Sprintf("/periods/%s", view.ID) }>
+						@button.Button(button.Props{
+							Variant: button.VariantGhost,
+						}) {
+							@icon.Search()
+							<span>view</span>
+						}
+					</a>
 				</p>
 			}
 		}

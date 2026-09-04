@@ -534,7 +534,7 @@ func getStudentViewScheduleStream(
 					l.ErrorContext(ctx, "get student view schedule db list periods", "err", err)
 					return
 				}
-				personScheduleView := scheduledto.NewPersonScheduleView(student.Person, periods, true, 1)
+				personScheduleView := scheduledto.NewPersonScheduleView(student.ID, student.Person, periods, true, 1)
 				sse.PatchElementTempl(pages.View(studentView, personScheduleView, []idto.ServiceView{}, "schedule"))
 			}
 		}

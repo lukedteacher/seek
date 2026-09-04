@@ -8,10 +8,11 @@ import (
 	"strings"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_composite/compositedto"
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
-	edto "seek/internal/features/educators/dto"
-	eevents "seek/internal/features/educators/events"
+	educatorDTO "seek/internal/features/educators/dto"
+	educatorEvents "seek/internal/features/educators/events"
 	epevents "seek/internal/features/educators_periods/events"
 	"seek/internal/features/periods/dto"
 	"seek/internal/features/periods/events"
@@ -30,7 +31,7 @@ import (
 
 func (s Server) periodRoutes(r chi.Router) {
 	r.Get("/periods", getPeriodsList(s.Logger))
-	r.Get("/periods/stream", getPeriodsListStream(s.Logger, s.Subscriber, s.ReadModels.Periods, s.ReadModels.EducatorPeriods, s.ReadModels.StudentPeriods))
+	r.Get("/periods/stream", getPeriodsListStream(s.Logger, s.Subscriber, s.ReadModels.Periods, s.ReadModels.Educators, s.ReadModels.Students))
 	r.Get("/periods/create", getPeriodCreate(s.Logger))
 	r.Get("/periods/create/stream", getPeriodCreateStream(s.Logger, s.ViewStore, s.ReadModels.Periods, s.ReadModels.Students, s.ReadModels.Educators))
 	r.Post("/periods/create/validate", postPeriodCreateValidate(s.Logger, s.ViewStore))
@@ -66,8 +67,8 @@ func getPeriodsListStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	periodReadModel *events.ReadModel,
-	educatorPeriodReadModel *epevents.ReadModel,
-	studentPeriodReadModel *spevents.ReadModel,
+	educatorReadModel *educatorEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -83,32 +84,7 @@ func getPeriodsListStream(
 			return
 		}
 		defer sub.Close()
-
-		buildView := func() (shareddto.TableView, error) {
-			periods, err := periodReadModel.List(ctx)
-			if err != nil {
-				return shareddto.TableView{}, err
-			}
-			for i := range periods {
-				ids, err := educatorPeriodReadModel.ListEducatorIDsForPeriod(ctx, periods[i].ID)
-				if err != nil {
-					return shareddto.TableView{}, err
-				}
-				periods[i].EducatorIDs = ids
-				ids, err = studentPeriodReadModel.ListStudentIDsForPeriod(ctx, periods[i].ID)
-				if err != nil {
-					return shareddto.TableView{}, err
-				}
-				periods[i].StudentIDs = ids
-			}
-			view := dto.NewPeriodTableView(periods)
-			return view, nil
-		}
-		view, err := buildView()
-		if err != nil {
-			l.ErrorContext(ctx, "build initial view", "err", err)
-			return
-		}
+		view := createPeriodsListView(ctx, l, *periodReadModel, *educatorReadModel, *studentReadModel)
 		sse.PatchElementTempl(pages.List(view))
 
 		for {
@@ -117,9 +93,9 @@ func getPeriodsListStream(
 				return
 			case <-notifier.Signal(): // triggers when the read model publishes
 				// for now just reloads the page
-				// consider adding a view store for the list
+				// consider adding a vi
 
-				view, err := buildView()
+				view := createPeriodsListView(ctx, l, *periodReadModel, *educatorReadModel, *studentReadModel)
 				if err != nil {
 					l.ErrorContext(ctx, "build updated view", "err", err)
 					continue
@@ -145,7 +121,7 @@ func getPeriodCreateStream(
 	vs viewstore.Store,
 	periodReadModel *events.ReadModel,
 	studentReadModel *studentEvents.ReadModel,
-	educatorReadModel *eevents.ReadModel,
+	educatorReadModel *educatorEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -379,7 +355,7 @@ func getPeriodViewStream(
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
 	periodReadModel *events.ReadModel,
-	educatorReadModel *eevents.ReadModel,
+	educatorReadModel *educatorEvents.ReadModel,
 	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -444,7 +420,7 @@ func getPeriodViewStream(
 				view := dto.NewPeriodView(period)
 				for i := range period.EducatorIDs {
 					educator, _ := educatorReadModel.GetByID(ctx, period.EducatorIDs[i])
-					educatorView := edto.NewEducatorView(educator)
+					educatorView := educatorDTO.NewEducatorView(educator)
 					view.Educators = append(view.Educators, educatorView)
 				}
 				for i := range period.StudentIDs {
@@ -477,7 +453,7 @@ func getPeriodEditStream(
 	vs viewstore.Store,
 	periodsReadModel *events.ReadModel,
 	studentsReadModel *studentEvents.ReadModel,
-	educatorsReadModel *eevents.ReadModel,
+	educatorsReadModel *educatorEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -569,7 +545,7 @@ func getPeriodEditStream(
 					l,
 					&period,
 					educatorsReadModel,
-					nil,
+					&signals.Period.StudentOptions.Filter,
 					studentsReadModel,
 				)
 				sse.PatchElementTempl(pages.Edit(view, scheduleViews))
@@ -693,7 +669,7 @@ func postPeriodEdit(
 		}
 		result, err := events.UpdatePeriodCommandHandler(ctx, cmd, saver, retriever)
 		if err != nil {
-			l.ErrorContext(ctx, "post period edit command handler", "err", err)
+			l.ErrorContext(ctx, "post period edit command handler", "err", err, "pid", periodID)
 			return
 		}
 		if result.Skipped {
@@ -791,7 +767,7 @@ func refreshPeriodEditState(
 	l *slog.Logger,
 	periodID string,
 	periods *events.ReadModel,
-	educators *eevents.ReadModel,
+	educators *educatorEvents.ReadModel,
 	students *studentEvents.ReadModel,
 	vs viewstore.Store,
 ) error {
@@ -835,7 +811,7 @@ func buildPeriodFormView(
 	ctx context.Context,
 	logger *slog.Logger,
 	period *models.Period,
-	educatorsReadModel *eevents.ReadModel,
+	educatorsReadModel *educatorEvents.ReadModel,
 	studentFilters *studentDTO.StudentFilter,
 	studentsReadModel *studentEvents.ReadModel,
 ) dto.PeriodFormView {
@@ -858,7 +834,7 @@ func buildPeriodFormView(
 // if the map is empty, default visibility is true
 func buildScheduleViews(
 	ctx context.Context,
-	logger *slog.Logger,
+	l *slog.Logger,
 	period models.Period,
 	schedules map[string]bool,
 	periodsReadModel *events.ReadModel,
@@ -867,6 +843,7 @@ func buildScheduleViews(
 	// base view (always visible, index 0)
 	views := []scheduleDTO.PersonWithScheduleView{
 		scheduleDTO.NewPersonScheduleView(
+			"",
 			sharedmodels.Person{GivenName: "base", FamilyName: "view"},
 			[]models.Period{period},
 			true,
@@ -880,7 +857,7 @@ func buildScheduleViews(
 		}
 		student, err := studentsReadModel.GetByID(ctx, studentID)
 		if err != nil {
-			logger.ErrorContext(ctx, "get student", "err", err)
+			l.ErrorContext(ctx, "get student", "err", err)
 			continue
 		}
 		visible, ok := schedules[student.Username]
@@ -889,11 +866,12 @@ func buildScheduleViews(
 		}
 		studentPeriods, err := periodsReadModel.ListPeriodsForStudent(ctx, studentID)
 		if err != nil {
-			logger.ErrorContext(ctx, "list periods for student", "err", err)
+			l.ErrorContext(ctx, "list periods for student", "err", err)
 			continue
 		}
 		studentPeriods = filterOutPeriod(studentPeriods, period.ID)
 		views = append(views, scheduleDTO.NewPersonScheduleView(
+			student.ID,
 			student.Person,
 			studentPeriods,
 			visible,
@@ -901,4 +879,56 @@ func buildScheduleViews(
 		))
 	}
 	return views
+}
+
+func createPeriodsListView(
+	ctx context.Context,
+	l *slog.Logger,
+	periodReadModel events.ReadModel,
+	educatorReadModel educatorEvents.ReadModel,
+	studentReadModel studentEvents.ReadModel,
+) shareddto.TableView {
+	// get periods data from db
+	periods, err := periodReadModel.ListWithIDs(ctx)
+	if err != nil {
+		l.ErrorContext(ctx, "create periods list view", "err", err)
+		return shareddto.TableView{}
+	}
+	// create the views
+	periodsWithData := make([]compositedto.PeriodWithData, len(periods))
+	for i, period := range periods {
+
+		periodsWithData[i] = compositedto.PeriodWithData{
+			Period: period,
+		}
+		if len(period.EducatorIDs) > 0 {
+			educatorViews := make([]educatorDTO.EducatorView, len(period.EducatorIDs))
+			for i, educatorID := range period.EducatorIDs {
+				educator, err := educatorReadModel.GetByID(ctx, educatorID)
+				if err != nil {
+					l.ErrorContext(ctx, "cplv get educator", "err", err, "eid", educatorID)
+					return shareddto.TableView{}
+				}
+				educatorView := educatorDTO.NewEducatorView(educator)
+				educatorViews[i] = educatorView
+			}
+			periodsWithData[i].Educators = educatorViews
+		}
+		if len(period.StudentIDs) > 0 {
+			studentViews := make([]studentDTO.StudentView, len(period.StudentIDs))
+			for i, studentID := range period.StudentIDs {
+				student, err := studentReadModel.GetByID(ctx, studentID)
+				if err != nil {
+					l.ErrorContext(ctx, "cplv get student", "err", err, "sid", studentID)
+					return shareddto.TableView{}
+				}
+				studentView := studentDTO.NewStudentView(student, nil)
+				studentViews[i] = studentView
+			}
+			periodsWithData[i].Students = studentViews
+		}
+	}
+
+	// create the table view
+	return compositedto.NewPeriodWithDataTableView(periodsWithData)
 }

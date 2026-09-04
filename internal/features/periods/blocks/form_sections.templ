@@ -80,8 +80,7 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 		@forms.DayButtons(view)
 	}
 	@forms.Fieldset("student(s)") {
-		@studentBlocks.StudentFilters("period.student_options", url+"/validate", view.StudentOptions.Filter)
-		@studentBlocks.StudentMultiselectNew("period", view.StudentOptions.Options, view.StudentIDs)
+		@studentBlocks.SelectStudentMulti("period.student_options", view.StudentOptions, view.StudentIDs)
 		if len(schedules) > 1 {
 			@SelectedScheduleList(url, schedules)
 		}
@@ -115,6 +114,9 @@ templ SelectedScheduleItem(url string, student scheduledto.PersonWithScheduleVie
 			Class:   "ml-auto opacity-0 group-hover:opacity-100",
 			Variant: button.VariantGhost,
 			Size:    button.SizeIcon,
+			Attributes: templ.Attributes{
+				"data-on:click": fmt.Sprintf("$period.student_ids = $period.student_ids.filter(id => id !== '%[1]s'); @post('%[2]s/validate')", student.ID, url),
+			},
 		}) {
 			@icon.X()
 		}

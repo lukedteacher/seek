@@ -2,6 +2,14 @@
 
 updates for SEEK
 
+## v0.9.5 (26.09.04) period list updates
+
+- added period with data composite
+- display avatars on period list for students and educators
+- period card now links to view of period
+- added person avatar and avatar group
+- re-added delete button to period edit
+
 ## v0.9.4 (26.08.30) period form updates
 
 - revamped time picker to use neo-popover
@@ -10,7 +18,6 @@ updates for SEEK
 - added filter to student select
 - revamped period form view to use embedded filter
 - genericized StudentTableFilter and added method for creating options
--
 
 ## v0.9.3 (26.08.28) student data changes
 

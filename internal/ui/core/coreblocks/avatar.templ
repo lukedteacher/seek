@@ -1,0 +1,42 @@
+package coreblocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/templui/components/avatar"
+	"seek/pkg/templui/components/tooltip"
+)
+
+templ PersonAvatar(objectType string, p sharedmodels.Person) {
+	@tooltip.Tooltip(tooltip.Props{
+		Class: "w-full flex justify-center items-center",
+	}) {
+		@tooltip.Trigger() {
+			@avatar.Avatar() {
+				<a class="w-full h-full" href={ fmt.Sprintf("/%ss/%s/info", objectType, p.Username) }>
+					@avatar.Fallback(avatar.FallbackProps{
+						Class: "border-black border-1 bg-secondary hover:bg-primary hover:z-10 relative",
+					}) {
+						{ p.Initials() }
+					}
+				</a>
+			}
+		}
+		@tooltip.Content(tooltip.ContentProps{
+			HoverDelay:    200,
+			HoverOutDelay: 50,
+			Class:         "border-muted text-sm",
+		}) {
+			{ p.FullName() }
+		}
+	}
+}
+
+templ PersonAvatars(objectType string, people []sharedmodels.Person) {
+	<div class="flex w-full h-full justify-center items-center -space-x-10">
+		for _, person := range people {
+			@PersonAvatar(objectType, person)
+		}
+	</div>
+}

@@ -4,13 +4,35 @@ import (
 	"fmt"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/students/dto"
+	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/separator"
 	"seek/pkg/utils"
 )
 
-templ StudentMultiselectNew(target string, students []dto.SelectStudentOption, selected []string) {
+templ SelectStudentMulti(target string, options dto.SelectStudentOptions, selected []string) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<neo-popover>
+		@button.Button(button.Props{
+			Attributes: templ.Attributes{
+				"data-neo-popover-trigger": "",
+			},
+		}) {
+			@icon.ListFilter()
+			<span>filter</span>
+		}
+		<div
+			class="p-3"
+			data-neo-popover-content
+		>
+			@StudentGradesFilter(target, url, options.Filter.Grade)
+			@separator.Separator(separator.Props{
+				Class: "mt-4 mb-2",
+			})
+			@StudentPlanTypesFilter(target, url, options.Filter.PlanType)
+		</div>
+	</neo-popover>
 	<div class="flex flex-col">
 		@label.Label(label.Props{
 			For:   "test",
@@ -19,17 +41,25 @@ templ StudentMultiselectNew(target string, students []dto.SelectStudentOption, s
 			select a student
 		}
 		<neo-popover class="w-full" placement="top">
-			<input
-				id="test"
-				class="input"
+			<div
+				class="flex items-center gap-2"
 				data-neo-popover-trigger
-			/>
+			>
+				@icon.Search()
+				<input
+					id="students-list-search"
+					class="input"
+					{ fmt.Sprintf("data-bind:%s.filter.search", target) }
+					data-on:input__debounce.250ms={ fmt.Sprintf("@post('%s/validate')", url) }
+					type="search"
+				/>
+			</div>
 			<ul
 				data-neo-popover-content
 				class="flex flex-col gap-1 w-full"
 				data-signals:period.student_ids={ templ.JSONString(selected) }
 			>
-				for _, student := range students {
+				for _, student := range options.Options {
 					<li
 						data-on:click={ fmt.Sprintf("$period.student_ids = $period.student_ids.includes('%[1]s') ? $period.student_ids.filter(id => id !== '%[1]s') : [...$period.student_ids, '%[1]s']; @post('%[2]s/validate')", student.Student.ID, url) }
 						class={ utils.TwMerge(

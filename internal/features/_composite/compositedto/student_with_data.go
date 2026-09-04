@@ -22,17 +22,6 @@ type StudentWithData struct {
 	Services    []serviceModels.Service
 }
 
-var StudentWithDataColumns = []shareddto.ColumnView{
-	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name"},
-	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name"},
-	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name"},
-	{Field: "Email", Display: "email", Signal: "email"},
-	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center", Signal: "grade"},
-	{Field: "Homeroom", Display: "homeroom", Signal: "homeroom"},
-	{Field: "PlanType", Display: "plan", Renderer: "badge", Alignment: "center", Signal: "plan_type"},
-	{Field: "CaseManager", Display: "case manager", RenderFunc: caseManagerRenderer, Signal: "case_manager"},
-}
-
 var StudentWithDataTableConfig = shareddto.TableConfig[StudentWithData]{
 	Name: "students",
 	Sort: shareddto.TableSort{
@@ -45,6 +34,17 @@ var StudentWithDataTableConfig = shareddto.TableConfig[StudentWithData]{
 	SubTableBuilder: func(student StudentWithData) shareddto.TableView {
 		return serviceDTO.NewServiceTableView(student.Services)
 	},
+}
+
+var StudentWithDataColumns = []shareddto.ColumnView{
+	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name"},
+	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name"},
+	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name"},
+	{Field: "Email", Display: "email", Signal: "email"},
+	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center", Signal: "grade"},
+	{Field: "Homeroom", Display: "homeroom", Signal: "homeroom"},
+	{Field: "PlanType", Display: "plan", Renderer: "badge", Alignment: "center", Signal: "plan_type"},
+	{Field: "CaseManager", Display: "case manager", RenderFunc: caseManagerRenderer, Signal: "case_manager"},
 }
 
 func NewStudentWithDataTableView(students []StudentWithData, sort shareddto.TableSort) shareddto.TableView {

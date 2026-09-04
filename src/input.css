@@ -36,8 +36,8 @@
   --color-success-content: oklch(14% 0.024 158);
   --color-warning: oklch(78% 0.15 78);
   --color-warning-content: oklch(19% 0.034 68);
-  --color-error: oklch(66% 0.181 18);
-  --color-error-content: oklch(99% 0.012 16);
+  --color-error: var(--color-error-6);
+  --color-error-content: var(--color-error-6-on);
   --color-muted: var(--neutral-4-dim);
   --color-muted-foreground: var(--neutral-8);
   --radius-selector: 0.5rem;
@@ -78,8 +78,8 @@
   --color-success-content: oklch(98% 0.012 157);
   --color-warning: oklch(62% 0.152 75);
   --color-warning-content: oklch(98% 0.012 75);
-  --color-error: oklch(55% 0.175 18);
-  --color-error-content: oklch(99% 0.012 16);
+  --color-error: var(--color-error-6);
+  --color-error-content: var(--color-error-6-on);
   --color-muted: var(--neutral-4-dim);
   --color-muted-foreground: var(--neutral-8);
   --radius-selector: 0.5rem;
@@ -103,6 +103,11 @@
 
   .bg-neutral-bright {
     background-color: var(--color-neutral-bright);
+  }
+
+  .btn-destructive {
+    background-color: var(--error-6);
+    color: var(--error-6-on);
   }
 }
 
