@@ -12,6 +12,7 @@ import (
 	caseloadStudentsEvents "seek/internal/features/caseload_students/events"
 	educatorEvents "seek/internal/features/educators/events"
 	educatorPeriodEvents "seek/internal/features/educators_periods/events"
+	homeroomEvents "seek/internal/features/homerooms/events"
 	iepEvents "seek/internal/features/ieps/events"
 	periodEvents "seek/internal/features/periods/events"
 	profileEvents "seek/internal/features/profiles/events"
@@ -115,6 +116,18 @@ func EventHandlerFactories(
 					store,
 					checkpointer,
 					readModels.EducatorPeriods,
+					bus,
+					logger,
+				)
+			},
+		},
+		{
+			name: "homeroom read model",
+			create: func() (eventHandler, error) {
+				return homeroomEvents.NewReadModelEventHandler(
+					store,
+					checkpointer,
+					readModels.Homerooms,
 					bus,
 					logger,
 				)

@@ -1,0 +1,24 @@
+package pages
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/homerooms/blocks"
+	"seek/internal/features/homerooms/dto"
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+)
+
+templ Edit(view dto.HomeroomFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	@corelayouts.LayoutBase("SEEK: edit homeroom") {
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain("edit homeroom")
+			<section class="w-full flex flex-col md:flex-row gap-4 h-full">
+				@blocks.HomeroomForm(view)
+			</section>
+		</main>
+	}
+}

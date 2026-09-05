@@ -74,7 +74,7 @@ func newCreateEducatorContext(command CreateEducatorCommand, eventID string) (*c
 	username := deriveUsername(command.Email)
 	educator := createEducatorContext{
 		EducatorState: command.EducatorState,
-		query:         streamQuery(eventID),
+		query:         StreamQuery(eventID),
 	}
 	educator.ID = eventID
 	educator.Username = username

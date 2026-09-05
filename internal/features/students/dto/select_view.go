@@ -5,27 +5,21 @@ import (
 	"seek/internal/features/students/models"
 )
 
-type SelectStudentOptions struct {
-	Options []SelectStudentOption `json:"options"`
-	Filter  StudentFilter         `json:"filter"`
+type SelectView struct {
+	Options []SelectOption `json:"options"`
+	Filter  StudentFilter  `json:"filter"`
 }
 
-type SelectStudentOption struct {
-	Student    StudentView
-	IsSelected bool
+type SelectOption struct {
+	StudentView
+	Selected bool
 }
 
-func NewSelectStudentOption(
-	s models.Student,
-	isSelected bool,
-) SelectStudentOption {
-	return SelectStudentOption{
-		Student:    NewStudentView(&s, nil),
-		IsSelected: isSelected,
-	}
-}
-
-func NewSelectStudentOptions(filter *StudentFilter, students []models.Student, selected []string) SelectStudentOptions {
+func NewSelectView(
+	filter *StudentFilter,
+	students []models.Student,
+	selected []string,
+) SelectView {
 	if filter == nil {
 		defaultGradeFilter := make(map[string]bool, 9)
 		for _, grade := range sharedmodels.GradeList {
@@ -45,16 +39,26 @@ func NewSelectStudentOptions(filter *StudentFilter, students []models.Student, s
 	for i := range selected {
 		selectedMap[selected[i]] = true
 	}
-	options := make([]SelectStudentOption, len(students))
+	options := make([]SelectOption, len(students))
 	for i, student := range students {
-		options[i] = NewSelectStudentOption(
+		options[i] = NewSelectOption(
 			student,
 			selectedMap[student.ID],
 		)
 	}
 
-	return SelectStudentOptions{
+	return SelectView{
 		Options: options,
 		Filter:  *filter,
+	}
+}
+
+func NewSelectOption(
+	s models.Student,
+	selected bool,
+) SelectOption {
+	return SelectOption{
+		StudentView:    NewStudentView(&s, nil),
+		Selected: selected,
 	}
 }

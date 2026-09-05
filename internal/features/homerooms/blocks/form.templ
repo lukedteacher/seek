@@ -1,0 +1,28 @@
+package blocks
+
+import (
+	"fmt"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/homerooms/dto"
+	"seek/internal/ui/core/coreblocks/forms"
+
+	"github.com/starfederation/datastar-go/datastar"
+)
+
+templ HomeroomForm(view dto.HomeroomFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<form
+		id={ fmt.Sprintf("homeroom-%s-form", view.FormType) }
+		class="w-full md:max-w-128 gap-8 flex flex-col"
+		data-on:submit={ datastar.PostSSE("%s", url) }
+	>
+		<div class="w-full gap-6 flex flex-wrap">
+			@FormSections(view)
+		</div>
+		<footer class="md:max-w-128 flex gap-6">
+			@forms.DeleteButton("homeroom", view.ID)
+			@forms.CancelButton("/homerooms")
+			@forms.SaveButton()
+		</footer>
+	</form>
+}

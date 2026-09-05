@@ -62,6 +62,15 @@ templ HeroCard() {
 templ FeatureCards() {
 	<section class="grid gap-[var(--size-6)] w-full" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
 		@IndexCard(IndexCardProps{
+			icon:        "house-heart",
+			title:       "homerooms",
+			description: "students basically spend most of their life here",
+			features: []string{
+				"idk yet",
+			},
+			url: "/homerooms",
+		})
+		@IndexCard(IndexCardProps{
 			icon:        "calendar-range",
 			title:       "periods",
 			description: "kind of like a calendar event",

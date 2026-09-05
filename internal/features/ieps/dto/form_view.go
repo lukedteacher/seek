@@ -10,7 +10,7 @@ import (
 type IEPFormView struct {
 	FormType  string
 	IEP       IEPView
-	Students  []studentDTO.SelectStudentOption
+	Students  []studentDTO.SelectOption
 	Providers []educatorDTO.EducatorSelectBoxView
 }
 
@@ -22,7 +22,7 @@ func NewIEPFormView(
 	if model == nil {
 		return IEPFormView{}
 	}
-	studentViews := studentDTO.NewSelectStudentOptions(nil, students, []string{model.StudentID})
+	studentViews := studentDTO.NewSelectView(nil, students, []string{model.StudentID})
 	view := NewIEPView(model)
 	return IEPFormView{
 		IEP:      view,

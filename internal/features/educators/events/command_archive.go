@@ -80,7 +80,7 @@ func loadArchiveEducatorContext(
 	*archiveEducatorContext,
 	error,
 ) {
-	query := streamQuery(educatorID)
+	query := StreamQuery(educatorID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err

@@ -1,0 +1,11 @@
+package blocks
+
+import "seek/internal/features/homerooms/dto"
+
+templ CardGrid(homerooms []dto.HomeroomView) {
+	<div class="homeroom-card-grid">
+		for _, homeroom := range homerooms {
+			@Card(homeroom)
+		}
+	</div>
+}

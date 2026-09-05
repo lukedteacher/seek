@@ -24,7 +24,7 @@ type PeriodFormView struct {
 	EducatorIDs     string                   `json:"educator_ids"`
 	StudentIDs      []string                 `json:"student_ids"`
 	Validation      map[string]events.Validation
-	StudentOptions  studentDTO.SelectStudentOptions `json:"student_options"`
+	StudentOptions  studentDTO.SelectView `json:"student_options"`
 	EducatorOptions []educatorDTO.EducatorSelectBoxView
 }
 
@@ -48,7 +48,7 @@ func NewPeriodFormView(
 		EducatorIDs:     strings.Join(p.EducatorIDs, ","),
 		StudentIDs:      p.StudentIDs,
 		Validation:      events.Validate(p),
-		StudentOptions:  studentDTO.NewSelectStudentOptions(studentFilters, allStudents, p.StudentIDs),
+		StudentOptions:  studentDTO.NewSelectView(studentFilters, allStudents, p.StudentIDs),
 		EducatorOptions: educatorDTO.NewEducatorSelectBoxViews(allEducators, p.EducatorIDs),
 	}
 }

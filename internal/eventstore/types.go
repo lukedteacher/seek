@@ -13,6 +13,8 @@ var (
 	ErrUserNotActive          = errors.New("user not active")
 	ErrEducatorNotFound       = errors.New("educator not found")
 	ErrEducatorNotActive      = errors.New("educator not active")
+	ErrHomeroomNotFound       = errors.New("homeroom not found")
+	ErrHomeroomNotActive      = errors.New("homeroom not active")
 	ErrPeriodNotFound         = errors.New("period not found")
 	ErrPeriodNotActive        = errors.New("period not active")
 	ErrStudentNotFound        = errors.New("student not found")

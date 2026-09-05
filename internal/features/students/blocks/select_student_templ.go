@@ -14,7 +14,7 @@ import (
 	"seek/pkg/templui/components/selectbox"
 )
 
-func SelectStudent(views []dto.SelectStudentOption) templ.Component {
+func SelectStudent(views []dto.SelectOption) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -135,9 +135,9 @@ func SelectStudent(views []dto.SelectStudentOption) templ.Component {
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var7 string
-						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(views[i].Student.NameInitial())
+						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(views[i].NameInitial())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_student.templ`, Line: 35, Col: 37}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_student.templ`, Line: 35, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -146,8 +146,8 @@ func SelectStudent(views []dto.SelectStudentOption) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-						Value:    views[i].Student.ID,
-						Selected: views[i].IsSelected,
+						Value:    views[i].ID,
+						Selected: views[i].Selected,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

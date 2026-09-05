@@ -96,10 +96,6 @@ func getPeriodsListStream(
 				// consider adding a vi
 
 				view := createPeriodsListView(ctx, l, *periodReadModel, *educatorReadModel, *studentReadModel)
-				if err != nil {
-					l.ErrorContext(ctx, "build updated view", "err", err)
-					continue
-				}
 				sse.PatchElementTempl(pages.List(view))
 			}
 		}

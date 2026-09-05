@@ -6,7 +6,7 @@ import (
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ SelectStudent(views []dto.SelectStudentOption) {
+templ SelectStudent(views []dto.SelectOption) {
 	@selectbox.SelectBox(selectbox.Props{
 		ID: "student-multiselect-container",
 	}) {
@@ -29,10 +29,10 @@ templ SelectStudent(views []dto.SelectStudentOption) {
 		@selectbox.Content() {
 			for i := range views {
 				@selectbox.Item(selectbox.ItemProps{
-					Value:    views[i].Student.ID,
-					Selected: views[i].IsSelected,
+					Value:    views[i].ID,
+					Selected: views[i].Selected,
 				}) {
-					{ views[i].Student.NameInitial() }
+					{ views[i].NameInitial() }
 				}
 			}
 		}

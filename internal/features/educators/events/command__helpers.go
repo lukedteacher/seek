@@ -8,7 +8,7 @@ type CommandMetadata = eventstore.CommandMetadata
 
 var eventTypeKey = eventstore.EventTypeKey
 
-func streamQuery(id string) eventstore.Query {
+func StreamQuery(id string) eventstore.Query {
 	eventTypes := []eventType{
 		EventEducatorCreated,
 		EventEducatorUpdated,

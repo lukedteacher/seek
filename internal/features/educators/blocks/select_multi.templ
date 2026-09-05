@@ -1,0 +1,111 @@
+package blocks
+
+import (
+	"fmt"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/educators/dto"
+	"seek/pkg/templui/components/avatar"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/separator"
+	"seek/pkg/utils"
+)
+
+templ SelectMulti(parent string, view dto.SelectView) {
+	{{
+		url := sharedmodels.GetURLFromContext(ctx)
+		filterSignalName := parent + ".educator_select"
+	}}
+	<div class="flex flex-col">
+		@label.Label(label.Props{
+			For:   "educators-list-search",
+			Class: "mb-3 text-neutral-content/90",
+		}) {
+			select an educator
+		}
+		<div class="flex gap-3 items-center">
+			<neo-popover>
+				@button.Button(button.Props{
+					Class: "py-1",
+					Attributes: templ.Attributes{
+						"data-neo-popover-trigger": "",
+					},
+				}) {
+					@icon.ListFilter()
+					<span>filter</span>
+				}
+				<div
+					class="p-3"
+					data-neo-popover-content
+				>
+					// @EducatorGradesFilter(filterSignalName, url, options.Filter.Grade)
+					@separator.Separator(separator.Props{
+						Class: "mt-4 mb-2",
+					})
+					// @EducatorPlanTypesFilter(filterSignalName, url, options.Filter.PlanType)
+				</div>
+			</neo-popover>
+			<neo-popover class="w-full" placement="top">
+				<div
+					class="flex items-center gap-2 relative input"
+					data-neo-popover-trigger
+				>
+					@icon.Search(icon.Props{
+						Class: "size-4 absolute left-2 top-1/2 -translate-y-1/2 stroke-neutral-content/80",
+					})
+					<input
+						id="educators-list-search"
+						class="pl-8"
+						{ fmt.Sprintf("data-bind:%s.filter.search", filterSignalName) }
+						data-on:input__debounce.250ms={ fmt.Sprintf("@post('%s/validate')", url) }
+						type="search"
+					/>
+				</div>
+				<ul
+					data-neo-popover-content
+					class="flex flex-col gap-1 w-full h-64"
+				>
+					for _, educator := range view.Options {
+						<li
+							data-on:click={ fmt.Sprintf("@post('%s/educators/%s')", url, educator.ID) }
+							class={ utils.TwMerge(
+							"text-sm flex items-center justify-between cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
+							utils.If(educator.Selected, "bg-primary"),
+						) }
+						>
+							<span>{ educator.NameInitial() }</span>
+							if educator.Selected {
+								@icon.Check(icon.Props{Class: "size-4"})
+							}
+						</li>
+					}
+				</ul>
+			</neo-popover>
+		</div>
+	</div>
+	<div class="py-3 grid grid-cols-2 md:grid-cols-3 gap-2">
+		for _, educator := range view.Options {
+			if educator.Selected {
+				<div class="group min-w-36 w-full h-18 flex gap-4 relative items-center justify-center rounded-md bg-linear-2 text-sm">
+					@avatar.Avatar() {
+						@avatar.Fallback() {
+							{ educator.Initials() }
+						}
+					}
+					<span>{ educator.NameInitial() }</span>
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+						Size:    button.SizeIcon,
+						Class:   "opacity-0 absolute top-1 right-1 group-hover:opacity-100 transition-all duration-150",
+						Attributes: templ.Attributes{
+							"data-on:click": fmt.Sprintf("@post('%s/educators/%s')", url, educator.ID),
+						},
+					}) {
+						@icon.X()
+					}
+				</div>
+			}
+		}
+	</div>
+}

@@ -1,0 +1,51 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	educatorBlocks "seek/internal/features/educators/blocks"
+	"seek/internal/features/homerooms/dto"
+	studentBlocks "seek/internal/features/students/blocks"
+	"seek/internal/ui/core/coreblocks/forms"
+	"seek/pkg/templui/components/input"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
+)
+
+templ FormSections(view dto.HomeroomFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	@selectbox.Script()
+	@forms.Fieldset("core info") {
+		<input id="homeroom-id" class="hidden" data-bind:homeroom.id value={ view.ID }/>
+		<div class="flex flex-col">
+			@label.Label(label.Props{
+				ID:    "homeroom-title-label",
+				For:   "homeroom-title-input",
+				Class: "mb-3 text-neutral-content/90",
+			}) {
+				title
+			}
+			@input.Input(input.Props{
+				ID:    "homeroom-title-input",
+				Value: view.Title,
+				Attributes: templ.Attributes{
+					"data-bind":                     "homeroom.title",
+					"data-on:input__debounce.250ms": fmt.Sprintf("@post('%s/validate')", url),
+				},
+			})
+		</div>
+	}
+	@forms.Fieldset("educator(s)") {
+		{{ educatorIDs, _ := templ.JSONString(view.EducatorIDs) }}
+		<div class="hidden" data-signals:homeroom.educator_ids={ educatorIDs }></div>
+		<input id="educator-ids" class="hidden" data-bind:homeroom.educator_ids/>
+		@educatorBlocks.SelectMulti("homeroom", view.EducatorSelectView)
+	}
+	@forms.Fieldset("student(s)") {
+		{{ studentIDs, _ := templ.JSONString(view.StudentIDs) }}
+		<div class="hidden" data-signals:homeroom.student_ids={ studentIDs }></div>
+		<input id="student-ids" class="hidden" data-bind:homeroom.student_ids/>
+		@studentBlocks.SelectMulti("homeroom", view.StudentSelectView)
+	}
+}

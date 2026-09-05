@@ -267,6 +267,18 @@ func FeatureCards() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = IndexCard(IndexCardProps{
+			icon:        "house-heart",
+			title:       "homerooms",
+			description: "students basically spend most of their life here",
+			features: []string{
+				"idk yet",
+			},
+			url: "/homerooms",
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IndexCard(IndexCardProps{
 			icon:        "calendar-range",
 			title:       "periods",
 			description: "kind of like a calendar event",
@@ -410,7 +422,7 @@ func IndexCard(props IndexCardProps) templ.Component {
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(props.title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 130, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 139, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -441,7 +453,7 @@ func IndexCard(props IndexCardProps) templ.Component {
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(props.description)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 133, Col: 23}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 142, Col: 23}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -497,7 +509,7 @@ func IndexCard(props IndexCardProps) templ.Component {
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(feature)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 145, Col: 18}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 154, Col: 18}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {

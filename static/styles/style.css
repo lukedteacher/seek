@@ -4067,6 +4067,9 @@
   .top-0 {
     top: 0px;
   }
+  .top-1 {
+    top: var(--spacing);
+  }
   .top-1\/2 {
     top: calc(1 / 2 * 100%);
   }
@@ -4087,6 +4090,9 @@
   }
   .right-0 {
     right: 0px;
+  }
+  .right-1 {
+    right: var(--spacing);
   }
   .right-2 {
     right: calc(var(--spacing) * 2);
@@ -6476,6 +6482,9 @@
   .h-16 {
     height: calc(var(--spacing) * 16);
   }
+  .h-18 {
+    height: calc(var(--spacing) * 18);
+  }
   .h-24 {
     height: calc(var(--spacing) * 24);
   }
@@ -6768,6 +6777,9 @@
   }
   .min-w-32 {
     min-width: calc(var(--spacing) * 32);
+  }
+  .min-w-36 {
+    min-width: calc(var(--spacing) * 36);
   }
   .min-w-80 {
     min-width: calc(var(--spacing) * 80);
@@ -7927,6 +7939,12 @@
   }
   .fill-current {
     fill: currentcolor;
+  }
+  .stroke-neutral-content\/80 {
+    stroke: var(--color-neutral-content);
+    @supports (color: color-mix(in lab, red, red)) {
+      stroke: color-mix(in oklab, var(--color-neutral-content) 80%, transparent);
+    }
   }
   .object-cover {
     object-fit: cover;
@@ -10160,6 +10178,9 @@
     }
     .md\:max-w-128 {
       max-width: calc(var(--spacing) * 128);
+    }
+    .md\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     .md\:flex-row {
       flex-direction: row;

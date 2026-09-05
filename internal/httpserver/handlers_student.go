@@ -1095,3 +1095,21 @@ func postStudentsCSV(
 		sse.Redirect("/students")
 	}
 }
+
+func listStudents(
+	ctx context.Context,
+	l *slog.Logger,
+	rm *events.ReadModel,
+	filter *dto.StudentFilter,
+) []models.Student {
+	opts := []events.ListOption{}
+	if filter != nil {
+		opts = filter.Options()
+	}
+	students, err := rm.List(ctx, opts...)
+	if err != nil {
+		l.ErrorContext(ctx, "list students", "err", err)
+		return []models.Student{}
+	}
+	return students
+}

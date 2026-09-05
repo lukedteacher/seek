@@ -657,3 +657,16 @@ func refreshEducatorEditState(
 	}
 	return viewstore.PutState(ctx, vs, educator.Username+".edit", educator)
 }
+
+func listEducators(
+	ctx context.Context,
+	l *slog.Logger,
+	rm *events.ReadModel,
+) []models.Educator {
+	educators, err := rm.List(ctx)
+	if err != nil {
+		l.ErrorContext(ctx, "list educators", "err", err)
+		return []models.Educator{}
+	}
+	return educators
+}

@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.9.6 (26.09.05) homerooms
+
+- added homeroom entity, modeled after periods
+- tweaked educator and student selects
+- trying model for the forms without signals for selects
+
 ## v0.9.5 (26.09.04) period list updates
 
 - added period with data composite

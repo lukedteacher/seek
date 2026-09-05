@@ -1,0 +1,62 @@
+package blocks
+
+import (
+	"fmt"
+
+	eblocks "seek/internal/features/educators/blocks"
+	"seek/internal/features/homerooms/dto"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/card"
+	"seek/pkg/templui/components/icon"
+)
+
+templ Card(view dto.HomeroomView) {
+	@card.Card(card.Props{
+		ID:    fmt.Sprintf("homeroom-%s-card", view.ID),
+		Class: "homeroom-card max-w-128 bg-neutral",
+	}) {
+		@card.Header() {
+			@card.Title() {
+				{ view.Title }
+			}
+		}
+		@card.Content(card.ContentProps{
+			Class: "flex flex-col gap-4 text-sm w-1/2",
+		}) {
+			<div class="flex items-center justify-between">
+				<span class="text-neutral-content/80">teachers</span>
+				<div class="homeroom-card-educators flex gap-1 no-wrap">
+					for _, educator := range view.Educators {
+						@eblocks.EducatorAvatar(educator)
+					}
+				</div>
+			</div>
+			<p>
+				<span class="text-neutral-content/70">students ({ len(view.Students) }):</span>
+			</p>
+			<div class="homeroom-card-students flex gap-2 flex-wrap">
+				for _, student := range view.Students {
+					<div class="bg-linear-2 border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
+						{ student.NameInitial() }
+						@badge.Badge() {
+							{ student.Grade.Ordinal() }
+						}
+					</div>
+				}
+			</div>
+		}
+		@card.Footer(card.FooterProps{
+			Class: "flex justify-end",
+		}) {
+			@button.Button(button.Props{
+				Href: fmt.Sprintf("/homerooms/%s/edit", view.ID),
+			}) {
+				@icon.Pencil(icon.Props{
+					Size: "16",
+				})
+				<span>edit</span>
+			}
+		}
+	}
+}

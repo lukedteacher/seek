@@ -328,7 +328,7 @@ func FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSch
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = studentBlocks.SelectStudentMulti("period.student_options", view.StudentOptions, view.StudentIDs).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = studentBlocks.SelectMulti("period", view.StudentOptions).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
