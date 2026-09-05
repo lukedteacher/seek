@@ -22,36 +22,36 @@ type SyncStudentsInPeriodResult struct {
 
 func SyncStudentsInPeriodCommandHandler(
 	ctx context.Context,
-	command SyncStudentsInPeriodCommand,
+	cmd SyncStudentsInPeriodCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	*SyncStudentsInPeriodResult,
 	error,
 ) {
-	period, err := loadSyncStudentsInPeriodContext(ctx, saver, retriever, command.PeriodID)
+	period, err := loadSyncStudentsInPeriodContext(ctx, retriever, cmd.PeriodID)
 	if err != nil {
-		return nil, fmt.Errorf("sync students in period command handler: %w", err)
+		return nil, fmt.Errorf("sync students in period cmd handler: %w", err)
 	}
 	if err := period.isPeriodActive(); err != nil {
 		return nil, err
 	}
 
 	// build proposed map
-	proposed := make(map[string]bool, len(command.ProposedStudentIDs))
+	proposed := make(map[string]bool, len(cmd.ProposedStudentIDs))
 
 	// check proposed against current and add students who are not present
 	// also build the map for removals
 	additions := []AddStudentToPeriodResult{}
-	for _, studentID := range command.ProposedStudentIDs {
+	for _, studentID := range cmd.ProposedStudentIDs {
 		proposed[studentID] = true
 		if _, ok := period.students[studentID]; !ok {
 			result, err := AddStudentToPeriodCommandHandler(
 				ctx,
 				AddStudentToPeriodCommand{
-					PeriodID:  command.PeriodID,
+					PeriodID:  cmd.PeriodID,
 					StudentID: studentID,
-					Metadata:  command.Metadata,
+					Metadata:  cmd.Metadata,
 				},
 				saver,
 				retriever,
@@ -70,9 +70,9 @@ func SyncStudentsInPeriodCommandHandler(
 			result, err := RemoveStudentFromPeriodCommandHandler(
 				ctx,
 				RemoveStudentFromPeriodCommand{
-					PeriodID:  command.PeriodID,
+					PeriodID:  cmd.PeriodID,
 					StudentID: studentID,
-					Metadata:  command.Metadata,
+					Metadata:  cmd.Metadata,
 				},
 				saver,
 				retriever,
@@ -112,7 +112,6 @@ func (m *syncStudentsInPeriodContext) isPeriodActive() error {
 
 func loadSyncStudentsInPeriodContext(
 	ctx context.Context,
-	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 	periodID string,
 ) (

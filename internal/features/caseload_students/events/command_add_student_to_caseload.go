@@ -23,14 +23,14 @@ type AddStudentToCaseloadResult struct {
 
 func AddStudentToCaseloadCommandHandler(
 	ctx context.Context,
-	command AddStudentToCaseloadCommand,
+	cmd AddStudentToCaseloadCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	*AddStudentToCaseloadResult,
 	error,
 ) {
-	model, err := loadAddStudentToCaseloadContext(ctx, retriever, command.EducatorID, command.StudentID)
+	model, err := loadAddStudentToCaseloadContext(ctx, retriever, cmd.EducatorID, cmd.StudentID)
 	if err != nil {
 		return nil, err
 	}
@@ -48,10 +48,10 @@ func AddStudentToCaseloadCommandHandler(
 	eventID := uuidv7.NewString()
 	event := NewStudentAddedToCaseloadEvent(
 		eventID,
-		command.EducatorID,
-		command.StudentID,
+		cmd.EducatorID,
+		cmd.StudentID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(

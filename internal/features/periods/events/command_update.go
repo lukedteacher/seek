@@ -26,34 +26,34 @@ type UpdatePeriodResult struct {
 
 func UpdatePeriodCommandHandler(
 	ctx context.Context,
-	command UpdatePeriodCommand,
+	cmd UpdatePeriodCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	UpdatePeriodResult,
 	error,
 ) {
-	model, err := loadUpdatePeriodContext(ctx, retriever, command.ID)
+	model, err := loadUpdatePeriodContext(ctx, retriever, cmd.ID)
 	if err != nil {
 		return UpdatePeriodResult{}, err
 	}
 	if err := model.isActive(); err != nil {
 		return UpdatePeriodResult{}, err
 	}
-	if model.isSame(command) {
+	if model.isSame(cmd) {
 		return UpdatePeriodResult{Skipped: true}, nil
 	}
 	eventID := uuidv7.NewString()
 	event := NewPeriodUpdatedEvent(
 		eventID,
-		command.ID,
-		command.Title,
-		command.ServiceType,
-		command.StartTime,
-		command.Duration,
-		command.DaysBitmask,
+		cmd.ID,
+		cmd.Title,
+		cmd.ServiceType,
+		cmd.StartTime,
+		cmd.Duration,
+		cmd.DaysBitmask,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return UpdatePeriodResult{}, err

@@ -31,7 +31,7 @@ templ ServiceStudentWithIEPSelectBox(students []studentDTO.SelectStudentWithIEPO
 				<input id="student-id" class="hidden" data-bind:service.student_id value={ students[i].Student.ID }/>
 				@selectbox.Item(selectbox.ItemProps{
 					Value:    students[i].Student.IEP.ID,
-					Selected: students[i].IsSelected,
+					Selected: students[i].Selected,
 				}) {
 					{ students[i].Student.NameInitial() }
 				}

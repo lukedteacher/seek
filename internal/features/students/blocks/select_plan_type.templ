@@ -35,7 +35,7 @@ templ SelectPlanType(views []dto.SelectPlanTypeOption) {
 			for i := range views {
 				@selectbox.Item(selectbox.ItemProps{
 					Value:    views[i].PlanType.String(),
-					Selected: views[i].IsSelected,
+					Selected: views[i].Selected,
 				}) {
 					{ views[i].PlanType.Description() }
 				}

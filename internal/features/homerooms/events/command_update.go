@@ -22,30 +22,30 @@ type UpdateHomeroomResult struct {
 
 func UpdateHomeroomCommandHandler(
 	ctx context.Context,
-	command UpdateHomeroomCommand,
+	cmd UpdateHomeroomCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	UpdateHomeroomResult,
 	error,
 ) {
-	model, err := loadUpdateHomeroomContext(ctx, retriever, command.ID)
+	model, err := loadUpdateHomeroomContext(ctx, retriever, cmd.ID)
 	if err != nil {
 		return UpdateHomeroomResult{}, err
 	}
 	if err := model.isActive(); err != nil {
 		return UpdateHomeroomResult{}, err
 	}
-	if model.isSame(command) {
+	if model.isSame(cmd) {
 		return UpdateHomeroomResult{Skipped: true}, nil
 	}
 	eventID := uuidv7.NewString()
 	event := NewHomeroomUpdatedEvent(
-		command.ID,
-		command.Title,
-		command.LocationID,
+		cmd.ID,
+		cmd.Title,
+		cmd.LocationID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return UpdateHomeroomResult{}, err

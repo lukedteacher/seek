@@ -6,7 +6,7 @@ import (
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ ServiceProviderSelectBox(providers []educatorDTO.EducatorSelectBoxView) {
+templ ServiceProviderSelectBox(view educatorDTO.SelectView) {
 	@selectbox.SelectBox(selectbox.Props{
 		ID: "provider-multiselect-container",
 	}) {
@@ -27,12 +27,12 @@ templ ServiceProviderSelectBox(providers []educatorDTO.EducatorSelectBoxView) {
 			})
 		}
 		@selectbox.Content() {
-			for i := range providers {
+			for _, p := range view.Options {
 				@selectbox.Item(selectbox.ItemProps{
-					Value:    providers[i].Educator.ID,
-					Selected: providers[i].IsSelected,
+					Value:    p.ID,
+					Selected: p.Selected,
 				}) {
-					{ providers[i].Educator.NameInitial() }
+					{ p.NameInitial() }
 				}
 			}
 		}

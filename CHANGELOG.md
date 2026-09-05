@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.9.7 (26.09.05) extensive refactoring for coding style
+
+- added new student and educator selects to period form
+- refactored period handlers a bit
+- refactored all put state calls to be more uniform
+
 ## v0.9.6 (26.09.05) homerooms
 
 - added homeroom entity, modeled after periods

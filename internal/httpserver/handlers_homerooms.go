@@ -74,7 +74,7 @@ func getHomeroomsListStream(
 			notifier.Notify()
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "homerooms list stream subscribe", "err", err)
+			l.ErrorContext(ctx, "hls subscribe", "err", err)
 			return
 		}
 		defer sub.Close()
@@ -123,9 +123,10 @@ func getHomeroomCreateStream(
 		sse := newSSE(w, r)
 
 		// watch for view store changes
+		key := user.Username + "homerooms.create"
 		watcher, err := vs.Watch(
 			ctx,
-			user.Username+".homerooms.create",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -221,7 +222,9 @@ func postHomeroomCreateEducators(
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.EducatorIDs = toggleID(model.EducatorIDs, educatorID)
 		key := user.Username + ".homerooms.create"
-		viewstore.PutState(ctx, vs, key, model)
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+			l.ErrorContext(ctx, "view store error", "error", err)
+		}
 	}
 }
 
@@ -243,7 +246,9 @@ func postHomeroomCreateStudents(
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.StudentIDs = toggleID(model.StudentIDs, studentID)
 		key := user.Username + ".homerooms.create"
-		viewstore.PutState(ctx, vs, key, model)
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+			l.ErrorContext(ctx, "view store error", "error", err)
+		}
 	}
 }
 
@@ -440,7 +445,8 @@ func getHomeroomEditStream(
 		// check if the kv store has an edit view already created
 		// aka someone else is editing the homeroom
 		// if not, populate the view with data from the db
-		_, ok, err := vs.Get(ctx, homeroomID+".edit")
+		key := homeroomID + ".edit"
+		_, ok, err := vs.Get(ctx, key)
 		if !ok {
 			if err := refreshHomeroomEditState(
 				ctx,
@@ -464,7 +470,7 @@ func getHomeroomEditStream(
 		// subscribe to the kv store for changes to the edit view state
 		watcher, err := vs.Watch(
 			ctx,
-			homeroomID+".edit",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -527,8 +533,6 @@ func postHomeroomEditValidate(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		homeroomID := chi.URLParam(r, "id")
-
 		signals := &struct {
 			FormView dto.HomeroomFormView `json:"homeroom"`
 		}{}
@@ -538,7 +542,7 @@ func postHomeroomEditValidate(
 		}
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		// store the signals under a key scoped to the homeroom
-		key := homeroomID + ".edit"
+		key := model.ID + ".edit"
 		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
 			l.ErrorContext(ctx, "post homeroom edit validate viewstore", "err", err)
 		}
@@ -551,7 +555,6 @@ func postHomeroomEditEducators(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		homeroomID := chi.URLParam(r, "id")
 		educatorID := chi.URLParam(r, "eid")
 		signals := &struct {
 			FormView dto.HomeroomFormView `json:"homeroom"`
@@ -562,8 +565,10 @@ func postHomeroomEditEducators(
 		}
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.EducatorIDs = toggleID(model.EducatorIDs, educatorID)
-		key := homeroomID + ".edit"
-		viewstore.PutState(ctx, vs, key, model)
+		key := model.ID + ".edit"
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+			l.ErrorContext(ctx, "view store error", "error", err)
+		}
 	}
 }
 
@@ -573,7 +578,6 @@ func postHomeroomEditStudents(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		homeroomID := chi.URLParam(r, "id")
 		studentID := chi.URLParam(r, "sid")
 		signals := &struct {
 			FormView dto.HomeroomFormView `json:"homeroom"`
@@ -584,8 +588,10 @@ func postHomeroomEditStudents(
 		}
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.StudentIDs = toggleID(model.StudentIDs, studentID)
-		key := homeroomID + ".edit"
-		viewstore.PutState(ctx, vs, key, model)
+		key := model.ID + ".edit"
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+			l.ErrorContext(ctx, "view store error", "error", err)
+		}
 	}
 }
 
@@ -707,11 +713,12 @@ func refreshHomeroomViewState(
 	homerooms *events.ReadModel,
 	vs viewstore.Store,
 ) error {
-	homeroom, err := homerooms.GetWithIDs(ctx, homeroomID)
+	model, err := homerooms.GetWithIDs(ctx, homeroomID)
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, vs, homeroom.ID+".view", homeroom)
+	key := model.ID + ".view"
+	return viewstore.PutState(ctx, vs, key, model)
 }
 
 // gets homeroom data from the db, converts it to a form view, and saves it to the store
@@ -722,11 +729,12 @@ func refreshHomeroomEditState(
 	homerooms *events.ReadModel,
 	vs viewstore.Store,
 ) error {
-	homeroom, err := homerooms.GetWithIDs(ctx, homeroomID)
+	model, err := homerooms.GetWithIDs(ctx, homeroomID)
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, vs, homeroom.ID+".edit", homeroom)
+	key := model.ID + ".edit"
+	return viewstore.PutState(ctx, vs, key, model)
 }
 
 func toggleID(slice []string, value string) []string {

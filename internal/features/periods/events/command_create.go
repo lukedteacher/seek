@@ -25,13 +25,13 @@ type CreatePeriodResult struct {
 
 func CreatePeriodCommandHandler(
 	ctx context.Context,
-	command CreatePeriodCommand,
+	cmd CreatePeriodCommand,
 	saver eventstore.Saver,
 ) (
 	CreatePeriodResult,
 	error,
 ) {
-	context, err := newCreatePeriodContext(command)
+	context, err := newCreatePeriodContext(cmd)
 	if err != nil {
 		return CreatePeriodResult{}, err
 	}
@@ -43,7 +43,7 @@ func CreatePeriodCommandHandler(
 		context.duration,
 		context.daysBitmask,
 		time.Now(),
-		metadataWithQuery(command.Metadata, context.query),
+		metadataWithQuery(cmd.Metadata, context.query),
 	)
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, eventstore.NoEventPosition, nil, context.query); err != nil {
 		return CreatePeriodResult{}, err
@@ -61,15 +61,15 @@ type createPeriodContext struct {
 	query       eventstore.Query
 }
 
-func newCreatePeriodContext(command CreatePeriodCommand) (*createPeriodContext, error) {
+func newCreatePeriodContext(cmd CreatePeriodCommand) (*createPeriodContext, error) {
 	periodID := uuidv7.NewString()
 	return &createPeriodContext{
 		id:          periodID,
-		title:       command.Title,
-		serviceType: command.ServiceType,
-		startTime:   command.StartTime,
-		duration:    command.Duration,
-		daysBitmask: command.DaysBitmask,
+		title:       cmd.Title,
+		serviceType: cmd.ServiceType,
+		startTime:   cmd.StartTime,
+		duration:    cmd.Duration,
+		daysBitmask: cmd.DaysBitmask,
 		query:       streamQuery(periodID),
 	}, nil
 }

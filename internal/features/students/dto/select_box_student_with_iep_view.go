@@ -3,8 +3,8 @@ package dto
 import "seek/internal/features/students/models"
 
 type SelectStudentWithIEPOption struct {
-	Student    models.StudentWithIEP
-	IsSelected bool
+	Student  models.StudentWithIEP
+	Selected bool
 }
 
 func NewSelectStudentWithIEPOption(
@@ -12,8 +12,8 @@ func NewSelectStudentWithIEPOption(
 	isSelected bool,
 ) SelectStudentWithIEPOption {
 	return SelectStudentWithIEPOption{
-		Student:    s,
-		IsSelected: isSelected,
+		Student:  s,
+		Selected: isSelected,
 	}
 }
 

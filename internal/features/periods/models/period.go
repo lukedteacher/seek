@@ -15,24 +15,18 @@ type Period struct {
 	DaysBitmask sharedmodels.DaysBitmask `json:"days_bitmask"`
 	EducatorIDs []string                 `json:"educator_ids"`
 	StudentIDs  []string                 `json:"student_ids"`
-	CreatedAt   string
-	UpdatedAt   string
+	CreatedAt   string                   `json:"created_at,omitempty"`
+	UpdatedAt   string                   `json:"updated_at,omitempty"`
 }
 
-func NewPeriod() (*Period, error) {
-	start, err := time.Parse("15:04", "9:30")
-	if err != nil {
-		return nil, err
-	}
-	end, err := time.Parse("15:04", "10:00")
-	if err != nil {
-		return nil, err
-	}
-	return &Period{
+func NewPeriod() Period {
+	start, _ := time.Parse("15:04", "9:30")
+	end, _ := time.Parse("15:04", "10:00")
+	return Period{
 		StartTime: sharedmodels.TimeOnly(start),
 		EndTime:   sharedmodels.TimeOnly(end),
 		Duration:  30,
-	}, nil
+	}
 }
 
 // updates the start time and recalculates the end time

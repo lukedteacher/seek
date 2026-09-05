@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/sharedmodels"
+	educatorBlocks "seek/internal/features/educators/blocks"
 	"seek/internal/features/periods/dto"
 	scheduledto "seek/internal/features/schedules/dto"
 	studentBlocks "seek/internal/features/students/blocks"
@@ -21,36 +22,6 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 	@selectbox.Script()
 	@forms.Fieldset("core info") {
 		<input id="period-id" class="hidden" data-bind:period.id value={ view.ID }/>
-		<div>
-			@label.Label(label.Props{
-				ID:    "period-educator-select-box-label",
-				For:   "period-educator-select-box",
-				Class: "mb-3 text-neutral-content/80",
-			}) {
-				educator(s)
-			}
-			@selectbox.SelectBox() {
-				@selectbox.Trigger(selectbox.TriggerProps{
-					ID:        "period-educator-select-box",
-					ShowPills: true,
-					DataBind:  "period.educator_ids",
-				}) {
-					@selectbox.Value(selectbox.ValueProps{
-						Placeholder: "select at least one educator",
-					})
-				}
-				@selectbox.Content() {
-					for i := range view.EducatorOptions {
-						@selectbox.Item(selectbox.ItemProps{
-							Value:    view.EducatorOptions[i].Educator.ID,
-							Selected: view.EducatorOptions[i].IsSelected,
-						}) {
-							{ view.EducatorOptions[i].Educator.NameInitial() }
-						}
-					}
-				}
-			}
-		</div>
 		<div class="flex flex-col">
 			@label.Label(label.Props{
 				ID:    "period-title-label",
@@ -70,6 +41,12 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 		</div>
 		@forms.SelectboxServiceType(url, "period", view.ServiceType)
 	}
+	@forms.Fieldset("educator(s)") {
+		{{ educatorIDs, _ := templ.JSONString(view.EducatorIDs) }}
+		<div class="hidden" data-signals:period.educator_ids={ educatorIDs }></div>
+		<input id="educator-ids" class="hidden" data-bind:period.educator_ids/>
+		@educatorBlocks.SelectMulti("period", view.EducatorSelect)
+	}
 	@forms.Fieldset("time") {
 		<div class="w-full flex gap-8 items-center">
 			@FormTimePickers(view)
@@ -80,7 +57,10 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 		@forms.DayButtons(view)
 	}
 	@forms.Fieldset("student(s)") {
-		@studentBlocks.SelectMulti("period", view.StudentOptions)
+		{{ studentIDs, _ := templ.JSONString(view.StudentIDs) }}
+		<div class="hidden" data-signals:period.student_ids={ studentIDs }></div>
+		<input id="student-ids" class="hidden" data-bind:period.student_ids/>
+		@studentBlocks.SelectMulti("period", view.StudentSelect)
 		if len(schedules) > 1 {
 			@SelectedScheduleList(url, schedules)
 		}

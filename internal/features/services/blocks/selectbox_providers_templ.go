@@ -14,7 +14,7 @@ import (
 	"seek/pkg/templui/components/selectbox"
 )
 
-func ServiceProviderSelectBox(providers []educatorDTO.EducatorSelectBoxView) templ.Component {
+func ServiceProviderSelectBox(view educatorDTO.SelectView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -121,7 +121,7 @@ func ServiceProviderSelectBox(providers []educatorDTO.EducatorSelectBoxView) tem
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				for i := range providers {
+				for _, p := range view.Options {
 					templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 						templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 						templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -135,9 +135,9 @@ func ServiceProviderSelectBox(providers []educatorDTO.EducatorSelectBoxView) tem
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var7 string
-						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(providers[i].Educator.NameInitial())
+						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(p.NameInitial())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/services/blocks/selectbox_providers.templ`, Line: 35, Col: 42}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/services/blocks/selectbox_providers.templ`, Line: 35, Col: 22}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -146,8 +146,8 @@ func ServiceProviderSelectBox(providers []educatorDTO.EducatorSelectBoxView) tem
 						return nil
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-						Value:    providers[i].Educator.ID,
-						Selected: providers[i].IsSelected,
+						Value:    p.ID,
+						Selected: p.Selected,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

@@ -26,23 +26,40 @@ type UploadProfileImageResult struct {
 	URL string
 }
 
-func UploadProfileImageCommandHandler(ctx context.Context, command UploadProfileImageCommand, saver eventstore.Saver, retriever eventstore.Retriever, storage ObjectStore) (UploadProfileImageResult, error) {
-	if err := commandlimits.Assert(command); err != nil {
+func UploadProfileImageCommandHandler(
+	ctx context.Context,
+	cmd UploadProfileImageCommand,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+	storage ObjectStore,
+) (
+	UploadProfileImageResult,
+	error,
+) {
+	if err := commandlimits.Assert(cmd); err != nil {
 		return UploadProfileImageResult{}, err
 	}
-	model, err := loadUploadProfileImageContext(ctx, command, retriever)
+	model, err := loadUploadProfileImageContext(ctx, cmd, retriever)
 	if err != nil {
 		return UploadProfileImageResult{}, err
 	}
-	if err := storage.PutObject(ctx, model.key, command.Data, command.ContentType); err != nil {
+	if err := storage.PutObject(ctx, model.key, cmd.Data, cmd.ContentType); err != nil {
 		return UploadProfileImageResult{}, err
 	}
 	url := storage.PublicURL(model.key)
-	event := NewProfileImageUploadedEvent(model.eventID, url, time.Now(), command.User.UserRegisteredID, nil)
-	if command.Header {
-		event = NewProfileHeaderImageUploadedEvent(model.eventID, url, time.Now(), command.User.UserRegisteredID, nil)
+	event := NewProfileImageUploadedEvent(model.eventID, url, time.Now(), cmd.User.UserRegisteredID, nil)
+	if cmd.Header {
+		event = NewProfileHeaderImageUploadedEvent(model.eventID, url, time.Now(), cmd.User.UserRegisteredID, nil)
 	}
-	if _, err := eventstore.SaveCommandEvents(ctx, saver, command.Metadata, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
+	if _, err := eventstore.SaveCommandEvents(
+		ctx,
+		saver,
+		cmd.Metadata,
+		[]eventstore.DomainEvent{event},
+		model.position,
+		model.events,
+		model.query,
+	); err != nil {
 		return UploadProfileImageResult{}, err
 	}
 	return UploadProfileImageResult{URL: url}, nil

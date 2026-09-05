@@ -19,14 +19,14 @@ type DeletePeriodResult struct {
 
 func DeletePeriodCommandHandler(
 	ctx context.Context,
-	command DeletePeriodCommand,
+	cmd DeletePeriodCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	DeletePeriodResult,
 	error,
 ) {
-	model, err := loadDeletePeriodContext(ctx, retriever, command.PeriodID)
+	model, err := loadDeletePeriodContext(ctx, retriever, cmd.PeriodID)
 	if err != nil {
 		return DeletePeriodResult{}, err
 	}
@@ -35,7 +35,7 @@ func DeletePeriodCommandHandler(
 	}
 
 	eventID := uuidv7.NewString()
-	event := NewPeriodDeletedEvent(eventID, command.PeriodID, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewPeriodDeletedEvent(eventID, cmd.PeriodID, time.Now(), metadataWithQuery(cmd.Metadata, model.query))
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return DeletePeriodResult{}, err

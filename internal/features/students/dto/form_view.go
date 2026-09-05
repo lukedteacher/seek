@@ -7,12 +7,12 @@ import (
 )
 
 type StudentFormView struct {
-	FormType         string                              `json:"form_type"`
-	Student          StudentView                         `json:"student"`
-	HomeroomTeachers []educatorDTO.EducatorSelectBoxView `json:"homeroom_teachers"`
-	PlanTypeOptions  []SelectPlanTypeOption              `json:"plan_types"`
-	CaseManagers     []educatorDTO.EducatorSelectBoxView `json:"case_managers"`
-	Validation       map[string]events.Validation        `json:"validation"`
+	FormType         string                       `json:"form_type"`
+	Student          StudentView                  `json:"student"`
+	HomeroomTeachers educatorDTO.SelectView       `json:"homeroom_teachers"`
+	PlanTypeOptions  []SelectPlanTypeOption       `json:"plan_types"`
+	CaseManagers     educatorDTO.SelectView       `json:"case_managers"`
+	Validation       map[string]events.Validation `json:"validation"`
 }
 
 func NewStudentFormView(

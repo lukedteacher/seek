@@ -19,14 +19,14 @@ type DeleteEducatorResult struct {
 
 func DeleteEducatorCommandHandler(
 	ctx context.Context,
-	command DeleteEducatorCommand,
+	cmd DeleteEducatorCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	DeleteEducatorResult,
 	error,
 ) {
-	model, err := loadDeleteEducatorContext(ctx, retriever, command.EducatorID)
+	model, err := loadDeleteEducatorContext(ctx, retriever, cmd.EducatorID)
 	if err != nil {
 		return DeleteEducatorResult{}, err
 	}
@@ -39,7 +39,7 @@ func DeleteEducatorCommandHandler(
 	eventData := EducatorDeletedEvent{
 		EventID:   eventID,
 		DeletedAt: time.Now(),
-		Scope:     educatorScope(command.EducatorID),
+		Scope:     educatorScope(cmd.EducatorID),
 	}
 
 	// wrap data in a domain event
@@ -47,7 +47,7 @@ func DeleteEducatorCommandHandler(
 		EventID:   eventID,
 		EventType: EventEducatorDeleted,
 		Data:      eventstore.MustData(eventData),
-		Metadata:  metadataWithQuery(command.Metadata, model.query),
+		Metadata:  metadataWithQuery(cmd.Metadata, model.query),
 	}
 
 	if _, err := saver.SaveEvents(

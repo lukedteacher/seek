@@ -10,7 +10,7 @@ import (
 	"seek/pkg/templui/components/separator"
 )
 
-templ StudentFilters(target, url string, filters dto.StudentFilter) {
+templ StudentFilters(target, url string, filters dto.Filter) {
 	<neo-popover>
 		@button.Button(button.Props{
 			Attributes: templ.Attributes{

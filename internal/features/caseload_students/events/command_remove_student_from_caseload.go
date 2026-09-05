@@ -23,14 +23,14 @@ type RemoveStudentFromCaseloadResult struct {
 
 func RemoveStudentFromCaseloadCommandHandler(
 	ctx context.Context,
-	command RemoveStudentFromCaseloadCommand,
+	cmd RemoveStudentFromCaseloadCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	*RemoveStudentFromCaseloadResult,
 	error,
 ) {
-	model, err := loadRemoveStudentFromCaseloadContext(ctx, retriever, command.EducatorID, command.StudentID)
+	model, err := loadRemoveStudentFromCaseloadContext(ctx, retriever, cmd.EducatorID, cmd.StudentID)
 	if err != nil {
 		return nil, err
 	}
@@ -48,10 +48,10 @@ func RemoveStudentFromCaseloadCommandHandler(
 	eventID := uuidv7.NewString()
 	event := NewStudentRemovedFromCaseloadEvent(
 		eventID,
-		command.EducatorID,
-		command.StudentID,
+		cmd.EducatorID,
+		cmd.StudentID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {

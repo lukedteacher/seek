@@ -22,15 +22,15 @@ type UpdateProfileAvatarCommand struct {
 
 func UpdateProfileAvatarCommandHandler(
 	ctx context.Context,
-	command UpdateProfileAvatarCommand,
+	cmd UpdateProfileAvatarCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 	keys auth.SubjectPiiKeyPort,
 ) error {
-	if err := commandlimits.Assert(command); err != nil {
+	if err := commandlimits.Assert(cmd); err != nil {
 		return err
 	}
-	model, err := loadUpdateProfileAvatarContext(ctx, command, retriever, keys)
+	model, err := loadUpdateProfileAvatarContext(ctx, cmd, retriever, keys)
 	if err != nil {
 		return err
 	}
@@ -41,13 +41,13 @@ func UpdateProfileAvatarCommandHandler(
 		model.eventID,
 		model.nextAvatar,
 		time.Now(),
-		command.User.UserRegisteredID,
+		cmd.User.UserRegisteredID,
 		nil,
 	)
 	_, err = eventstore.SaveCommandEvents(
 		ctx,
 		saver,
-		command.Metadata,
+		cmd.Metadata,
 		[]eventstore.DomainEvent{event},
 		model.position,
 		model.events,

@@ -19,14 +19,14 @@ type ArchiveStudentResult struct {
 
 func ArchiveStudentCommandHandler(
 	ctx context.Context,
-	command ArchiveStudentCommand,
+	cmd ArchiveStudentCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	ArchiveStudentResult,
 	error,
 ) {
-	model, err := loadArchiveStudentContext(ctx, retriever, command.StudentID)
+	model, err := loadArchiveStudentContext(ctx, retriever, cmd.StudentID)
 	if err != nil {
 		return ArchiveStudentResult{}, err
 	}
@@ -37,9 +37,9 @@ func ArchiveStudentCommandHandler(
 	eventID := uuidv7.NewString()
 	event := NewStudentArchivedEvent(
 		eventID,
-		command.StudentID,
+		cmd.StudentID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(

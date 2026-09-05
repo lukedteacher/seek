@@ -23,14 +23,14 @@ type UpdateIEPResult struct {
 
 func UpdateIEPCommandHandler(
 	ctx context.Context,
-	command UpdateIEPCommand,
+	cmd UpdateIEPCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	UpdateIEPResult,
 	error,
 ) {
-	model, err := loadUpdateStudentIEPContext(ctx, retriever, command.IEP.ID, command.IEP.StudentID)
+	model, err := loadUpdateStudentIEPContext(ctx, retriever, cmd.IEP.ID, cmd.IEP.StudentID)
 	if err != nil {
 		return UpdateIEPResult{}, err
 	}
@@ -41,16 +41,16 @@ func UpdateIEPCommandHandler(
 		return UpdateIEPResult{}, err
 	}
 	// TODO reimplement this
-	// if model.isSame(command) {
+	// if model.isSame(cmd) {
 	// 	return UpdateIEPResult{Skipped: true}, nil
 	// }
 
 	eventID := uuidv7.NewString()
 	event := NewIEPUpdatedEvent(
 		eventID,
-		command,
+		cmd,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {

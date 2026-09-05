@@ -121,9 +121,10 @@ func getEducatorCreateStream(
 		user := currentUser(r)
 		sse := newSSE(w, r)
 
+		key := user.Username + "educators.create"
 		watcher, err := vs.Watch(
 			ctx,
-			user.Username+"educators.create",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -189,7 +190,8 @@ func postEducatorCreateValidate(
 		}
 		// saves the state to a view store so that the SSE can update
 		// TODO look into a better name for the channel
-		if err := viewstore.PutState(ctx, vs, user.Username+".educators.create", model); err != nil {
+		key := user.Username + "educators.create"
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
 			l.ErrorContext(ctx, "educator create validate view store", "err", err)
 		}
 
@@ -480,9 +482,10 @@ func getEducatorEditStream(
 		defer sub.Close()
 
 		// watches the educator edit view state kv
+		key := username + ".edit"
 		watcher, err := vs.Watch(
 			ctx,
-			username+".edit",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -530,12 +533,11 @@ func getEducatorEditStream(
 
 // POST request to /educators/{username}/edit/validate
 func postEducatorEditValidate(
-	_ *slog.Logger,
+	l *slog.Logger,
 	vs viewstore.Store,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		username := chi.URLParam(r, "username")
 		signals := &struct {
 			Educator dto.EducatorFormView `json:"educator"`
 		}{}
@@ -553,7 +555,10 @@ func postEducatorEditValidate(
 			Person: signals.Educator.Person,
 			Roles:  roles,
 		}
-		viewstore.PutState(ctx, vs, username, model)
+		key := model.ID + ".edit"
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+			l.ErrorContext(ctx, "post homeroom create validate viewstore", "err", err)
+		}
 	}
 }
 
@@ -637,11 +642,12 @@ func refreshEducatorViewState(
 	username string,
 	educatorReadModel events.ReadModel,
 ) error {
-	educator, err := educatorReadModel.GetByUsername(ctx, username, events.WithRoles())
+	model, err := educatorReadModel.GetByUsername(ctx, username, events.WithRoles())
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, vs, educator.Username+".view", educator)
+	key := model.ID + ".view"
+	return viewstore.PutState(ctx, vs, key, model)
 }
 
 func refreshEducatorEditState(
@@ -651,11 +657,12 @@ func refreshEducatorEditState(
 	username string,
 	educatorReadModel events.ReadModel,
 ) error {
-	educator, err := educatorReadModel.GetByUsername(ctx, username, events.WithRoles())
+	model, err := educatorReadModel.GetByUsername(ctx, username, events.WithRoles())
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, vs, educator.Username+".edit", educator)
+	key := model.ID + ".edit"
+	return viewstore.PutState(ctx, vs, key, model)
 }
 
 func listEducators(

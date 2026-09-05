@@ -5,13 +5,13 @@ import (
 	"strconv"
 )
 
-type StudentFilter struct {
+type Filter struct {
 	Grade    map[string]bool `json:"grade"`
 	PlanType map[string]bool `json:"plan_type"`
 	Search   string          `json:"search"`
 }
 
-func (f *StudentFilter) Options() []events.ListOption {
+func (f *Filter) Options() []events.ListOption {
 	var opts []events.ListOption
 	if f == nil {
 		return opts

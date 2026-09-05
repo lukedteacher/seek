@@ -21,27 +21,27 @@ type SyncEducatorsInHomeroomResult struct {
 
 func SyncEducatorsInHomeroomCommandHandler(
 	ctx context.Context,
-	command SyncEducatorsInHomeroomCommand,
+	cmd SyncEducatorsInHomeroomCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	*SyncEducatorsInHomeroomResult,
 	error,
 ) {
-	homeroom, err := loadSyncEducatorsInHomeroomContext(ctx, saver, retriever, command.HomeroomID)
+	homeroom, err := loadSyncEducatorsInHomeroomContext(ctx, saver, retriever, cmd.HomeroomID)
 	if err != nil {
-		return nil, fmt.Errorf("sync educators in homeroom command handler: %w", err)
+		return nil, fmt.Errorf("sync educators in homeroom cmd handler: %w", err)
 	}
 	if err := homeroom.isHomeroomActive(); err != nil {
 		return nil, err
 	}
 
 	// build proposed map
-	proposed := make(map[string]bool, len(command.ProposedEducatorIDs))
+	proposed := make(map[string]bool, len(cmd.ProposedEducatorIDs))
 	// check proposed against current and add educators who are not present
 	// also build the map for removals
 	additions := []AddEducatorToHomeroomResult{}
-	for _, educatorID := range command.ProposedEducatorIDs {
+	for _, educatorID := range cmd.ProposedEducatorIDs {
 		if educatorID == "" {
 			continue
 		}
@@ -50,9 +50,9 @@ func SyncEducatorsInHomeroomCommandHandler(
 			result, err := AddEducatorToHomeroomCommandHandler(
 				ctx,
 				AddEducatorToHomeroomCommand{
-					HomeroomID: command.HomeroomID,
+					HomeroomID: cmd.HomeroomID,
 					EducatorID: educatorID,
-					Metadata:   command.Metadata,
+					Metadata:   cmd.Metadata,
 				},
 				saver,
 				retriever,
@@ -71,9 +71,9 @@ func SyncEducatorsInHomeroomCommandHandler(
 			result, err := RemoveEducatorFromHomeroomCommandHandler(
 				ctx,
 				RemoveEducatorFromHomeroomCommand{
-					HomeroomID: command.HomeroomID,
+					HomeroomID: cmd.HomeroomID,
 					EducatorID: educatorID,
-					Metadata:   command.Metadata,
+					Metadata:   cmd.Metadata,
 				},
 				saver,
 				retriever,

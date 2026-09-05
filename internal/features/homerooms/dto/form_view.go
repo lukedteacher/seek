@@ -12,14 +12,14 @@ type HomeroomFormView struct {
 	FormType string
 	models.Homeroom
 	Educators          map[string]bool       `json:"educators"`
-	StudentSelectView  studentDTO.SelectView `json:"student_options"`
+	StudentSelectView  studentDTO.SelectView `json:"student_select"`
 	EducatorSelectView educatorDTO.SelectView
 }
 
 func NewHomeroomFormView(
 	p *models.Homeroom,
 	allStudents []studentModels.Student,
-	studentFilters *studentDTO.StudentFilter,
+	studentFilter *studentDTO.Filter,
 	allEducators []educatorModels.Educator,
 ) HomeroomFormView {
 	if p == nil {
@@ -27,7 +27,7 @@ func NewHomeroomFormView(
 	}
 	return HomeroomFormView{
 		Homeroom:           *p,
-		StudentSelectView:  studentDTO.NewSelectView(studentFilters, allStudents, p.StudentIDs),
+		StudentSelectView:  studentDTO.NewSelectView(studentFilter, allStudents, p.StudentIDs),
 		EducatorSelectView: educatorDTO.NewSelectView(&educatorDTO.Filter{}, allEducators, p.EducatorIDs),
 	}
 }

@@ -164,7 +164,7 @@ func ServiceStudentWithIEPSelectBox(students []studentDTO.SelectStudentWithIEPOp
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
 						Value:    students[i].Student.IEP.ID,
-						Selected: students[i].IsSelected,
+						Selected: students[i].Selected,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

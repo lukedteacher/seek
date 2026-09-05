@@ -20,14 +20,14 @@ type DeleteIEPResult struct {
 
 func DeleteIEPCommandHandler(
 	ctx context.Context,
-	command DeleteIEPCommand,
+	cmd DeleteIEPCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	DeleteIEPResult,
 	error,
 ) {
-	model, err := loadDeleteIEPContext(ctx, retriever, command.IEPID, command.StudentID)
+	model, err := loadDeleteIEPContext(ctx, retriever, cmd.IEPID, cmd.StudentID)
 	if err != nil {
 		return DeleteIEPResult{}, err
 	}
@@ -38,10 +38,10 @@ func DeleteIEPCommandHandler(
 	eventID := uuidv7.NewString()
 	event := NewIEPDeletedEvent(
 		eventID,
-		command.IEPID,
-		command.StudentID,
+		cmd.IEPID,
+		cmd.StudentID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {

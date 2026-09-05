@@ -21,27 +21,27 @@ type SyncStudentsInHomeroomResult struct {
 
 func SyncStudentsInHomeroomCommandHandler(
 	ctx context.Context,
-	command SyncStudentsInHomeroomCommand,
+	cmd SyncStudentsInHomeroomCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	*SyncStudentsInHomeroomResult,
 	error,
 ) {
-	homeroom, err := loadSyncStudentsInHomeroomContext(ctx, saver, retriever, command.HomeroomID)
+	homeroom, err := loadSyncStudentsInHomeroomContext(ctx, saver, retriever, cmd.HomeroomID)
 	if err != nil {
-		return nil, fmt.Errorf("sync students in homeroom command handler: %w", err)
+		return nil, fmt.Errorf("sync students in homeroom cmd handler: %w", err)
 	}
 	if err := homeroom.isHomeroomActive(); err != nil {
 		return nil, err
 	}
 
 	// build proposed map
-	proposed := make(map[string]bool, len(command.ProposedStudentIDs))
+	proposed := make(map[string]bool, len(cmd.ProposedStudentIDs))
 	// check proposed against current and add students who are not present
 	// also build the map for removals
 	additions := []AddStudentToHomeroomResult{}
-	for _, studentID := range command.ProposedStudentIDs {
+	for _, studentID := range cmd.ProposedStudentIDs {
 		if studentID == "" {
 			continue
 		}
@@ -50,9 +50,9 @@ func SyncStudentsInHomeroomCommandHandler(
 			result, err := AddStudentToHomeroomCommandHandler(
 				ctx,
 				AddStudentToHomeroomCommand{
-					HomeroomID: command.HomeroomID,
+					HomeroomID: cmd.HomeroomID,
 					StudentID:  studentID,
-					Metadata:   command.Metadata,
+					Metadata:   cmd.Metadata,
 				},
 				saver,
 				retriever,
@@ -71,9 +71,9 @@ func SyncStudentsInHomeroomCommandHandler(
 			result, err := RemoveStudentFromHomeroomCommandHandler(
 				ctx,
 				RemoveStudentFromHomeroomCommand{
-					HomeroomID: command.HomeroomID,
+					HomeroomID: cmd.HomeroomID,
 					StudentID:  studentID,
-					Metadata:   command.Metadata,
+					Metadata:   cmd.Metadata,
 				},
 				saver,
 				retriever,

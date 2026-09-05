@@ -23,14 +23,14 @@ type AddEducatorToPeriodResult struct {
 
 func AddEducatorToPeriodCommandHandler(
 	ctx context.Context,
-	command AddEducatorToPeriodCommand,
+	cmd AddEducatorToPeriodCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	*AddEducatorToPeriodResult,
 	error,
 ) {
-	model, err := loadAddEducatorToPeriodContext(ctx, retriever, command.PeriodID, command.EducatorID)
+	model, err := loadAddEducatorToPeriodContext(ctx, retriever, cmd.PeriodID, cmd.EducatorID)
 	if err != nil {
 		return nil, err
 	}
@@ -48,10 +48,10 @@ func AddEducatorToPeriodCommandHandler(
 	eventID := uuidv7.NewString()
 	event := NewEducatorAddedToPeriodEvent(
 		eventID,
-		command.PeriodID,
-		command.EducatorID,
+		cmd.PeriodID,
+		cmd.EducatorID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(

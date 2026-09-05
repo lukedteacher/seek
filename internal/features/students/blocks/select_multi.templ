@@ -15,7 +15,7 @@ import (
 templ SelectMulti(objectType string, view dto.SelectView) {
 	{{
 		url := sharedmodels.GetURLFromContext(ctx)
-		filterSignalName := objectType + ".student_options"
+		filterSignalName := objectType + ".student_select"
 	}}
 	<div class="flex flex-col">
 		@label.Label(label.Props{
@@ -39,11 +39,11 @@ templ SelectMulti(objectType string, view dto.SelectView) {
 					class="p-3"
 					data-neo-popover-content
 				>
-					@StudentGradesFilter(filterSignalName, url, view.Filter.Grade)
+					@StudentGradesFilter(filterSignalName, url+"/validate", view.Filter.Grade)
 					@separator.Separator(separator.Props{
 						Class: "mt-4 mb-2",
 					})
-					@StudentPlanTypesFilter(filterSignalName, url, view.Filter.PlanType)
+					@StudentPlanTypesFilter(filterSignalName, url+"/validate", view.Filter.PlanType)
 				</div>
 			</neo-popover>
 			<neo-popover class="w-full" placement="top">

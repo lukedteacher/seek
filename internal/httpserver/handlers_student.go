@@ -121,7 +121,7 @@ func getStudentsListStream(
 			studentReadModel,
 			"family_name",
 			"ASC",
-			dto.StudentFilter{
+			dto.Filter{
 				Grade:    defaultGradeFilter,
 				PlanType: defaultPlanTypeFilter,
 				Search:   "",
@@ -192,7 +192,7 @@ func getStudentsListStream(
 
 // POST request to /students
 func postStudentsList(
-	_ *slog.Logger,
+	l *slog.Logger,
 	vs viewstore.Store,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -202,7 +202,10 @@ func postStudentsList(
 			Table dto.StudentTableState `json:"table"`
 		}{}
 		datastar.ReadSignals(r, signals)
-		viewstore.PutState(ctx, vs, user.Username+".students.list", signals)
+		key := user.Username + ".students.list"
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
+			l.ErrorContext(ctx, "psl put state", "err", err)
+		}
 	}
 }
 
@@ -227,9 +230,10 @@ func getStudentCreateStream(
 
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
+		key := user.Username + "students.create"
 		watcher, err := vs.Watch(
 			ctx,
-			user.Username+".students.create",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -247,7 +251,7 @@ func getStudentCreateStream(
 			eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 		)
 		studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, sharedmodels.PlanTypeNone)
-		studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{""})
+		studentFormView.CaseManagers = edto.NewSelectView(&edto.Filter{}, caseManagers, []string{})
 		sse.PatchElementTempl(pages.Create(studentFormView))
 
 		for {
@@ -269,7 +273,7 @@ func getStudentCreateStream(
 					eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 				)
 				studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, student.PlanType)
-				studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{student.CaseManagerID})
+				studentFormView.CaseManagers = edto.NewSelectView(&edto.Filter{}, caseManagers, []string{})
 				sse.PatchElementTempl(pages.Create(studentFormView))
 			}
 		}
@@ -292,7 +296,8 @@ func postStudentCreateValidate(
 			return
 		}
 		student := dto.NewStudentModelFromView(&signals.Student)
-		if err := viewstore.PutState(ctx, vs, user.Username+".students.create", student); err != nil {
+		key := user.Username + "students.create"
+		if err := viewstore.PutState(ctx, vs, key, student); err != nil {
 			l.ErrorContext(ctx, "student create validate put state", "err", err)
 			return
 		}
@@ -669,9 +674,10 @@ func getStudentEditStream(
 		defer sub.Close()
 
 		// watches the student edit view state kv
+		key := username + ".edit"
 		watcher, err := vs.Watch(
 			ctx,
-			username+".edit",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -719,7 +725,7 @@ func getStudentEditStream(
 					eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 				)
 				studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, student.PlanType)
-				studentFormView.CaseManagers = edto.NewEducatorSelectBoxViews(caseManagers, []string{student.CaseManagerID})
+				studentFormView.CaseManagers = edto.NewSelectView(&edto.Filter{}, caseManagers, []string{})
 
 				// patch data to page
 				sse.PatchElementTempl(pages.Edit(studentFormView))
@@ -735,7 +741,6 @@ func postStudentEditValidate(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		username := chi.URLParam(r, "username")
 		signals := &struct {
 			Student dto.StudentView `json:"student"`
 		}{}
@@ -747,8 +752,11 @@ func postStudentEditValidate(
 			l.ErrorContext(ctx, "student edit validate no student id")
 			return
 		}
-		student := dto.NewStudentModelFromView(&signals.Student)
-		viewstore.PutState(ctx, vs, username+".edit", student)
+		model := dto.NewStudentModelFromView(&signals.Student)
+		key := model.ID + ".edit"
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+			l.ErrorContext(ctx, "view store error", "error", err)
+		}
 	}
 }
 
@@ -876,7 +884,7 @@ func createListView(
 	studentReadModel events.ReadModel,
 	sortCol,
 	sortDir string,
-	filters dto.StudentFilter,
+	filters dto.Filter,
 	educatorReadModel eevents.ReadModel,
 ) pages.ListView {
 	// get students data from db
@@ -918,7 +926,7 @@ func createListView(
 
 	return pages.ListView{
 		Table: studentTableView,
-		Filters: dto.StudentFilter{
+		Filters: dto.Filter{
 			Grade:    filters.Grade,
 			PlanType: filters.PlanType,
 		},
@@ -945,11 +953,12 @@ func refreshStudentViewState(
 	vs viewstore.Store,
 	studentReadModel events.ReadModel,
 ) error {
-	student, err := studentReadModel.GetByUsername(ctx, username)
+	model, err := studentReadModel.GetByUsername(ctx, username)
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, vs, username+".view", student)
+	key := model.ID + ".view"
+	return viewstore.PutState(ctx, vs, key, model)
 }
 
 // reads the db for the given student and saves the state to a kv store for the SSE to update
@@ -960,11 +969,12 @@ func refreshStudentEditState(
 	vs viewstore.Store,
 	studentReadModel events.ReadModel,
 ) error {
-	student, err := studentReadModel.GetByUsername(ctx, username)
+	model, err := studentReadModel.GetByUsername(ctx, username)
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, vs, username+".edit", student)
+	key := model.ID + ".edit"
+	return viewstore.PutState(ctx, vs, key, model)
 }
 
 // GET request to /students/csv
@@ -1100,7 +1110,7 @@ func listStudents(
 	ctx context.Context,
 	l *slog.Logger,
 	rm *events.ReadModel,
-	filter *dto.StudentFilter,
+	filter *dto.Filter,
 ) []models.Student {
 	opts := []events.ListOption{}
 	if filter != nil {

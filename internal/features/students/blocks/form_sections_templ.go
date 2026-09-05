@@ -398,7 +398,7 @@ func FormSections(view dto.StudentFormView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						for _, cm := range view.CaseManagers {
+						for _, cm := range view.CaseManagers.Options {
 							templ_7745c5c3_Var15 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 								templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 								templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -412,9 +412,9 @@ func FormSections(view dto.StudentFormView) templ.Component {
 								}
 								ctx = templ.InitializeContext(ctx)
 								var templ_7745c5c3_Var16 string
-								templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(cm.Educator.NameInitial())
+								templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(cm.NameInitial())
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_sections.templ`, Line: 119, Col: 34}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/form_sections.templ`, Line: 119, Col: 25}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 								if templ_7745c5c3_Err != nil {
@@ -423,8 +423,8 @@ func FormSections(view dto.StudentFormView) templ.Component {
 								return nil
 							})
 							templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-								Value:    cm.Educator.ID,
-								Selected: cm.IsSelected,
+								Value:    cm.ID,
+								Selected: cm.Selected,
 							}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var15), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err

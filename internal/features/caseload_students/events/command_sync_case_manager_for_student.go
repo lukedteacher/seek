@@ -25,16 +25,16 @@ type SyncCaseManagerForStudentResult struct {
 
 func SyncCaseManagerForStudentCommandHandler(
 	ctx context.Context,
-	command SyncCaseManagerForStudentCommand,
+	cmd SyncCaseManagerForStudentCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	SyncCaseManagerForStudentResult,
 	error,
 ) {
-	model, err := loadSyncCaseManagerForStudentContext(ctx, retriever, command.StudentID, command.ProposedEducatorID)
+	model, err := loadSyncCaseManagerForStudentContext(ctx, retriever, cmd.StudentID, cmd.ProposedEducatorID)
 	if err != nil {
-		return SyncCaseManagerForStudentResult{}, fmt.Errorf("sync case manager for student command handler: %w", err)
+		return SyncCaseManagerForStudentResult{}, fmt.Errorf("sync case manager for student cmd handler: %w", err)
 	}
 	if err := model.isStudentActive(); err != nil {
 		return SyncCaseManagerForStudentResult{}, err
@@ -47,7 +47,7 @@ func SyncCaseManagerForStudentCommandHandler(
 	}
 
 	// check proposed against current
-	if model.student.caseManagerID == command.ProposedEducatorID {
+	if model.student.caseManagerID == cmd.ProposedEducatorID {
 		return SyncCaseManagerForStudentResult{Skipped: true}, nil
 	}
 	removedFromResult := &RemoveStudentFromCaseloadResult{}
@@ -56,8 +56,8 @@ func SyncCaseManagerForStudentCommandHandler(
 			ctx,
 			RemoveStudentFromCaseloadCommand{
 				EducatorID: model.student.caseManagerID,
-				StudentID:  command.StudentID,
-				Metadata:   command.Metadata,
+				StudentID:  cmd.StudentID,
+				Metadata:   cmd.Metadata,
 			},
 			saver,
 			retriever,
@@ -67,13 +67,13 @@ func SyncCaseManagerForStudentCommandHandler(
 		}
 	}
 	addedToResult := &AddStudentToCaseloadResult{}
-	if command.ProposedEducatorID != "" {
+	if cmd.ProposedEducatorID != "" {
 		addedToResult, err = AddStudentToCaseloadCommandHandler(
 			ctx,
 			AddStudentToCaseloadCommand{
-				EducatorID: command.ProposedEducatorID,
-				StudentID:  command.StudentID,
-				Metadata:   command.Metadata,
+				EducatorID: cmd.ProposedEducatorID,
+				StudentID:  cmd.StudentID,
+				Metadata:   cmd.Metadata,
 			},
 			saver,
 			retriever,

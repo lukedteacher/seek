@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"seek/internal/features/educators/dto"
 	educatorDTO "seek/internal/features/educators/dto"
 	educatorModels "seek/internal/features/educators/models"
 	"seek/internal/features/services/models"
@@ -12,7 +13,7 @@ type ServiceFormView struct {
 	FormType  string
 	Service   ServiceView
 	Students  []studentDTO.SelectStudentWithIEPOption
-	Providers []educatorDTO.EducatorSelectBoxView
+	Providers educatorDTO.SelectView
 }
 
 func NewServiceFormView(
@@ -25,7 +26,7 @@ func NewServiceFormView(
 		return ServiceFormView{}
 	}
 	studentViews := studentDTO.NewSelectStudentWithIEPOptions(students, []string{model.StudentID})
-	providerViews := educatorDTO.NewEducatorSelectBoxViews(providers, []string{model.ProviderID})
+	providerViews := educatorDTO.NewSelectView(&dto.Filter{}, providers, []string{model.ProviderID})
 	view := NewServiceView(model)
 	return ServiceFormView{
 		Service:   view,

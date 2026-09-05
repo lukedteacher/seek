@@ -1,22 +1,15 @@
 package dto
 
 import (
-	"seek/internal/features/_shared/sharedmodels"
 	edto "seek/internal/features/educators/dto"
 	"seek/internal/features/periods/models"
 	sdto "seek/internal/features/students/dto"
 )
 
 type PeriodView struct {
-	ID          string                   `json:"id"`
-	Title       string                   `json:"title"`
-	ServiceType sharedmodels.ServiceType `json:"service_type"`
-	StartTime   sharedmodels.TimeOnly    `json:"start_time"`
-	EndTime     sharedmodels.TimeOnly    `json:"end_time"`
-	Duration    int                      `json:"duration"`
-	DaysBitmask sharedmodels.DaysBitmask `json:"days_bitmask"`
-	Educators   []edto.EducatorView
-	Students    []sdto.StudentView
+	models.Period
+	Educators []edto.EducatorView
+	Students  []sdto.StudentView
 }
 
 func NewPeriodView(p *models.Period) PeriodView {
@@ -24,13 +17,7 @@ func NewPeriodView(p *models.Period) PeriodView {
 		return PeriodView{}
 	}
 	return PeriodView{
-		ID:          p.ID,
-		Title:       p.Title,
-		ServiceType: p.ServiceType,
-		StartTime:   p.StartTime,
-		EndTime:     p.StartTime.Add(p.Duration),
-		Duration:    p.Duration,
-		DaysBitmask: p.DaysBitmask,
+		Period: *p,
 	}
 }
 

@@ -19,14 +19,14 @@ type ArchivePeriodResult struct {
 
 func ArchivePeriodCommandHandler(
 	ctx context.Context,
-	command ArchivePeriodCommand,
+	cmd ArchivePeriodCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	ArchivePeriodResult,
 	error,
 ) {
-	model, err := loadArchivePeriodContext(ctx, retriever, command.PeriodID)
+	model, err := loadArchivePeriodContext(ctx, retriever, cmd.PeriodID)
 	if err != nil {
 		return ArchivePeriodResult{}, err
 	}
@@ -35,7 +35,7 @@ func ArchivePeriodCommandHandler(
 	}
 
 	eventID := uuidv7.NewString()
-	event := NewPeriodArchivedEvent(eventID, command.PeriodID, time.Now(), metadataWithQuery(command.Metadata, model.query))
+	event := NewPeriodArchivedEvent(eventID, cmd.PeriodID, time.Now(), metadataWithQuery(cmd.Metadata, model.query))
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return ArchivePeriodResult{}, err

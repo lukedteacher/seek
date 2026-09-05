@@ -118,9 +118,10 @@ func getIEPCreateStream(
 
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
+		key := user.Username + "ieps.create"
 		watcher, err := vs.Watch(
 			ctx,
-			user.Username+".ieps.create",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -185,7 +186,8 @@ func postIEPCreateValidate(
 		model := dto.NewModelFromView(&signals.View)
 		// saves the state to a view store so that the SSE can update
 		// TODO look into a better name for the channel
-		if err := viewstore.PutState(ctx, vs, user.Username+".ieps.create", model); err != nil {
+		key := user.Username + "ieps.create"
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
 			l.ErrorContext(ctx, "post iep create validate viewstore", "err", err)
 		}
 	}
@@ -350,9 +352,10 @@ func getIEPEditStream(
 		defer sub.Close()
 
 		// watches the iep edit view state kv
+		key := iepID + ".edit"
 		watcher, err := vs.Watch(
 			ctx,
-			iepID+".edit",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -411,7 +414,6 @@ func postIEPEditValidate(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		iepID := chi.URLParam(r, "id")
 		signals := &struct {
 			View dto.IEPView `json:"iep"`
 		}{}
@@ -420,7 +422,10 @@ func postIEPEditValidate(
 			return
 		}
 		model := dto.NewModelFromView(&signals.View)
-		viewstore.PutState(ctx, vs, iepID, model)
+		key := model.ID + ".edit"
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+			l.ErrorContext(ctx, "view store error", "error", err)
+		}
 	}
 }
 
@@ -495,11 +500,12 @@ func refreshIEPViewState(
 	iepID string,
 	iepReadModel events.ReadModel,
 ) error {
-	iep, err := iepReadModel.Get(ctx, iepID)
+	model, err := iepReadModel.Get(ctx, iepID)
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, vs, iep.ID+".view", iep)
+	key := model.ID + ".view"
+	return viewstore.PutState(ctx, vs, key, model)
 }
 
 func refreshIEPEditState(
@@ -509,9 +515,10 @@ func refreshIEPEditState(
 	iepID string,
 	iepReadModel events.ReadModel,
 ) error {
-	iep, err := iepReadModel.Get(ctx, iepID)
+	model, err := iepReadModel.Get(ctx, iepID)
 	if err != nil {
 		return err
 	}
-	return viewstore.PutState(ctx, vs, iep.ID+".edit", iep)
+	key := model.ID + ".edit"
+	return viewstore.PutState(ctx, vs, key, model)
 }

@@ -22,15 +22,15 @@ type UpdateProfileBioCommand struct {
 
 func UpdateProfileBioCommandHandler(
 	ctx context.Context,
-	command UpdateProfileBioCommand,
+	cmd UpdateProfileBioCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 	keys auth.SubjectPiiKeyPort,
 ) error {
-	if err := commandlimits.Assert(command); err != nil {
+	if err := commandlimits.Assert(cmd); err != nil {
 		return err
 	}
-	model, err := loadUpdateProfileBioContext(ctx, command, retriever, keys)
+	model, err := loadUpdateProfileBioContext(ctx, cmd, retriever, keys)
 	if err != nil {
 		return err
 	}
@@ -41,14 +41,14 @@ func UpdateProfileBioCommandHandler(
 		model.eventID,
 		model.nextBio,
 		time.Now(),
-		command.User.UserRegisteredID,
+		cmd.User.UserRegisteredID,
 		model.subjectKey,
 		nil,
 	)
 	_, err = eventstore.SaveCommandEvents(
 		ctx,
 		saver,
-		command.Metadata,
+		cmd.Metadata,
 		[]eventstore.DomainEvent{event},
 		model.position,
 		model.events,

@@ -54,11 +54,11 @@ type createStudentContext struct {
 	query eventstore.Query
 }
 
-func newCreateStudentContext(command CreateStudentCommand) (*createStudentContext, error) {
+func newCreateStudentContext(cmd CreateStudentCommand) (*createStudentContext, error) {
 	id := uuidv7.NewString()
-	username := deriveUsername(command.Email)
+	username := deriveUsername(cmd.Email)
 	context := &createStudentContext{
-		StudentState: command.StudentState,
+		StudentState: cmd.StudentState,
 		query:        StreamQuery(id),
 	}
 	context.ID = id

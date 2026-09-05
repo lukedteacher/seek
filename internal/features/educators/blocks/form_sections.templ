@@ -67,7 +67,7 @@ templ FormSections(view dto.EducatorFormView) {
 				for _, role := range view.Roles {
 					@selectbox.Item(selectbox.ItemProps{
 						Value:    role.String,
-						Selected: role.IsSelected,
+						Selected: role.Selected,
 					}) {
 						{ role.String }
 					}

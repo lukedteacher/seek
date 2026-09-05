@@ -23,16 +23,16 @@ type SyncStudentsInCaseloadResult struct {
 
 func SyncStudentsInCaseloadCommandHandler(
 	ctx context.Context,
-	command SyncStudentsInCaseloadCommand,
+	cmd SyncStudentsInCaseloadCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	SyncStudentsInCaseloadResult,
 	error,
 ) {
-	model, err := loadSyncStudentsInCaseloadContext(ctx, retriever, command.EducatorID)
+	model, err := loadSyncStudentsInCaseloadContext(ctx, retriever, cmd.EducatorID)
 	if err != nil {
-		return SyncStudentsInCaseloadResult{}, fmt.Errorf("sync students in educator command handler context: %w", err)
+		return SyncStudentsInCaseloadResult{}, fmt.Errorf("sync students in educator cmd handler context: %w", err)
 	}
 	if err := model.isEducatorActive(); err != nil {
 		return SyncStudentsInCaseloadResult{}, err
@@ -42,20 +42,20 @@ func SyncStudentsInCaseloadCommandHandler(
 	}
 
 	// build proposed map
-	proposed := make(map[string]bool, len(command.ProposedStudentIDs))
+	proposed := make(map[string]bool, len(cmd.ProposedStudentIDs))
 
 	// check proposed against current and add students who are not present
 	// also build the map for removals
 	additions := []AddStudentToCaseloadResult{}
-	for _, studentID := range command.ProposedStudentIDs {
+	for _, studentID := range cmd.ProposedStudentIDs {
 		proposed[studentID] = true
 		if _, ok := model.students[studentID]; !ok {
 			result, err := AddStudentToCaseloadCommandHandler(
 				ctx,
 				AddStudentToCaseloadCommand{
-					EducatorID: command.EducatorID,
+					EducatorID: cmd.EducatorID,
 					StudentID:  studentID,
-					Metadata:   command.Metadata,
+					Metadata:   cmd.Metadata,
 				},
 				saver,
 				retriever,
@@ -74,9 +74,9 @@ func SyncStudentsInCaseloadCommandHandler(
 			result, err := RemoveStudentFromCaseloadCommandHandler(
 				ctx,
 				RemoveStudentFromCaseloadCommand{
-					EducatorID: command.EducatorID,
+					EducatorID: cmd.EducatorID,
 					StudentID:  studentID,
-					Metadata:   command.Metadata,
+					Metadata:   cmd.Metadata,
 				},
 				saver,
 				retriever,

@@ -5,8 +5,8 @@ import (
 )
 
 type SelectPlanTypeOption struct {
-	PlanType   sharedmodels.PlanType
-	IsSelected bool
+	PlanType sharedmodels.PlanType
+	Selected bool
 }
 
 func NewSelectPlanTypeOption(
@@ -14,8 +14,8 @@ func NewSelectPlanTypeOption(
 	isSelected bool,
 ) SelectPlanTypeOption {
 	return SelectPlanTypeOption{
-		PlanType:   m,
-		IsSelected: isSelected,
+		PlanType: m,
+		Selected: isSelected,
 	}
 }
 

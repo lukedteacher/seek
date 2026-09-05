@@ -25,7 +25,7 @@ import (
 
 type ListView struct {
 	Table   shareddto.TableView
-	Filters dto.StudentFilter
+	Filters dto.Filter
 }
 
 func List(view ListView) templ.Component {

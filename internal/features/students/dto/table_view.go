@@ -7,7 +7,7 @@ import (
 
 type StudentTableState struct {
 	Sort   shareddto.TableSort `json:"sort"`
-	Filter StudentFilter       `json:"filter"`
+	Filter Filter              `json:"filter"`
 }
 
 var StudentColumns = []shareddto.ColumnView{

@@ -19,14 +19,14 @@ type ArchiveEducatorResult struct {
 
 func ArchiveEducatorCommandHandler(
 	ctx context.Context,
-	command ArchiveEducatorCommand,
+	cmd ArchiveEducatorCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	ArchiveEducatorResult,
 	error,
 ) {
-	model, err := loadArchiveEducatorContext(ctx, retriever, command.EducatorID)
+	model, err := loadArchiveEducatorContext(ctx, retriever, cmd.EducatorID)
 	if err != nil {
 		return ArchiveEducatorResult{}, err
 	}
@@ -40,7 +40,7 @@ func ArchiveEducatorCommandHandler(
 	eventData := EducatorArchivedEvent{
 		EventID:    eventID,
 		ArchivedAt: time.Now(),
-		Scope:      educatorScope(command.EducatorID),
+		Scope:      educatorScope(cmd.EducatorID),
 	}
 
 	// wrap data in a domain event
@@ -48,7 +48,7 @@ func ArchiveEducatorCommandHandler(
 		EventID:   eventID,
 		EventType: EventEducatorArchived,
 		Data:      eventstore.MustData(eventData),
-		Metadata:  metadataWithQuery(command.Metadata, model.query),
+		Metadata:  metadataWithQuery(cmd.Metadata, model.query),
 	}
 
 	if _, err := saver.SaveEvents(

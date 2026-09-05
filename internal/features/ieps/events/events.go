@@ -110,14 +110,14 @@ func NewIEPAddedToStudentEvent(
 
 func NewIEPUpdatedEvent(
 	eventID string,
-	command UpdateIEPCommand,
+	cmd UpdateIEPCommand,
 	updatedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := IEPUpdatedEvent{
 		EventID:  eventID,
-		IEPState: command.IEP,
-		Scope:    iepScope(command.IEP.ID, command.IEP.StudentID),
+		IEPState: cmd.IEP,
+		Scope:    iepScope(cmd.IEP.ID, cmd.IEP.StudentID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,

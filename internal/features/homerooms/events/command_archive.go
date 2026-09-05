@@ -19,14 +19,14 @@ type ArchiveHomeroomResult struct {
 
 func ArchiveHomeroomCommandHandler(
 	ctx context.Context,
-	command ArchiveHomeroomCommand,
+	cmd ArchiveHomeroomCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	ArchiveHomeroomResult,
 	error,
 ) {
-	model, err := loadArchiveHomeroomContext(ctx, retriever, command.HomeroomID)
+	model, err := loadArchiveHomeroomContext(ctx, retriever, cmd.HomeroomID)
 	if err != nil {
 		return ArchiveHomeroomResult{}, err
 	}
@@ -36,9 +36,9 @@ func ArchiveHomeroomCommandHandler(
 
 	eventID := uuidv7.NewString()
 	event := NewHomeroomArchivedEvent(
-		command.HomeroomID,
+		cmd.HomeroomID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {

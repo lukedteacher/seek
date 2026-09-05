@@ -7,7 +7,7 @@ import (
 
 type SelectView struct {
 	Options []SelectOption `json:"options"`
-	Filter  StudentFilter  `json:"filter"`
+	Filter  Filter         `json:"filter"`
 }
 
 type SelectOption struct {
@@ -16,7 +16,7 @@ type SelectOption struct {
 }
 
 func NewSelectView(
-	filter *StudentFilter,
+	filter *Filter,
 	students []models.Student,
 	selected []string,
 ) SelectView {
@@ -29,7 +29,7 @@ func NewSelectView(
 		for _, planType := range sharedmodels.PlanTypeList {
 			defaultPlanTypeFilter[planType.String()] = true
 		}
-		filter = &StudentFilter{
+		filter = &Filter{
 			Grade:    defaultGradeFilter,
 			PlanType: defaultPlanTypeFilter,
 			Search:   "",
@@ -58,7 +58,7 @@ func NewSelectOption(
 	selected bool,
 ) SelectOption {
 	return SelectOption{
-		StudentView:    NewStudentView(&s, nil),
-		Selected: selected,
+		StudentView: NewStudentView(&s, nil),
+		Selected:    selected,
 	}
 }

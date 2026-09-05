@@ -111,12 +111,12 @@ templ FormSections(view dto.StudentFormView) {
 				@selectbox.Content(selectbox.ContentProps{
 					NoSearch: true,
 				}) {
-					for _, cm := range view.CaseManagers {
+					for _, cm := range view.CaseManagers.Options {
 						@selectbox.Item(selectbox.ItemProps{
-							Value:    cm.Educator.ID,
-							Selected: cm.IsSelected,
+							Value:    cm.ID,
+							Selected: cm.Selected,
 						}) {
-							{ cm.Educator.NameInitial() }
+							{ cm.NameInitial() }
 						}
 					}
 				}

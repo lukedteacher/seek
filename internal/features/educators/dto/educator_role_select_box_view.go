@@ -3,8 +3,8 @@ package dto
 import "seek/internal/features/_shared/sharedmodels"
 
 type EducatorRoleSelectBoxView struct {
-	String     string
-	IsSelected bool
+	String   string
+	Selected bool
 }
 
 func NewEducatorRoleSelectBoxViews(
@@ -18,8 +18,8 @@ func NewEducatorRoleSelectBoxViews(
 	view := make([]EducatorRoleSelectBoxView, len(roles))
 	for i, role := range roles {
 		view[i] = EducatorRoleSelectBoxView{
-			String:     role.String(),
-			IsSelected: selectedMap[role],
+			String:   role.String(),
+			Selected: selectedMap[role],
 		}
 	}
 	return view

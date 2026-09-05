@@ -22,14 +22,14 @@ type CreateEducatorResult struct {
 
 func CreateEducatorCommandHandler(
 	ctx context.Context,
-	command CreateEducatorCommand,
+	cmd CreateEducatorCommand,
 	saver eventstore.Saver,
 ) (
 	CreateEducatorResult,
 	error,
 ) {
 	eventID := uuidv7.NewString()
-	model, err := newCreateEducatorContext(command, eventID)
+	model, err := newCreateEducatorContext(cmd, eventID)
 	if err != nil {
 		return CreateEducatorResult{}, fmt.Errorf("building educator context: %w", err)
 	}
@@ -47,7 +47,7 @@ func CreateEducatorCommandHandler(
 		EventID:   eventID,
 		EventType: EventEducatorCreated,
 		Data:      eventstore.MustData(eventData),
-		Metadata:  metadataWithQuery(command.Metadata, model.query),
+		Metadata:  metadataWithQuery(cmd.Metadata, model.query),
 	}
 
 	if _, err := saver.SaveEvents(
@@ -70,10 +70,10 @@ type createEducatorContext struct {
 
 // minimal logic here, since the educator is its own event root
 // TODO consider creating an educator model and using that for validation
-func newCreateEducatorContext(command CreateEducatorCommand, eventID string) (*createEducatorContext, error) {
-	username := deriveUsername(command.Email)
+func newCreateEducatorContext(cmd CreateEducatorCommand, eventID string) (*createEducatorContext, error) {
+	username := deriveUsername(cmd.Email)
 	educator := createEducatorContext{
-		EducatorState: command.EducatorState,
+		EducatorState: cmd.EducatorState,
 		query:         StreamQuery(eventID),
 	}
 	educator.ID = eventID

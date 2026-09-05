@@ -8,15 +8,15 @@ import (
 )
 
 type StudentWithPeriodsView struct {
-	Student    sdto.StudentView
-	Periods    []pdto.PeriodScheduleView
-	IsSelected bool
+	Student  sdto.StudentView
+	Periods  []pdto.PeriodScheduleView
+	Selected bool
 }
 
 func NewStudentWithPeriodsView(student smodels.Student, periods []pmodels.Period, isSelected bool, index int) StudentWithPeriodsView {
 	return StudentWithPeriodsView{
-		Student:    sdto.NewStudentView(&student, nil),
-		Periods:    pdto.NewPeriodScheduleViews(periods...),
-		IsSelected: isSelected,
+		Student:  sdto.NewStudentView(&student, nil),
+		Periods:  pdto.NewPeriodScheduleViews(periods...),
+		Selected: isSelected,
 	}
 }

@@ -42,7 +42,7 @@ func SelectMulti(objectType string, view dto.SelectView) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		url := sharedmodels.GetURLFromContext(ctx)
-		filterSignalName := objectType + ".student_options"
+		filterSignalName := objectType + ".student_select"
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -111,7 +111,7 @@ func SelectMulti(objectType string, view dto.SelectView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = StudentGradesFilter(filterSignalName, url, view.Filter.Grade).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = StudentGradesFilter(filterSignalName, url+"/validate", view.Filter.Grade).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -121,7 +121,7 @@ func SelectMulti(objectType string, view dto.SelectView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = StudentPlanTypesFilter(filterSignalName, url, view.Filter.PlanType).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = StudentPlanTypesFilter(filterSignalName, url+"/validate", view.Filter.PlanType).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -23,14 +23,14 @@ type RemoveEducatorFromPeriodResult struct {
 
 func RemoveEducatorFromPeriodCommandHandler(
 	ctx context.Context,
-	command RemoveEducatorFromPeriodCommand,
+	cmd RemoveEducatorFromPeriodCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	*RemoveEducatorFromPeriodResult,
 	error,
 ) {
-	model, err := loadRemoveEducatorFromPeriodContext(ctx, retriever, command.PeriodID, command.EducatorID)
+	model, err := loadRemoveEducatorFromPeriodContext(ctx, retriever, cmd.PeriodID, cmd.EducatorID)
 	if err != nil {
 		return nil, err
 	}
@@ -48,10 +48,10 @@ func RemoveEducatorFromPeriodCommandHandler(
 	eventID := uuidv7.NewString()
 	event := NewEducatorRemovedFromPeriodEvent(
 		eventID,
-		command.PeriodID,
-		command.EducatorID,
+		cmd.PeriodID,
+		cmd.EducatorID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {

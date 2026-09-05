@@ -18,14 +18,14 @@ type DeleteHomeroomResult struct {
 
 func DeleteHomeroomCommandHandler(
 	ctx context.Context,
-	command DeleteHomeroomCommand,
+	cmd DeleteHomeroomCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	DeleteHomeroomResult,
 	error,
 ) {
-	model, err := loadDeleteHomeroomContext(ctx, retriever, command.HomeroomID)
+	model, err := loadDeleteHomeroomContext(ctx, retriever, cmd.HomeroomID)
 	if err != nil {
 		return DeleteHomeroomResult{}, err
 	}
@@ -33,9 +33,9 @@ func DeleteHomeroomCommandHandler(
 		return DeleteHomeroomResult{}, err
 	}
 	event := NewHomeroomDeletedEvent(
-		command.HomeroomID,
+		cmd.HomeroomID,
 		time.Now(),
-		metadataWithQuery(command.Metadata, model.query),
+		metadataWithQuery(cmd.Metadata, model.query),
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {

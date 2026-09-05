@@ -11,7 +11,7 @@ type IEPFormView struct {
 	FormType  string
 	IEP       IEPView
 	Students  []studentDTO.SelectOption
-	Providers []educatorDTO.EducatorSelectBoxView
+	Providers []educatorDTO.SelectOption
 }
 
 func NewIEPFormView(

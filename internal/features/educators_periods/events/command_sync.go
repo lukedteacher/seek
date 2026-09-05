@@ -22,36 +22,36 @@ type SyncEducatorsInPeriodResult struct {
 
 func SyncEducatorsInPeriodCommandHandler(
 	ctx context.Context,
-	command SyncEducatorsInPeriodCommand,
+	cmd SyncEducatorsInPeriodCommand,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) (
 	*SyncEducatorsInPeriodResult,
 	error,
 ) {
-	period, err := loadSyncEducatorsInPeriodContext(ctx, saver, retriever, command.PeriodID)
+	period, err := loadSyncEducatorsInPeriodContext(ctx, saver, retriever, cmd.PeriodID)
 	if err != nil {
-		return nil, fmt.Errorf("sync educators in period command handler: %w", err)
+		return nil, fmt.Errorf("sync educators in period cmd handler: %w", err)
 	}
 	if err := period.isPeriodActive(); err != nil {
 		return nil, err
 	}
 
 	// build proposed map
-	proposed := make(map[string]bool, len(command.ProposedEducatorIDs))
+	proposed := make(map[string]bool, len(cmd.ProposedEducatorIDs))
 
 	// check proposed against current and add educators who are not present
 	// also build the map for removals
 	additions := []AddEducatorToPeriodResult{}
-	for _, educatorID := range command.ProposedEducatorIDs {
+	for _, educatorID := range cmd.ProposedEducatorIDs {
 		proposed[educatorID] = true
 		if _, ok := period.educators[educatorID]; !ok {
 			result, err := AddEducatorToPeriodCommandHandler(
 				ctx,
 				AddEducatorToPeriodCommand{
-					PeriodID:   command.PeriodID,
+					PeriodID:   cmd.PeriodID,
 					EducatorID: educatorID,
-					Metadata:   command.Metadata,
+					Metadata:   cmd.Metadata,
 				},
 				saver,
 				retriever,
@@ -70,9 +70,9 @@ func SyncEducatorsInPeriodCommandHandler(
 			result, err := RemoveEducatorFromPeriodCommandHandler(
 				ctx,
 				RemoveEducatorFromPeriodCommand{
-					PeriodID:   command.PeriodID,
+					PeriodID:   cmd.PeriodID,
 					EducatorID: educatorID,
-					Metadata:   command.Metadata,
+					Metadata:   cmd.Metadata,
 				},
 				saver,
 				retriever,
