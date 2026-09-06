@@ -106,8 +106,18 @@
   }
 
   .btn-destructive {
-    background-color: var(--error-6);
-    color: var(--error-6-on);
+    --_bg: var(--error-5);
+    --_clr: var(--error-5-on);
+    background-color: var(--_bg);
+    color: var(--_clr);
+    &:hover {
+      --_bg: var(--error-6);
+      --_clr: var(--error-6-on);
+    }
+    &:active {
+      --_bg: var(--error-7);
+      --_clr: var(--error-7-on);
+    }
   }
 }
 

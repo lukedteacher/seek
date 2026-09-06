@@ -94,12 +94,6 @@ templ Card(view dto.StudentView) {
 					Key:   "plan type",
 					Value: view.PlanType.Description(),
 				})
-				if view.PlanType.Int() == 3 {
-					@cards.BadgeLine(cards.BadgeLineProps{
-						Key:   "case manager",
-						Value: view.CaseManagerView.NameInitial(),
-					})
-				}
 			}
 		}
 	</div>

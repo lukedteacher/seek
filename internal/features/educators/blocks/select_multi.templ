@@ -9,14 +9,12 @@ import (
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/separator"
+	"seek/pkg/templui/components/tooltip"
 	"seek/pkg/utils"
 )
 
-templ SelectMulti(parent string, view dto.SelectView) {
-	{{
-		url := sharedmodels.GetURLFromContext(ctx)
-		filterSignalName := parent + ".educator_select"
-	}}
+templ SelectMulti(parent string, view dto.SelectView, withCards bool) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<div class="flex flex-col">
 		@label.Label(label.Props{
 			For:   "educators-list-search",
@@ -25,67 +23,92 @@ templ SelectMulti(parent string, view dto.SelectView) {
 			select an educator
 		}
 		<div class="flex gap-3 items-center">
-			<neo-popover>
-				@button.Button(button.Props{
-					Class: "py-1",
-					Attributes: templ.Attributes{
-						"data-neo-popover-trigger": "",
-					},
-				}) {
-					@icon.ListFilter()
-					<span>filter</span>
-				}
-				<div
-					class="p-3"
-					data-neo-popover-content
-				>
-					// @EducatorGradesFilter(filterSignalName, url, options.Filter.Grade)
-					@separator.Separator(separator.Props{
-						Class: "mt-4 mb-2",
-					})
-					// @EducatorPlanTypesFilter(filterSignalName, url, options.Filter.PlanType)
-				</div>
-			</neo-popover>
-			<neo-popover class="w-full" placement="top">
+			<neo-popover class="w-full h-full" placement="top">
 				<div
 					class="flex items-center gap-2 relative input"
 					data-neo-popover-trigger
 				>
 					@icon.Search(icon.Props{
-						Class: "size-4 absolute left-2 top-1/2 -translate-y-1/2 stroke-neutral-content/80",
+						Class: "size-4 absolute left-3 top-1/2 -translate-y-1/2 stroke-neutral-content/80",
 					})
 					<input
 						id="educators-list-search"
 						class="pl-8"
-						{ fmt.Sprintf("data-bind:%s.filter.search", filterSignalName) }
+						{ fmt.Sprintf("data-bind:%s.educator_select.filter.search", parent) }
 						data-on:input__debounce.250ms={ fmt.Sprintf("@post('%s/validate')", url) }
 						type="search"
 					/>
 				</div>
-				<ul
-					data-neo-popover-content
-					class="flex flex-col gap-1 w-full h-64"
-				>
-					for _, educator := range view.Options {
-						<li
-							data-on:click={ fmt.Sprintf("@post('%s/educators/%s')", url, educator.ID) }
-							class={ utils.TwMerge(
+				@SelectOptions(view.Options)
+			</neo-popover>
+			@SelectFilterMenu(view.Filter)
+		</div>
+	</div>
+	if withCards {
+		@SelectCards(view.Options)
+	}
+}
+
+templ SelectOptions(options []dto.SelectOption) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<ul
+		data-neo-popover-content
+		class="flex flex-col gap-1 w-full h-64"
+	>
+		for _, educator := range options {
+			<li
+				data-on:click={ fmt.Sprintf("@post('%s/educators/%s')", url, educator.ID) }
+				class={ utils.TwMerge(
 							"text-sm flex items-center justify-between cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
 							utils.If(educator.Selected, "bg-primary"),
 						) }
-						>
-							<span>{ educator.NameInitial() }</span>
-							if educator.Selected {
-								@icon.Check(icon.Props{Class: "size-4"})
-							}
-						</li>
-					}
-				</ul>
-			</neo-popover>
+			>
+				<span>{ educator.NameInitial() }</span>
+				if educator.Selected {
+					@icon.Check(icon.Props{Class: "size-4"})
+				}
+			</li>
+		}
+	</ul>
+}
+
+templ SelectFilterMenu(filter dto.Filter) {
+	<neo-popover>
+		@tooltip.Tooltip() {
+			@tooltip.Trigger() {
+				@button.Button(button.Props{
+					Size: button.SizeIcon,
+					Attributes: templ.Attributes{
+						"data-neo-popover-trigger": "",
+					},
+				}) {
+					@icon.ListFilter()
+				}
+			}
+			@tooltip.Content(tooltip.ContentProps{
+				HoverDelay:    250,
+				HoverOutDelay: 125,
+			}) {
+				filter
+			}
+		}
+		<div
+			class="p-3"
+			data-neo-popover-content
+		>
+			// @EducatorGradesFilter(filterSignalName, url, options.Filter.Grade)
+			@separator.Separator(separator.Props{
+				Class: "mt-4 mb-2",
+			})
+			// @EducatorPlanTypesFilter(filterSignalName, url, options.Filter.PlanType)
 		</div>
-	</div>
-	<div class="py-3 grid grid-cols-2 md:grid-cols-3 gap-2">
-		for _, educator := range view.Options {
+	</neo-popover>
+}
+
+templ SelectCards(options []dto.SelectOption) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<div class="grid grid-cols-2 lg:grid-cols-3 gap-2">
+		for _, educator := range options {
 			if educator.Selected {
 				<div class="group min-w-36 w-full h-18 flex gap-4 relative items-center justify-center rounded-md bg-linear-2 text-sm">
 					@avatar.Avatar() {

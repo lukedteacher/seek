@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.9.8 (26.09.06) many style and minor bug fixes
+
+- fixed delete button colors
+- improved styles on forms
+- improved layout of new select components
+- added conditional display of delete button for period form
+
 ## v0.9.7 (26.09.05) extensive refactoring for coding style
 
 - added new student and educator selects to period form

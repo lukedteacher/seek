@@ -232,8 +232,9 @@ func DeleteButton(objectType, id string) templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = button.Button(button.Props{
-			Type:  "button",
-			Class: "flex-grow basis-1 btn-destructive",
+			Type:    "button",
+			Variant: button.VariantDestructive,
+			Class:   "flex-grow basis-1",
 			Attributes: templ.Attributes{
 				"data-on:click": fmt.Sprintf("@delete('/%ss/%s')", objectType, id),
 			},

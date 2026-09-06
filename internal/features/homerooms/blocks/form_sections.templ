@@ -40,12 +40,14 @@ templ FormSections(view dto.HomeroomFormView) {
 		{{ educatorIDs, _ := templ.JSONString(view.EducatorIDs) }}
 		<div class="hidden" data-signals:homeroom.educator_ids={ educatorIDs }></div>
 		<input id="educator-ids" class="hidden" data-bind:homeroom.educator_ids/>
-		@educatorBlocks.SelectMulti("homeroom", view.EducatorSelectView)
+		{{ withCards := len(view.EducatorIDs) > 0 }}
+		@educatorBlocks.SelectMulti("homeroom", view.EducatorSelectView, withCards)
 	}
 	@forms.Fieldset("student(s)") {
 		{{ studentIDs, _ := templ.JSONString(view.StudentIDs) }}
 		<div class="hidden" data-signals:homeroom.student_ids={ studentIDs }></div>
 		<input id="student-ids" class="hidden" data-bind:homeroom.student_ids/>
-		@studentBlocks.SelectMulti("homeroom", view.StudentSelectView)
+		{{ withCards := len(view.StudentIDs) > 0 }}
+		@studentBlocks.SelectMulti("homeroom", view.StudentSelectView, withCards)
 	}
 }

@@ -55,6 +55,7 @@ func (s Server) studentRoutes(r chi.Router) {
 	r.Delete("/students/{username}", deleteStudent(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.Students))
 	r.Get("/students/csv", getStudentsCSV(s.Logger, *s.ReadModels.Students))
 	r.Post("/students/csv", postStudentsCSV(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.Students))
+	r.Get("/students/404", getNotFound(s.Logger))
 }
 
 // GET request to /students
@@ -230,7 +231,7 @@ func getStudentCreateStream(
 
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
-		key := user.Username + "students.create"
+		key := user.Username + ".students.create"
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -295,8 +296,8 @@ func postStudentCreateValidate(
 			l.ErrorContext(ctx, "student create validate signal read", "err", err)
 			return
 		}
-		student := dto.NewStudentModelFromView(&signals.Student)
-		key := user.Username + "students.create"
+		student := dto.NewModelFromView(signals.Student)
+		key := user.Username + ".students.create"
 		if err := viewstore.PutState(ctx, vs, key, student); err != nil {
 			l.ErrorContext(ctx, "student create validate put state", "err", err)
 			return
@@ -396,16 +397,22 @@ func getStudentViewInfoStream(
 		}
 		defer sub.Close()
 
-		if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
+		model, err := refreshStudentViewState(ctx, l, username, vs, studentReadModel)
+		if err != nil {
+			if err.Error() == "student not found" {
+				sse.PatchElementTempl(pages.NotFound())
+				return
+			}
 			l.ErrorContext(ctx, "student view info stream refresh", "err", err)
 			return
 		}
 
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
+		key := model.ID + ".view"
 		watcher, err := vs.Watch(
 			ctx,
-			username+".view",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -421,7 +428,7 @@ func getStudentViewInfoStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal(): // triggers when the read model publishes
-				if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
+				if _, err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
 					if err.Error() == "student not found" {
 						sse.PatchElementTempl(pages.NotFound())
 						return
@@ -438,17 +445,7 @@ func getStudentViewInfoStream(
 					l.ErrorContext(ctx, "student view info stream json read", "err", err)
 					return
 				}
-				studentView := dto.StudentView{}
-				if student.CaseManagerID != "" {
-					caseManager, err := educatorReadModel.GetByID(ctx, student.CaseManagerID)
-					studentView = dto.NewStudentView(student, caseManager)
-					if err != nil {
-						l.ErrorContext(ctx, "student view info db case manager get", "err", err)
-						return
-					}
-				} else {
-					studentView = dto.NewStudentView(student, nil)
-				}
+				studentView := dto.NewView(student)
 				sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.ServiceView{}, "info"))
 			}
 		}
@@ -489,16 +486,22 @@ func getStudentViewScheduleStream(
 		}
 		defer sub.Close()
 
-		if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
-			l.ErrorContext(ctx, "student view schedule stream refresh", "err", err)
+		model, err := refreshStudentViewState(ctx, l, username, vs, studentReadModel)
+		if err != nil {
+			if err.Error() == "student not found" {
+				sse.PatchElementTempl(pages.NotFound())
+				return
+			}
+			l.ErrorContext(ctx, "student view info stream refresh", "err", err)
 			return
 		}
 
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
+		key := model.ID + ".view"
 		watcher, err := vs.Watch(
 			ctx,
-			username+".view",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -514,7 +517,7 @@ func getStudentViewScheduleStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal(): // triggers when the read model publishes
-				if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
+				if _, err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
 					if err.Error() == "student not found" {
 						sse.PatchElementTempl(pages.NotFound())
 						return
@@ -531,7 +534,7 @@ func getStudentViewScheduleStream(
 					l.ErrorContext(ctx, "student view schedule stream json read", "err", err)
 					return
 				}
-				studentView := dto.NewStudentView(student, nil)
+				studentView := dto.NewView(student)
 
 				// get the periods for the student and make views
 				periods, err := periodReadModel.ListPeriodsForStudent(ctx, student.ID)
@@ -580,16 +583,22 @@ func getStudentViewServicesStream(
 		}
 		defer sub.Close()
 
-		if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
-			l.ErrorContext(ctx, "student view services stream refresh", "err", err)
+		model, err := refreshStudentViewState(ctx, l, username, vs, studentReadModel)
+		if err != nil {
+			if err.Error() == "student not found" {
+				sse.PatchElementTempl(pages.NotFound())
+				return
+			}
+			l.ErrorContext(ctx, "student view info stream refresh", "err", err)
 			return
 		}
 
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
+		key := model.ID + ".view"
 		watcher, err := vs.Watch(
 			ctx,
-			username+".view",
+			key,
 			viewstore.WatchOptions{
 				IgnoreDeletes: true,
 			},
@@ -605,7 +614,7 @@ func getStudentViewServicesStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal(): // triggers when the read model publishes
-				if err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
+				if _, err := refreshStudentViewState(ctx, l, username, vs, studentReadModel); err != nil {
 					l.ErrorContext(ctx, "student view services stream refresh in select", "err", err)
 					if err.Error() == "student not found" {
 						sse.PatchElementTempl(pages.NotFound())
@@ -621,7 +630,7 @@ func getStudentViewServicesStream(
 					l.ErrorContext(ctx, "student view services stream json read", "err", err)
 					return
 				}
-				studentView := dto.NewStudentView(student, nil)
+				studentView := dto.NewView(student)
 
 				// get the list of services for the student and make views
 				services, err := serviceReadModel.ListServicesForIEP(ctx, studentView.ID)
@@ -752,7 +761,7 @@ func postStudentEditValidate(
 			l.ErrorContext(ctx, "student edit validate no student id")
 			return
 		}
-		model := dto.NewStudentModelFromView(&signals.Student)
+		model := dto.NewModelFromView(signals.Student)
 		key := model.ID + ".edit"
 		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
@@ -952,13 +961,16 @@ func refreshStudentViewState(
 	username string,
 	vs viewstore.Store,
 	studentReadModel events.ReadModel,
-) error {
+) (models.Student, error) {
 	model, err := studentReadModel.GetByUsername(ctx, username)
 	if err != nil {
-		return err
+		return models.Student{}, err
 	}
 	key := model.ID + ".view"
-	return viewstore.PutState(ctx, vs, key, model)
+	if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		return models.Student{}, err
+	}
+	return *model, nil
 }
 
 // reads the db for the given student and saves the state to a kv store for the SSE to update
@@ -1103,6 +1115,15 @@ func postStudentsCSV(
 
 		sse := newSSE(w, r)
 		sse.Redirect("/students")
+	}
+}
+
+func getNotFound(
+	l *slog.Logger,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		pages.NotFound().Render(ctx, w)
 	}
 }
 

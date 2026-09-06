@@ -19,7 +19,7 @@ func NewStudentFormView(
 	formType string,
 	s *models.Student,
 ) StudentFormView {
-	student := NewStudentView(s, nil)
+	student := NewView(s)
 	validation := events.Validate(s)
 	return StudentFormView{
 		FormType:   formType,

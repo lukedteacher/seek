@@ -126,7 +126,7 @@ func getServiceCreateStream(
 
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
-		key := user.Username + "services.create"
+		key := user.Username + ".services.create"
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -195,8 +195,7 @@ func postServiceCreateValidate(
 		}
 		model := dto.NewModelFromView(&signals.View)
 		// saves the state to a view store so that the SSE can update
-		// TODO look into a better name for the channel
-		key := user.Username + "services.create"
+		key := user.Username + ".services.create"
 		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
 			l.ErrorContext(ctx, "post iep services create validate viewstore", "err", err)
 		}

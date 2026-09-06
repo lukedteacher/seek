@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"seek/internal/features/_shared/sharedmodels"
 )
@@ -15,6 +16,8 @@ type Educator struct {
 	sharedmodels.Person //embeds given, chosen, family name & email, username fields
 	ID                  string
 	Roles               []sharedmodels.EducatorRole
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
 
 func NewEducator(id, given, chosen, family, email string, roles []string) (Educator, error) {

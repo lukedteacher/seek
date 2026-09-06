@@ -123,7 +123,7 @@ func getHomeroomCreateStream(
 		sse := newSSE(w, r)
 
 		// watch for view store changes
-		key := user.Username + "homerooms.create"
+		key := user.Username + ".homerooms.create"
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -137,7 +137,7 @@ func getHomeroomCreateStream(
 		}
 		defer watcher.Stop()
 
-		educators := listEducators(ctx, l, educatorReadModel)
+		educators, _ := listEducators(ctx, l, educatorReadModel, nil)
 		students := listStudents(ctx, l, studentReadModel, nil)
 		view := dto.NewHomeroomFormView(
 			&models.Homeroom{},
@@ -163,7 +163,7 @@ func getHomeroomCreateStream(
 					l.Error("json decode", "err", err)
 					return
 				}
-				educators := listEducators(ctx, l, educatorReadModel)
+				educators, _ := listEducators(ctx, l, educatorReadModel, nil)
 				students := listStudents(ctx, l, studentReadModel, nil)
 				view := dto.NewHomeroomFormView(
 					model,
@@ -396,7 +396,7 @@ func getHomeroomViewStream(
 				}
 				for i := range homeroom.StudentIDs {
 					student, _ := studentReadModel.GetByID(ctx, homeroom.StudentIDs[i])
-					studentView := studentDTO.NewStudentView(student, nil)
+					studentView := studentDTO.NewView(student)
 					view.Students = append(view.Students, studentView)
 				}
 				sse.PatchElementTempl(pages.View(view))
@@ -510,7 +510,7 @@ func getHomeroomEditStream(
 					l.Error("homeroom edit stream json", "err", err)
 					return
 				}
-				educators := listEducators(ctx, l, educatorReadModel)
+				educators, _ := listEducators(ctx, l, educatorReadModel, nil)
 				students := listStudents(ctx, l, studentReadModel, nil)
 				view := dto.NewHomeroomFormView(
 					model,

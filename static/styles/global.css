@@ -341,7 +341,7 @@ a {
 }
 
 fieldset {
-  gap: clamp(1.2rem, var(--size-4), var(--size-5));
+  gap: clamp(0.9rem, var(--size-2), 1.2rem);
   background: linear-gradient(
     to bottom right,
     var(--neutral-4),

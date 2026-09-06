@@ -153,7 +153,8 @@ func FormSections(view dto.HomeroomFormView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = educatorBlocks.SelectMulti("homeroom", view.EducatorSelectView).Render(ctx, templ_7745c5c3_Buffer)
+			withCards := len(view.EducatorIDs) > 0
+			templ_7745c5c3_Err = educatorBlocks.SelectMulti("homeroom", view.EducatorSelectView, withCards).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -183,7 +184,7 @@ func FormSections(view dto.HomeroomFormView) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(studentIDs)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/homerooms/blocks/form_sections.templ`, Line: 47, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/homerooms/blocks/form_sections.templ`, Line: 48, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
@@ -193,7 +194,8 @@ func FormSections(view dto.HomeroomFormView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = studentBlocks.SelectMulti("homeroom", view.StudentSelectView).Render(ctx, templ_7745c5c3_Buffer)
+			withCards := len(view.StudentIDs) > 0
+			templ_7745c5c3_Err = studentBlocks.SelectMulti("homeroom", view.StudentSelectView, withCards).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

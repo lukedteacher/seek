@@ -131,7 +131,7 @@ func getPeriodCreateStream(
 
 		scheduleViews := buildScheduleViews(ctx, l, model, nil, periodReadModel, studentReadModel)
 
-		educators := listEducators(ctx, l, educatorReadModel)
+		educators, _ := listEducators(ctx, l, educatorReadModel, nil)
 		students := listStudents(ctx, l, studentReadModel, nil)
 		view := dto.NewPeriodFormView(&model, students, nil, educators)
 		view.EducatorIDs = []string{}
@@ -139,7 +139,7 @@ func getPeriodCreateStream(
 		sse.PatchElementTempl(pages.Create(view, scheduleViews))
 
 		// watch for view store changes
-		key := user.Username + "periods.create"
+		key := viewstoreKeyCreate(user.Username)
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -161,22 +161,25 @@ func getPeriodCreateStream(
 				if !ok {
 					return
 				}
-				model := &models.Period{}
-				if err := entry.JSON(model); err != nil {
+				signals := &struct {
+					Period dto.PeriodFormView `json:"period"`
+				}{}
+				if err := entry.JSON(signals); err != nil {
 					l.Error("json decode", "err", err)
 					return
 				}
+				model := dto.NewModelFromFormView(signals.Period)
 				scheduleViews := buildScheduleViews(
 					ctx,
 					l,
-					*model,
+					model,
 					nil,
 					periodReadModel,
 					studentReadModel,
 				)
-				educators := listEducators(ctx, l, educatorReadModel)
-				students := listStudents(ctx, l, studentReadModel, nil)
-				view := dto.NewPeriodFormView(model, students, nil, educators)
+				educators, _ := listEducators(ctx, l, educatorReadModel, &signals.Period.EducatorSelect.Filter)
+				students := listStudents(ctx, l, studentReadModel, &signals.Period.StudentSelect.Filter)
+				view := dto.NewPeriodFormView(&model, students, nil, educators)
 				sse.PatchElementTempl(pages.Create(view, scheduleViews))
 			}
 		}
@@ -201,12 +204,8 @@ func postPeriodCreateValidate(
 			l.ErrorContext(ctx, "period create validate signals", "err", err.Error())
 			return
 		}
-
-		model := dto.NewModelFromFormView(signals.Period)
-
-		// store the signals under key "new" so the create stream can react
-		key := user.Username + ".periods.create"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		key := viewstoreKeyCreate(user.Username)
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "post period create validate viewstore", "err", err)
 		}
 	}
@@ -229,31 +228,26 @@ func postPeriodCreateValidateField(
 		}
 		field := chi.URLParam(r, "field")
 
-		// convert the form view to a temporary Period for business logic
-		model := dto.NewModelFromFormView(signals.Period)
-
 		switch field {
 		case "start_time":
 			// update start time → recalculate end time using current duration
-			model.UpdateStartTime(signals.Period.StartTime)
+			signals.Period.UpdateStartTime(signals.Period.StartTime)
 
 		case "end_time":
 			// update end time → recalculate duration using current start time
-			model.UpdateEndTime(signals.Period.EndTime)
+			signals.Period.UpdateEndTime(signals.Period.EndTime)
 
 		case "duration":
 			// update duration → recalculate end time using current start time
-			model.UpdateDuration(signals.Period.Duration)
+			signals.Period.UpdateDuration(signals.Period.Duration)
 
 		default:
 			l.WarnContext(ctx, "unknown validation field", "field", field)
 			http.Error(w, "unknown field", http.StatusBadRequest)
 			return
 		}
-
-		// save the updated signals to the view store so the SSE can refresh the form
-		key := user.Username + ".periods.create"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		key := viewstoreKeyCreate(user.Username)
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
 		}
 	}
@@ -274,11 +268,11 @@ func postPeriodCreateEducators(
 			l.ErrorContext(ctx, "ppce signals", "err", err)
 			return
 		}
-		model := dto.NewModelFromFormView(signals.FormView)
-		model.EducatorIDs = toggleID(model.EducatorIDs, educatorID)
-		key := user.Username + ".periods.create"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		signals.FormView.EducatorIDs = toggleID(signals.FormView.EducatorIDs, educatorID)
+		key := viewstoreKeyCreate(user.Username)
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
+			return
 		}
 	}
 }
@@ -298,11 +292,11 @@ func postPeriodCreateStudents(
 			l.ErrorContext(ctx, "ppcs signals", "err", err)
 			return
 		}
-		model := dto.NewModelFromFormView(signals.FormView)
-		model.StudentIDs = toggleID(model.StudentIDs, studentID)
-		key := user.Username + ".periods.create"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		signals.FormView.StudentIDs = toggleID(signals.FormView.StudentIDs, studentID)
+		key := viewstoreKeyCreate(user.Username)
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
+			return
 		}
 	}
 }
@@ -454,7 +448,7 @@ func getPeriodViewStream(
 				}
 				for i := range period.StudentIDs {
 					student, _ := studentReadModel.GetByID(ctx, period.StudentIDs[i])
-					studentView := studentDTO.NewStudentView(student, nil)
+					studentView := studentDTO.NewView(student)
 					view.Students = append(view.Students, studentView)
 				}
 				sse.PatchElementTempl(pages.View(view))
@@ -470,6 +464,7 @@ func getPeriodEdit(
 		ctx := r.Context()
 		// creates a minimal view
 		view := dto.PeriodFormView{}
+		view.FormType = "edit"
 		_ = pages.Edit(view, nil).Render(ctx, w)
 	}
 }
@@ -489,7 +484,7 @@ func getPeriodEditStream(
 		periodID := chi.URLParam(r, "id")
 		sse := newSSE(w, r)
 
-		// --- subscribe to event store changes ---
+		// subscribe to event store changes
 		notifier := NewDedupeNotifier()
 		sub, err := subscriber.Subscribe(ctx, events.Channel(periodID), func(context.Context, []byte) {
 			notifier.Notify()
@@ -500,24 +495,7 @@ func getPeriodEditStream(
 		}
 		defer sub.Close()
 
-		// check if the kv store has an edit view already created
-		// aka someone else is editing the period
-		// if not, populate the view with data from the db
-		key := periodID + ".edit"
-		_, ok, err := vs.Get(ctx, key)
-		if !ok {
-			if err := refreshPeriodEditState(ctx, l, periodID, periodReadModel, educatorReadModel, studentReadModel, vs); err != nil {
-				if err.Error() == "period not found" {
-					sse.PatchElementTempl(pages.NotFound())
-				} else {
-					l.ErrorContext(ctx, "refresh period view state", "err", err)
-				}
-				return
-			}
-		}
-		if err != nil {
-			l.ErrorContext(ctx, "period edit stream", "vs get err", err)
-		}
+		key := viewstoreKeyEdit(periodID)
 
 		// subscribe to the kv store for changes to the edit view state
 		watcher, err := vs.Watch(
@@ -532,6 +510,24 @@ func getPeriodEditStream(
 			return
 		}
 		defer watcher.Stop()
+
+		// check if the kv store has an edit view already created
+		// aka someone else is editing the period
+		// if not, populate the view with data from the db
+		_, ok, err := vs.Get(ctx, key)
+		if !ok {
+			if err := refreshPeriodEditState(ctx, l, periodID, periodReadModel, educatorReadModel, studentReadModel, vs); err != nil {
+				if err.Error() == "period not found" {
+					sse.PatchElementTempl(pages.NotFound())
+				} else {
+					l.ErrorContext(ctx, "refresh period view state", "err", err)
+				}
+				return
+			}
+		}
+		if err != nil {
+			l.ErrorContext(ctx, "period edit stream", "vs get err", err)
+		}
 
 		for {
 			select {
@@ -552,23 +548,27 @@ func getPeriodEditStream(
 				if !ok {
 					return
 				}
-				model := &models.Period{}
-				if err := entry.JSON(model); err != nil {
+				signals := &struct {
+					FormView dto.PeriodFormView `json:"period"`
+				}{}
+				if err := entry.JSON(signals); err != nil {
 					l.Error("period edit stream json", "err", err)
 					return
 				}
+				model := dto.NewModelFromFormView(signals.FormView)
 				scheduleViews := buildScheduleViews(
 					ctx,
 					l,
-					*model,
+					model,
 					nil,
 					periodReadModel,
 					studentReadModel,
 				)
 
-				educators := listEducators(ctx, l, educatorReadModel)
+				educators, _ := listEducators(ctx, l, educatorReadModel, nil)
 				students := listStudents(ctx, l, studentReadModel, nil)
-				view := dto.NewPeriodFormView(model, students, nil, educators)
+				view := dto.NewPeriodFormView(&model, students, nil, educators)
+				view.FormType = "edit"
 				sse.PatchElementTempl(pages.Edit(view, scheduleViews))
 			}
 		}
@@ -592,11 +592,9 @@ func postPeriodEditValidate(
 			l.ErrorContext(ctx, "period edit validate signals", "err", err)
 			return
 		}
-
-		model := dto.NewModelFromFormView(signals.FormView)
 		// store the signals under a key scoped to the period
-		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		key := viewstoreKeyEdit(signals.FormView.ID)
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "post period edit validate viewstore", "err", err)
 		}
 	}
@@ -617,39 +615,27 @@ func postPeriodEditValidateField(
 		}
 		field := chi.URLParam(r, "field")
 
-		// convert the form view to a temporary Period for business logic
-		temp := dto.NewModelFromFormView(signals.Period)
-
 		switch field {
 		case "start_time":
 			// update start time → recalculate end time using current duration
-			temp.UpdateStartTime(signals.Period.StartTime)
-			// copy back the recalculated end time (duration unchanged)
-			signals.Period.EndTime = temp.EndTime
+			signals.Period.UpdateStartTime(signals.Period.StartTime)
 
 		case "end_time":
 			// update end time → recalculate duration using current start time
-			temp.UpdateEndTime(signals.Period.EndTime)
-			// copy back the new duration (end time already set)
-			signals.Period.Duration = temp.Duration
-			signals.Period.StartTime = temp.StartTime
+			signals.Period.UpdateEndTime(signals.Period.EndTime)
 
 		case "duration":
 			// update duration → recalculate end time using current start time
-			temp.UpdateDuration(signals.Period.Duration)
-			// copy back the recalculated end time
-			signals.Period.EndTime = temp.EndTime
+			signals.Period.UpdateDuration(signals.Period.Duration)
 
 		default:
 			l.WarnContext(ctx, "unknown validation field", "field", field)
 			http.Error(w, "unknown field", http.StatusBadRequest)
 			return
 		}
-
-		model := dto.NewModelFromFormView(signals.Period)
 		// save the updated signals to the view store so the SSE can refresh the form
-		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		key := viewstoreKeyEdit(signals.Period.ID)
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
 		}
 	}
@@ -669,10 +655,9 @@ func postPeriodEditEducators(
 			l.ErrorContext(ctx, "ppce signals", "err", err)
 			return
 		}
-		model := dto.NewModelFromFormView(signals.FormView)
-		model.EducatorIDs = toggleID(model.EducatorIDs, educatorID)
-		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		signals.FormView.EducatorIDs = toggleID(signals.FormView.EducatorIDs, educatorID)
+		key := viewstoreKeyEdit(signals.FormView.ID)
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
 		}
 	}
@@ -684,7 +669,6 @@ func postPeriodEditStudents(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		periodID := chi.URLParam(r, "id")
 		studentID := chi.URLParam(r, "sid")
 		signals := &struct {
 			FormView dto.PeriodFormView `json:"period"`
@@ -693,10 +677,9 @@ func postPeriodEditStudents(
 			l.ErrorContext(ctx, "ppcs signals", "err", err)
 			return
 		}
-		model := dto.NewModelFromFormView(signals.FormView)
-		model.StudentIDs = toggleID(model.StudentIDs, studentID)
-		key := periodID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		signals.FormView.StudentIDs = toggleID(signals.FormView.StudentIDs, studentID)
+		key := viewstoreKeyEdit(signals.FormView.ID)
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
 		}
 	}
@@ -843,18 +826,17 @@ func refreshPeriodEditState(
 	if err != nil {
 		return err
 	}
-	// build default schedules map (all students visible)
-	schedules := make(map[string]bool)
-	for _, sid := range model.StudentIDs {
-		student, err := studentReadModel.GetByID(ctx, sid)
-		if err != nil {
-			l.ErrorContext(ctx, "get student for default schedules", "err", err)
-			continue
-		}
-		schedules[student.Username] = true
+	key := viewstoreKeyEdit(model.ID)
+
+	educators, _ := listEducators(ctx, l, educatorReadModel, nil)
+	students := listStudents(ctx, l, studentReadModel, nil)
+	view := dto.NewPeriodFormView(model, students, nil, educators)
+	signals := &struct {
+		FormView dto.PeriodFormView `json:"period"`
+	}{
+		FormView: view,
 	}
-	key := model.ID + ".edit"
-	return viewstore.PutState(ctx, vs, key, model)
+	return viewstore.PutState(ctx, vs, key, signals)
 }
 
 func filterOutPeriod(periods []models.Period, excludeID string) []models.Period {
@@ -960,7 +942,7 @@ func createPeriodsListView(
 					l.ErrorContext(ctx, "cplv get student", "err", err, "sid", studentID)
 					return shareddto.TableView{}
 				}
-				studentView := studentDTO.NewStudentView(student, nil)
+				studentView := studentDTO.NewView(student)
 				studentViews[i] = studentView
 			}
 			periodsWithData[i].Students = studentViews
@@ -969,4 +951,25 @@ func createPeriodsListView(
 
 	// create the table view
 	return compositedto.NewPeriodWithDataTableView(periodsWithData)
+}
+
+func savePeriodViewstoreState(
+	ctx context.Context,
+	l *slog.Logger,
+	vs viewstore.Store,
+	key string,
+	period models.Period,
+) {
+	if err := viewstore.PutState(ctx, vs, key, period); err != nil {
+		l.ErrorContext(ctx, "spvs", "err", err)
+		return
+	}
+}
+
+func viewstoreKeyCreate(username string) string {
+	return "periods.create." + username
+}
+
+func viewstoreKeyEdit(id string) string {
+	return "periods." + id + ".edit"
 }

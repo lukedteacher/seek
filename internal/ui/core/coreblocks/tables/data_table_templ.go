@@ -68,7 +68,7 @@ func DataTable(view shareddto.TableView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</section><style>\r\n\t\tsection[data-slot=\"data-table\"] {\r\n\t\t\tmax-width: 72rem;\r\n\r\n\t\t\t& >:not(:last-child) {\r\n\t\t\t\tmargin-block-end: 1rem;\r\n\t\t\t}\r\n\t\t}\r\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</section><style>\n\t\tsection[data-slot=\"data-table\"] {\n\t\t\tmax-width: 72rem;\n\n\t\t\t& >:not(:last-child) {\n\t\t\t\tmargin-block-end: 1rem;\n\t\t\t}\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

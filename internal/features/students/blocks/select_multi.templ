@@ -9,10 +9,11 @@ import (
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/separator"
+	"seek/pkg/templui/components/tooltip"
 	"seek/pkg/utils"
 )
 
-templ SelectMulti(objectType string, view dto.SelectView) {
+templ SelectMulti(objectType string, view dto.SelectView, withCards bool) {
 	{{
 		url := sharedmodels.GetURLFromContext(ctx)
 		filterSignalName := objectType + ".student_select"
@@ -25,27 +26,6 @@ templ SelectMulti(objectType string, view dto.SelectView) {
 			select a student
 		}
 		<div class="flex gap-3 items-center">
-			<neo-popover>
-				@button.Button(button.Props{
-					Class: "py-1",
-					Attributes: templ.Attributes{
-						"data-neo-popover-trigger": "",
-					},
-				}) {
-					@icon.ListFilter()
-					<span>filter</span>
-				}
-				<div
-					class="p-3"
-					data-neo-popover-content
-				>
-					@StudentGradesFilter(filterSignalName, url+"/validate", view.Filter.Grade)
-					@separator.Separator(separator.Props{
-						Class: "mt-4 mb-2",
-					})
-					@StudentPlanTypesFilter(filterSignalName, url+"/validate", view.Filter.PlanType)
-				</div>
-			</neo-popover>
 			<neo-popover class="w-full" placement="top">
 				<div
 					class="flex items-center gap-2 relative input"
@@ -62,30 +42,77 @@ templ SelectMulti(objectType string, view dto.SelectView) {
 						type="search"
 					/>
 				</div>
-				<ul
-					data-neo-popover-content
-					class="flex flex-col gap-1 w-full h-64"
-				>
-					for _, student := range view.Options {
-						<li
-							data-on:click={ fmt.Sprintf("@post('%s/students/%s')", url, student.ID) }
-							class={ utils.TwMerge(
+				@SelectOptions(view.Options)
+			</neo-popover>
+			@SelectFilterMenu(view.Filter, filterSignalName)
+		</div>
+	</div>
+	if withCards {
+		@SelectCards(view.Options)
+	}
+}
+
+templ SelectOptions(options []dto.SelectOption) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<ul
+		data-neo-popover-content
+		class="flex flex-col gap-1 w-full h-64"
+	>
+		for _, student := range options {
+			<li
+				data-on:click={ fmt.Sprintf("@post('%s/students/%s')", url, student.ID) }
+				class={ utils.TwMerge(
 							"text-sm flex items-center justify-between cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
 							utils.If(student.Selected, "bg-primary"),
 						) }
-						>
-							<span>{ student.NameInitial() }</span>
-							if student.Selected {
-								@icon.Check(icon.Props{Class: "size-4"})
-							}
-						</li>
-					}
-				</ul>
-			</neo-popover>
+			>
+				<span>{ student.NameInitial() }</span>
+				if student.Selected {
+					@icon.Check(icon.Props{Class: "size-4"})
+				}
+			</li>
+		}
+	</ul>
+}
+
+templ SelectFilterMenu(filter dto.Filter, filterSignalName string) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<neo-popover>
+		@tooltip.Tooltip() {
+			@tooltip.Trigger() {
+				@button.Button(button.Props{
+					Size: button.SizeIcon,
+					Attributes: templ.Attributes{
+						"data-neo-popover-trigger": "",
+					},
+				}) {
+					@icon.ListFilter()
+				}
+			}
+			@tooltip.Content(tooltip.ContentProps{
+				HoverDelay:    250,
+				HoverOutDelay: 125,
+			}) {
+				filter
+			}
+		}
+		<div
+			class="p-3"
+			data-neo-popover-content
+		>
+			@StudentGradesFilter(filterSignalName, url+"/validate", filter.Grade)
+			@separator.Separator(separator.Props{
+				Class: "mt-4 mb-2",
+			})
+			@StudentPlanTypesFilter(filterSignalName, url+"/validate", filter.PlanType)
 		</div>
-	</div>
+	</neo-popover>
+}
+
+templ SelectCards(options []dto.SelectOption) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<div class="py-3 grid grid-cols-2 md:grid-cols-3 gap-2">
-		for _, student := range view.Options {
+		for _, student := range options {
 			if student.Selected {
 				<div class="group min-w-36 w-full h-18 flex gap-4 relative items-center justify-center rounded-md bg-linear-2 text-sm">
 					@avatar.Avatar() {

@@ -53,7 +53,7 @@ func PeriodForm(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithSched
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"w-full md:max-w-128 gap-8 flex flex-col\" data-on:submit=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"w-full md:max-w-128 gap-8 flex flex-col mb-8\" data-on:submit=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -78,9 +78,11 @@ func PeriodForm(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithSched
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = forms.DeleteButton("period", view.ID).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if view.FormType == "edit" {
+			templ_7745c5c3_Err = forms.DeleteButton("period", view.ID).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		templ_7745c5c3_Err = forms.CancelButton("/periods").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

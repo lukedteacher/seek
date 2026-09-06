@@ -13,7 +13,7 @@ templ HomeroomForm(view dto.HomeroomFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
 		id={ fmt.Sprintf("homeroom-%s-form", view.FormType) }
-		class="w-full md:max-w-128 gap-8 flex flex-col"
+		class="w-full md:max-w-128 gap-8 flex flex-col mb-8"
 		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
 		<div class="w-full gap-6 flex flex-wrap">

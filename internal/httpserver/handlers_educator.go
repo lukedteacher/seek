@@ -121,7 +121,7 @@ func getEducatorCreateStream(
 		user := currentUser(r)
 		sse := newSSE(w, r)
 
-		key := user.Username + "educators.create"
+		key := user.Username + ".educators.create"
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -190,7 +190,7 @@ func postEducatorCreateValidate(
 		}
 		// saves the state to a view store so that the SSE can update
 		// TODO look into a better name for the channel
-		key := user.Username + "educators.create"
+		key := user.Username + ".educators.create"
 		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
 			l.ErrorContext(ctx, "educator create validate view store", "err", err)
 		}
@@ -441,7 +441,7 @@ func getEducatorViewCaseloadStream(
 					l.ErrorContext(ctx, "educator view caseload stream", "err", err)
 				}
 				view := dto.NewEducatorView(educator)
-				studentViews := studentdto.NewStudentViews(caseManager.Caseload)
+				studentViews := studentdto.NewViews(caseManager.Caseload)
 				sse.PatchElementTempl(pages.View(view, scheduledto.PersonWithScheduleView{}, studentViews, "caseload"))
 			}
 		}
@@ -669,11 +669,10 @@ func listEducators(
 	ctx context.Context,
 	l *slog.Logger,
 	rm *events.ReadModel,
-) []models.Educator {
-	educators, err := rm.List(ctx)
-	if err != nil {
-		l.ErrorContext(ctx, "list educators", "err", err)
-		return []models.Educator{}
+	filter *dto.Filter,
+) ([]models.Educator, error) {
+	if filter != nil {
+		return rm.List(ctx, events.WithSearchFilter(filter.Search))
 	}
-	return educators
+	return rm.List(ctx)
 }

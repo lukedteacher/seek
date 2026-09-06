@@ -58,7 +58,7 @@ func NewSelectOption(
 	selected bool,
 ) SelectOption {
 	return SelectOption{
-		StudentView: NewStudentView(&s, nil),
+		StudentView: NewView(&s),
 		Selected:    selected,
 	}
 }

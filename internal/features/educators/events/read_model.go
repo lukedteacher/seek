@@ -14,6 +14,7 @@ import (
 	studentModels "seek/internal/features/students/models"
 
 	"zombiezen.com/go/sqlite"
+	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 type ReadModel struct {
@@ -208,7 +209,14 @@ func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username stri
 type ListOption func(*listConfig)
 
 type listConfig struct {
-	roleFilter *sharedmodels.EducatorRole
+	roleFilter       *sharedmodels.EducatorRole
+	withSearchFilter string
+}
+
+func WithSearchFilter(search string) ListOption {
+	return func(c *listConfig) {
+		c.withSearchFilter = search
+	}
 }
 
 // returns only educators with the given role
@@ -220,6 +228,9 @@ func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Educ
 	cfg := &listConfig{}
 	for _, opt := range opts {
 		opt(cfg)
+	}
+	if cfg.withSearchFilter != "" {
+		return m.listAllWithSearch(ctx, cfg.withSearchFilter)
 	}
 	if cfg.roleFilter != nil {
 		return m.listByRole(ctx, *cfg.roleFilter)
@@ -251,6 +262,64 @@ func (m *ReadModel) listAll(ctx context.Context) ([]models.Educator, error) {
 				Username:   row.Username,
 			},
 		}
+	}
+	return educators, nil
+}
+
+func (m *ReadModel) listAllWithSearch(
+	ctx context.Context,
+	search string,
+) ([]models.Educator, error) {
+	// build WHERE clause
+	where := "archived_at IS NULL"
+	args := []any{}
+	if search != "" {
+		searchTerm := "%" + search + "%"
+		where += " AND ("
+		// list columns to search
+		columns := []string{"given_name", "family_name", "chosen_name"}
+		for i, col := range columns {
+			if i > 0 {
+				where += " OR "
+			}
+			where += col + " LIKE ?"
+			args = append(args, searchTerm)
+		}
+		where += ")"
+	}
+
+	query := fmt.Sprintf(`
+			SELECT 
+				id, given_name, chosen_name, family_name, pronouns,
+				email, username, 
+				created_at, updated_at
+			FROM educators
+			WHERE %s
+			ORDER BY family_name ASC, given_name ASC
+    `, where)
+
+	var educators []models.Educator
+	err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		return sqlitex.ExecuteTransient(conn, query, &sqlitex.ExecOptions{
+			Args: args,
+			ResultFunc: func(stmt *sqlite.Stmt) error {
+				var educator models.Educator
+				educator.ID = stmt.ColumnText(0)
+				educator.GivenName = stmt.ColumnText(1)
+				educator.ChosenName = stmt.ColumnText(2)
+				educator.FamilyName = stmt.ColumnText(3)
+				educator.Pronouns = parsePronouns(stmt.ColumnText(4))
+				educator.Email = stmt.ColumnText(5)
+				educator.Username = stmt.ColumnText(6)
+				educator.CreatedAt = parseDBTime(stmt.ColumnText(7))
+				educator.UpdatedAt = parseDBTime(stmt.ColumnText(8))
+				educators = append(educators, educator)
+				return nil
+			},
+		})
+	})
+	if err != nil {
+		return nil, err
 	}
 	return educators, nil
 }
