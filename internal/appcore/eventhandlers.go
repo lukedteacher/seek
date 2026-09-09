@@ -170,7 +170,7 @@ func EventHandlerFactories(
 			},
 		},
 		{
-			name: "iep service read model",
+			name: "service read model",
 			create: func() (eventHandler, error) {
 				return serviceEvents.NewServiceReadModelEventHandler(
 					store,

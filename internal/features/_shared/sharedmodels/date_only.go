@@ -8,6 +8,18 @@ import (
 
 type DateOnly time.Time
 
+func (d DateOnly) String() string {
+	t := time.Time(d)
+	if t.IsZero() {
+		return ""
+	}
+	return t.Format("2006-01-02")
+}
+
+func (d DateOnly) Time() time.Time {
+	return time.Time(d)
+}
+
 func (d *DateOnly) UnmarshalJSON(b []byte) error {
 	s := strings.Trim(string(b), `"`)
 	if s == "" || s == "null" {
@@ -23,12 +35,4 @@ func (d *DateOnly) UnmarshalJSON(b []byte) error {
 
 func (d DateOnly) MarshalJSON() ([]byte, error) {
 	return json.Marshal(time.Time(d).Format("2006-01-02"))
-}
-
-func (d DateOnly) String() string {
-	return time.Time(d).Format("2006-01-02")
-}
-
-func (d DateOnly) Time() time.Time {
-	return time.Time(d)
 }

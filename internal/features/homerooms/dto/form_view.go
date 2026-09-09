@@ -11,9 +11,9 @@ import (
 type HomeroomFormView struct {
 	FormType string
 	models.Homeroom
-	Educators          map[string]bool       `json:"educators"`
-	StudentSelectView  studentDTO.SelectView `json:"student_select"`
-	EducatorSelectView educatorDTO.SelectView
+	Educators          map[string]bool        `json:"educators"`
+	StudentSelectView  studentDTO.SelectView  `json:"student_select"`
+	EducatorSelectView educatorDTO.SelectView `json:"educator_select"`
 }
 
 func NewHomeroomFormView(
@@ -36,10 +36,12 @@ func NewHomeroomModelFromFormView(
 	fv HomeroomFormView,
 ) models.Homeroom {
 	return models.Homeroom{
-		ID:          fv.ID,
-		Title:       fv.Title,
-		LocationID:  fv.LocationID,
-		EducatorIDs: fv.EducatorIDs,
-		StudentIDs:  fv.StudentIDs,
+		ID:            fv.ID,
+		Title:         fv.Title,
+		GradesBitmask: fv.GradesBitmask,
+		LocationID:    fv.LocationID,
+		Image:         fv.Image,
+		EducatorIDs:   fv.EducatorIDs,
+		StudentIDs:    fv.StudentIDs,
 	}
 }

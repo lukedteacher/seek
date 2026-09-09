@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"strings"
+	"time"
 
 	"seek/internal/eventstore"
 	"seek/internal/features/ieps/models"
@@ -13,48 +15,50 @@ import (
 
 const IEPReadModelEventHandlerName = "iep_read_model_event_handler"
 
-type StudentIEPReadModelReader interface {
-	Get(ctx context.Context, studentIEPID string) (*models.IEP, error)
+type IEPReadModelReader interface {
+	Get(ctx context.Context, iepID string) (*models.IEP, error)
 	List(ctx context.Context) ([]models.IEP, error)
-	ListIEPsForStudent(ctx context.Context, studentID string) ([]models.IEP, error)
+	ListForStudent(ctx context.Context, studentID string) ([]models.IEP, error)
 }
 
-type StudentIEPReadModelWriter interface {
+type IEPReadModelWriter interface {
 	AddIEPToStudent(ctx context.Context, event IEPAddedToStudentProjection) error
 	UpdateIEP(ctx context.Context, event IEPUpdatedProjection) error
+	ArchiveIEP(ctx context.Context, event IEPArchivedProjection) error
 	DeleteIEP(ctx context.Context, event IEPDeletedProjection) error
 }
 
 type IEPAddedToStudentProjection struct {
 	Position eventstore.Position
-	IEPState
+	models.IEP
 }
 
 type IEPUpdatedProjection struct {
 	Position eventstore.Position
-	IEPState
+	models.IEP
 }
 
 type IEPArchivedProjection struct {
-	Position eventstore.Position
-	IEPState
+	Position   eventstore.Position
+	IEPID      string
+	ArchivedAt time.Time
 }
 
 type IEPDeletedProjection struct {
 	Position eventstore.Position
-	IEPState
+	IEPID    string
 }
 
 type IEPReadModelEventHandler struct {
 	global    *eventstore.GlobalEventHandler
-	readModel StudentIEPReadModelWriter
+	readModel IEPReadModelWriter
 	publisher eventstore.Publisher
 }
 
 func NewIEPReadModelEventHandler(
 	subscriber eventstore.Subscriber,
 	checkpointer eventstore.Checkpointer,
-	readModel StudentIEPReadModelWriter,
+	readModel IEPReadModelWriter,
 	publisher eventstore.Publisher,
 	logger *slog.Logger,
 ) (
@@ -111,27 +115,41 @@ func (h *IEPReadModelEventHandler) handle(ctx context.Context, resolved eventsto
 	studentID, _ := scope[FieldIEPStudentID].(string)
 	switch resolved.Event.EventType {
 	case EventIEPAddedToStudent:
-		var event IEPAddedToStudentEvent
-		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+		var flat IEPFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
 			return err
 		}
+		model := NewModelFromFlat(flat)
 		projection := IEPAddedToStudentProjection{
 			Position: resolved.Position,
-			IEPState: event.IEPState,
+			IEP:      model,
 		}
 		if err := h.readModel.AddIEPToStudent(ctx, projection); err != nil {
 			return err
 		}
 	case EventIEPUpdated:
-		var event IEPUpdatedEvent
-		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
-			slog.Error("iep read model handle update unmarshal", "err", err)
+		var flat IEPFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
+			return err
 		}
+		model := NewModelFromFlat(flat)
 		projection := IEPUpdatedProjection{
 			Position: resolved.Position,
-			IEPState: event.IEPState,
+			IEP:      model,
 		}
 		if err := h.readModel.UpdateIEP(ctx, projection); err != nil {
+			return err
+		}
+	case EventIEPArchived:
+		var event IEPArchivedEvent
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+			slog.Error("iep read model handle archive unmarshal", "err", err)
+		}
+		projection := IEPArchivedProjection{
+			Position: resolved.Position,
+			IEPID:    iepID,
+		}
+		if err := h.readModel.ArchiveIEP(ctx, projection); err != nil {
 			return err
 		}
 	case EventIEPDeleted:
@@ -141,7 +159,7 @@ func (h *IEPReadModelEventHandler) handle(ctx context.Context, resolved eventsto
 		}
 		projection := IEPDeletedProjection{
 			Position: resolved.Position,
-			IEPState: event.IEPState,
+			IEPID:    iepID,
 		}
 		if err := h.readModel.DeleteIEP(ctx, projection); err != nil {
 			return err
@@ -154,4 +172,38 @@ func (h *IEPReadModelEventHandler) handle(ctx context.Context, resolved eventsto
 	_ = h.publisher.Publish(ctx, Channel(iepID), "iep read model update")
 	_ = h.publisher.Publish(ctx, se.Channel(studentID), "student read model update")
 	return nil
+}
+
+func unflatten(flat map[string]interface{}) (map[string]interface{}, error) {
+	unflat := map[string]interface{}{}
+
+	for key, value := range flat {
+		keyParts := strings.Split(key, ".")
+
+		// walk the keys until we get to a leaf node.
+		m := unflat
+		for i, k := range keyParts[:len(keyParts)-1] {
+			v, exists := m[k]
+			if !exists {
+				newMap := map[string]interface{}{}
+				m[k] = newMap
+				m = newMap
+				continue
+			}
+
+			innerMap, ok := v.(map[string]interface{})
+			if !ok {
+				return nil, fmt.Errorf("key=%v is not an object", strings.Join(keyParts[0:i+1], "."))
+			}
+			m = innerMap
+		}
+
+		leafKey := keyParts[len(keyParts)-1]
+		if _, exists := m[leafKey]; exists {
+			return nil, fmt.Errorf("key=%v already exists", key)
+		}
+		m[keyParts[len(keyParts)-1]] = value
+	}
+
+	return unflat, nil
 }

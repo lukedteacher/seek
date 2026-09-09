@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
+	"strings"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/ieps/dto"
 	"seek/internal/features/ieps/events"
 	"seek/internal/features/ieps/models"
@@ -16,6 +19,7 @@ import (
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/gocarina/gocsv"
 	"github.com/starfederation/datastar-go/datastar"
 )
 
@@ -33,6 +37,8 @@ func (s Server) iepRoutes(r chi.Router) {
 	r.Post("/ieps/{id}/edit", postIEPEdit(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Post("/ieps/{id}/edit/validate", postIEPEditValidate(s.Logger, s.ViewStore))
 	r.Delete("/ieps/{id}", deleteIEP(s.Logger, s.EventSaver, s.EventRetriever))
+	r.Get("/ieps/csv", getIEPsCSV(s.Logger, s.ReadModels.IEPs, s.ReadModels.Students))
+	r.Post("/ieps/csv", postIEPsCSV(s.Logger, s.EventSaver, s.EventRetriever, s.ReadModels.IEPs, s.ReadModels.Students))
 }
 
 // GET request to /ieps
@@ -214,14 +220,9 @@ func postIEPCreate(
 			sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantError, "no student selected"))
 			return
 		}
-		iep := events.IEPState{
-			StudentID:   signals.View.StudentID,
-			StartDate:   signals.View.StartDate.String(),
-			EndDate:     signals.View.EndDate.String(),
-			AmendedDate: signals.View.AmendedDate.String(),
-		}
+		iep := dto.NewModelFromView(&signals.View)
 		cmd := events.AddIEPToStudentCommand{
-			IEPState: iep,
+			IEP:      iep,
 			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.AddIEPToStudentCommandHandler(ctx, cmd, saver, retriever)
@@ -446,13 +447,7 @@ func postIEPEdit(
 			l.ErrorContext(ctx, "post iep service edit signals", "err", err)
 			return
 		}
-		iep := events.IEPState{
-			ID:          iepID,
-			StudentID:   signals.View.StudentID,
-			StartDate:   signals.View.StartDate.String(),
-			EndDate:     signals.View.EndDate.String(),
-			AmendedDate: signals.View.AmendedDate.String(),
-		}
+		iep := dto.NewModelFromView(&signals.View)
 		command := events.UpdateIEPCommand{
 			IEP:      iep,
 			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
@@ -488,6 +483,164 @@ func deleteIEP(
 			l.ErrorContext(ctx, "delete iep service command handler", "err", err)
 			return
 		}
+		sse := newSSE(w, r)
+		sse.Redirect("/ieps")
+	}
+}
+
+// GET request to /ieps/csv
+func getIEPsCSV(
+	l *slog.Logger,
+	iepReadModel *events.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		file, err := os.OpenFile("ieps.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+		if err != nil {
+			http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		rows := []models.IEPCSVRow{}
+		if err := gocsv.UnmarshalFile(file, &rows); err != nil {
+			http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		students, _ := studentReadModel.List(ctx)
+		marssMap := make(map[string]string)
+		for _, student := range students {
+			marssMap[student.MARSSID] = student.ID
+		}
+
+		// convert CSV rows to domain models
+		// if they have a valid MARSS ID
+		convertedCSVRows := make([]models.IEP, 0)
+		for _, row := range rows {
+			key := strings.TrimSpace(row.StudentMARSSID)
+			if studentID, ok := marssMap[key]; ok {
+				row.StudentID = studentID
+				convertedCSVRows = append(convertedCSVRows, models.NewModelFromCSVRow(row))
+			}
+		}
+
+		// fetch existing DB services
+		dbIEPs, err := iepReadModel.List(ctx)
+		if err != nil {
+			l.ErrorContext(ctx, "read csv list db ieps", "err", err)
+			return
+		}
+
+		// compute diff
+		diffs := models.CompareServices(dbIEPs, convertedCSVRows)
+
+		// render view
+		view := dto.NewServiceDiffTableView(diffs)
+		pages.ReadCSV(view).Render(ctx, w)
+	}
+}
+
+// POST request to /ieps/csv
+func postIEPsCSV(
+	l *slog.Logger,
+	saver eventstore.Saver,
+	retriever eventstore.Retriever,
+	iepReadModel *events.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		file, err := os.OpenFile("ieps.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+		if err != nil {
+			http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		rows := []models.IEPCSVRow{}
+		if err := gocsv.UnmarshalFile(file, &rows); err != nil {
+			http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		students, _ := studentReadModel.List(ctx)
+		marssMap := make(map[string]string)
+		for _, student := range students {
+			marssMap[student.MARSSID] = student.ID
+		}
+
+		// convert CSV rows to domain models
+		// if they have a valid MARSS ID
+		convertedCSVRows := make([]models.IEP, 0)
+		for _, row := range rows {
+			key := strings.TrimSpace(row.StudentMARSSID)
+			if studentID, ok := marssMap[key]; ok {
+				row.StudentID = studentID
+				convertedCSVRows = append(convertedCSVRows, models.NewModelFromCSVRow(row))
+			}
+		}
+
+		// fetch existing DB IEPs
+		dbIEPs, err := iepReadModel.List(ctx)
+		if err != nil {
+			l.ErrorContext(ctx, "read csv list db ieps", "err", err)
+			return
+		}
+
+		// compute diff
+		diffs := models.CompareServices(dbIEPs, convertedCSVRows)
+
+		for _, diff := range diffs {
+			if diff.Status == sharedmodels.DiffSame {
+				l.Debug("same")
+				continue
+			}
+			if diff.Status == sharedmodels.DiffAbsent {
+				_, err := events.DeleteIEPCommandHandler(
+					ctx,
+					events.DeleteIEPCommand{
+						IEPID:     diff.Old.ID,
+						StudentID: diff.Old.StudentID,
+					},
+					saver,
+					retriever,
+				)
+				if err != nil {
+					l.ErrorContext(ctx, "pi csv delete", "err", err)
+				}
+			}
+			if diff.Status == sharedmodels.DiffNew {
+				_, err := events.AddIEPToStudentCommandHandler(
+					ctx,
+					events.AddIEPToStudentCommand{
+						IEP: *diff.New,
+					},
+					saver,
+					retriever,
+				)
+				if err != nil {
+					l.ErrorContext(ctx, "pi csv add", "err", err)
+				}
+			}
+			if diff.Status == sharedmodels.DiffUpdated {
+				_, err := events.UpdateIEPCommandHandler(
+					ctx,
+					events.UpdateIEPCommand{
+						IEP: *diff.New,
+					},
+					saver,
+					retriever,
+				)
+				if err != nil {
+					l.ErrorContext(ctx, "pi csv update", "err", err)
+				}
+			}
+		}
+
 		sse := newSSE(w, r)
 		sse.Redirect("/ieps")
 	}

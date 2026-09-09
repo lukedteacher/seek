@@ -28,7 +28,12 @@ func DeleteServiceCommandHandler(
 	DeleteServiceResult,
 	error,
 ) {
-	model, err := loadDeleteServiceContext(ctx, retriever, cmd.ServiceID, cmd.IEPID, cmd.StudentID)
+	model, err := loadDeleteServiceContext(
+		ctx,
+		retriever,
+		cmd.ServiceID,
+		cmd.IEPID,
+	)
 	if err != nil {
 		return DeleteServiceResult{}, err
 	}
@@ -64,13 +69,12 @@ func loadDeleteServiceContext(
 	ctx context.Context,
 	retriever eventstore.Retriever,
 	serviceID,
-	iepID,
-	studentID string,
+	iepID string,
 ) (
 	*deleteServiceContext,
 	error,
 ) {
-	query := streamQuery(serviceID, studentID)
+	query := serviceStreamQuery(serviceID, iepID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err

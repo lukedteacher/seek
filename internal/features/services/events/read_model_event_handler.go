@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"time"
@@ -26,39 +27,13 @@ type ServiceReadModelWriter interface {
 }
 
 type ServiceAddedToIEPProjection struct {
-	Position        eventstore.Position
-	ServiceID       string
-	IEPID           string
-	StudentID       string
-	ServiceName     string
-	ServiceType     string
-	IndirectMinutes int
-	DirectMinutes   int
-	FrequencyCount  int
-	FrequencyType   string
-	LocationID      string
-	StartDate       string
-	EndDate         string
-	ProviderID      string
-	CreatedAt       time.Time
+	Position eventstore.Position
+	Service  models.Service
 }
 
 type ServiceUpdatedProjection struct {
-	Position        eventstore.Position
-	ServiceID       string
-	IEPID           string
-	StudentID       string
-	ServiceName     string
-	ServiceType     string
-	IndirectMinutes int
-	DirectMinutes   int
-	FrequencyCount  int
-	FrequencyType   string
-	LocationID      string
-	StartDate       string
-	EndDate         string
-	ProviderID      string
-	UpdatedAt       time.Time
+	Position eventstore.Position
+	Service  models.Service
 }
 
 type ServiceDeletedProjection struct {
@@ -116,47 +91,33 @@ func ServiceReadModelEventHandlerQuery() eventstore.Query {
 
 func (h *ServiceReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
 	data := resolved.Event.Data
+	rawData := resolved.Event.RawData
 	scope := eventstore.Scope(data)
 	eventID, _ := scope[FieldServiceAddedToIEPEventID].(string)
-	iepID, _ := scope[FieldServiceIEPID].(string)
 	studentID, _ := scope[FieldServiceStudentID].(string)
 	switch resolved.Event.EventType {
 	case EventServiceAddedToIEP:
+		var flat ServiceFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
+			return err
+		}
+		model := NewModelFromFlat(flat)
 		projection := ServiceAddedToIEPProjection{
-			ServiceID:       eventID,
-			IEPID:           iepID,
-			StudentID:       studentID,
-			ServiceName:     data[FieldServiceServiceName].(string),
-			ServiceType:     data[FieldServiceServiceType].(string),
-			IndirectMinutes: int(data[FieldServiceIndirectMinutes].(float64)),
-			DirectMinutes:   int(data[FieldServiceDirectMinutes].(float64)),
-			FrequencyCount:  int(data[FieldServiceFrequencyCount].(float64)),
-			FrequencyType:   data[FieldServiceFrequencyType].(string),
-			LocationID:      data[FieldServiceLocationID].(string),
-			StartDate:       data[FieldServiceStartDate].(string),
-			EndDate:         data[FieldServiceEndDate].(string),
-			ProviderID:      data[FieldServiceProviderID].(string),
-			CreatedAt:       parseTime(data[FieldServiceAddedAt]),
+			Position: resolved.Position,
+			Service:  model,
 		}
 		if err := h.readModel.AddServiceToIEP(ctx, projection); err != nil {
 			return err
 		}
 	case EventServiceUpdated:
+		var flat ServiceFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
+			return err
+		}
+		model := NewModelFromFlat(flat)
 		projection := ServiceUpdatedProjection{
-			ServiceID:       eventID,
-			IEPID:           iepID,
-			StudentID:       studentID,
-			ServiceName:     data[FieldServiceServiceName].(string),
-			ServiceType:     data[FieldServiceServiceType].(string),
-			IndirectMinutes: int(data[FieldServiceIndirectMinutes].(float64)),
-			DirectMinutes:   int(data[FieldServiceDirectMinutes].(float64)),
-			FrequencyCount:  int(data[FieldServiceFrequencyCount].(float64)),
-			FrequencyType:   data[FieldServiceFrequencyType].(string),
-			LocationID:      data[FieldServiceLocationID].(string),
-			StartDate:       data[FieldServiceStartDate].(string),
-			EndDate:         data[FieldServiceEndDate].(string),
-			ProviderID:      data[FieldServiceProviderID].(string),
-			UpdatedAt:       parseTime(data[FieldServiceUpdatedAt]),
+			Position: resolved.Position,
+			Service:  model,
 		}
 		if err := h.readModel.UpdateService(ctx, projection); err != nil {
 			return err

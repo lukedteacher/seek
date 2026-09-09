@@ -2,9 +2,17 @@
 SELECT
 	id,
 	student_id,
-	start_date,
-	end_date,
+	plan_manager_id,
+	disability_1,
+	disability_2,
+	federal_setting,
+	meeting_date,
+	iep_due_date,
+	last_eval_date,
+	eval_due_date,
 	amended_date,
+	iep_type,
+	special_transportation,
 	created_at,
 	updated_at,
 	archived_at
@@ -15,45 +23,98 @@ WHERE id = @id;
 SELECT
 	id,
 	student_id,
-	start_date,
-	end_date,
+	plan_manager_id,
+	disability_1,
+	disability_2,
+	federal_setting,
+	meeting_date,
+	iep_due_date,
+	last_eval_date,
+	eval_due_date,
 	amended_date,
+	iep_type,
+	special_transportation,
 	created_at,
 	updated_at,
 	archived_at
 FROM student_ieps;
 
+-- name: ListIEPsForStudent :many
+SELECT
+	id,
+	student_id,
+	plan_manager_id,
+	disability_1,
+	disability_2,
+	federal_setting,
+	meeting_date,
+	iep_due_date,
+	last_eval_date,
+	eval_due_date,
+	amended_date,
+	iep_type,
+	special_transportation,
+	created_at,
+	updated_at,
+	archived_at
+FROM student_ieps
+WHERE student_id = @student_id;
+
 -- name: AddIEPToStudent :exec
 INSERT INTO student_ieps (
-	id, 
+	id,
 	student_id,
-	start_date,
-	end_date,
+	plan_manager_id,
+	disability_1,
+	disability_2,
+	federal_setting,
+	meeting_date,
+	iep_due_date,
+	last_eval_date,
+	eval_due_date,
 	amended_date,
+	iep_type,
+	special_transportation,
 	last_event_commit_position,
 	last_event_prepare_position,
-	created_at, 
+	created_at,
 	updated_at
 )
 VALUES (
-	@id, 
+	@id,
 	@student_id,
-	@start_date,
-	@end_date,
+	@plan_manager_id,
+	@disability_1,
+	@disability_2,
+	@federal_setting,
+	@meeting_date,
+	@iep_due_date,
+	@last_eval_date,
+	@eval_due_date,
 	@amended_date,
-	@last_event_commit_position, 
+	@iep_type,
+	@special_transportation,
+	@last_event_commit_position,
 	@last_event_prepare_position,
-	@created_at, 
+	@created_at,
 	@created_at
 )
 ON CONFLICT (id) DO NOTHING;
 
 -- name: UpdateIEP :exec
 UPDATE student_ieps
-SET 
-	start_date = @start_date,
-	end_date = @end_date,
+SET
+	plan_manager_id = @plan_manager_id,
+	disability_1 = @disability_1,
+	disability_2 = @disability_2,
+	federal_setting = @federal_setting,
+	meeting_date = @meeting_date,
+	iep_due_date = @iep_due_date,
+	last_eval_date = @last_eval_date,
+	eval_due_date = @eval_due_date,
 	amended_date = @amended_date,
+	iep_type = @iep_type,
+	special_transportation = @special_transportation,
 	last_event_commit_position = @last_event_commit_position,
 	last_event_prepare_position = @last_event_prepare_position,
 	updated_at = @updated_at

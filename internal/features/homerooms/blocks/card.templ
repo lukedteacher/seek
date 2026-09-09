@@ -3,47 +3,100 @@ package blocks
 import (
 	"fmt"
 
-	eblocks "seek/internal/features/educators/blocks"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/homerooms/dto"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/separator"
+	"seek/pkg/templui/components/tooltip"
 )
 
 templ Card(view dto.HomeroomView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("homeroom-%s-card", view.ID),
-		Class: "homeroom-card max-w-128 bg-neutral",
+		Class: "homeroom-card max-w-128 bg-neutral border-muted",
 	}) {
 		@card.Header() {
 			@card.Title() {
-				{ view.Title }
+				<span>name: { view.Title }</span>
+			}
+			@card.Description(card.DescriptionProps{
+				Class: "flex gap-1 text-neutral-content/90",
+			}) {
+				<span>grades: </span>
+				for _, grade := range sharedmodels.GradeList {
+					if view.GradesBitmask.IsGradeSet(grade) {
+						@badge.Badge() {
+							{ grade.Ordinal() }
+						}
+					}
+				}
 			}
 		}
 		@card.Content(card.ContentProps{
-			Class: "flex flex-col gap-4 text-sm w-1/2",
+			Class: "flex flex-col gap-4 text-sm w-full",
 		}) {
-			<div class="flex items-center justify-between">
-				<span class="text-neutral-content/80">teachers</span>
-				<div class="homeroom-card-educators flex gap-1 no-wrap">
+			<div class="flex flex-col gap-2">
+				<p>
+					<span class="text-neutral-content/70">teachers ({ len(view.Educators) }):</span>
+				</p>
+				<div class="homeroom-card-educators flex gap-3 flex-wrap">
 					for _, educator := range view.Educators {
-						@eblocks.EducatorAvatar(educator)
+						@tooltip.Tooltip() {
+							@tooltip.Trigger() {
+								<div class="bg-linear-2 border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
+									{ educator.NameInitial() }
+									for _, role := range educator.Roles {
+										@badge.Badge() {
+											{ role.ShortString() }
+										}
+									}
+								</div>
+							}
+							@tooltip.Content(tooltip.ContentProps{
+								HoverDelay:    300,
+								HoverOutDelay: 150,
+							}) {
+								<div class="flex gap-2">
+									@button.Button(button.Props{
+										Variant: button.VariantGhost,
+										Size:    button.SizeIcon,
+										Href:    fmt.Sprintf("/educators/%s/info", educator.Username),
+									}) {
+										@icon.Info()
+									}
+									@button.Button(button.Props{
+										Variant: button.VariantGhost,
+										Size:    button.SizeIcon,
+										Href:    fmt.Sprintf("/educators/%s/schedule", educator.Username),
+									}) {
+										@icon.CalendarRange()
+									}
+								</div>
+							}
+						}
 					}
 				</div>
 			</div>
-			<p>
-				<span class="text-neutral-content/70">students ({ len(view.Students) }):</span>
-			</p>
-			<div class="homeroom-card-students flex gap-2 flex-wrap">
-				for _, student := range view.Students {
-					<div class="bg-linear-2 border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
-						{ student.NameInitial() }
-						@badge.Badge() {
-							{ student.Grade.Ordinal() }
-						}
-					</div>
-				}
+			@separator.Separator(separator.Props{
+				Class: "bg-neutral-content/80",
+			})
+			<div class="flex flex-col gap-2">
+				<p>
+					<span class="text-neutral-content/70">students ({ len(view.Students) }):</span>
+				</p>
+				<div class="homeroom-card-students flex gap-3 flex-wrap">
+					for _, student := range view.Students {
+						<div class="bg-linear-2 border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
+							{ student.NameInitial() }
+							@badge.Badge() {
+								{ student.Grade.Ordinal() }
+							}
+						</div>
+					}
+				</div>
 			</div>
 		}
 		@card.Footer(card.FooterProps{

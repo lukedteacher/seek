@@ -31,8 +31,10 @@ templ Card(view dto.EducatorView) {
 				<span class="text-neutral-content/80">roles: </span>
 				<span class="inline-flex gap-2 items-center">
 					for _, role := range view.Roles {
-						@badge.Badge() {
-							{ role.String() }
+						if role.String() != "" {
+							@badge.Badge() {
+								{ role.String() }
+							}
 						}
 					}
 				</span>

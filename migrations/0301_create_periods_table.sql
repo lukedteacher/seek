@@ -11,3 +11,6 @@ CREATE TABLE IF NOT EXISTS periods (
 	updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	archived_at TEXT
 );
+
+CREATE INDEX IF NOT EXISTS periods_service_type_idx ON periods(service_type);
+CREATE INDEX IF NOT EXISTS periods_days_bitmask_idx ON periods(days_bitmask);

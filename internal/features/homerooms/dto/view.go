@@ -23,8 +23,10 @@ func NewHomeroomView(m *models.Homeroom) HomeroomView {
 
 func NewHomeroomModelFromView(v HomeroomView) models.Homeroom {
 	return models.Homeroom{
-		ID:         v.ID,
-		Title:      v.Title,
-		LocationID: v.LocationID,
+		ID:            v.ID,
+		Title:         v.Title,
+		GradesBitmask: v.GradesBitmask,
+		LocationID:    v.LocationID,
+		Image:         v.Image,
 	}
 }

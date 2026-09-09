@@ -2,27 +2,16 @@ package events
 
 import (
 	"context"
-	"time"
 
 	"seek/internal/eventstore"
 	iepEvents "seek/internal/features/ieps/events"
+	"seek/internal/features/services/models"
 	"seek/pkg/uuidv7"
 )
 
 type AddServiceToIEPCommand struct {
-	IEPID           string
-	StudentID       string
-	ServiceName     string
-	ServiceType     string
-	IndirectMinutes int
-	DirectMinutes   int
-	FrequencyCount  int
-	FrequencyType   string
-	LocationID      string
-	StartDate       string
-	EndDate         string
-	ProviderID      string
-	Metadata        CommandMetadata
+	Service  models.Service
+	Metadata CommandMetadata
 }
 
 type AddServiceToIEPResult struct {
@@ -42,21 +31,19 @@ func AddServiceToIEPCommandHandler(
 	model, err := loadAddServiceToIEPContext(
 		ctx,
 		retriever,
-		cmd.IEPID,
-		cmd.StudentID,
+		cmd.Service.IEPID,
 	)
 	if err != nil {
-		return nil, err
+		return &AddServiceToIEPResult{}, err
 	}
-	if err := model.isStudentActive(); err != nil {
-		return nil, err
+	if !model.iep.isActive() {
+		return &AddServiceToIEPResult{}, eventstore.ErrIEPNotActive
 	}
 	eventID := uuidv7.NewString()
+	cmd.Service.ID = eventID
 	event := NewServiceAddedToStudentEvent(
-		eventID,
 		cmd,
-		time.Now(),
-		metadataWithQuery(cmd.Metadata, model.query),
+		model.query,
 	)
 	if _, err := saver.SaveEvents(
 		ctx,
@@ -70,25 +57,22 @@ func AddServiceToIEPCommandHandler(
 	return &AddServiceToIEPResult{EventID: eventID, Skipped: false}, nil
 }
 
-type addServiceToStudentContext struct {
-	studentCreated  bool
-	studentArchived bool
-	studentDeleted  bool
-	position        eventstore.Position
-	events          []eventstore.ResolvedEvent
-	query           eventstore.Query
+type addServiceToIEPContext struct {
+	iep      IEPState
+	position eventstore.Position
+	events   []eventstore.ResolvedEvent
+	query    eventstore.Query
 }
 
 func loadAddServiceToIEPContext(
 	ctx context.Context,
 	retriever eventstore.Retriever,
-	iepID,
-	studentID string,
+	iepID string,
 ) (
-	*addServiceToStudentContext,
+	*addServiceToIEPContext,
 	error,
 ) {
-	query := iepEvents.StreamQuery(iepID, studentID)
+	query := iepStreamQuery(iepID)
 	events, err := retriever.GetEvents(
 		ctx,
 		eventstore.NoEventPosition,
@@ -99,7 +83,7 @@ func loadAddServiceToIEPContext(
 	if err != nil {
 		return nil, err
 	}
-	model := &addServiceToStudentContext{
+	model := &addServiceToIEPContext{
 		position: eventstore.NoEventPosition,
 		events:   events,
 		query:    query,
@@ -111,17 +95,14 @@ func loadAddServiceToIEPContext(
 	return model, nil
 }
 
-func (m *addServiceToStudentContext) isStudentActive() error {
-	if !m.studentCreated || m.studentArchived || m.studentDeleted {
-		return eventstore.ErrPeriodNotFound
-	}
-	return nil
-}
-
-func (m *addServiceToStudentContext) handle(resolved eventstore.ResolvedEvent) {
+func (m *addServiceToIEPContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case iepEvents.EventIEPAddedToStudent:
-		m.studentCreated = true
+		m.iep.created = true
+	case iepEvents.EventIEPArchived:
+		m.iep.archived = true
+	case iepEvents.EventIEPDeleted:
+		m.iep.deleted = true
 	}
 	if resolved.Position.After(m.position) {
 		m.position = resolved.Position

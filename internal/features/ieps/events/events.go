@@ -3,7 +3,10 @@ package events
 import (
 	"time"
 
+	"seek/internal/appdb"
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/ieps/models"
 )
 
 type eventType = eventstore.EventType
@@ -41,46 +44,126 @@ const (
 )
 
 type IEPState struct {
-	ID          string    `json:"id"`
-	StudentID   string    `json:"student_id"`
-	StartDate   string    `json:"start_date"`
-	EndDate     string    `json:"end_date"`
-	AmendedDate string    `json:"amended_date"`
-	AddedAt     time.Time `json:"added_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	ArchivedAt  time.Time `json:"archived_at"`
-	DeletedAt   time.Time `json:"deleted_at"`
+	ID                    string `json:"id"`
+	StudentID             string `json:"student_id"`
+	Disability1           int64  `json:"disability_1,omitempty"`
+	Disability2           int64  `json:"disability_2,omitempty"`
+	FederalSetting        int64  `json:"federal_setting,omitempty"`
+	MeetingDate           string `json:"meeting_date,omitempty"`
+	IEPDueDate            string `json:"iep_due_date,omitempty"`
+	LastEvalDate          string `json:"last_eval_date,omitempty"`
+	EvalDueDate           string `json:"eval_due_date,omitempty"`
+	AmendedDate           string `json:"amended_date,omitempty"`
+	IEPType               int64  `json:"iep_type,omitempty"`
+	SpecialTransportation int64  `json:"special_transportation,omitempty"`
+	AddedAt               string `json:"added_at,omitempty"`
+	UpdatedAt             string `json:"updated_at,omitempty"`
+	ArchivedAt            string `json:"archived_at,omitempty"`
+	DeletedAt             string `json:"deleted_at,omitempty"`
+}
+
+func NewStateFromModel(m models.IEP) IEPState {
+	return IEPState{
+		ID:                    m.ID,
+		StudentID:             m.StudentID,
+		Disability1:           int64(m.Disability1),
+		Disability2:           int64(m.Disability2),
+		FederalSetting:        int64(m.FederalSetting),
+		MeetingDate:           m.MeetingDate.String(),
+		IEPDueDate:            m.IEPDueDate.String(),
+		LastEvalDate:          m.LastEvalDate.String(),
+		EvalDueDate:           m.EvalDueDate.String(),
+		AmendedDate:           m.AmendedDate.String(),
+		IEPType:               int64(m.IEPType),
+		SpecialTransportation: boolToInt64(m.SpecialTransportation),
+		AddedAt:               appdb.SQLTime(m.CreatedAt),
+		UpdatedAt:             appdb.SQLTime(m.UpdatedAt),
+	}
+}
+
+type IEPFlat struct {
+	ID                    string `json:"iep.id"`
+	StudentID             string `json:"iep.student_id"`
+	Disability1           int64  `json:"iep.disability_1,omitempty"`
+	Disability2           int64  `json:"iep.disability_2,omitempty"`
+	FederalSetting        int64  `json:"iep.federal_setting,omitempty"`
+	MeetingDate           string `json:"iep.meeting_date,omitempty"`
+	IEPDueDate            string `json:"iep.iep_due_date,omitempty"`
+	LastEvalDate          string `json:"iep.last_eval_date,omitempty"`
+	EvalDueDate           string `json:"iep.eval_due_date,omitempty"`
+	AmendedDate           string `json:"iep.amended_date,omitempty"`
+	IEPType               int64  `json:"iep.iep_type,omitempty"`
+	SpecialTransportation int64  `json:"iep.special_transportation,omitempty"`
+	AddedAt               string `json:"iep.added_at,omitempty"`
+	UpdatedAt             string `json:"iep.updated_at,omitempty"`
+	ArchivedAt            string `json:"iep.archived_at,omitempty"`
+	DeletedAt             string `json:"iep.deleted_at,omitempty"`
+}
+
+func NewModelFromFlat(f IEPFlat) models.IEP {
+	return models.IEP{
+		ID:                    f.ID,
+		StudentID:             f.StudentID,
+		Disability1:           models.DisabilityCode(f.Disability1),
+		Disability2:           models.DisabilityCode(f.Disability2),
+		FederalSetting:        int(f.FederalSetting),
+		MeetingDate:           sharedmodels.DateOnly(parseDBTime(f.MeetingDate)),
+		IEPDueDate:            sharedmodels.DateOnly(parseDBTime(f.IEPDueDate)),
+		LastEvalDate:          sharedmodels.DateOnly(parseDBTime(f.LastEvalDate)),
+		EvalDueDate:           sharedmodels.DateOnly(parseDBTime(f.EvalDueDate)),
+		AmendedDate:           sharedmodels.DateOnly(parseDBTime(f.AmendedDate)),
+		IEPType:               models.IEPType(f.IEPType),
+		SpecialTransportation: int64ToBool(f.SpecialTransportation),
+		CreatedAt:             parseDBTime(f.AddedAt),
+		UpdatedAt:             parseDBTime(f.UpdatedAt),
+	}
 }
 
 type StudentState struct {
-	isCreated    bool
-	isArchived   bool
-	isDeleted    bool
+	created      bool
+	archived     bool
+	deleted      bool
 	hasActiveIEP bool
 }
 
+func (student StudentState) isActive() bool {
+	if student.created && !student.archived && !student.deleted {
+		return true
+	}
+	return false
+}
+
+func (s StudentState) hasIEP() bool {
+	if s.hasActiveIEP {
+		return true
+	}
+	return false
+}
+
 type IEPAddedToStudentEvent struct {
-	EventID string `json:"iep_added_to_student_event_id"`
-	IEPState
+	ID    string   `json:"iep_added_to_student_event_id"`
+	IEP   IEPState `json:"iep"`
 	Scope IEPScope `json:"scope"`
 }
 
 type IEPUpdatedEvent struct {
-	EventID string `json:"iep_updated_event_id"`
-	IEPState
+	ID    string   `json:"iep_updated_event_id"`
+	IEP   IEPState `json:"iep"`
 	Scope IEPScope `json:"scope"`
 }
 
 type IEPArchivedEvent struct {
-	EventID string `json:"iep_archived_event_id"`
-	IEPState
-	Scope IEPScope `json:"scope"`
+	ID         string   `json:"iep_archived_event_id"`
+	IEPID      string   `json:"iep.id"`
+	ArchivedAt string   `json:"iep.archived_at"`
+	Scope      IEPScope `json:"scope"`
 }
 
 type IEPDeletedEvent struct {
-	EventID string `json:"student_iep_deleted_event_id"`
-	IEPState
-	Scope IEPScope `json:"scope"`
+	ID        string   `json:"iep_deleted_event_id"`
+	IEPID     string   `json:"iep.id"`
+	DeletedAt string   `json:"iep.deleted_at"`
+	Scope     IEPScope `json:"scope"`
 }
 
 type IEPScope struct {
@@ -89,19 +172,21 @@ type IEPScope struct {
 }
 
 func NewIEPAddedToStudentEvent(
-	iep IEPState,
-	addedAt time.Time,
-	metadata map[string]any,
+	cmd AddIEPToStudentCommand,
+	query eventstore.Query,
 ) eventstore.DomainEvent {
-	iep.AddedAt = addedAt
-	iep.UpdatedAt = addedAt
+	now := time.Now()
+	cmd.IEP.CreatedAt = now
+	cmd.IEP.UpdatedAt = now
+	state := NewStateFromModel(cmd.IEP)
 	event := IEPAddedToStudentEvent{
-		EventID:  iep.ID,
-		IEPState: iep,
-		Scope:    iepScope(iep.ID, iep.StudentID),
+		ID:    cmd.IEP.ID,
+		IEP:   state,
+		Scope: iepScope(cmd.IEP.ID, cmd.IEP.StudentID),
 	}
+	metadata := metadataWithQuery(cmd.Metadata, query)
 	return eventstore.DomainEvent{
-		EventID:   iep.ID,
+		EventID:   cmd.IEP.ID,
 		EventType: EventIEPAddedToStudent,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
@@ -111,14 +196,17 @@ func NewIEPAddedToStudentEvent(
 func NewIEPUpdatedEvent(
 	eventID string,
 	cmd UpdateIEPCommand,
-	updatedAt time.Time,
-	metadata map[string]any,
+	query eventstore.Query,
 ) eventstore.DomainEvent {
+	now := time.Now()
+	cmd.IEP.UpdatedAt = now
+	state := NewStateFromModel(cmd.IEP)
 	event := IEPUpdatedEvent{
-		EventID:  eventID,
-		IEPState: cmd.IEP,
-		Scope:    iepScope(cmd.IEP.ID, cmd.IEP.StudentID),
+		ID:    eventID,
+		IEP:   state,
+		Scope: iepScope(cmd.IEP.ID, cmd.IEP.StudentID),
 	}
+	metadata := metadataWithQuery(cmd.Metadata, query)
 	return eventstore.DomainEvent{
 		EventID:   eventID,
 		EventType: EventIEPUpdated,
@@ -135,8 +223,8 @@ func NewIEPDeletedEvent(
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := IEPDeletedEvent{
-		EventID: eventID,
-		Scope:   iepScope(IEPID, studentID),
+		ID:    eventID,
+		Scope: iepScope(IEPID, studentID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
@@ -154,9 +242,9 @@ func iepScope(iepID, studentID string) IEPScope {
 }
 
 func Channel(id string) string {
-	return "student_ieps." + id
+	return "ieps." + id
 }
 
 func ChannelAll() string {
-	return "student_ieps.>"
+	return "ieps.>"
 }

@@ -682,8 +682,10 @@ func getStudentEditStream(
 		}
 		defer sub.Close()
 
+		s, _ := studentReadModel.GetByUsername(ctx, username)
+
 		// watches the student edit view state kv
-		key := username + ".edit"
+		key := s.ID + ".edit"
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -997,7 +999,7 @@ func getStudentsCSV(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		file, err := os.OpenFile("/home/lukeout/seek/students.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+		file, err := os.OpenFile("students.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
 		if err != nil {
 			http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -1033,7 +1035,7 @@ func postStudentsCSV(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		file, err := os.OpenFile("/home/lukeout/seek/students.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+		file, err := os.OpenFile("students.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
 		if err != nil {
 			http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -1060,6 +1062,7 @@ func postStudentsCSV(
 			case sharedmodels.DiffNew:
 				cmd := events.CreateStudentCommand{
 					StudentState: events.StudentState{
+						MARSSID:    diff.New.MARSSID,
 						GivenName:  diff.New.GivenName,
 						ChosenName: diff.New.ChosenName,
 						FamilyName: diff.New.FamilyName,
@@ -1080,6 +1083,7 @@ func postStudentsCSV(
 				cmd := events.UpdateStudentCommand{
 					StudentState: events.StudentState{
 						ID:         diff.Old.ID,
+						MARSSID:    diff.New.MARSSID,
 						GivenName:  diff.New.GivenName,
 						ChosenName: diff.New.ChosenName,
 						FamilyName: diff.New.FamilyName,

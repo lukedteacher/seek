@@ -19,6 +19,7 @@ func StreamQuery(iepID, studentID string) eventstore.Query {
 	}
 	studentEventTypes := []eventType{
 		se.EventStudentCreated,
+		se.EventStudentArchived,
 		se.EventStudentDeleted,
 	}
 	criteria := make([]eventstore.Criterion, 0, len(iepEventTypes)+len(studentEventTypes))

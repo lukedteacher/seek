@@ -124,19 +124,19 @@ func (m *ReadModel) ListServicesForIEP(ctx context.Context, studentID string) ([
 func (m *ReadModel) AddServiceToIEP(ctx context.Context, event ServiceAddedToIEPProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceAddServiceToIep(conn, dbsql.AddServiceToIepParams{
-			Id:              event.ServiceID,
-			IepId:           event.IEPID,
-			ServiceName:     event.ServiceName,
-			ServiceType:     event.ServiceType,
-			IndirectMinutes: int64(event.IndirectMinutes),
-			DirectMinutes:   int64(event.DirectMinutes),
-			FrequencyCount:  int64(event.FrequencyCount),
-			FrequencyType:   event.FrequencyType,
-			LocationId:      event.LocationID,
-			StartDate:       event.StartDate,
-			EndDate:         event.EndDate,
-			ProviderId:      event.ProviderID,
-			CreatedAt:       appdb.SQLTime(event.CreatedAt),
+			Id:              event.Service.ID,
+			IepId:           event.Service.IEPID,
+			ServiceName:     event.Service.ServiceName,
+			ServiceType:     event.Service.ServiceType.ShortString(),
+			IndirectMinutes: int64(event.Service.IndirectMinutes),
+			DirectMinutes:   int64(event.Service.DirectMinutes),
+			FrequencyCount:  int64(event.Service.FrequencyCount),
+			FrequencyType:   event.Service.FrequencyType,
+			LocationId:      event.Service.LocationID,
+			StartDate:       event.Service.StartDate.String(),
+			EndDate:         event.Service.EndDate.String(),
+			ProviderId:      event.Service.ProviderID,
+			CreatedAt:       appdb.SQLTime(event.Service.CreatedAt),
 		})
 	})
 }
@@ -144,18 +144,18 @@ func (m *ReadModel) AddServiceToIEP(ctx context.Context, event ServiceAddedToIEP
 func (m *ReadModel) UpdateService(ctx context.Context, event ServiceUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateService(conn, dbsql.UpdateServiceParams{
-			Id:              event.ServiceID,
-			ServiceName:     event.ServiceName,
-			ServiceType:     event.ServiceType,
-			IndirectMinutes: int64(event.IndirectMinutes),
-			DirectMinutes:   int64(event.DirectMinutes),
-			FrequencyCount:  int64(event.FrequencyCount),
-			FrequencyType:   event.FrequencyType,
-			LocationId:      event.LocationID,
-			StartDate:       event.StartDate,
-			EndDate:         event.EndDate,
-			ProviderId:      event.ProviderID,
-			UpdatedAt:       appdb.SQLTime(event.UpdatedAt),
+			Id:              event.Service.ID,
+			ServiceName:     event.Service.ServiceName,
+			ServiceType:     event.Service.ServiceType.ShortString(),
+			IndirectMinutes: int64(event.Service.IndirectMinutes),
+			DirectMinutes:   int64(event.Service.DirectMinutes),
+			FrequencyCount:  int64(event.Service.FrequencyCount),
+			FrequencyType:   event.Service.FrequencyType,
+			LocationId:      event.Service.LocationID,
+			StartDate:       event.Service.StartDate.String(),
+			EndDate:         event.Service.EndDate.String(),
+			ProviderId:      event.Service.ProviderID,
+			UpdatedAt:       appdb.SQLTime(event.Service.UpdatedAt),
 		})
 	})
 }

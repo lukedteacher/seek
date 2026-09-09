@@ -1,0 +1,74 @@
+package forms
+
+import (
+	"fmt"
+	"seek/internal/features/_shared/shareddto"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/utils"
+)
+
+templ SelectMultiGrades(objectType string, selected sharedmodels.GradesBitmask) {
+	{{
+		url := sharedmodels.GetURLFromContext(ctx)
+		view := shareddto.NewSelectViewGrade(selected)
+	}}
+	<input
+		class="hidden"
+		id="grades_bitmask"
+		type="number"
+		data-signals:homeroom.grades_bitmask={ selected.String() }
+		data-bind:homeroom.grades_bitmask
+		data-on:input__debounce.250ms={ fmt.Sprintf("@post('%s/validate')", url) }
+	/>
+	<div class="flex flex-col">
+		@label.Label(label.Props{
+			For:   "homeroom-grades-input",
+			Class: "mb-3 text-neutral-content/90",
+		}) {
+			select grade(s)
+		}
+		<div class="flex gap-3 items-center">
+			<neo-popover class="w-full" placement="top">
+				<div
+					class="flex items-center gap-2 relative input"
+					data-neo-popover-trigger
+				>
+					for _, option := range view.Options {
+						if option.Selected {
+							@badge.Badge() {
+								{ option.Ordinal() }
+							}
+						}
+					}
+				</div>
+				@SelectOptions(view.Options)
+			</neo-popover>
+		</div>
+	</div>
+}
+
+templ SelectOptions(options []shareddto.SelectOptionGrade) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<ul
+		data-neo-popover-content
+		class="flex flex-col gap-1 w-full h-64"
+	>
+		for _, option := range options {
+			<li
+				data-on:click={ fmt.Sprintf("@post('%s/grades/%s')", url, option.Grade.String()) }
+				class={ utils.TwMerge(
+							"text-sm flex items-center justify-between cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
+							utils.If(option.Selected, "bg-primary"),
+						) }
+			>
+				<span>{ option.Ordinal() }</span>
+				if option.Selected {
+					@icon.Check(icon.Props{Class: "size-4"})
+				}
+			</li>
+		}
+	</ul>
+}

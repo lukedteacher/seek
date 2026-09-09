@@ -8,11 +8,13 @@ import (
 )
 
 type ListHomeroomsRes struct {
-	Id         string `json:"id"`
-	Title      string `json:"title"`
-	LocationId string `json:"location_id"`
-	CreatedAt  string `json:"created_at"`
-	UpdatedAt  string `json:"updated_at"`
+	Id            string `json:"id"`
+	Title         string `json:"title"`
+	GradesBitmask int64  `json:"grades_bitmask"`
+	LocationId    string `json:"location_id"`
+	Image         string `json:"image"`
+	CreatedAt     string `json:"created_at"`
+	UpdatedAt     string `json:"updated_at"`
 }
 
 type ListHomeroomsStmt struct {
@@ -27,7 +29,9 @@ func ListHomerooms(tx *sqlite.Conn) *ListHomeroomsStmt {
 SELECT
 	id, 
 	title, 
+	grades_bitmask,
 	location_id,
+	image,
 	created_at, 
 	updated_at
 FROM homerooms
@@ -77,9 +81,11 @@ func (ps *ListHomeroomsStmt) Run() (
 		row := ListHomeroomsRes{}
 		row.Id = stmt.ColumnText(0)
 		row.Title = stmt.ColumnText(1)
-		row.LocationId = stmt.ColumnText(2)
-		row.CreatedAt = stmt.ColumnText(3)
-		row.UpdatedAt = stmt.ColumnText(4)
+		row.GradesBitmask = stmt.ColumnInt64(2)
+		row.LocationId = stmt.ColumnText(3)
+		row.Image = stmt.ColumnText(4)
+		row.CreatedAt = stmt.ColumnText(5)
+		row.UpdatedAt = stmt.ColumnText(6)
 		res = append(res, row)
 	}
 

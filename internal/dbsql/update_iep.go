@@ -8,9 +8,17 @@ import (
 )
 
 type UpdateIepParams struct {
-	StartDate                string `json:"start_date"`
-	EndDate                  string `json:"end_date"`
+	PlanManagerId            string `json:"plan_manager_id"`
+	Disability1              int64  `json:"disability_1"`
+	Disability2              int64  `json:"disability_2"`
+	FederalSetting           int64  `json:"federal_setting"`
+	MeetingDate              string `json:"meeting_date"`
+	IepDueDate               string `json:"iep_due_date"`
+	LastEvalDate             string `json:"last_eval_date"`
+	EvalDueDate              string `json:"eval_due_date"`
 	AmendedDate              string `json:"amended_date"`
+	IepType                  int64  `json:"iep_type"`
+	SpecialTransportation    int64  `json:"special_transportation"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	UpdatedAt                string `json:"updated_at"`
@@ -27,14 +35,22 @@ type UpdateIepStmt struct {
 func UpdateIep(tx *sqlite.Conn) *UpdateIepStmt {
 	const querySQL = `
 UPDATE student_ieps
-SET 
-	start_date = ?1,
-	end_date = ?2,
-	amended_date = ?3,
-	last_event_commit_position = ?4,
-	last_event_prepare_position = ?5,
-	updated_at = ?6
-WHERE id = ?7
+SET
+	plan_manager_id = ?1,
+	disability_1 = ?2,
+	disability_2 = ?3,
+	federal_setting = ?4,
+	meeting_date = ?5,
+	iep_due_date = ?6,
+	last_eval_date = ?7,
+	eval_due_date = ?8,
+	amended_date = ?9,
+	iep_type = ?10,
+	special_transportation = ?11,
+	last_event_commit_position = ?12,
+	last_event_prepare_position = ?13,
+	updated_at = ?14
+WHERE id = ?15
     `
 
 	ps := &UpdateIepStmt{
@@ -71,13 +87,37 @@ func (ps *UpdateIepStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, params.StartDate)
+	stmt.BindText(bindIndex, params.PlanManagerId)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.EndDate)
+	stmt.BindInt64(bindIndex, params.Disability1)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.Disability2)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.FederalSetting)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.MeetingDate)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.IepDueDate)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.LastEvalDate)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.EvalDueDate)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.AmendedDate)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.IepType)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.SpecialTransportation)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)

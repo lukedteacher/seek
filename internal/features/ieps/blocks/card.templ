@@ -10,7 +10,7 @@ import (
 
 templ Card(view dto.IEPView) {
 	@card.Card(card.Props{
-		ID:    fmt.Sprintf("period-%s-card", view.ID),
+		ID:    fmt.Sprintf("period-%s-card", view.IEP.ID),
 		Class: "iep-service-card bg-linear-1 w-full",
 		Attributes: templ.Attributes{
 			"style": "background-color: var(--neutral-4);",
@@ -28,7 +28,7 @@ templ Card(view dto.IEPView) {
 		}) {
 			@cards.TextLine(cards.TextLineProps{
 				Key:   "start",
-				Value: view.StartDate.String(),
+				Value: view.IEP.MeetingDate.String(),
 			})
 		}
 	}

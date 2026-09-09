@@ -188,8 +188,12 @@ templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) 
 			}) {
 				if columns[i].RenderFunc != nil {
 					@columns[i].RenderFunc(row.Item)
-				} else if columns[i].Renderer == "badge" && row.Cells[i] != "" {
-					@BadgeCellContent(columns[i].Field, row.Cells[i])
+				} else if columns[i].Renderer == "badge" {
+					if row.Cells[i] != "" {
+						@BadgeCellContent(columns[i].Field, row.Cells[i])
+					} else {
+						-
+					}
 				} else {
 					{ row.Cells[i] }
 				}

@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
 	educatorDTO "seek/internal/features/educators/dto"
 	educatorEvents "seek/internal/features/educators/events"
 	"seek/internal/features/homerooms/dto"
@@ -27,6 +29,7 @@ func (s Server) homeroomRoutes(r chi.Router) {
 	r.Get("/homerooms/create", getHomeroomCreate(s.Logger))
 	r.Get("/homerooms/create/stream", getHomeroomCreateStream(s.Logger, s.ViewStore, s.ReadModels.Students, s.ReadModels.Educators))
 	r.Post("/homerooms/create/validate", postHomeroomCreateValidate(s.Logger, s.ViewStore))
+	r.Post("/homerooms/create/grades/{grade}", postHomeroomCreateGrades(s.Logger, s.ViewStore))
 	r.Post("/homerooms/create/educators/{eid}", postHomeroomCreateEducators(s.Logger, s.ViewStore))
 	r.Post("/homerooms/create/students/{sid}", postHomeroomCreateStudents(s.Logger, s.ViewStore))
 	r.Post("/homerooms/create", postHomeroomCreate(s.Logger, s.EventSaver, s.EventRetriever))
@@ -35,6 +38,7 @@ func (s Server) homeroomRoutes(r chi.Router) {
 	r.Get("/homerooms/{id}/edit", getHomeroomEdit(s.Logger))
 	r.Get("/homerooms/{id}/edit/stream", getHomeroomEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Homerooms, s.ReadModels.Students, s.ReadModels.Educators))
 	r.Post("/homerooms/{id}/edit/validate", postHomeroomEditValidate(s.Logger, s.ViewStore))
+	r.Post("/homerooms/{id}/edit/grades/{grade}", postHomeroomEditGrades(s.Logger, s.ViewStore))
 	r.Post("/homerooms/{id}/edit/educators/{eid}", postHomeroomEditEducators(s.Logger, s.ViewStore))
 	r.Post("/homerooms/{id}/edit/students/{sid}", postHomeroomEditStudents(s.Logger, s.ViewStore))
 	r.Post("/homerooms/{id}/edit", postHomeroomEdit(s.Logger, s.EventSaver, s.EventRetriever))
@@ -204,6 +208,37 @@ func postHomeroomCreateValidate(
 	}
 }
 
+func postHomeroomCreateGrades(
+	l *slog.Logger,
+	vs viewstore.Store,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		user := currentUser(r)
+		gradeString := chi.URLParam(r, "grade")
+		gradeInt, err := strconv.Atoi(gradeString)
+		grade := sharedmodels.Grade(gradeInt)
+		if err != nil {
+			l.ErrorContext(ctx, "phcg url", "err", err)
+			return
+		}
+		signals := &struct {
+			FormView dto.HomeroomFormView `json:"homeroom"`
+		}{}
+		if err := datastar.ReadSignals(r, signals); err != nil {
+			l.ErrorContext(ctx, "phcg signals", "err", err)
+			return
+		}
+		model := dto.NewHomeroomModelFromFormView(signals.FormView)
+		model.GradesBitmask = *model.GradesBitmask.ToggleGrade(grade)
+		key := user.Username + ".homerooms.create"
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+			l.ErrorContext(ctx, "view store error", "error", err)
+			return
+		}
+	}
+}
+
 func postHomeroomCreateEducators(
 	l *slog.Logger,
 	vs viewstore.Store,
@@ -216,14 +251,14 @@ func postHomeroomCreateEducators(
 			FormView dto.HomeroomFormView `json:"homeroom"`
 		}{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "phee signals", "err", err)
+			l.ErrorContext(ctx, "phce signals", "err", err)
 			return
 		}
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.EducatorIDs = toggleID(model.EducatorIDs, educatorID)
 		key := user.Username + ".homerooms.create"
 		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
+			l.ErrorContext(ctx, "phce vs", "error", err)
 		}
 	}
 }
@@ -274,9 +309,8 @@ func postHomeroomCreate(
 
 		// create the homeroom
 		cmd := events.CreateHomeroomCommand{
-			Title:      signals.Homeroom.Title,
-			LocationID: signals.Homeroom.LocationID,
-			Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+			Homeroom: signals.Homeroom.Homeroom,
+			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.CreateHomeroomCommandHandler(ctx, cmd, saver)
 		if err != nil {
@@ -549,6 +583,36 @@ func postHomeroomEditValidate(
 	}
 }
 
+func postHomeroomEditGrades(
+	l *slog.Logger,
+	vs viewstore.Store,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		gradeString := chi.URLParam(r, "grade")
+		gradeInt, err := strconv.Atoi(gradeString)
+		grade := sharedmodels.Grade(gradeInt)
+		if err != nil {
+			l.ErrorContext(ctx, "pheg url", "err", err)
+			return
+		}
+		signals := &struct {
+			FormView dto.HomeroomFormView `json:"homeroom"`
+		}{}
+		if err := datastar.ReadSignals(r, signals); err != nil {
+			l.ErrorContext(ctx, "phcg signals", "err", err)
+			return
+		}
+		model := dto.NewHomeroomModelFromFormView(signals.FormView)
+		model.GradesBitmask = *model.GradesBitmask.ToggleGrade(grade)
+		key := model.ID + ".edit"
+		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+			l.ErrorContext(ctx, "view store error", "error", err)
+			return
+		}
+	}
+}
+
 func postHomeroomEditEducators(
 	l *slog.Logger,
 	vs viewstore.Store,
@@ -615,18 +679,16 @@ func postHomeroomEdit(
 			return
 		}
 
-		homeroomID := chi.URLParam(r, "id")
+		homeroom := signals.Homeroom.Homeroom
 
 		// update the homeroom itself
 		cmd := events.UpdateHomeroomCommand{
-			ID:         homeroomID,
-			Title:      signals.Homeroom.Title,
-			LocationID: signals.Homeroom.LocationID,
-			Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+			Homeroom: homeroom,
+			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.UpdateHomeroomCommandHandler(ctx, cmd, saver, retriever)
 		if err != nil {
-			l.ErrorContext(ctx, "post homeroom edit command handler", "err", err, "pid", homeroomID)
+			l.ErrorContext(ctx, "post homeroom edit command handler", "err", err, "pid", homeroom.ID)
 			return
 		}
 		if result.Skipped {
@@ -635,7 +697,7 @@ func postHomeroomEdit(
 
 		// sync educators (proposed list from form)
 		secmd := events.SyncEducatorsInHomeroomCommand{
-			HomeroomID:          homeroomID,
+			HomeroomID:          homeroom.ID,
 			ProposedEducatorIDs: signals.Homeroom.EducatorIDs,
 		}
 		_, err = events.SyncEducatorsInHomeroomCommandHandler(ctx, secmd, saver, retriever)
@@ -645,7 +707,7 @@ func postHomeroomEdit(
 
 		// sync students (proposed list from form)
 		sscmd := events.SyncStudentsInHomeroomCommand{
-			HomeroomID:         homeroomID,
+			HomeroomID:         homeroom.ID,
 			ProposedStudentIDs: signals.Homeroom.StudentIDs,
 		}
 		_, err = events.SyncStudentsInHomeroomCommandHandler(ctx, sscmd, saver, retriever)
@@ -655,7 +717,7 @@ func postHomeroomEdit(
 
 		// redirect to the homeroom view
 		sse := newSSE(w, r)
-		sse.Redirect(fmt.Sprintf("/homerooms/%s", homeroomID))
+		sse.Redirect(fmt.Sprintf("/homerooms/%s", homeroom.ID))
 	}
 }
 
@@ -708,7 +770,7 @@ func deleteHomeroom(
 // gets homeroom from the db and saves it to a kv store
 func refreshHomeroomViewState(
 	ctx context.Context,
-	_ *slog.Logger,
+	l *slog.Logger,
 	homeroomID string,
 	homerooms *events.ReadModel,
 	vs viewstore.Store,

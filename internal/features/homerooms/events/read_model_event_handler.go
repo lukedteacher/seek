@@ -2,11 +2,13 @@ package events
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"time"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/homerooms/models"
 )
 
@@ -31,19 +33,15 @@ type HomeroomReadModelWriter interface {
 }
 
 type HomeroomCreatedProjection struct {
-	Position   eventstore.Position
-	HomeroomID string
-	Title      string
-	LocationID string
-	CreatedAt  time.Time
+	Position  eventstore.Position
+	Homeroom  models.Homeroom
+	CreatedAt time.Time
 }
 
 type HomeroomUpdatedProjection struct {
-	Position   eventstore.Position
-	HomeroomID string
-	Title      string
-	LocationID string
-	UpdatedAt  time.Time
+	Position  eventstore.Position
+	Homeroom  models.Homeroom
+	UpdatedAt time.Time
 }
 
 type HomeroomArchivedProjection struct {
@@ -148,29 +146,43 @@ func HomeroomReadModelEventHandlerQuery() eventstore.Query {
 }
 
 func (h *HomeroomReadModelEventHandler) handle(ctx context.Context, resolved eventstore.ResolvedEvent) error {
+	rawData := resolved.Event.RawData
 	data := resolved.Event.Data
 	scope := eventstore.Scope(data)
 	homeroomID, _ := scope[FieldHomeroomID].(string)
-
 	switch resolved.Event.EventType {
 	case EventHomeroomCreated:
-		homeroomCreated := HomeroomCreatedProjection{
-			HomeroomID: homeroomID,
-			Title:      data[FieldHomeroomTitle].(string),
-			LocationID: data[FieldHomeroomLocationID].(string),
-			CreatedAt:  parseDBTime(data[FieldHomeroomCreatedAt].(string)),
+		var event HomeroomCreatedEvent
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+			slog.Error("homeroom rm handle create unmarshal", "err", err)
 		}
-		if err := h.readModel.CreateHomeroom(ctx, homeroomCreated); err != nil {
+		projection := HomeroomCreatedProjection{
+			Homeroom: models.Homeroom{
+				ID:            homeroomID,
+				Title:         event.Title,
+				GradesBitmask: sharedmodels.GradesBitmask(event.GradesBitmask),
+				LocationID:    event.LocationID,
+				Image:         event.Image,
+			},
+		}
+		if err := h.readModel.CreateHomeroom(ctx, projection); err != nil {
 			return err
 		}
 	case EventHomeroomUpdated:
-		homeroomUpdated := HomeroomUpdatedProjection{
-			HomeroomID: homeroomID,
-			Title:      data[FieldHomeroomTitle].(string),
-			LocationID: data[FieldHomeroomLocationID].(string),
-			UpdatedAt:  parseDBTime(data[FieldHomeroomUpdatedAt].(string)),
+		var event HomeroomUpdatedEvent
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+			slog.Error("homeroom rm handle update unmarshal", "err", err)
 		}
-		if err := h.readModel.UpdateHomeroom(ctx, homeroomUpdated); err != nil {
+		projection := HomeroomUpdatedProjection{
+			Homeroom: models.Homeroom{
+				ID:            homeroomID,
+				Title:         event.Title,
+				GradesBitmask: sharedmodels.GradesBitmask(event.GradesBitmask),
+				LocationID:    event.LocationID,
+				Image:         event.Image,
+			},
+		}
+		if err := h.readModel.UpdateHomeroom(ctx, projection); err != nil {
 			return err
 		}
 	case EventHomeroomArchived:

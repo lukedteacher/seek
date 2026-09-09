@@ -50,7 +50,7 @@ func DeleteIEPCommandHandler(
 	return DeleteIEPResult{EventID: eventID}, nil
 }
 
-type deleteStudentIEPContext struct {
+type deleteIEPContext struct {
 	exists   bool
 	archived bool
 	deleted  bool
@@ -59,28 +59,28 @@ type deleteStudentIEPContext struct {
 	query    eventstore.Query
 }
 
-func loadDeleteIEPContext(ctx context.Context, retriever eventstore.Retriever, studentIEPID, studentID string) (*deleteStudentIEPContext, error) {
-	query := StreamQuery(studentIEPID, studentID)
+func loadDeleteIEPContext(ctx context.Context, retriever eventstore.Retriever, iepID, studentID string) (*deleteIEPContext, error) {
+	query := StreamQuery(iepID, studentID)
 	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
 	if err != nil {
 		return nil, err
 	}
 
-	model := &deleteStudentIEPContext{position: eventstore.NoEventPosition, events: events, query: query}
+	model := &deleteIEPContext{position: eventstore.NoEventPosition, events: events, query: query}
 	for _, event := range events {
 		model.handle(event)
 	}
 	return model, nil
 }
 
-func (m *deleteStudentIEPContext) isActive() bool {
+func (m *deleteIEPContext) isActive() bool {
 	if !m.exists || m.deleted {
 		return false
 	}
 	return true
 }
 
-func (m *deleteStudentIEPContext) handle(resolved eventstore.ResolvedEvent) {
+func (m *deleteIEPContext) handle(resolved eventstore.ResolvedEvent) {
 	switch resolved.Event.EventType {
 	case EventIEPAddedToStudent:
 		m.exists = true

@@ -22,8 +22,8 @@ type Service struct {
 	EndDate         sharedmodels.DateOnly    `json:"end_date" csv:"End date"`
 	Provider        string                   `json:"provider" csv:"Provider"`
 	ProviderID      string                   `json:"provider_id"`
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	CreatedAt       time.Time                `json:"created_at,omitempty"`
+	UpdatedAt       time.Time                `json:"updated_at,omitempty"`
 }
 
 func NewService() *Service {

@@ -7,12 +7,12 @@ import (
 	"seek/pkg/uuidv7"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/homerooms/models"
 )
 
 type CreateHomeroomCommand struct {
-	Title      string
-	LocationID string
-	Metadata   CommandMetadata
+	Homeroom models.Homeroom
+	Metadata CommandMetadata
 }
 
 type CreateHomeroomResult struct {
@@ -33,8 +33,7 @@ func CreateHomeroomCommandHandler(
 	}
 	event := NewHomeroomCreatedEvent(
 		context.id,
-		context.title,
-		context.locationID,
+		context.homeroom,
 		time.Now(),
 		metadataWithQuery(cmd.Metadata, context.query),
 	)
@@ -45,18 +44,16 @@ func CreateHomeroomCommandHandler(
 }
 
 type createHomeroomContext struct {
-	id         string
-	title      string
-	locationID string
-	query      eventstore.Query
+	id       string
+	homeroom models.Homeroom
+	query    eventstore.Query
 }
 
 func newCreateHomeroomContext(cmd CreateHomeroomCommand) (*createHomeroomContext, error) {
 	homeroomID := uuidv7.NewString()
 	return &createHomeroomContext{
-		id:         homeroomID,
-		title:      cmd.Title,
-		locationID: cmd.LocationID,
-		query:      homeroomStreamQuery(homeroomID),
+		id:       homeroomID,
+		homeroom: cmd.Homeroom,
+		query:    homeroomStreamQuery(homeroomID),
 	}, nil
 }

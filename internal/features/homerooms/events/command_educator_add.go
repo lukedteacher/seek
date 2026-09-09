@@ -6,6 +6,7 @@ import (
 
 	"seek/internal/eventstore"
 	educatorEvents "seek/internal/features/educators/events"
+	"seek/internal/features/homerooms/models"
 )
 
 type AddEducatorToHomeroomCommand struct {
@@ -63,6 +64,7 @@ func AddEducatorToHomeroomCommandHandler(
 }
 
 type homeroomState struct {
+	models.Homeroom
 	created  bool
 	archived bool
 	deleted  bool

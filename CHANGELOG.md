@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.9.9 (26.09.08) homeroom, iep, service updates
+
+- finished adding IEP CSV import
+- refactored service CSV import to match
+- fixed student CSV import bug
+- fixed some things with homerooms
+
 ## v0.9.8 (26.09.06) many style and minor bug fixes
 
 - fixed delete button colors

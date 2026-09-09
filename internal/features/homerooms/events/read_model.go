@@ -37,10 +37,13 @@ func (m *ReadModel) Get(ctx context.Context, homeroomID string) (*models.Homeroo
 		return nil, fmt.Errorf("homeroom not found")
 	}
 	homeroom := &models.Homeroom{
-		ID:        row.Id,
-		Title:     row.Title,
-		CreatedAt: row.CreatedAt,
-		UpdatedAt: row.UpdatedAt,
+		ID:            row.Id,
+		Title:         row.Title,
+		GradesBitmask: sharedmodels.GradesBitmask(row.GradesBitmask),
+		LocationID:    row.LocationId,
+		Image:         row.Image,
+		CreatedAt:     row.CreatedAt,
+		UpdatedAt:     row.UpdatedAt,
 	}
 
 	return homeroom, nil
@@ -67,12 +70,15 @@ func (m *ReadModel) GetWithIDs(ctx context.Context, homeroomID string) (*models.
 		return nil, err
 	}
 	homeroom := &models.Homeroom{
-		ID:          row.Id,
-		Title:       row.Title,
-		EducatorIDs: educatorIDs,
-		StudentIDs:  studentIDs,
-		CreatedAt:   row.CreatedAt,
-		UpdatedAt:   row.UpdatedAt,
+		ID:            row.Id,
+		Title:         row.Title,
+		GradesBitmask: sharedmodels.GradesBitmask(row.GradesBitmask),
+		LocationID:    row.LocationId,
+		Image:         row.Image,
+		EducatorIDs:   educatorIDs,
+		StudentIDs:    studentIDs,
+		CreatedAt:     row.CreatedAt,
+		UpdatedAt:     row.UpdatedAt,
 	}
 
 	return homeroom, nil
@@ -90,10 +96,13 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Homeroom, error) {
 	homerooms := make([]models.Homeroom, 0, len(rows))
 	for _, row := range rows {
 		homerooms = append(homerooms, models.Homeroom{
-			ID:        row.Id,
-			Title:     row.Title,
-			CreatedAt: row.CreatedAt,
-			UpdatedAt: row.UpdatedAt,
+			ID:            row.Id,
+			Title:         row.Title,
+			GradesBitmask: sharedmodels.GradesBitmask(row.GradesBitmask),
+			LocationID:    row.LocationId,
+			Image:         row.Image,
+			CreatedAt:     row.CreatedAt,
+			UpdatedAt:     row.UpdatedAt,
 		})
 	}
 	return homerooms, nil
@@ -120,12 +129,15 @@ func (m *ReadModel) ListWithIDs(ctx context.Context) ([]models.Homeroom, error) 
 			return nil, err
 		}
 		homerooms = append(homerooms, models.Homeroom{
-			ID:          row.Id,
-			Title:       row.Title,
-			EducatorIDs: educatorIDs,
-			StudentIDs:  studentIDs,
-			CreatedAt:   row.CreatedAt,
-			UpdatedAt:   row.UpdatedAt,
+			ID:            row.Id,
+			Title:         row.Title,
+			GradesBitmask: sharedmodels.GradesBitmask(row.GradesBitmask),
+			LocationID:    row.LocationId,
+			Image:         row.Image,
+			EducatorIDs:   educatorIDs,
+			StudentIDs:    studentIDs,
+			CreatedAt:     row.CreatedAt,
+			UpdatedAt:     row.UpdatedAt,
 		})
 	}
 	return homerooms, nil
@@ -136,9 +148,11 @@ func (m *ReadModel) ListWithIDs(ctx context.Context) ([]models.Homeroom, error) 
 func (m *ReadModel) CreateHomeroom(ctx context.Context, event HomeroomCreatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceCreateHomeroom(conn, dbsql.CreateHomeroomParams{
-			Id:                       event.HomeroomID,
-			Title:                    event.Title,
-			LocationId:               event.LocationID,
+			Id:                       event.Homeroom.ID,
+			Title:                    event.Homeroom.Title,
+			GradesBitmask:            int64(event.Homeroom.GradesBitmask),
+			LocationId:               event.Homeroom.LocationID,
+			Image:                    event.Homeroom.Image,
 			CreatedAt:                appdb.SQLTime(event.CreatedAt),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
@@ -149,9 +163,11 @@ func (m *ReadModel) CreateHomeroom(ctx context.Context, event HomeroomCreatedPro
 func (m *ReadModel) UpdateHomeroom(ctx context.Context, event HomeroomUpdatedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateHomeroom(conn, dbsql.UpdateHomeroomParams{
-			Id:                       event.HomeroomID,
-			Title:                    event.Title,
-			LocationId:               event.LocationID,
+			Id:                       event.Homeroom.ID,
+			Title:                    event.Homeroom.Title,
+			GradesBitmask:            int64(event.Homeroom.GradesBitmask),
+			LocationId:               event.Homeroom.LocationID,
+			Image:                    event.Homeroom.Image,
 			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,

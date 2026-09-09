@@ -35,6 +35,7 @@ templ FormSections(view dto.HomeroomFormView) {
 				},
 			})
 		</div>
+		@forms.SelectMultiGrades("homeroom", view.GradesBitmask)
 	}
 	@forms.Fieldset("educator(s)") {
 		{{ educatorIDs, _ := templ.JSONString(view.EducatorIDs) }}

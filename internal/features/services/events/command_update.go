@@ -2,28 +2,18 @@ package events
 
 import (
 	"context"
-	"time"
+	"encoding/json"
+	"log/slog"
 
 	"seek/internal/eventstore"
-	se "seek/internal/features/students/events"
+	iepEvents "seek/internal/features/ieps/events"
+	"seek/internal/features/services/models"
 	"seek/pkg/uuidv7"
 )
 
 type UpdateServiceCommand struct {
-	ServiceID       string
-	IEPID           string
-	StudentID       string
-	ServiceName     string
-	ServiceType     string
-	IndirectMinutes int
-	DirectMinutes   int
-	FrequencyCount  int
-	FrequencyType   string
-	LocationID      string
-	StartDate       string
-	EndDate         string
-	ProviderID      string
-	Metadata        CommandMetadata
+	Service  models.Service
+	Metadata CommandMetadata
 }
 
 type UpdateServiceResult struct {
@@ -40,38 +30,31 @@ func UpdateServiceCommandHandler(
 	UpdateServiceResult,
 	error,
 ) {
-	model, err := loadUpdateServiceContext(ctx, retriever, cmd.ServiceID, cmd.StudentID)
+	model, err := loadUpdateServiceContext(
+		ctx,
+		retriever,
+		cmd.Service.ID,
+		cmd.Service.IEPID,
+	)
 	if err != nil {
 		return UpdateServiceResult{}, err
 	}
-	if err := model.isServiceActive(); err != nil {
-		return UpdateServiceResult{}, err
+	if !model.isServiceActive() {
+		return UpdateServiceResult{}, eventstore.ErrServiceNotActive
 	}
-	if err := model.isStudentActive(); err != nil {
-		return UpdateServiceResult{}, err
+	if !model.iep.isActive() {
+		return UpdateServiceResult{}, eventstore.ErrIEPNotActive
 	}
-	if model.isSame(cmd) {
-		return UpdateServiceResult{Skipped: true}, nil
-	}
+	// TODO reimpliment this
+	// if model.isSame(cmd) {
+	// 	return UpdateServiceResult{Skipped: true}, nil
+	// }
 
 	eventID := uuidv7.NewString()
 	event := NewServiceUpdatedEvent(
 		eventID,
-		cmd.ServiceID,
-		cmd.IEPID,
-		cmd.StudentID,
-		cmd.ServiceName,
-		cmd.ServiceType,
-		cmd.IndirectMinutes,
-		cmd.DirectMinutes,
-		cmd.FrequencyCount,
-		cmd.FrequencyType,
-		cmd.LocationID,
-		cmd.StartDate,
-		cmd.EndDate,
-		cmd.ProviderID,
-		time.Now(),
-		metadataWithQuery(cmd.Metadata, model.query),
+		cmd,
+		model.query,
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
@@ -84,22 +67,8 @@ type updateServiceContext struct {
 	serviceExists   bool
 	serviceArchived bool
 	serviceDeleted  bool
-	studentExists   bool
-	studentArchived bool
-	studentDeleted  bool
-	serviceID       string
-	iepID           string
-	studentID       string
-	serviceName     string
-	serviceType     string
-	indirectMinutes int
-	directMinutes   int
-	frequencyCount  int
-	frequencyType   string
-	locationID      string
-	startDate       string
-	endDate         string
-	providerID      string
+	service         models.Service
+	iep             IEPState
 	position        eventstore.Position
 	events          []eventstore.ResolvedEvent
 	query           eventstore.Query
@@ -109,18 +78,28 @@ func loadUpdateServiceContext(
 	ctx context.Context,
 	retriever eventstore.Retriever,
 	serviceID,
-	studentID string,
+	iepID string,
 ) (
 	*updateServiceContext,
 	error,
 ) {
-	query := streamQuery(serviceID, studentID)
-	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
+	query := serviceStreamQuery(serviceID, iepID)
+	events, err := retriever.GetEvents(
+		ctx,
+		eventstore.NoEventPosition,
+		100,
+		eventstore.Forward,
+		query,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	model := &updateServiceContext{position: eventstore.NoEventPosition, events: events, query: query}
+	model := &updateServiceContext{
+		position: eventstore.NoEventPosition,
+		events:   events,
+		query:    query,
+	}
 	for _, event := range events {
 		model.handle(event)
 	}
@@ -128,69 +107,39 @@ func loadUpdateServiceContext(
 	return model, nil
 }
 
-func (m *updateServiceContext) isServiceActive() error {
-	if !m.serviceExists || m.serviceDeleted {
-		return eventstore.ErrServiceNotActive
+func (m *updateServiceContext) isServiceActive() bool {
+	if m.serviceExists || !m.serviceArchived || !m.serviceDeleted {
+		return true
 	}
-	return nil
-}
-
-func (m *updateServiceContext) isStudentActive() error {
-	if !m.studentExists || m.studentDeleted {
-		return eventstore.ErrStudentNotActive
-	}
-	return nil
-}
-
-func (m *updateServiceContext) isSame(cmd UpdateServiceCommand) bool {
-	return m.studentID == cmd.StudentID &&
-		m.serviceName == cmd.ServiceName &&
-		m.serviceType == cmd.ServiceType &&
-		m.indirectMinutes == cmd.IndirectMinutes &&
-		m.directMinutes == cmd.DirectMinutes &&
-		m.frequencyCount == cmd.FrequencyCount &&
-		m.frequencyType == cmd.FrequencyType &&
-		m.locationID == cmd.LocationID &&
-		m.startDate == cmd.StartDate &&
-		m.endDate == cmd.EndDate &&
-		m.providerID == cmd.ProviderID
+	return false
 }
 
 func (m *updateServiceContext) handle(resolved eventstore.ResolvedEvent) {
-	data := resolved.Event.Data
+	rawData := resolved.Event.RawData
 	switch resolved.Event.EventType {
-	case se.EventStudentCreated:
-		m.studentExists = true
-	case se.EventStudentArchived:
-		m.studentArchived = true
-	case se.EventStudentDeleted:
-		m.studentDeleted = true
+	case iepEvents.EventIEPAddedToStudent:
+		m.iep.created = true
+	case iepEvents.EventIEPArchived:
+		m.iep.archived = true
+	case iepEvents.EventIEPDeleted:
+		m.iep.deleted = true
 	case EventServiceAddedToIEP:
 		m.serviceExists = true
-		m.serviceDeleted = false
-		m.iepID, _ = data[FieldServiceIEPID].(string)
-		m.serviceName, _ = data[FieldServiceServiceName].(string)
-		m.serviceType, _ = data[FieldServiceServiceType].(string)
-		m.indirectMinutes = int(data[FieldServiceIndirectMinutes].(float64))
-		m.directMinutes = int(data[FieldServiceDirectMinutes].(float64))
-		m.frequencyCount = int(data[FieldServiceFrequencyCount].(float64))
-		m.frequencyType, _ = data[FieldServiceFrequencyType].(string)
-		m.locationID, _ = data[FieldServiceLocationID].(string)
-		m.startDate, _ = data[FieldServiceStartDate].(string)
-		m.endDate, _ = data[FieldServiceEndDate].(string)
-		m.providerID, _ = data[FieldServiceProviderID].(string)
+		var flat ServiceFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
+			slog.Error("service update handle add unmarshal", "err", err)
+			return
+		}
+		m.service = NewModelFromFlat(flat)
 	case EventServiceUpdated:
-		m.iepID, _ = data[FieldServiceIEPID].(string)
-		m.serviceName, _ = data[FieldServiceServiceName].(string)
-		m.serviceType, _ = data[FieldServiceServiceType].(string)
-		m.indirectMinutes = int(data[FieldServiceIndirectMinutes].(float64))
-		m.directMinutes = int(data[FieldServiceDirectMinutes].(float64))
-		m.frequencyCount = int(data[FieldServiceFrequencyCount].(float64))
-		m.frequencyType, _ = data[FieldServiceFrequencyType].(string)
-		m.locationID, _ = data[FieldServiceLocationID].(string)
-		m.startDate, _ = data[FieldServiceStartDate].(string)
-		m.endDate, _ = data[FieldServiceEndDate].(string)
-		m.providerID, _ = data[FieldServiceProviderID].(string)
+		var flat ServiceFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
+			slog.Error("service update handle update unmarshal", "err", err)
+			return
+		}
+		m.service = NewModelFromFlat(flat)
+	case EventServiceArchived:
+		m.serviceArchived = true
 	case EventServiceDeleted:
 		m.serviceDeleted = true
 	}

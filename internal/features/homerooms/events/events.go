@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/homerooms/models"
 	"seek/pkg/uuidv7"
 )
 
@@ -58,29 +59,33 @@ const (
 )
 
 type HomeroomCreatedEvent struct {
-	EventID    string        `json:"homeroom_created_event_id"`
-	Title      string        `json:"title"`
-	LocationID string        `json:"location_id"`
-	CreatedAt  string        `json:"created_at"`
-	Scope      HomeroomScope `json:"scope"`
+	ID            string        `json:"homeroom_created_event_id"`
+	Title         string        `json:"title"`
+	GradesBitmask int           `json:"grades_bitmask"`
+	LocationID    string        `json:"location_id"`
+	Image         string        `json:"image"`
+	CreatedAt     string        `json:"created_at"`
+	Scope         HomeroomScope `json:"scope"`
 }
 
 type HomeroomUpdatedEvent struct {
-	EventID    string        `json:"homeroom_updated_event_id"`
-	Title      string        `json:"title"`
-	LocationID string        `json:"location_id"`
-	UpdatedAt  string        `json:"updated_at"`
-	Scope      HomeroomScope `json:"scope"`
+	ID            string        `json:"homeroom_updated_event_id"`
+	Title         string        `json:"title"`
+	GradesBitmask int           `json:"grades_bitmask"`
+	LocationID    string        `json:"location_id"`
+	Image         string        `json:"image"`
+	UpdatedAt     string        `json:"updated_at"`
+	Scope         HomeroomScope `json:"scope"`
 }
 
 type HomeroomArchivedEvent struct {
-	EventID    string        `json:"homeroom_archived_event_id"`
+	ID         string        `json:"homeroom_archived_event_id"`
 	ArchivedAt string        `json:"archived_at"`
 	Scope      HomeroomScope `json:"scope"`
 }
 
 type HomeroomDeletedEvent struct {
-	EventID   string        `json:"homeroom_deleted_event_id"`
+	ID        string        `json:"homeroom_deleted_event_id"`
 	DeletedAt string        `json:"deleted_at"`
 	Scope     HomeroomScope `json:"scope"`
 }
@@ -90,7 +95,7 @@ type HomeroomScope struct {
 }
 
 type EducatorAddedToHomeroomEvent struct {
-	EventID    string                `json:"educator_added_to_homeroom_event_id"`
+	ID         string                `json:"educator_added_to_homeroom_event_id"`
 	HomeroomID string                `json:"homeroom_id"`
 	EducatorID string                `json:"educator_id"`
 	AddedAt    time.Time             `json:"added_at"`
@@ -98,7 +103,7 @@ type EducatorAddedToHomeroomEvent struct {
 }
 
 type EducatorRemovedFromHomeroomEvent struct {
-	EventID    string                `json:"educator_removed_from_homeroom_event_id"`
+	ID         string                `json:"educator_removed_from_homeroom_event_id"`
 	HomeroomID string                `json:"homeroom_id"`
 	EducatorID string                `json:"educator_id"`
 	RemovedAt  time.Time             `json:"removed_at"`
@@ -111,7 +116,7 @@ type HomeroomEducatorScope struct {
 }
 
 type StudentAddedToHomeroomEvent struct {
-	EventID    string               `json:"student_added_to_homeroom_event_id"`
+	ID         string               `json:"student_added_to_homeroom_event_id"`
 	HomeroomID string               `json:"homeroom_id"`
 	StudentID  string               `json:"student_id"`
 	AddedAt    time.Time            `json:"added_at"`
@@ -119,7 +124,7 @@ type StudentAddedToHomeroomEvent struct {
 }
 
 type StudentRemovedFromHomeroomEvent struct {
-	EventID    string               `json:"student_removed_from_homeroom_event_id"`
+	ID         string               `json:"student_removed_from_homeroom_event_id"`
 	HomeroomID string               `json:"homeroom_id"`
 	StudentID  string               `json:"student_id"`
 	RemovedAt  time.Time            `json:"removed_at"`
@@ -132,18 +137,19 @@ type HomeroomStudentScope struct {
 }
 
 func NewHomeroomCreatedEvent(
-	eventID,
-	title,
-	locationID string,
+	eventID string,
+	homeroom models.Homeroom,
 	createdAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	event := HomeroomCreatedEvent{
-		EventID:    eventID,
-		Title:      title,
-		LocationID: locationID,
-		CreatedAt:  createdAt.Format(time.RFC3339),
-		Scope:      homeroomScope(eventID),
+		ID:            eventID,
+		Title:         homeroom.Title,
+		GradesBitmask: int(homeroom.GradesBitmask),
+		LocationID:    homeroom.LocationID,
+		Image:         homeroom.Image,
+		CreatedAt:     createdAt.Format(time.RFC3339),
+		Scope:         homeroomScope(eventID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
@@ -154,19 +160,19 @@ func NewHomeroomCreatedEvent(
 }
 
 func NewHomeroomUpdatedEvent(
-	homeroomID,
-	title,
-	locationID string,
+	homeroom models.Homeroom,
 	updatedAt time.Time,
 	metadata map[string]any,
 ) eventstore.DomainEvent {
 	eventID := uuidv7.NewString()
 	event := HomeroomUpdatedEvent{
-		EventID:    eventID,
-		Title:      title,
-		LocationID: locationID,
-		UpdatedAt:  updatedAt.Format(time.RFC3339),
-		Scope:      homeroomScope(homeroomID),
+		ID:            eventID,
+		Title:         homeroom.Title,
+		GradesBitmask: int(homeroom.GradesBitmask),
+		LocationID:    homeroom.LocationID,
+		Image:         homeroom.Image,
+		UpdatedAt:     updatedAt.Format(time.RFC3339),
+		Scope:         homeroomScope(homeroom.ID),
 	}
 	return eventstore.DomainEvent{
 		EventID:   eventID,
@@ -183,7 +189,7 @@ func NewHomeroomArchivedEvent(
 ) eventstore.DomainEvent {
 	eventID := uuidv7.NewString()
 	event := HomeroomArchivedEvent{
-		EventID:    eventID,
+		ID:         eventID,
 		ArchivedAt: archivedAt.Format(time.RFC3339),
 		Scope:      homeroomScope(homeroomID),
 	}
@@ -202,7 +208,7 @@ func NewHomeroomDeletedEvent(
 ) eventstore.DomainEvent {
 	eventID := uuidv7.NewString()
 	event := HomeroomDeletedEvent{
-		EventID:   eventID,
+		ID:        eventID,
 		DeletedAt: deletedAt.Format(time.RFC3339),
 		Scope:     homeroomScope(homeroomID),
 	}
@@ -222,7 +228,7 @@ func NewEducatorAddedToHomeroomEvent(
 ) eventstore.DomainEvent {
 	eventID := uuidv7.NewString()
 	event := EducatorAddedToHomeroomEvent{
-		EventID:    eventID,
+		ID:         eventID,
 		HomeroomID: homeroomID,
 		EducatorID: educatorID,
 		AddedAt:    addedAt,
@@ -244,7 +250,7 @@ func NewEducatorRemovedFromHomeroomEvent(
 ) eventstore.DomainEvent {
 	eventID := uuidv7.NewString()
 	event := EducatorRemovedFromHomeroomEvent{
-		EventID:    eventID,
+		ID:         eventID,
 		HomeroomID: homeroomID,
 		EducatorID: educatorID,
 		RemovedAt:  removedAt,
@@ -266,7 +272,7 @@ func NewStudentAddedToHomeroomEvent(
 ) eventstore.DomainEvent {
 	eventID := uuidv7.NewString()
 	event := StudentAddedToHomeroomEvent{
-		EventID:    eventID,
+		ID:         eventID,
 		HomeroomID: homeroomID,
 		StudentID:  studentID,
 		AddedAt:    addedAt,
@@ -288,7 +294,7 @@ func NewStudentRemovedFromHomeroomEvent(
 ) eventstore.DomainEvent {
 	eventID := uuidv7.NewString()
 	event := StudentRemovedFromHomeroomEvent{
-		EventID:    eventID,
+		ID:         eventID,
 		HomeroomID: homeroomID,
 		StudentID:  studentID,
 		RemovedAt:  removedAt,

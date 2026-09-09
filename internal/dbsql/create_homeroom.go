@@ -10,7 +10,9 @@ import (
 type CreateHomeroomParams struct {
 	Id                       string `json:"id"`
 	Title                    string `json:"title"`
+	GradesBitmask            int64  `json:"grades_bitmask"`
 	LocationId               string `json:"location_id"`
+	Image                    string `json:"image"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	CreatedAt                string `json:"created_at"`
@@ -28,7 +30,9 @@ func CreateHomeroom(tx *sqlite.Conn) *CreateHomeroomStmt {
 INSERT INTO homerooms (
 	id, 
 	title, 
-	location_id,
+	grades_bitmask, 
+	location_id, 
+	image, 
 	last_event_commit_position, 
 	last_event_prepare_position,
 	created_at, 
@@ -38,10 +42,12 @@ VALUES (
 	?1, 
 	?2, 
 	?3,
-	?4, 
+	?4,
 	?5,
 	?6, 
-	?6
+	?7,
+	?8, 
+	?8
 )
 ON CONFLICT (id) DO NOTHING
     `
@@ -86,7 +92,13 @@ func (ps *CreateHomeroomStmt) Run(
 	stmt.BindText(bindIndex, params.Title)
 
 	bindIndex++
+	stmt.BindInt64(bindIndex, params.GradesBitmask)
+
+	bindIndex++
 	stmt.BindText(bindIndex, params.LocationId)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.Image)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)

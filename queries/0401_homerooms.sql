@@ -2,7 +2,9 @@
 SELECT
 	id, 
 	title, 
+	grades_bitmask,
 	location_id,
+	image,
 	created_at, 
 	updated_at
 FROM homerooms
@@ -13,7 +15,9 @@ WHERE archived_at IS NULL
 SELECT
 	h.id,
 	h.title,
+	h.grades_bitmask,
 	h.location_id,
+	h.image,
 	h.created_at,
 	h.updated_at,
 	CAST(
@@ -35,7 +39,9 @@ WHERE h.id = @id;
 SELECT
 	id, 
 	title, 
+	grades_bitmask,
 	location_id,
+	image,
 	created_at, 
 	updated_at
 FROM homerooms
@@ -46,7 +52,9 @@ ORDER BY title ASC;
 SELECT
 	h.id,
 	h.title,
+	h.grades_bitmask,
 	h.location_id,
+	h.image,
 	h.created_at,
 	h.updated_at,
 	CAST(
@@ -67,7 +75,9 @@ FROM homerooms h;
 INSERT INTO homerooms (
 	id, 
 	title, 
-	location_id,
+	grades_bitmask, 
+	location_id, 
+	image, 
 	last_event_commit_position, 
 	last_event_prepare_position,
 	created_at, 
@@ -76,7 +86,9 @@ INSERT INTO homerooms (
 VALUES (
 	@id, 
 	@title, 
+	@grades_bitmask,
 	@location_id,
+	@image,
 	@last_event_commit_position, 
 	@last_event_prepare_position,
 	@created_at, 
@@ -88,7 +100,9 @@ ON CONFLICT (id) DO NOTHING;
 UPDATE homerooms
 SET
 	title = @title,
+	grades_bitmask = @grades_bitmask,
 	location_id = @location_id,
+	image = @image,
 	last_event_commit_position = @last_event_commit_position,
 	last_event_prepare_position = @last_event_prepare_position,
 	updated_at = @updated_at

@@ -8,13 +8,15 @@ import (
 )
 
 type GetHomeroomWithIdsRes struct {
-	Id          string `json:"id"`
-	Title       string `json:"title"`
-	LocationId  string `json:"location_id"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
-	EducatorIds string `json:"educator_ids"`
-	StudentIds  string `json:"student_ids"`
+	Id            string `json:"id"`
+	Title         string `json:"title"`
+	GradesBitmask int64  `json:"grades_bitmask"`
+	LocationId    string `json:"location_id"`
+	Image         string `json:"image"`
+	CreatedAt     string `json:"created_at"`
+	UpdatedAt     string `json:"updated_at"`
+	EducatorIds   string `json:"educator_ids"`
+	StudentIds    string `json:"student_ids"`
 }
 
 type GetHomeroomWithIdsStmt struct {
@@ -29,7 +31,9 @@ func GetHomeroomWithIds(tx *sqlite.Conn) *GetHomeroomWithIdsStmt {
 SELECT
 	h.id,
 	h.title,
+	h.grades_bitmask,
 	h.location_id,
+	h.image,
 	h.created_at,
 	h.updated_at,
 	CAST(
@@ -94,11 +98,13 @@ func (ps *GetHomeroomWithIdsStmt) Run(
 		row := GetHomeroomWithIdsRes{}
 		row.Id = stmt.ColumnText(0)
 		row.Title = stmt.ColumnText(1)
-		row.LocationId = stmt.ColumnText(2)
-		row.CreatedAt = stmt.ColumnText(3)
-		row.UpdatedAt = stmt.ColumnText(4)
-		row.EducatorIds = stmt.ColumnText(5)
-		row.StudentIds = stmt.ColumnText(6)
+		row.GradesBitmask = stmt.ColumnInt64(2)
+		row.LocationId = stmt.ColumnText(3)
+		row.Image = stmt.ColumnText(4)
+		row.CreatedAt = stmt.ColumnText(5)
+		row.UpdatedAt = stmt.ColumnText(6)
+		row.EducatorIds = stmt.ColumnText(7)
+		row.StudentIds = stmt.ColumnText(8)
 		res = &row
 	}
 

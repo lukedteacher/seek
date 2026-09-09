@@ -109,7 +109,7 @@ func Card(view dto.IEPView) templ.Component {
 				ctx = templ.InitializeContext(ctx)
 				templ_7745c5c3_Err = cards.TextLine(cards.TextLineProps{
 					Key:   "start",
-					Value: view.StartDate.String(),
+					Value: view.IEP.MeetingDate.String(),
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -125,7 +125,7 @@ func Card(view dto.IEPView) templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = card.Card(card.Props{
-			ID:    fmt.Sprintf("period-%s-card", view.ID),
+			ID:    fmt.Sprintf("period-%s-card", view.IEP.ID),
 			Class: "iep-service-card bg-linear-1 w-full",
 			Attributes: templ.Attributes{
 				"style": "background-color: var(--neutral-4);",

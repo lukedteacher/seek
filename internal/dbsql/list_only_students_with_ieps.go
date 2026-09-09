@@ -8,26 +8,35 @@ import (
 )
 
 type ListOnlyStudentsWithIepsRes struct {
-	StudentId    string `json:"student_id"`
-	MarssId      string `json:"marss_id"`
-	Birthdate    string `json:"birthdate"`
-	GivenName    string `json:"given_name"`
-	ChosenName   string `json:"chosen_name"`
-	FamilyName   string `json:"family_name"`
-	Pronouns     string `json:"pronouns"`
-	Email        string `json:"email"`
-	Username     string `json:"username"`
-	Grade        int64  `json:"grade"`
-	HomeroomId   string `json:"homeroom_id"`
-	PlanType     int64  `json:"plan_type"`
-	CreatedAt    string `json:"created_at"`
-	UpdatedAt    string `json:"updated_at"`
-	IepId        string `json:"iep_id"`
-	StartDate    string `json:"start_date"`
-	EndDate      string `json:"end_date"`
-	AmendedDate  string `json:"amended_date"`
-	IepCreatedAt string `json:"iep_created_at"`
-	IepUpdatedAt string `json:"iep_updated_at"`
+	StudentId                string `json:"student_id"`
+	MarssId                  string `json:"marss_id"`
+	Birthdate                string `json:"birthdate"`
+	GivenName                string `json:"given_name"`
+	ChosenName               string `json:"chosen_name"`
+	FamilyName               string `json:"family_name"`
+	Pronouns                 string `json:"pronouns"`
+	Email                    string `json:"email"`
+	Username                 string `json:"username"`
+	Grade                    int64  `json:"grade"`
+	HomeroomId               string `json:"homeroom_id"`
+	PlanType                 int64  `json:"plan_type"`
+	CreatedAt                string `json:"created_at"`
+	UpdatedAt                string `json:"updated_at"`
+	IepId                    string `json:"iep_id"`
+	IepStudentId             string `json:"iep_student_id"`
+	IepPlanManagerId         string `json:"iep_plan_manager_id"`
+	IepDisability1           int64  `json:"iep_disability_1"`
+	IepDisability2           int64  `json:"iep_disability_2"`
+	IepFederalSetting        int64  `json:"iep_federal_setting"`
+	IepMeetingDate           string `json:"iep_meeting_date"`
+	IepIepDueDate            string `json:"iep_iep_due_date"`
+	IepLastEvalDate          string `json:"iep_last_eval_date"`
+	IepEvalDueDate           string `json:"iep_eval_due_date"`
+	IepAmendedDate           string `json:"iep_amended_date"`
+	IepIepType               int64  `json:"iep_iep_type"`
+	IepSpecialTransportation int64  `json:"iep_special_transportation"`
+	IepCreatedAt             string `json:"iep_created_at"`
+	IepUpdatedAt             string `json:"iep_updated_at"`
 }
 
 type ListOnlyStudentsWithIepsStmt struct {
@@ -55,9 +64,18 @@ SELECT
 	s.created_at,
 	s.updated_at,
 	i.id AS iep_id,
-	i.start_date,
-	i.end_date,
-	i.amended_date,
+	i.student_id AS iep_student_id,
+	i.plan_manager_id AS iep_plan_manager_id,
+	i.disability_1 AS iep_disability_1,
+	i.disability_2 AS iep_disability_2,
+	i.federal_setting AS iep_federal_setting,
+	i.meeting_date AS iep_meeting_date,
+	i.iep_due_date AS iep_iep_due_date,
+	i.last_eval_date AS iep_last_eval_date,
+	i.eval_due_date AS iep_eval_due_date,
+	i.amended_date AS iep_amended_date,
+	i.iep_type AS iep_iep_type,
+	i.special_transportation AS iep_special_transportation,
 	i.created_at AS iep_created_at,
 	i.updated_at AS iep_updated_at
 FROM students s
@@ -122,11 +140,20 @@ func (ps *ListOnlyStudentsWithIepsStmt) Run() (
 		row.CreatedAt = stmt.ColumnText(12)
 		row.UpdatedAt = stmt.ColumnText(13)
 		row.IepId = stmt.ColumnText(14)
-		row.StartDate = stmt.ColumnText(15)
-		row.EndDate = stmt.ColumnText(16)
-		row.AmendedDate = stmt.ColumnText(17)
-		row.IepCreatedAt = stmt.ColumnText(18)
-		row.IepUpdatedAt = stmt.ColumnText(19)
+		row.IepStudentId = stmt.ColumnText(15)
+		row.IepPlanManagerId = stmt.ColumnText(16)
+		row.IepDisability1 = stmt.ColumnInt64(17)
+		row.IepDisability2 = stmt.ColumnInt64(18)
+		row.IepFederalSetting = stmt.ColumnInt64(19)
+		row.IepMeetingDate = stmt.ColumnText(20)
+		row.IepIepDueDate = stmt.ColumnText(21)
+		row.IepLastEvalDate = stmt.ColumnText(22)
+		row.IepEvalDueDate = stmt.ColumnText(23)
+		row.IepAmendedDate = stmt.ColumnText(24)
+		row.IepIepType = stmt.ColumnInt64(25)
+		row.IepSpecialTransportation = stmt.ColumnInt64(26)
+		row.IepCreatedAt = stmt.ColumnText(27)
+		row.IepUpdatedAt = stmt.ColumnText(28)
 		res = append(res, row)
 	}
 

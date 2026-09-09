@@ -9,7 +9,9 @@ import (
 
 type UpdateHomeroomParams struct {
 	Title                    string `json:"title"`
+	GradesBitmask            int64  `json:"grades_bitmask"`
 	LocationId               string `json:"location_id"`
+	Image                    string `json:"image"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	UpdatedAt                string `json:"updated_at"`
@@ -28,11 +30,13 @@ func UpdateHomeroom(tx *sqlite.Conn) *UpdateHomeroomStmt {
 UPDATE homerooms
 SET
 	title = ?1,
-	location_id = ?2,
-	last_event_commit_position = ?3,
-	last_event_prepare_position = ?4,
-	updated_at = ?5
-WHERE id = ?6
+	grades_bitmask = ?2,
+	location_id = ?3,
+	image = ?4,
+	last_event_commit_position = ?5,
+	last_event_prepare_position = ?6,
+	updated_at = ?7
+WHERE id = ?8
     `
 
 	ps := &UpdateHomeroomStmt{
@@ -72,7 +76,13 @@ func (ps *UpdateHomeroomStmt) Run(
 	stmt.BindText(bindIndex, params.Title)
 
 	bindIndex++
+	stmt.BindInt64(bindIndex, params.GradesBitmask)
+
+	bindIndex++
 	stmt.BindText(bindIndex, params.LocationId)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.Image)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)

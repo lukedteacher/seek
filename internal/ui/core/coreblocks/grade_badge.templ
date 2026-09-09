@@ -1,0 +1,22 @@
+package coreblocks
+
+import (
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/pkg/templui/components/badge"
+)
+
+templ GradeBadge(grade sharedmodels.Grade) {
+	@badge.Badge() {
+		{ grade.Ordinal() }
+	}
+}
+
+templ GradeBadges(bitmask sharedmodels.GradesBitmask) {
+	<div class="flex items-center gap-2 w-full justify-center">
+		for _, grade := range sharedmodels.GradeList {
+			if bitmask.IsGradeSet(grade) {
+				@GradeBadge(grade)
+			}
+		}
+	</div>
+}

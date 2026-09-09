@@ -4,15 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
-	"time"
 
 	"seek/internal/eventstore"
-	se "seek/internal/features/students/events"
+	"seek/internal/features/ieps/models"
+	studentEvents "seek/internal/features/students/events"
 	"seek/pkg/uuidv7"
 )
 
 type UpdateIEPCommand struct {
-	IEP      IEPState
+	IEP      models.IEP
 	Metadata CommandMetadata
 }
 
@@ -30,15 +30,20 @@ func UpdateIEPCommandHandler(
 	UpdateIEPResult,
 	error,
 ) {
-	model, err := loadUpdateStudentIEPContext(ctx, retriever, cmd.IEP.ID, cmd.IEP.StudentID)
+	model, err := loadupdateIEPContext(
+		ctx,
+		retriever,
+		cmd.IEP.ID,
+		cmd.IEP.StudentID,
+	)
 	if err != nil {
 		return UpdateIEPResult{}, err
 	}
-	if err := model.isIEPActive(); err != nil {
-		return UpdateIEPResult{}, err
+	if !model.isIEPActive() {
+		return UpdateIEPResult{}, eventstore.ErrIEPNotActive
 	}
-	if err := model.isStudentActive(); err != nil {
-		return UpdateIEPResult{}, err
+	if !model.student.isActive() {
+		return UpdateIEPResult{}, eventstore.ErrStudentNotActive
 	}
 	// TODO reimplement this
 	// if model.isSame(cmd) {
@@ -49,8 +54,7 @@ func UpdateIEPCommandHandler(
 	event := NewIEPUpdatedEvent(
 		eventID,
 		cmd,
-		time.Now(),
-		metadataWithQuery(cmd.Metadata, model.query),
+		model.query,
 	)
 
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
@@ -59,35 +63,43 @@ func UpdateIEPCommandHandler(
 	return UpdateIEPResult{EventID: eventID}, nil
 }
 
-type updateStudentIEPContext struct {
-	iepExists       bool
-	iepArchived     bool
-	iepDeleted      bool
-	iep             IEPState
-	studentExists   bool
-	studentArchived bool
-	studentDeleted  bool
-	position        eventstore.Position
-	events          []eventstore.ResolvedEvent
-	query           eventstore.Query
+type updateIEPContext struct {
+	iepExists   bool
+	iepArchived bool
+	iepDeleted  bool
+	iep         models.IEP
+	student     StudentState
+	position    eventstore.Position
+	events      []eventstore.ResolvedEvent
+	query       eventstore.Query
 }
 
-func loadUpdateStudentIEPContext(
+func loadupdateIEPContext(
 	ctx context.Context,
 	retriever eventstore.Retriever,
-	studentIEPID,
+	iepID,
 	studentID string,
 ) (
-	*updateStudentIEPContext,
+	*updateIEPContext,
 	error,
 ) {
-	query := StreamQuery(studentIEPID, studentID)
-	events, err := retriever.GetEvents(ctx, eventstore.NoEventPosition, 100, eventstore.Forward, query)
+	query := StreamQuery(iepID, studentID)
+	events, err := retriever.GetEvents(
+		ctx,
+		eventstore.NoEventPosition,
+		100,
+		eventstore.Forward,
+		query,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	model := &updateStudentIEPContext{position: eventstore.NoEventPosition, events: events, query: query}
+	model := &updateIEPContext{
+		position: eventstore.NoEventPosition,
+		events:   events,
+		query:    query,
+	}
 	for _, event := range events {
 		model.handle(event)
 	}
@@ -95,44 +107,37 @@ func loadUpdateStudentIEPContext(
 	return model, nil
 }
 
-func (m *updateStudentIEPContext) isIEPActive() error {
-	if !m.iepExists || m.iepDeleted {
-		return eventstore.ErrIEPNotActive
+func (m *updateIEPContext) isIEPActive() bool {
+	if m.iepExists || !m.iepArchived || !m.iepDeleted {
+		return true
 	}
-	return nil
+	return false
 }
 
-func (m *updateStudentIEPContext) isStudentActive() error {
-	if !m.studentExists || m.studentDeleted {
-		return eventstore.ErrStudentNotActive
-	}
-	return nil
-}
-
-func (m *updateStudentIEPContext) handle(resolved eventstore.ResolvedEvent) {
+func (m *updateIEPContext) handle(resolved eventstore.ResolvedEvent) {
 	rawData := resolved.Event.RawData
 	switch resolved.Event.EventType {
-	case se.EventStudentCreated:
-		m.studentExists = true
-	case se.EventStudentArchived:
-		m.studentArchived = true
-	case se.EventStudentDeleted:
-		m.studentDeleted = true
+	case studentEvents.EventStudentCreated:
+		m.student.created = true
+	case studentEvents.EventStudentArchived:
+		m.student.archived = true
+	case studentEvents.EventStudentDeleted:
+		m.student.deleted = true
 	case EventIEPAddedToStudent:
 		m.iepExists = true
-		event := IEPAddedToStudentEvent{}
-		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+		var flat IEPFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
 			slog.Error("iep update handle add unmarshal", "err", err)
 			return
 		}
-		m.iep = event.IEPState
+		m.iep = NewModelFromFlat(flat)
 	case EventIEPUpdated:
-		event := IEPUpdatedEvent{}
-		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+		var flat IEPFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
 			slog.Error("iep update handle update unmarshal", "err", err)
 			return
 		}
-		m.iep = event.IEPState
+		m.iep = NewModelFromFlat(flat)
 	case EventIEPArchived:
 		m.iepArchived = true
 	case EventIEPDeleted:

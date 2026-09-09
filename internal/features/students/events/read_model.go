@@ -394,9 +394,7 @@ func (m *ReadModel) ListWithIEPs(ctx context.Context) ([]models.StudentWithIEP, 
 		iep := iepModels.IEP{
 			ID:          row.IepId,
 			StudentID:   row.StudentId,
-			StartDate:   sharedmodels.DateOnly(parseDBTime(row.StartDate)),
-			EndDate:     sharedmodels.DateOnly(parseDBTime(row.EndDate)),
-			AmendedDate: sharedmodels.DateOnly(parseDBTime(row.AmendedDate)),
+			AmendedDate: sharedmodels.DateOnly(parseDBTime(row.IepAmendedDate)),
 			CreatedAt:   parseDBTime(row.IepCreatedAt),
 			UpdatedAt:   parseDBTime(row.IepUpdatedAt),
 		}

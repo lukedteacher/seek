@@ -11,11 +11,11 @@ import (
 	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
 	educatorModels "seek/internal/features/educators/models"
+	iepEvents "seek/internal/features/ieps/events"
 	"seek/internal/features/services/dto"
 	"seek/internal/features/services/events"
 	"seek/internal/features/services/models"
 	"seek/internal/features/services/pages"
-	sevents "seek/internal/features/students/events"
 	studentEvents "seek/internal/features/students/events"
 	"seek/internal/ui/core/coreblocks/toasts"
 	"seek/internal/viewstore"
@@ -39,8 +39,8 @@ func (s Server) serviceRoutes(r chi.Router) {
 	r.Post("/services/{id}/edit", postServiceEdit(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Post("/services/{id}/edit/validate", postServiceEditValidate(s.Logger, s.ViewStore))
 	r.Delete("/services/{id}", deleteService(s.Logger, s.EventSaver, s.EventRetriever))
-	r.Get("/services/csv", getCSV(s.Logger, *s.ReadModels.Services, *s.ReadModels.Students))
-	r.Post("/services/csv", postCSV(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.Services, *s.ReadModels.Students))
+	r.Get("/services/csv", getServicesCSV(s.Logger, s.ReadModels.Services, s.ReadModels.IEPs, s.ReadModels.Students))
+	r.Post("/services/csv", postServicesCSV(s.Logger, s.EventSaver, s.EventRetriever, s.ReadModels.Services, s.ReadModels.IEPs, s.ReadModels.Students))
 }
 
 // GET request to /services
@@ -225,18 +225,8 @@ func postServiceCreate(
 		}
 		model := dto.NewModelFromView(&signals.View)
 		cmd := events.AddServiceToIEPCommand{
-			IEPID:           model.IEPID,
-			StudentID:       model.StudentID,
-			ServiceType:     signals.View.ServiceType.ShortString(),
-			IndirectMinutes: model.IndirectMinutes,
-			DirectMinutes:   model.DirectMinutes,
-			FrequencyCount:  model.FrequencyCount,
-			FrequencyType:   model.FrequencyType,
-			LocationID:      model.LocationID,
-			ProviderID:      model.ProviderID,
-			StartDate:       model.StartDate.String(),
-			EndDate:         model.EndDate.String(),
-			Metadata:        eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+			Service:  model,
+			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.AddServiceToIEPCommandHandler(ctx, cmd, saver, retriever)
 		if err != nil {
@@ -460,21 +450,10 @@ func postServiceEdit(
 			l.ErrorContext(ctx, "post iep service edit signals", "err", err)
 			return
 		}
+		model := dto.NewModelFromView(&signals.View)
 		cmd := events.UpdateServiceCommand{
-			ServiceID:       serviceID,
-			IEPID:           signals.View.IEPID,
-			StudentID:       signals.View.StudentID,
-			ServiceName:     signals.View.ServiceName,
-			ServiceType:     signals.View.ServiceType.ShortString(),
-			IndirectMinutes: signals.View.IndirectMinutes,
-			DirectMinutes:   signals.View.DirectMinutes,
-			FrequencyCount:  signals.View.FrequencyCount,
-			FrequencyType:   signals.View.FrequencyType,
-			LocationID:      signals.View.LocationID,
-			StartDate:       signals.View.StartDate.String(),
-			EndDate:         signals.View.EndDate.String(),
-			ProviderID:      signals.View.ProviderID,
-			Metadata:        eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+			Service:  model,
+			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.UpdateServiceCommandHandler(ctx, cmd, saver, retriever)
 		if err != nil {
@@ -513,10 +492,11 @@ func deleteService(
 }
 
 // GET request to /services/csv
-func getCSV(
+func getServicesCSV(
 	l *slog.Logger,
-	serviceReadModel events.ReadModel,
-	studentReadModel sevents.ReadModel,
+	serviceReadModel *events.ReadModel,
+	iepReadModel *iepEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -528,14 +508,14 @@ func getCSV(
 		}
 		defer file.Close()
 
-		csvServices := []models.CSVService{}
+		csvServices := []*models.CSVService{}
 		if err := gocsv.UnmarshalFile(file, &csvServices); err != nil {
 			http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		// filter out unwanted services
-		filtered := make([]models.CSVService, 0, len(csvServices))
+		filtered := make([]*models.CSVService, 0, len(csvServices))
 		for _, svc := range csvServices {
 			if svc.ServiceName != "Shared paraprofessional" {
 				filtered = append(filtered, svc)
@@ -547,15 +527,23 @@ func getCSV(
 		marssMap := make(map[string]string)
 		for _, student := range students {
 			marssMap[student.MARSSID] = student.ID
+			l.Debug("test", "smid", student.MARSSID)
 		}
 
 		// convert CSV rows with valid MARSS ID to domain models
 		converted := make([]models.Service, 0)
 		for _, csvSvc := range filtered {
 			key := strings.TrimSpace(csvSvc.StudentMARSSID)
-			if student_id, ok := marssMap[key]; ok {
-				csvSvc.StudentID = student_id
-				converted = append(converted, csvSvc.ToService())
+			// if the service applies to a student
+			if studentID, ok := marssMap[key]; ok {
+				ieps, _ := iepReadModel.ListForStudent(ctx, studentID)
+				csvSvc.StudentID = studentID
+				if len(ieps) > 0 {
+					csvSvc.IEPID = ieps[0].ID
+				} else {
+					continue
+				}
+				converted = append(converted, models.NewModelFromCSVRow(*csvSvc))
 			}
 		}
 
@@ -576,12 +564,13 @@ func getCSV(
 }
 
 // POST request to /services/csv
-func postCSV(
+func postServicesCSV(
 	l *slog.Logger,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
-	serviceReadModel events.ReadModel,
-	studentReadModel sevents.ReadModel,
+	serviceReadModel *events.ReadModel,
+	iepReadModel *iepEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -618,9 +607,17 @@ func postCSV(
 		converted := make([]models.Service, 0)
 		for _, csvSvc := range filtered {
 			key := strings.TrimSpace(csvSvc.StudentMARSSID)
-			if student_id, ok := marssMap[key]; ok {
-				csvSvc.StudentID = student_id
-				converted = append(converted, csvSvc.ToService())
+			// if the service applies to a student
+			if studentID, ok := marssMap[key]; ok {
+				ieps, _ := iepReadModel.ListForStudent(ctx, studentID)
+				csvSvc.StudentID = studentID
+				if len(ieps) > 0 {
+					csvSvc.IEPID = ieps[0].ID
+					l.Debug("test", "iep id", csvSvc.IEPID)
+				} else {
+					continue
+				}
+				converted = append(converted, models.NewModelFromCSVRow(*csvSvc))
 			}
 		}
 
@@ -635,49 +632,39 @@ func postCSV(
 		diffs := models.CompareServices(dbServices, converted)
 
 		for _, diff := range diffs {
+			if diff.Status == sharedmodels.DiffSame {
+				continue
+			}
 			if diff.Status == sharedmodels.DiffNew {
-				events.AddServiceToIEPCommandHandler(
+				l.Debug("add", "iep id", diff.New.ID)
+				_, err := events.AddServiceToIEPCommandHandler(
 					ctx,
 					events.AddServiceToIEPCommand{
-						StudentID:       diff.New.StudentID,
-						ServiceName:     diff.New.ServiceName,
-						ServiceType:     string(diff.New.ServiceType),
-						IndirectMinutes: diff.New.IndirectMinutes,
-						DirectMinutes:   diff.New.DirectMinutes,
-						FrequencyCount:  diff.New.FrequencyCount,
-						FrequencyType:   diff.New.FrequencyType,
-						StartDate:       diff.New.StartDate.String(),
-						EndDate:         diff.New.EndDate.String(),
-						LocationID:      diff.New.LocationID,
-						ProviderID:      diff.New.ProviderID,
+						Service: *diff.New,
 					},
 					saver,
 					retriever,
 				)
+				if err != nil {
+					l.ErrorContext(ctx, "ps csv add", "err", err)
+				}
 			}
 			if diff.Status == sharedmodels.DiffUpdated {
-				events.UpdateServiceCommandHandler(
+				_, err := events.UpdateServiceCommandHandler(
 					ctx,
 					events.UpdateServiceCommand{
-						ServiceID:       diff.New.ID,
-						StudentID:       diff.New.StudentID,
-						ServiceName:     diff.New.ServiceName,
-						ServiceType:     string(diff.New.ServiceType),
-						IndirectMinutes: diff.New.IndirectMinutes,
-						DirectMinutes:   diff.New.DirectMinutes,
-						FrequencyCount:  diff.New.FrequencyCount,
-						FrequencyType:   diff.New.FrequencyType,
-						StartDate:       diff.New.StartDate.String(),
-						EndDate:         diff.New.EndDate.String(),
-						LocationID:      diff.New.LocationID,
-						ProviderID:      diff.New.ProviderID,
+						Service: *diff.New,
 					},
 					saver,
 					retriever,
 				)
+				if err != nil {
+					l.ErrorContext(ctx, "ps csv update", "err", err)
+					return
+				}
 			}
 			if diff.Status == sharedmodels.DiffAbsent {
-				events.DeleteServiceCommandHandler(
+				_, err := events.DeleteServiceCommandHandler(
 					ctx,
 					events.DeleteServiceCommand{
 						ServiceID: diff.Old.ID,
@@ -686,9 +673,10 @@ func postCSV(
 					saver,
 					retriever,
 				)
-			}
-			if diff.Status == sharedmodels.DiffSame {
-				continue
+				if err != nil {
+					l.ErrorContext(ctx, "ps csv delete", "err", err)
+					return
+				}
 			}
 		}
 

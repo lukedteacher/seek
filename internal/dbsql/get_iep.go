@@ -8,14 +8,22 @@ import (
 )
 
 type GetIepRes struct {
-	Id          string  `json:"id"`
-	StudentId   string  `json:"student_id"`
-	StartDate   string  `json:"start_date"`
-	EndDate     string  `json:"end_date"`
-	AmendedDate string  `json:"amended_date"`
-	CreatedAt   string  `json:"created_at"`
-	UpdatedAt   string  `json:"updated_at"`
-	ArchivedAt  *string `json:"archived_at"`
+	Id                    string  `json:"id"`
+	StudentId             string  `json:"student_id"`
+	PlanManagerId         string  `json:"plan_manager_id"`
+	Disability1           int64   `json:"disability_1"`
+	Disability2           int64   `json:"disability_2"`
+	FederalSetting        int64   `json:"federal_setting"`
+	MeetingDate           string  `json:"meeting_date"`
+	IepDueDate            string  `json:"iep_due_date"`
+	LastEvalDate          string  `json:"last_eval_date"`
+	EvalDueDate           string  `json:"eval_due_date"`
+	AmendedDate           string  `json:"amended_date"`
+	IepType               int64   `json:"iep_type"`
+	SpecialTransportation int64   `json:"special_transportation"`
+	CreatedAt             string  `json:"created_at"`
+	UpdatedAt             string  `json:"updated_at"`
+	ArchivedAt            *string `json:"archived_at"`
 }
 
 type GetIepStmt struct {
@@ -30,9 +38,17 @@ func GetIep(tx *sqlite.Conn) *GetIepStmt {
 SELECT
 	id,
 	student_id,
-	start_date,
-	end_date,
+	plan_manager_id,
+	disability_1,
+	disability_2,
+	federal_setting,
+	meeting_date,
+	iep_due_date,
+	last_eval_date,
+	eval_due_date,
 	amended_date,
+	iep_type,
+	special_transportation,
 	created_at,
 	updated_at,
 	archived_at
@@ -86,14 +102,22 @@ func (ps *GetIepStmt) Run(
 		row := GetIepRes{}
 		row.Id = stmt.ColumnText(0)
 		row.StudentId = stmt.ColumnText(1)
-		row.StartDate = stmt.ColumnText(2)
-		row.EndDate = stmt.ColumnText(3)
-		row.AmendedDate = stmt.ColumnText(4)
-		row.CreatedAt = stmt.ColumnText(5)
-		row.UpdatedAt = stmt.ColumnText(6)
-		isNullArchivedAt := stmt.ColumnIsNull(7)
+		row.PlanManagerId = stmt.ColumnText(2)
+		row.Disability1 = stmt.ColumnInt64(3)
+		row.Disability2 = stmt.ColumnInt64(4)
+		row.FederalSetting = stmt.ColumnInt64(5)
+		row.MeetingDate = stmt.ColumnText(6)
+		row.IepDueDate = stmt.ColumnText(7)
+		row.LastEvalDate = stmt.ColumnText(8)
+		row.EvalDueDate = stmt.ColumnText(9)
+		row.AmendedDate = stmt.ColumnText(10)
+		row.IepType = stmt.ColumnInt64(11)
+		row.SpecialTransportation = stmt.ColumnInt64(12)
+		row.CreatedAt = stmt.ColumnText(13)
+		row.UpdatedAt = stmt.ColumnText(14)
+		isNullArchivedAt := stmt.ColumnIsNull(15)
 		if !isNullArchivedAt {
-			tmp := stmt.ColumnText(7)
+			tmp := stmt.ColumnText(15)
 			row.ArchivedAt = &tmp
 		}
 		res = &row

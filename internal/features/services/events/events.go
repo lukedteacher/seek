@@ -3,7 +3,10 @@ package events
 import (
 	"time"
 
+	"seek/internal/appdb"
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/services/models"
 )
 
 type eventType = eventstore.EventType
@@ -46,79 +49,143 @@ const (
 	FieldServiceScopeID         = "scope.iep_service_added_to_student_event_id"
 )
 
+type ServiceState struct {
+	ID              string `json:"id"`
+	IEPID           string `json:"iep_id"`
+	ServiceName     string `json:"service_name,omitempty"`
+	ServiceType     string `json:"service_type,omitempty"`
+	IndirectMinutes int64  `json:"indirect_minutes,omitempty"`
+	DirectMinutes   int64  `json:"direct_minutes,omitempty"`
+	FrequencyCount  int64  `json:"frequency_count,omitempty"`
+	FrequencyType   string `json:"frequency_type,omitempty"`
+	LocationID      string `json:"location_id,omitempty"`
+	StartDate       string `json:"start_date,omitempty"`
+	EndDate         string `json:"end_date,omitempty"`
+	ProviderID      string `json:"provider_id,omitempty"`
+	CreatedAt       string `json:"created_at,omitempty"`
+	UpdatedAt       string `json:"updated_at,omitempty"`
+	ArchivedAt      string `json:"archived_at,omitempty"`
+	DeletedAt       string `json:"deleted_at,omitempty"`
+}
+
+func NewStateFromModel(m models.Service) ServiceState {
+	return ServiceState{
+		ID:              m.ID,
+		IEPID:           m.IEPID,
+		ServiceName:     m.ServiceName,
+		ServiceType:     m.ServiceType.ShortString(),
+		IndirectMinutes: int64(m.IndirectMinutes),
+		DirectMinutes:   int64(m.DirectMinutes),
+		FrequencyCount:  int64(m.FrequencyCount),
+		FrequencyType:   m.FrequencyType,
+		LocationID:      m.LocationID,
+		StartDate:       m.StartDate.String(),
+		EndDate:         m.EndDate.String(),
+		ProviderID:      m.ProviderID,
+		CreatedAt:       appdb.SQLTime(m.CreatedAt),
+		UpdatedAt:       appdb.SQLTime(m.UpdatedAt),
+	}
+}
+
+type ServiceFlat struct {
+	ID              string `json:"service.id"`
+	IEPID           string `json:"service.iep_id"`
+	ServiceName     string `json:"service.service_name,omitempty"`
+	ServiceType     string `json:"service.service_type,omitempty"`
+	IndirectMinutes int64  `json:"service.indirect_minutes,omitempty"`
+	DirectMinutes   int64  `json:"service.direct_minutes,omitempty"`
+	FrequencyCount  int64  `json:"service.frequency_count,omitempty"`
+	FrequencyType   string `json:"service.frequency_type,omitempty"`
+	LocationID      string `json:"service.location_id,omitempty"`
+	StartDate       string `json:"service.start_date,omitempty"`
+	EndDate         string `json:"service.end_date,omitempty"`
+	ProviderID      string `json:"service.provider_id,omitempty"`
+	CreatedAt       string `json:"service.created_at,omitempty"`
+	UpdatedAt       string `json:"service.updated_at,omitempty"`
+	ArchivedAt      string `json:"service.archived_at,omitempty"`
+	DeletedAt       string `json:"service.deleted_at,omitempty"`
+}
+
+func NewModelFromFlat(f ServiceFlat) models.Service {
+	return models.Service{
+		ID:              f.ID,
+		IEPID:           f.IEPID,
+		ServiceName:     f.ServiceName,
+		ServiceType:     sharedmodels.ServiceType(f.ServiceType),
+		IndirectMinutes: int(f.IndirectMinutes),
+		DirectMinutes:   int(f.DirectMinutes),
+		FrequencyCount:  int(f.FrequencyCount),
+		FrequencyType:   f.FrequencyType,
+		LocationID:      f.LocationID,
+		StartDate:       sharedmodels.DateOnly(parseDBTime(f.StartDate)),
+		EndDate:         sharedmodels.DateOnly(parseDBTime(f.EndDate)),
+		ProviderID:      f.ProviderID,
+		CreatedAt:       parseDBTime(f.CreatedAt),
+		UpdatedAt:       parseDBTime(f.UpdatedAt),
+	}
+}
+
+type IEPState struct {
+	created  bool
+	archived bool
+	deleted  bool
+}
+
+func (iep IEPState) isActive() bool {
+	if iep.created && !iep.archived && !iep.deleted {
+		return true
+	}
+	return false
+}
+
 type ServiceAddedToStudentEvent struct {
-	EventID         string       `json:"iep_service_added_to_student_event_id"`
-	ServiceID       string       `json:"iep_service_id"`
-	IEPID           string       `json:"iep_id"`
-	ServiceName     string       `json:"service_name"`
-	ServiceType     string       `json:"service_type"`
-	IndirectMinutes int          `json:"indirect_minutes"`
-	DirectMinutes   int          `json:"direct_minutes"`
-	FrequencyCount  int          `json:"frequency_count"`
-	FrequencyType   string       `json:"frequency_type"`
-	LocationID      string       `json:"location_id"`
-	StartDate       string       `json:"start_date"`
-	EndDate         string       `json:"end_date"`
-	ProviderID      string       `json:"provider_id"`
-	AddedAt         string       `json:"added_at"`
-	Scope           ServiceScope `json:"scope"`
+	ID      string       `json:"iep_service_added_to_student_event_id"`
+	Service ServiceState `json:"service"`
+	Scope   ServiceScope `json:"scope"`
 }
 
 type ServiceUpdatedEvent struct {
-	EventID         string       `json:"iep_service_updated_event_id"`
-	ServiceID       string       `json:"iep_service_id"`
-	IEPID           string       `json:"iep_id"`
-	ServiceName     string       `json:"service_name"`
-	ServiceType     string       `json:"service_type"`
-	IndirectMinutes int          `json:"indirect_minutes"`
-	DirectMinutes   int          `json:"direct_minutes"`
-	FrequencyCount  int          `json:"frequency_count"`
-	FrequencyType   string       `json:"frequency_type"`
-	LocationID      string       `json:"location_id"`
-	StartDate       string       `json:"start_date"`
-	EndDate         string       `json:"end_date"`
-	Provider        string       `json:"provider"`
-	UpdatedAt       string       `json:"updated_at"`
-	Scope           ServiceScope `json:"scope"`
+	ID      string       `json:"iep_service_updated_event_id"`
+	Service ServiceState `json:"service"`
+	Scope   ServiceScope `json:"scope"`
+}
+
+type ServiceArchivedEvent struct {
+	EventID    string       `json:"iep_service_archived_event_id"`
+	ServiceID  string       `json:"service.id"`
+	ArchivedAt string       `json:"service.archived_at"`
+	Scope      ServiceScope `json:"scope"`
 }
 
 type ServiceDeletedEvent struct {
 	EventID   string       `json:"iep_service_deleted_event_id"`
-	DeletedAt string       `json:"deleted_at"`
+	ServiceID string       `json:"service.id"`
+	DeletedAt string       `json:"service.deleted_at"`
 	Scope     ServiceScope `json:"scope"`
 }
 
 type ServiceScope struct {
-	ServiceID string `json:"iep_service_added_to_student_event_id"`
+	ServiceID string `json:"service_id"`
 	IEPID     string `json:"iep_id"`
 	StudentID string `json:"student_id"`
 }
 
 func NewServiceAddedToStudentEvent(
-	eventID string,
 	cmd AddServiceToIEPCommand,
-	addedAt time.Time,
-	metadata map[string]any,
+	query eventstore.Query,
 ) eventstore.DomainEvent {
+	now := time.Now()
+	cmd.Service.CreatedAt = now
+	cmd.Service.UpdatedAt = now
+	state := NewStateFromModel(cmd.Service)
 	event := ServiceAddedToStudentEvent{
-		EventID:         eventID,
-		ServiceID:       eventID,
-		IEPID:           cmd.IEPID,
-		ServiceName:     cmd.ServiceName,
-		ServiceType:     cmd.ServiceType,
-		IndirectMinutes: cmd.IndirectMinutes,
-		DirectMinutes:   cmd.DirectMinutes,
-		FrequencyCount:  cmd.FrequencyCount,
-		FrequencyType:   cmd.FrequencyType,
-		LocationID:      cmd.LocationID,
-		StartDate:       cmd.StartDate,
-		EndDate:         cmd.EndDate,
-		ProviderID:      cmd.ProviderID,
-		AddedAt:         addedAt.Format(time.RFC3339),
-		Scope:           serviceScope(eventID, cmd.IEPID, cmd.StudentID),
+		ID:      cmd.Service.ID,
+		Service: state,
+		Scope:   serviceScope(cmd.Service.ID, cmd.Service.IEPID, cmd.Service.StudentID),
 	}
+	metadata := metadataWithQuery(cmd.Metadata, query)
 	return eventstore.DomainEvent{
-		EventID:   eventID,
+		EventID:   cmd.Service.ID,
 		EventType: EventServiceAddedToIEP,
 		Data:      eventstore.MustData(event),
 		Metadata:  metadata,
@@ -126,40 +193,19 @@ func NewServiceAddedToStudentEvent(
 }
 
 func NewServiceUpdatedEvent(
-	eventID,
-	serviceID,
-	iepID,
-	studentID,
-	serviceName,
-	serviceType string,
-	indirectMinutes,
-	directMinutes,
-	frequencyCount int,
-	frequencyType,
-	location,
-	startDate,
-	endDate,
-	provider string,
-	updatedAt time.Time,
-	metadata map[string]any,
+	eventID string,
+	cmd UpdateServiceCommand,
+	query eventstore.Query,
 ) eventstore.DomainEvent {
+	now := time.Now()
+	cmd.Service.UpdatedAt = now
+	state := NewStateFromModel(cmd.Service)
 	event := ServiceUpdatedEvent{
-		EventID:         eventID,
-		ServiceID:       serviceID,
-		IEPID:           iepID,
-		ServiceName:     serviceName,
-		ServiceType:     serviceType,
-		IndirectMinutes: indirectMinutes,
-		DirectMinutes:   directMinutes,
-		FrequencyCount:  frequencyCount,
-		FrequencyType:   frequencyType,
-		LocationID:      location,
-		StartDate:       startDate,
-		EndDate:         endDate,
-		Provider:        provider,
-		UpdatedAt:       updatedAt.Format(time.RFC3339),
-		Scope:           serviceScope(serviceID, iepID, studentID),
+		ID:      eventID,
+		Service: state,
+		Scope:   serviceScope(cmd.Service.ID, cmd.Service.IEPID, cmd.Service.StudentID),
 	}
+	metadata := metadataWithQuery(cmd.Metadata, query)
 	return eventstore.DomainEvent{
 		EventID:   eventID,
 		EventType: EventServiceUpdated,
@@ -198,9 +244,9 @@ func serviceScope(serviceID, iepID, studentID string) ServiceScope {
 }
 
 func Channel(id string) string {
-	return "iep_services." + id
+	return "services." + id
 }
 
 func ChannelAll() string {
-	return "iep_services.>"
+	return "services.>"
 }

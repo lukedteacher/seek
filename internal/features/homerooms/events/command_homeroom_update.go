@@ -2,17 +2,19 @@ package events
 
 import (
 	"context"
+	"encoding/json"
+	"log/slog"
 	"time"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/homerooms/models"
 	"seek/pkg/uuidv7"
 )
 
 type UpdateHomeroomCommand struct {
-	ID         string
-	Title      string
-	LocationID string
-	Metadata   CommandMetadata
+	Homeroom models.Homeroom
+	Metadata CommandMetadata
 }
 
 type UpdateHomeroomResult struct {
@@ -29,7 +31,7 @@ func UpdateHomeroomCommandHandler(
 	UpdateHomeroomResult,
 	error,
 ) {
-	model, err := loadUpdateHomeroomContext(ctx, retriever, cmd.ID)
+	model, err := loadUpdateHomeroomContext(ctx, retriever, cmd.Homeroom.ID)
 	if err != nil {
 		return UpdateHomeroomResult{}, err
 	}
@@ -41,9 +43,7 @@ func UpdateHomeroomCommandHandler(
 	}
 	eventID := uuidv7.NewString()
 	event := NewHomeroomUpdatedEvent(
-		cmd.ID,
-		cmd.Title,
-		cmd.LocationID,
+		cmd.Homeroom,
 		time.Now(),
 		metadataWithQuery(cmd.Metadata, model.query),
 	)
@@ -54,14 +54,13 @@ func UpdateHomeroomCommandHandler(
 }
 
 type updateHomeroomContext struct {
-	exists     bool
-	archived   bool
-	deleted    bool
-	title      string
-	locationID string
-	position   eventstore.Position
-	events     []eventstore.ResolvedEvent
-	query      eventstore.Query
+	exists   bool
+	archived bool
+	deleted  bool
+	homeroom models.Homeroom
+	position eventstore.Position
+	events   []eventstore.ResolvedEvent
+	query    eventstore.Query
 }
 
 func loadUpdateHomeroomContext(ctx context.Context, retriever eventstore.Retriever, id string) (*updateHomeroomContext, error) {
@@ -87,20 +86,42 @@ func (m *updateHomeroomContext) isActive() error {
 }
 
 func (m *updateHomeroomContext) isSame(cmd UpdateHomeroomCommand) bool {
-	return m.title == cmd.Title &&
-		m.locationID == cmd.LocationID
+	return m.homeroom.Title == cmd.Homeroom.Title &&
+		m.homeroom.GradesBitmask == cmd.Homeroom.GradesBitmask &&
+		m.homeroom.LocationID == cmd.Homeroom.LocationID &&
+		m.homeroom.Image == cmd.Homeroom.Image
 }
 
 func (m *updateHomeroomContext) handle(resolved eventstore.ResolvedEvent) {
-	data := resolved.Event.Data
+	rawData := resolved.Event.RawData
 	switch resolved.Event.EventType {
 	case EventHomeroomCreated:
+		var event HomeroomCreatedEvent
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+			slog.Error("homeroom update handle create unmarshal", "err", err)
+			return
+		}
 		m.exists = true
-		m.title, _ = data[FieldHomeroomTitle].(string)
-		m.locationID, _ = data[FieldHomeroomLocationID].(string)
+		m.homeroom = models.Homeroom{
+			ID:            event.Scope.ID,
+			Title:         event.Title,
+			GradesBitmask: sharedmodels.GradesBitmask(event.GradesBitmask),
+			LocationID:    event.LocationID,
+			Image:         event.LocationID,
+		}
 	case EventHomeroomUpdated:
-		m.title, _ = data[FieldHomeroomTitle].(string)
-		m.locationID, _ = data[FieldHomeroomLocationID].(string)
+		var event HomeroomUpdatedEvent
+		if err := json.Unmarshal([]byte(rawData), &event); err != nil {
+			slog.Error("homeroom update handle update unmarshal", "err", err)
+			return
+		}
+		m.homeroom = models.Homeroom{
+			ID:            event.Scope.ID,
+			Title:         event.Title,
+			GradesBitmask: sharedmodels.GradesBitmask(event.GradesBitmask),
+			LocationID:    event.LocationID,
+			Image:         event.LocationID,
+		}
 	case EventHomeroomArchived:
 		m.archived = true
 	case EventHomeroomDeleted:

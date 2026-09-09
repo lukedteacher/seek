@@ -10,9 +10,17 @@ import (
 type AddIeptoStudentParams struct {
 	Id                       string `json:"id"`
 	StudentId                string `json:"student_id"`
-	StartDate                string `json:"start_date"`
-	EndDate                  string `json:"end_date"`
+	PlanManagerId            string `json:"plan_manager_id"`
+	Disability1              int64  `json:"disability_1"`
+	Disability2              int64  `json:"disability_2"`
+	FederalSetting           int64  `json:"federal_setting"`
+	MeetingDate              string `json:"meeting_date"`
+	IepDueDate               string `json:"iep_due_date"`
+	LastEvalDate             string `json:"last_eval_date"`
+	EvalDueDate              string `json:"eval_due_date"`
 	AmendedDate              string `json:"amended_date"`
+	IepType                  int64  `json:"iep_type"`
+	SpecialTransportation    int64  `json:"special_transportation"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	CreatedAt                string `json:"created_at"`
@@ -28,26 +36,42 @@ type AddIeptoStudentStmt struct {
 func AddIeptoStudent(tx *sqlite.Conn) *AddIeptoStudentStmt {
 	const querySQL = `
 INSERT INTO student_ieps (
-	id, 
+	id,
 	student_id,
-	start_date,
-	end_date,
+	plan_manager_id,
+	disability_1,
+	disability_2,
+	federal_setting,
+	meeting_date,
+	iep_due_date,
+	last_eval_date,
+	eval_due_date,
 	amended_date,
+	iep_type,
+	special_transportation,
 	last_event_commit_position,
 	last_event_prepare_position,
-	created_at, 
+	created_at,
 	updated_at
 )
 VALUES (
-	?1, 
+	?1,
 	?2,
 	?3,
 	?4,
 	?5,
-	?6, 
+	?6,
 	?7,
-	?8, 
-	?8
+	?8,
+	?9,
+	?10,
+	?11,
+	?12,
+	?13,
+	?14,
+	?15,
+	?16,
+	?16
 )
 ON CONFLICT (id) DO NOTHING
     `
@@ -92,13 +116,37 @@ func (ps *AddIeptoStudentStmt) Run(
 	stmt.BindText(bindIndex, params.StudentId)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.StartDate)
+	stmt.BindText(bindIndex, params.PlanManagerId)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.EndDate)
+	stmt.BindInt64(bindIndex, params.Disability1)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.Disability2)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.FederalSetting)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.MeetingDate)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.IepDueDate)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.LastEvalDate)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.EvalDueDate)
 
 	bindIndex++
 	stmt.BindText(bindIndex, params.AmendedDate)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.IepType)
+
+	bindIndex++
+	stmt.BindInt64(bindIndex, params.SpecialTransportation)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
