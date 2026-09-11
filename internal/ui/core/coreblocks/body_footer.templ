@@ -1,8 +1,8 @@
 package coreblocks
 
 templ FooterBody() {
-	<footer class="row-3">
-		<p>probably there should be stuff here.</p>
+	<footer class="flex justify-center items-center h-12 w-full row-3">
+		<p class="text-xs text-neutral-content/80">&copy; 2026 seek coop, all rights reserved</p>
 	</footer>
 	@FooterBodyStyle()
 }
@@ -10,12 +10,6 @@ templ FooterBody() {
 templ FooterBodyStyle() {
 	<style>
 		body > footer {
-			display: flex;
-			justify-content: start;
-			align-items: center;
-			height: 4rem;
-			width: 100%;
-			padding-left: var(--size-4);
 			color: var(--primary-4-on);
 			background-color: var(--primary-4);
 		}

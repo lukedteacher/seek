@@ -520,7 +520,7 @@ func getIEPsCSV(
 		// if they have a valid MARSS ID
 		convertedCSVRows := make([]models.IEP, 0)
 		for _, row := range rows {
-			key := strings.TrimSpace(row.StudentMARSSID)
+			key := strings.TrimSpace(row.StudentMARSSID.String())
 			if studentID, ok := marssMap[key]; ok {
 				row.StudentID = studentID
 				convertedCSVRows = append(convertedCSVRows, models.NewModelFromCSVRow(row))
@@ -577,7 +577,7 @@ func postIEPsCSV(
 		// if they have a valid MARSS ID
 		convertedCSVRows := make([]models.IEP, 0)
 		for _, row := range rows {
-			key := strings.TrimSpace(row.StudentMARSSID)
+			key := strings.TrimSpace(row.StudentMARSSID.String())
 			if studentID, ok := marssMap[key]; ok {
 				row.StudentID = studentID
 				convertedCSVRows = append(convertedCSVRows, models.NewModelFromCSVRow(row))
@@ -596,7 +596,6 @@ func postIEPsCSV(
 
 		for _, diff := range diffs {
 			if diff.Status == sharedmodels.DiffSame {
-				l.Debug("same")
 				continue
 			}
 			if diff.Status == sharedmodels.DiffAbsent {

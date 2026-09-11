@@ -76,9 +76,9 @@ templ FeatureCards() {
 			description: "kind of like a calendar event",
 			features: []string{
 				"synced with schedules",
-				"notifications on change",
-				"student filter by service type",
-				"attendance",
+				"filters (soon)",
+				"notifications on change (eventually)",
+				"attendance (eventually)",
 			},
 			url: "/periods",
 		})
@@ -89,8 +89,9 @@ templ FeatureCards() {
 			features: []string{
 				"profiles",
 				"schedules",
-				"caseloads",
-				"idk",
+				"avatars with photos (soon)",
+				"caseloads (soon)",
+				"role filters (soon)",
 			},
 			url: "/educators",
 		})
@@ -99,12 +100,24 @@ templ FeatureCards() {
 			title:       "students",
 			description: "can't live with 'em, can't live without their funding",
 			features: []string{
-				"basic info",
+				"profiles",
 				"schedules",
-				"assessment data",
-				"goals & objectives",
+				"avatars with photos (soon)",
+				"goals & objectives (soon)",
+				"assessment data (eventually)",
 			},
 			url: "/students",
+		})
+		@IndexCard(IndexCardProps{
+			icon:        "wand",
+			title:       "IEPs",
+			description: "arcane lore of the SpRight wizards",
+			features: []string{
+				"synced with SPEDforms",
+				"linked with services",
+				"calendar with due dates (eventually)",
+			},
+			url: "/ieps",
 		})
 		@IndexCard(IndexCardProps{
 			icon:        "blocks",
@@ -112,9 +125,8 @@ templ FeatureCards() {
 			description: "minutes as indicated by an IEP",
 			features: []string{
 				"synced with SPEDforms",
-				"schedule auditing",
-				"links with goals",
-				"idk",
+				"schedule auditing (soon)",
+				"links with goals (soon)",
 			},
 			url: "/services",
 		})

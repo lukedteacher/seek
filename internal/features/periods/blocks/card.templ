@@ -3,7 +3,7 @@ package blocks
 import (
 	"fmt"
 
-	eblocks "seek/internal/features/educators/blocks"
+	educatorBlocks "seek/internal/features/educators/blocks"
 	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
@@ -35,7 +35,7 @@ templ Card(view dto.PeriodView) {
 				<span class="text-neutral-content/80">teachers</span>
 				<div class="period-card-educators flex gap-1 no-wrap">
 					for _, educator := range view.Educators {
-						@eblocks.EducatorAvatar(educator)
+						@educatorBlocks.EducatorAvatar(educator)
 					}
 				</div>
 			</div>

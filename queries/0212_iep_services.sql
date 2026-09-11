@@ -57,7 +57,7 @@ SELECT
 FROM iep_services
 WHERE iep_id = @iep_id
 	AND archived_at IS NULL
-ORDER BY service_type DESC, service_name DESC;
+ORDER BY service_type DESC, service_name DESC, start_date ASC;
 
 -- name: AddServiceToIEP :exec
 INSERT INTO iep_services (

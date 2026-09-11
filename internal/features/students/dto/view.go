@@ -6,6 +6,7 @@ import (
 
 type StudentView struct {
 	models.Student
+	Bookmarked bool
 }
 
 func NewView(s *models.Student) StudentView {

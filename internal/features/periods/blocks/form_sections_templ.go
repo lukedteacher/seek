@@ -14,7 +14,7 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	educatorBlocks "seek/internal/features/educators/blocks"
 	"seek/internal/features/periods/dto"
-	scheduledto "seek/internal/features/schedules/dto"
+	scheduleDTO "seek/internal/features/schedules/dto"
 	studentBlocks "seek/internal/features/students/blocks"
 	"seek/internal/ui/core/coreblocks/forms"
 	"seek/pkg/templui/components/button"
@@ -25,7 +25,7 @@ import (
 	"seek/pkg/templui/components/selectbox"
 )
 
-func FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithScheduleView) templ.Component {
+func FormSections(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -283,7 +283,7 @@ func FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSch
 }
 
 // only renders when the passed value includes more than just the base schedule
-func SelectedScheduleList(url string, students []scheduledto.PersonWithScheduleView) templ.Component {
+func SelectedScheduleList(url string, students []scheduleDTO.PersonWithScheduleView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -322,7 +322,7 @@ func SelectedScheduleList(url string, students []scheduledto.PersonWithScheduleV
 	})
 }
 
-func SelectedScheduleItem(url string, student scheduledto.PersonWithScheduleView) templ.Component {
+func SelectedScheduleItem(url string, student scheduleDTO.PersonWithScheduleView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

@@ -11,7 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
-	eblocks "seek/internal/features/educators/blocks"
+	educatorBlocks "seek/internal/features/educators/blocks"
 	"seek/internal/features/periods/dto"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
@@ -192,7 +192,7 @@ func Card(view dto.PeriodView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				for _, educator := range view.Educators {
-					templ_7745c5c3_Err = eblocks.EducatorAvatar(educator).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = educatorBlocks.EducatorAvatar(educator).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

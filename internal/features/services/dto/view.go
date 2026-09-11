@@ -3,7 +3,7 @@ package dto
 import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/services/models"
-	sdto "seek/internal/features/students/dto"
+	studentDTO "seek/internal/features/students/dto"
 )
 
 type ServiceView struct {
@@ -21,7 +21,7 @@ type ServiceView struct {
 	Provider        string                   `json:"provider"`
 	ProviderID      string                   `json:"provider_id"`
 	StudentID       string                   `json:"student_id"`
-	StudentView     sdto.StudentView
+	StudentView     studentDTO.StudentView
 }
 
 func NewServiceView(sm *models.Service) ServiceView {

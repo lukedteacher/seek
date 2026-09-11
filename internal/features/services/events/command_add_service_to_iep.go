@@ -52,7 +52,7 @@ func AddServiceToIEPCommandHandler(
 		nil,
 		model.query,
 	); err != nil {
-		return nil, err
+		return &AddServiceToIEPResult{}, err
 	}
 	return &AddServiceToIEPResult{EventID: eventID, Skipped: false}, nil
 }

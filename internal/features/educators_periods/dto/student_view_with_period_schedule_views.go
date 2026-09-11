@@ -1,11 +1,11 @@
 package dto
 
 import (
-	sdto "seek/internal/features/educators/dto"
-	pdto "seek/internal/features/periods/dto"
+	educatorDTO "seek/internal/features/educators/dto"
+	periodDTO "seek/internal/features/periods/dto"
 )
 
 type EducatorViewWithPeriodScheduleViews struct {
-	Educator sdto.EducatorView
-	Periods  []pdto.PeriodScheduleView
+	Educator educatorDTO.EducatorView
+	Periods  []periodDTO.PeriodScheduleView
 }

@@ -14,6 +14,7 @@ import (
 	serviceEvents "seek/internal/features/services/events"
 	studentEvents "seek/internal/features/students/events"
 	studentPeriodEvents "seek/internal/features/students_periods/events"
+	bookmarkEvents "seek/internal/features/users/bookmarks/events"
 
 	"zombiezen.com/go/sqlite"
 )
@@ -29,6 +30,7 @@ type ReadModelContainer struct {
 	Students         *studentEvents.ReadModel
 	IEPs             *iepEvents.ReadModel
 	StudentPeriods   *studentPeriodEvents.ReadModel
+	Bookmarks        *bookmarkEvents.ReadModel
 }
 
 func NewReadModelContainer(db *appdb.DB) *ReadModelContainer {
@@ -43,6 +45,7 @@ func NewReadModelContainer(db *appdb.DB) *ReadModelContainer {
 		Students:         studentEvents.NewReadModel(db),
 		IEPs:             iepEvents.NewReadModel(db),
 		StudentPeriods:   studentPeriodEvents.NewReadModel(db),
+		Bookmarks:        bookmarkEvents.NewReadModel(db),
 	}
 }
 

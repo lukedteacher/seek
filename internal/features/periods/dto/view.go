@@ -1,15 +1,15 @@
 package dto
 
 import (
-	edto "seek/internal/features/educators/dto"
+	educatorDTO "seek/internal/features/educators/dto"
 	"seek/internal/features/periods/models"
-	sdto "seek/internal/features/students/dto"
+	studentDTO "seek/internal/features/students/dto"
 )
 
 type PeriodView struct {
 	models.Period
-	Educators []edto.EducatorView
-	Students  []sdto.StudentView
+	Educators []educatorDTO.EducatorView
+	Students  []studentDTO.StudentView
 }
 
 func NewPeriodView(p *models.Period) PeriodView {

@@ -1,22 +1,22 @@
 package dto
 
 import (
-	pdto "seek/internal/features/periods/dto"
-	pmodels "seek/internal/features/periods/models"
-	sdto "seek/internal/features/students/dto"
-	smodels "seek/internal/features/students/models"
+	periodDTO "seek/internal/features/periods/dto"
+	periodModels "seek/internal/features/periods/models"
+	studentDTO "seek/internal/features/students/dto"
+	studentModels "seek/internal/features/students/models"
 )
 
 type StudentWithPeriodsView struct {
-	Student  sdto.StudentView
-	Periods  []pdto.PeriodScheduleView
+	Student  studentDTO.StudentView
+	Periods  []periodDTO.PeriodScheduleView
 	Selected bool
 }
 
-func NewStudentWithPeriodsView(student smodels.Student, periods []pmodels.Period, isSelected bool, index int) StudentWithPeriodsView {
+func NewStudentWithPeriodsView(student studentModels.Student, periods []periodModels.Period, isSelected bool, index int) StudentWithPeriodsView {
 	return StudentWithPeriodsView{
-		Student:  sdto.NewView(&student),
-		Periods:  pdto.NewPeriodScheduleViews(periods...),
+		Student:  studentDTO.NewView(&student),
+		Periods:  periodDTO.NewPeriodScheduleViews(periods...),
 		Selected: isSelected,
 	}
 }

@@ -12,7 +12,7 @@ type Student struct {
 	sharedmodels.Person                       // embeds given, chosen, & family name, and email fields
 	Grade               sharedmodels.Grade    `json:"grade" csv:"grade"`
 	HomeroomID          string                `json:"homeroom_id"`
-	PlanType            sharedmodels.PlanType `json:"plan_type"`
+	PlanType            sharedmodels.PlanType `json:"plan_type" csv:"plan type int"`
 	CaseManagerID       string                `json:"case_manager_id"`
 	CreatedAt           time.Time             `json:"created_at"`
 	UpdatedAt           time.Time             `json:"updated_at"`

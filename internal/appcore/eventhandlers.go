@@ -19,6 +19,7 @@ import (
 	serviceEvents "seek/internal/features/services/events"
 	studentEvents "seek/internal/features/students/events"
 	periodStudentEvents "seek/internal/features/students_periods/events"
+	bookmarkEvents "seek/internal/features/users/bookmarks/events"
 	"seek/internal/natsbus"
 )
 
@@ -81,6 +82,18 @@ func EventHandlerFactories(
 					readModels.Profiles,
 					bus,
 					piiKeys,
+					logger,
+				)
+			},
+		},
+		{
+			name: "user bookmarks model",
+			create: func() (eventHandler, error) {
+				return bookmarkEvents.NewReadModelEventHandler(
+					store,
+					checkpointer,
+					readModels.Bookmarks,
+					bus,
 					logger,
 				)
 			},

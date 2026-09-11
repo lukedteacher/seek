@@ -172,7 +172,6 @@ func (m *ReadModel) ArchiveIEP(ctx context.Context, event IEPArchivedProjection)
 }
 
 func (m *ReadModel) DeleteIEP(ctx context.Context, event IEPDeletedProjection) error {
-	println("DELETE")
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceDeleteIep(conn, event.IEPID)
 	})

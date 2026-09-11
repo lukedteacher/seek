@@ -29,7 +29,7 @@ func FooterBody() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<footer class=\"row-3\"><p>probably there should be stuff here.</p></footer>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<footer class=\"flex justify-center items-center h-12 w-full row-3\"><p class=\"text-xs text-neutral-content/80\">&copy; 2026 seek coop, all rights reserved</p></footer>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -62,7 +62,7 @@ func FooterBodyStyle() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<style>\n\t\tbody > footer {\n\t\t\tdisplay: flex;\n\t\t\tjustify-content: start;\n\t\t\talign-items: center;\n\t\t\theight: 4rem;\n\t\t\twidth: 100%;\n\t\t\tpadding-left: var(--size-4);\n\t\t\tcolor: var(--primary-4-on);\n\t\t\tbackground-color: var(--primary-4);\n\t\t}\n\t</style>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<style>\n\t\tbody > footer {\n\t\t\tcolor: var(--primary-4-on);\n\t\t\tbackground-color: var(--primary-4);\n\t\t}\n\t</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

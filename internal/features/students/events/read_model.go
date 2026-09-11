@@ -9,6 +9,7 @@ import (
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
+	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
 
 	iepModels "seek/internal/features/ieps/models"
@@ -72,7 +73,7 @@ func (m *ReadModel) GetByUsername(ctx context.Context, username string) (*models
 	}
 
 	if row == nil {
-		return nil, fmt.Errorf("student not found")
+		return nil, eventstore.ErrStudentNotFound
 	}
 
 	student := &models.Student{
@@ -409,6 +410,73 @@ func (m *ReadModel) ListByServiceType(ctx context.Context, serviceType string) (
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
 		rows, err = dbsql.OnceListStudentsByServiceType(conn, serviceType)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	students := make([]models.Student, len(rows))
+	for i := range rows {
+		row := rows[i]
+		students[i] = models.Student{
+			ID:      row.Id,
+			MARSSID: row.MarssId,
+			Person: sharedmodels.Person{
+				Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
+				GivenName:  row.GivenName,
+				ChosenName: row.ChosenName,
+				FamilyName: row.FamilyName,
+				Pronouns:   parsePronouns(row.Pronouns),
+				Email:      row.Email,
+				Username:   row.Username,
+			},
+			Grade:      sharedmodels.Grade(row.Grade),
+			HomeroomID: row.HomeroomId,
+			PlanType:   sharedmodels.PlanType(row.PlanType),
+		}
+	}
+	return students, nil
+}
+
+func (m *ReadModel) GetStudentBookmark(ctx context.Context, userID, studentID string) (*models.Student, error) {
+	var row *dbsql.GetStudentBookmarkRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		row, err = dbsql.OnceGetStudentBookmark(conn, dbsql.GetStudentBookmarkParams{
+			UserId:    userID,
+			StudentId: studentID,
+		})
+		return err
+	}); err != nil {
+		return nil, err
+	}
+	if row == nil {
+		return nil, eventstore.ErrStudentNotFound
+	}
+	student := &models.Student{
+		ID:      row.Id,
+		MARSSID: row.MarssId,
+		Person: sharedmodels.Person{
+			Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
+			GivenName:  row.GivenName,
+			ChosenName: row.ChosenName,
+			FamilyName: row.FamilyName,
+			Pronouns:   parsePronouns(row.Pronouns),
+			Email:      row.Email,
+			Username:   row.Username,
+		},
+		Grade:      sharedmodels.Grade(row.Grade),
+		HomeroomID: row.HomeroomId,
+		PlanType:   sharedmodels.PlanType(row.PlanType),
+	}
+	return student, nil
+}
+
+func (m *ReadModel) ListStudentBookmarksByUserID(ctx context.Context, userID string) ([]models.Student, error) {
+	var rows []dbsql.ListStudentBookmarksByUserIdRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceListStudentBookmarksByUserId(conn, userID)
 		return err
 	}); err != nil {
 		return nil, err

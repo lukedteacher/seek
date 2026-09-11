@@ -2,9 +2,9 @@ package dto
 
 import (
 	"seek/internal/features/_shared/sharedmodels"
-	edto "seek/internal/features/educators/dto"
+	educatorDTO "seek/internal/features/educators/dto"
 	"seek/internal/features/periods/models"
-	sdto "seek/internal/features/students/dto"
+	studentDTO "seek/internal/features/students/dto"
 	"time"
 )
 
@@ -12,8 +12,8 @@ type PeriodScheduleView struct {
 	models.Period
 	Row       int `json:"row"`
 	Column    int `json:"column"`
-	Educators []edto.EducatorView
-	Students  []sdto.StudentView
+	Educators []educatorDTO.EducatorView
+	Students  []studentDTO.StudentView
 }
 
 func NewPeriodScheduleViews(

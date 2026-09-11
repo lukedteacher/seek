@@ -54,6 +54,7 @@ SELECT
 	archived_at
 FROM student_ieps
 WHERE student_id = ?1
+ORDER BY meeting_date ASC
     `
 
 	ps := &ListIepsForStudentStmt{

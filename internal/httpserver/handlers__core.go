@@ -28,7 +28,7 @@ func (s Server) coreRoutes(r chi.Router) {
 
 // GET request to "/"
 // serves as the landing page when not logged in
-// dashboard when logged in
+// links to features when logged in
 func getIndex() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -77,7 +77,12 @@ func getComponents() http.HandlerFunc {
 // development tool for seeding data after resetting the event store
 func getSeed() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// user := currentUser(r)
 		ctx := r.Context()
+		// if user.Username != "lukee" {
+		// 	_ = corepages.Forbidden().Render(ctx, w)
+		// 	return
+		// }
 		_ = corepages.Seed().Render(ctx, w)
 	}
 }

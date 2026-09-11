@@ -1,0 +1,80 @@
+package corepages
+
+import (
+	"fmt"
+	scheduleBlocks "seek/internal/features/schedules/blocks"
+	scheduleDTO "seek/internal/features/schedules/dto"
+	studentDTO "seek/internal/features/students/dto"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+)
+
+type DashboardView struct {
+	Schedule           scheduleDTO.PersonWithScheduleView
+	BookmarkedStudents []studentDTO.StudentView
+}
+
+templ Dashboard(view DashboardView) {
+	@corelayouts.LayoutBase("SEEK: dashboard") {
+		<div class="flex flex-col w-full h-full row-2" data-init={ sse.LongRunningGetSSE("dashboard/stream") }>
+			<main class="h-full">
+				<div class="w-full h-full grid grid-cols-2 gap-6">
+					@DashboardSchedule(view.Schedule)
+					@DashboardBookmarkedStudents(view.BookmarkedStudents)
+				</div>
+			</main>
+		</div>
+	}
+}
+
+templ DashboardSchedule(schedule scheduleDTO.PersonWithScheduleView) {
+	<section id="dashboard-schedule" class="flex flex-col gap-3">
+		@button.Button(button.Props{
+			Href: "/periods/create",
+		}) {
+			@icon.Plus()
+			<span>create period</span>
+		}
+		@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{schedule})
+	</section>
+}
+
+templ DashboardBookmarkedStudents(students []studentDTO.StudentView) {
+	<section class="flex flex-col gap-4">
+		<div class="border-muted border rounded-md w-full h-fit bg-neutral text-sm p-4">
+			<h3 class="flex items-center gap-2">
+				@icon.GraduationCap()
+				<span>bookmarked students</span>
+			</h3>
+		</div>
+		if len(students) > 0 {
+			<ul class="flex flex-col gap-1">
+				for _, student := range students {
+					<li class="border border-muted rounded-md w-full bg-neutral text-sm p-2 flex items-center justify-between">
+						<span>{ student.NameInitial() }</span>
+						<div>
+							@button.Button(button.Props{
+								Variant: button.VariantGhost,
+								Size:    button.SizeIcon,
+								Href:    fmt.Sprintf("/students/%s/info", student.Username),
+							}) {
+								@icon.Info()
+							}
+							@button.Button(button.Props{
+								Variant: button.VariantGhost,
+								Size:    button.SizeIcon,
+								Href:    fmt.Sprintf("/students/%s/schedule", student.Username),
+							}) {
+								@icon.CalendarRange()
+							}
+						</div>
+					</li>
+				}
+			</ul>
+		} else {
+			none found
+		}
+	</section>
+}

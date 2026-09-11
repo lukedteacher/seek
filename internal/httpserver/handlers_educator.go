@@ -14,8 +14,8 @@ import (
 	"seek/internal/features/educators/models"
 	"seek/internal/features/educators/pages"
 	periodEvents "seek/internal/features/periods/events"
-	scheduledto "seek/internal/features/schedules/dto"
-	studentdto "seek/internal/features/students/dto"
+	scheduleDTO "seek/internal/features/schedules/dto"
+	studentDTO "seek/internal/features/students/dto"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -251,7 +251,7 @@ func getEducatorViewInfo(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.View(dto.EducatorView{}, scheduledto.PersonWithScheduleView{}, []studentdto.StudentView{}, "info").Render(ctx, w)
+		_ = pages.View(dto.EducatorView{}, scheduleDTO.PersonWithScheduleView{}, []studentDTO.StudentView{}, "info").Render(ctx, w)
 	}
 }
 
@@ -321,7 +321,7 @@ func getEducatorViewInfoStream(
 					return
 				}
 				view := dto.NewEducatorView(educator)
-				sse.PatchElementTempl(pages.View(view, scheduledto.PersonWithScheduleView{}, []studentdto.StudentView{}, "info"))
+				sse.PatchElementTempl(pages.View(view, scheduleDTO.PersonWithScheduleView{}, []studentDTO.StudentView{}, "info"))
 			}
 		}
 	}
@@ -358,8 +358,8 @@ func getEducatorViewSchedule(
 			return
 		}
 
-		scheduleView := scheduledto.NewPersonScheduleView(educator.ID, educator.Person, periods, true, 1)
-		_ = pages.View(educatorView, scheduleView, []studentdto.StudentView{}, "schedule").Render(ctx, w)
+		scheduleView := scheduleDTO.NewPersonScheduleView(educator.ID, educator.Person, periods, true, 1)
+		_ = pages.View(educatorView, scheduleView, []studentDTO.StudentView{}, "schedule").Render(ctx, w)
 	}
 }
 
@@ -369,7 +369,7 @@ func getEducatorViewCaseload(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.View(dto.EducatorView{}, scheduledto.PersonWithScheduleView{}, []studentdto.StudentView{}, "caseload").Render(ctx, w)
+		_ = pages.View(dto.EducatorView{}, scheduleDTO.PersonWithScheduleView{}, []studentDTO.StudentView{}, "caseload").Render(ctx, w)
 	}
 }
 
@@ -442,8 +442,8 @@ func getEducatorViewCaseloadStream(
 					l.ErrorContext(ctx, "educator view caseload stream", "err", err)
 				}
 				view := dto.NewEducatorView(educator)
-				studentViews := studentdto.NewViews(caseManager.Caseload)
-				sse.PatchElementTempl(pages.View(view, scheduledto.PersonWithScheduleView{}, studentViews, "caseload"))
+				studentViews := studentDTO.NewViews(caseManager.Caseload)
+				sse.PatchElementTempl(pages.View(view, scheduleDTO.PersonWithScheduleView{}, studentViews, "caseload"))
 			}
 		}
 	}

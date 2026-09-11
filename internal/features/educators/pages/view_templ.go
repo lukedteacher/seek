@@ -14,9 +14,9 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
-	sblocks "seek/internal/features/schedules/blocks"
-	scheduledto "seek/internal/features/schedules/dto"
-	studentdto "seek/internal/features/students/dto"
+	scheduleBlocks "seek/internal/features/schedules/blocks"
+	scheduleDTO "seek/internal/features/schedules/dto"
+	studentDTO "seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
@@ -25,7 +25,7 @@ import (
 	"seek/pkg/templui/components/tabs"
 )
 
-func View(view dto.EducatorView, schedule scheduledto.PersonWithScheduleView, caseload []studentdto.StudentView, active string) templ.Component {
+func View(view dto.EducatorView, schedule scheduleDTO.PersonWithScheduleView, caseload []studentDTO.StudentView, active string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -278,7 +278,7 @@ func View(view dto.EducatorView, schedule scheduledto.PersonWithScheduleView, ca
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = sblocks.ScheduleComponent([]scheduledto.PersonWithScheduleView{schedule}).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{schedule}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

@@ -13,11 +13,12 @@ import (
 	"seek/internal/features/_composite/compositedto"
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
-	edto "seek/internal/features/educators/dto"
-	eevents "seek/internal/features/educators/events"
+	educatorDTO "seek/internal/features/educators/dto"
+	educatorEvents "seek/internal/features/educators/events"
+	iepEvents "seek/internal/features/ieps/events"
 	periodEvents "seek/internal/features/periods/events"
-	scheduledto "seek/internal/features/schedules/dto"
-	idto "seek/internal/features/services/dto"
+	scheduleDTO "seek/internal/features/schedules/dto"
+	serviceDTO "seek/internal/features/services/dto"
 	serviceEvents "seek/internal/features/services/events"
 	"seek/internal/features/students/dto"
 	"seek/internal/features/students/events"
@@ -34,27 +35,27 @@ import (
 
 func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students", getStudentsList(s.Logger))
-	r.Get("/students/stream", getStudentsListStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.Educators))
+	r.Get("/students/stream", getStudentsListStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Students, s.ReadModels.Educators, s.ReadModels.IEPs, s.ReadModels.Services))
 	r.Post("/students", postStudentsList(s.Logger, s.ViewStore))
 	r.Get("/students/create", getStudentCreate(s.Logger))
-	r.Get("/students/create/stream", getStudentCreateStream(s.Logger, s.ViewStore, *s.ReadModels.Educators))
+	r.Get("/students/create/stream", getStudentCreateStream(s.Logger, s.ViewStore, s.ReadModels.Educators))
 	r.Post("/students/create/validate", postStudentCreateValidate(s.Logger, s.ViewStore))
 	r.Post("/students/create", postStudentCreate(s.Logger, s.EventSaver))
 	r.Get("/students/{username}", getStudentView(s.Logger))
 	r.Get("/students/{username}/info", getStudentViewInfo(s.Logger))
-	r.Get("/students/{username}/info/stream", getStudentViewInfoStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.Educators))
+	r.Get("/students/{username}/info/stream", getStudentViewInfoStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Students, s.ReadModels.Educators))
 	r.Get("/students/{username}/schedule", getStudentViewSchedule(s.Logger))
-	r.Get("/students/{username}/schedule/stream", getStudentViewScheduleStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.Periods))
+	r.Get("/students/{username}/schedule/stream", getStudentViewScheduleStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Students, s.ReadModels.Periods))
 	r.Get("/students/{username}/services", getStudentViewServices(s.Logger))
-	r.Get("/students/{username}/services/stream", getStudentViewServicesStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Students, *s.ReadModels.Services))
+	r.Get("/students/{username}/services/stream", getStudentViewServicesStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Students, s.ReadModels.IEPs, s.ReadModels.Services))
 	r.Get("/students/{username}/edit", getStudentEdit(s.Logger))
-	r.Get("/students/{username}/edit/stream", getStudentEditStream(s.Logger, s.ViewStore, s.Subscriber, *s.ReadModels.Students, *s.ReadModels.Educators))
+	r.Get("/students/{username}/edit/stream", getStudentEditStream(s.Logger, s.ViewStore, s.Subscriber, s.ReadModels.Students, s.ReadModels.Educators))
 	r.Post("/students/{username}/edit/validate", postStudentEditValidate(s.Logger, s.ViewStore))
 	r.Post("/students/{username}/edit", postStudentEdit(s.Logger, s.EventSaver, s.EventRetriever))
-	r.Post("/students/{username}/archive", postStudentArchive(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.Students))
-	r.Delete("/students/{username}", deleteStudent(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.Students))
-	r.Get("/students/csv", getStudentsCSV(s.Logger, *s.ReadModels.Students))
-	r.Post("/students/csv", postStudentsCSV(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.Students))
+	r.Post("/students/{username}/archive", postStudentArchive(s.Logger, s.EventSaver, s.EventRetriever, s.ReadModels.Students))
+	r.Delete("/students/{username}", deleteStudent(s.Logger, s.EventSaver, s.EventRetriever, s.ReadModels.Students))
+	r.Get("/students/csv", getStudentsCSV(s.Logger, s.ReadModels.Students))
+	r.Post("/students/csv", postStudentsCSV(s.Logger, s.EventSaver, s.EventRetriever, s.ReadModels.Students))
 	r.Get("/students/404", getNotFound(s.Logger))
 }
 
@@ -74,8 +75,10 @@ func getStudentsListStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	studentReadModel events.ReadModel,
-	educatorReadModel eevents.ReadModel,
+	studentReadModel *events.ReadModel,
+	educatorReadModel *educatorEvents.ReadModel,
+	iepReadModel *iepEvents.ReadModel,
+	serviceReadModel *serviceEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -128,6 +131,8 @@ func getStudentsListStream(
 				Search:   "",
 			},
 			educatorReadModel,
+			iepReadModel,
+			serviceReadModel,
 		)
 		sse.PatchElementTempl(pages.List(listView))
 
@@ -162,6 +167,8 @@ func getStudentsListStream(
 					signals.Table.Sort.Direction,
 					signals.Table.Filter,
 					educatorReadModel,
+					iepReadModel,
+					serviceReadModel,
 				)
 				sse.PatchElementTempl(pages.List(listView))
 				sse.PatchElementTempl(toasts.ToastContainer(toast.VariantInfo, toastMsg))
@@ -184,6 +191,8 @@ func getStudentsListStream(
 					signals.Table.Sort.Direction,
 					signals.Table.Filter,
 					educatorReadModel,
+					iepReadModel,
+					serviceReadModel,
 				)
 				sse.PatchElementTempl(pages.List(listView))
 			}
@@ -222,7 +231,7 @@ func getStudentCreate(_ *slog.Logger) http.HandlerFunc {
 func getStudentCreateStream(
 	l *slog.Logger,
 	vs viewstore.Store,
-	educatorReadModel eevents.ReadModel,
+	educatorReadModel *educatorEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -249,10 +258,10 @@ func getStudentCreateStream(
 		studentFormView := dto.NewStudentFormView("create", &models.Student{Grade: -1})
 		caseManagers, _ := educatorReadModel.List(
 			ctx,
-			eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
+			educatorEvents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 		)
 		studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, sharedmodels.PlanTypeNone)
-		studentFormView.CaseManagers = edto.NewSelectView(&edto.Filter{}, caseManagers, []string{})
+		studentFormView.CaseManagers = educatorDTO.NewSelectView(&educatorDTO.Filter{}, caseManagers, []string{})
 		sse.PatchElementTempl(pages.Create(studentFormView))
 
 		for {
@@ -271,10 +280,10 @@ func getStudentCreateStream(
 				studentFormView := dto.NewStudentFormView("create", student)
 				caseManagers, _ := educatorReadModel.List(
 					ctx,
-					eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
+					educatorEvents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 				)
 				studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, student.PlanType)
-				studentFormView.CaseManagers = edto.NewSelectView(&edto.Filter{}, caseManagers, []string{})
+				studentFormView.CaseManagers = educatorDTO.NewSelectView(&educatorDTO.Filter{}, caseManagers, []string{})
 				sse.PatchElementTempl(pages.Create(studentFormView))
 			}
 		}
@@ -369,7 +378,7 @@ func getStudentViewInfo(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.View(dto.StudentView{}, scheduledto.PersonWithScheduleView{}, []idto.ServiceView{}, "info").Render(ctx, w)
+		_ = pages.View(dto.StudentView{}, scheduleDTO.PersonWithScheduleView{}, []serviceDTO.ServiceView{}, "info").Render(ctx, w)
 	}
 }
 
@@ -378,24 +387,13 @@ func getStudentViewInfoStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	studentReadModel events.ReadModel,
-	educatorReadModel eevents.ReadModel,
+	studentReadModel *events.ReadModel,
+	educatorReadModel *educatorEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		username := chi.URLParam(r, "username")
 		sse := newSSE(w, r)
-
-		// subscribes to the channel which publishes changes to the underlying model
-		notifier := NewDedupeNotifier()
-		sub, err := subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
-			notifier.Notify()
-		})
-		if err != nil {
-			l.ErrorContext(ctx, "student view info stream subscribe", "err", err)
-			return
-		}
-		defer sub.Close()
 
 		model, err := refreshStudentViewState(ctx, l, username, vs, studentReadModel)
 		if err != nil {
@@ -406,6 +404,17 @@ func getStudentViewInfoStream(
 			l.ErrorContext(ctx, "student view info stream refresh", "err", err)
 			return
 		}
+
+		// subscribes to the channel which publishes changes to the underlying model
+		notifier := NewDedupeNotifier()
+		sub, err := subscriber.Subscribe(ctx, events.Channel(model.ID), func(context.Context, []byte) {
+			notifier.Notify()
+		})
+		if err != nil {
+			l.ErrorContext(ctx, "student view info stream subscribe", "err", err)
+			return
+		}
+		defer sub.Close()
 
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
@@ -445,8 +454,15 @@ func getStudentViewInfoStream(
 					l.ErrorContext(ctx, "student view info stream json read", "err", err)
 					return
 				}
+				user := currentUser(r)
+				bookmarked := false
+				s, _ := studentReadModel.GetStudentBookmark(ctx, user.ID, student.ID)
+				if s != nil {
+					bookmarked = true
+				}
 				studentView := dto.NewView(student)
-				sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, []idto.ServiceView{}, "info"))
+				studentView.Bookmarked = bookmarked
+				sse.PatchElementTempl(pages.View(studentView, scheduleDTO.PersonWithScheduleView{}, []serviceDTO.ServiceView{}, "info"))
 			}
 		}
 	}
@@ -458,7 +474,7 @@ func getStudentViewSchedule(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.View(dto.StudentView{}, scheduledto.PersonWithScheduleView{}, []idto.ServiceView{}, "schedule").Render(ctx, w)
+		_ = pages.View(dto.StudentView{}, scheduleDTO.PersonWithScheduleView{}, []serviceDTO.ServiceView{}, "schedule").Render(ctx, w)
 	}
 }
 
@@ -467,8 +483,8 @@ func getStudentViewScheduleStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	studentReadModel events.ReadModel,
-	periodReadModel periodEvents.ReadModel,
+	studentReadModel *events.ReadModel,
+	periodReadModel *periodEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -542,8 +558,8 @@ func getStudentViewScheduleStream(
 					l.ErrorContext(ctx, "get student view schedule db list periods", "err", err)
 					return
 				}
-				personScheduleView := scheduledto.NewPersonScheduleView(student.ID, student.Person, periods, true, 1)
-				sse.PatchElementTempl(pages.View(studentView, personScheduleView, []idto.ServiceView{}, "schedule"))
+				personScheduleView := scheduleDTO.NewPersonScheduleView(student.ID, student.Person, periods, true, 1)
+				sse.PatchElementTempl(pages.View(studentView, personScheduleView, []serviceDTO.ServiceView{}, "schedule"))
 			}
 		}
 	}
@@ -555,7 +571,7 @@ func getStudentViewServices(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.View(dto.StudentView{}, scheduledto.PersonWithScheduleView{}, []idto.ServiceView{}, "services").Render(ctx, w)
+		_ = pages.View(dto.StudentView{}, scheduleDTO.PersonWithScheduleView{}, []serviceDTO.ServiceView{}, "services").Render(ctx, w)
 	}
 }
 
@@ -564,8 +580,9 @@ func getStudentViewServicesStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	studentReadModel events.ReadModel,
-	serviceReadModel serviceEvents.ReadModel,
+	studentReadModel *events.ReadModel,
+	iepReadModel *iepEvents.ReadModel,
+	serviceReadModel *serviceEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -631,18 +648,16 @@ func getStudentViewServicesStream(
 					return
 				}
 				studentView := dto.NewView(student)
-
-				// get the list of services for the student and make views
-				services, err := serviceReadModel.ListServicesForIEP(ctx, studentView.ID)
-				if err != nil {
-					l.ErrorContext(ctx, "get student view db list services", "err", err)
-				}
-				serviceViews := make([]idto.ServiceView, len(services))
-				for i, service := range services {
-					serviceViews[i] = idto.NewServiceView(&service)
+				iep, _ := iepReadModel.ListForStudent(ctx, student.ID)
+				serviceViews := make([]serviceDTO.ServiceView, 0)
+				if len(iep) > 0 {
+					services, _ := serviceReadModel.ListServicesForIEP(ctx, iep[0].ID)
+					for _, service := range services {
+						serviceViews = append(serviceViews, serviceDTO.NewServiceView(&service))
+					}
 				}
 
-				sse.PatchElementTempl(pages.View(studentView, scheduledto.PersonWithScheduleView{}, serviceViews, "services"))
+				sse.PatchElementTempl(pages.View(studentView, scheduleDTO.PersonWithScheduleView{}, serviceViews, "services"))
 			}
 		}
 	}
@@ -663,8 +678,8 @@ func getStudentEditStream(
 	l *slog.Logger,
 	vs viewstore.Store,
 	subscriber MessageSubscriber,
-	studentReadModel events.ReadModel,
-	educatorReadModel eevents.ReadModel,
+	studentReadModel *events.ReadModel,
+	educatorReadModel *educatorEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -733,10 +748,10 @@ func getStudentEditStream(
 				// list current case managers to populate form
 				caseManagers, _ := educatorReadModel.List(
 					ctx,
-					eevents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
+					educatorEvents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 				)
 				studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, student.PlanType)
-				studentFormView.CaseManagers = edto.NewSelectView(&edto.Filter{}, caseManagers, []string{})
+				studentFormView.CaseManagers = educatorDTO.NewSelectView(&educatorDTO.Filter{}, caseManagers, []string{})
 
 				// patch data to page
 				sse.PatchElementTempl(pages.Edit(studentFormView))
@@ -837,7 +852,7 @@ func postStudentArchive(
 	l *slog.Logger,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
-	studentReadModel events.ReadModel,
+	studentReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -861,7 +876,7 @@ func deleteStudent(
 	l *slog.Logger,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
-	studentReadModel events.ReadModel,
+	studentReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -892,11 +907,13 @@ func deleteStudent(
 func createListView(
 	ctx context.Context,
 	l *slog.Logger,
-	studentReadModel events.ReadModel,
+	studentReadModel *events.ReadModel,
 	sortCol,
 	sortDir string,
 	filters dto.Filter,
-	educatorReadModel eevents.ReadModel,
+	educatorReadModel *educatorEvents.ReadModel,
+	iepReadModel *iepEvents.ReadModel,
+	serviceReadModel *serviceEvents.ReadModel,
 ) pages.ListView {
 	// get students data from db
 	gradeFilter := buildFilterMap(filters.Grade)
@@ -925,6 +942,13 @@ func createListView(
 			}
 			if caseManager != nil {
 				studentWithDataViews[i].CaseManager = *caseManager
+			}
+		}
+		iep, _ := iepReadModel.ListForStudent(ctx, student.ID)
+		if len(iep) > 0 {
+			services, _ := serviceReadModel.ListServicesForIEP(ctx, iep[0].ID)
+			if len(services) > 0 {
+				studentWithDataViews[i].Services = services
 			}
 		}
 	}
@@ -962,7 +986,7 @@ func refreshStudentViewState(
 	_ *slog.Logger,
 	username string,
 	vs viewstore.Store,
-	studentReadModel events.ReadModel,
+	studentReadModel *events.ReadModel,
 ) (models.Student, error) {
 	model, err := studentReadModel.GetByUsername(ctx, username)
 	if err != nil {
@@ -981,7 +1005,7 @@ func refreshStudentEditState(
 	ctx context.Context,
 	username string,
 	vs viewstore.Store,
-	studentReadModel events.ReadModel,
+	studentReadModel *events.ReadModel,
 ) error {
 	model, err := studentReadModel.GetByUsername(ctx, username)
 	if err != nil {
@@ -994,7 +1018,7 @@ func refreshStudentEditState(
 // GET request to /students/csv
 func getStudentsCSV(
 	l *slog.Logger,
-	studentReadModel events.ReadModel,
+	studentReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -1030,7 +1054,7 @@ func postStudentsCSV(
 	l *slog.Logger,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
-	studentReadModel events.ReadModel,
+	studentReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -1069,6 +1093,7 @@ func postStudentsCSV(
 						Email:      diff.New.Email,
 						Username:   diff.New.Username,
 						Grade:      int(diff.New.Grade),
+						PlanType:   diff.New.PlanType.Int(),
 					},
 				}
 				_, err := events.CreateStudentCommandHandler(
@@ -1090,6 +1115,7 @@ func postStudentsCSV(
 						Email:      diff.New.Email,
 						Username:   diff.New.Username,
 						Grade:      int(diff.New.Grade),
+						PlanType:   diff.New.PlanType.Int(),
 					},
 				}
 				_, err := events.UpdateStudentCommandHandler(

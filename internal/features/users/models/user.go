@@ -20,4 +20,5 @@ type User struct {
 	Username         string
 	Avatar           string
 	Bio              string
+	StudentBookmarks map[string]struct{}
 }

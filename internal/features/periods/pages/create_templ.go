@@ -14,14 +14,14 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
-	sblocks "seek/internal/features/schedules/blocks"
-	sdto "seek/internal/features/schedules/dto"
+	scheduleBlocks "seek/internal/features/schedules/blocks"
+	scheduleDTO "seek/internal/features/schedules/dto"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-func Create(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) templ.Component {
+func Create(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -84,7 +84,7 @@ func Create(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = sblocks.ScheduleComponent(schedules).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = scheduleBlocks.ScheduleComponent(schedules).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

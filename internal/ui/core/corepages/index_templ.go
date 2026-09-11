@@ -284,9 +284,9 @@ func FeatureCards() templ.Component {
 			description: "kind of like a calendar event",
 			features: []string{
 				"synced with schedules",
-				"notifications on change",
-				"student filter by service type",
-				"attendance",
+				"filters (soon)",
+				"notifications on change (eventually)",
+				"attendance (eventually)",
 			},
 			url: "/periods",
 		}).Render(ctx, templ_7745c5c3_Buffer)
@@ -300,8 +300,9 @@ func FeatureCards() templ.Component {
 			features: []string{
 				"profiles",
 				"schedules",
-				"caseloads",
-				"idk",
+				"avatars with photos (soon)",
+				"caseloads (soon)",
+				"role filters (soon)",
 			},
 			url: "/educators",
 		}).Render(ctx, templ_7745c5c3_Buffer)
@@ -313,12 +314,27 @@ func FeatureCards() templ.Component {
 			title:       "students",
 			description: "can't live with 'em, can't live without their funding",
 			features: []string{
-				"basic info",
+				"profiles",
 				"schedules",
-				"assessment data",
-				"goals & objectives",
+				"avatars with photos (soon)",
+				"goals & objectives (soon)",
+				"assessment data (eventually)",
 			},
 			url: "/students",
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = IndexCard(IndexCardProps{
+			icon:        "wand",
+			title:       "IEPs",
+			description: "arcane lore of the SpRight wizards",
+			features: []string{
+				"synced with SPEDforms",
+				"linked with services",
+				"calendar with due dates (eventually)",
+			},
+			url: "/ieps",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -329,9 +345,8 @@ func FeatureCards() templ.Component {
 			description: "minutes as indicated by an IEP",
 			features: []string{
 				"synced with SPEDforms",
-				"schedule auditing",
-				"links with goals",
-				"idk",
+				"schedule auditing (soon)",
+				"links with goals (soon)",
 			},
 			url: "/services",
 		}).Render(ctx, templ_7745c5c3_Buffer)
@@ -422,7 +437,7 @@ func IndexCard(props IndexCardProps) templ.Component {
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(props.title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 139, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 151, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -453,7 +468,7 @@ func IndexCard(props IndexCardProps) templ.Component {
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(props.description)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 142, Col: 23}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 154, Col: 23}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -509,7 +524,7 @@ func IndexCard(props IndexCardProps) templ.Component {
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(feature)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 154, Col: 18}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/index.templ`, Line: 166, Col: 18}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {

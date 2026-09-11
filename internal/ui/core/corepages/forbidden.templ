@@ -1,0 +1,25 @@
+package corepages
+
+import (
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+)
+
+templ Forbidden() {
+	@corelayouts.LayoutBase("SEEK: forbidden") {
+		<main class="flex flex-col gap-4">
+			@coreblocks.HeaderMain("forbidden")
+			<section>
+				<h3>this resource is forbidden</h3>
+				@button.Button(button.Props{
+					Href: "/",
+				}) {
+					@icon.House()
+					<span>go home</span>
+				}
+			</section>
+		</main>
+	}
+}

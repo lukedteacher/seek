@@ -2,6 +2,21 @@
 
 updates for SEEK
 
+## v0.9.10 (26.09.11) fixing bugs, csv imports, dashboard
+
+- switched import names for some packages
+- style tweaks to service cards
+- fixed student list to load services again
+- fixed student CSV import to read plan type
+- added IEP view on homepage
+- updated footer
+- added dashboard view
+  - includes current schedule
+  - add period button
+  - student bookmarks
+- student bookmarks added!
+  - toggle on student view
+
 ## v0.9.9 (26.09.08) homeroom, iep, service updates
 
 - finished adding IEP CSV import

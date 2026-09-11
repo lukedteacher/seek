@@ -6,7 +6,7 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	educatorBlocks "seek/internal/features/educators/blocks"
 	"seek/internal/features/periods/dto"
-	scheduledto "seek/internal/features/schedules/dto"
+	scheduleDTO "seek/internal/features/schedules/dto"
 	studentBlocks "seek/internal/features/students/blocks"
 	"seek/internal/ui/core/coreblocks/forms"
 	"seek/pkg/templui/components/button"
@@ -17,7 +17,7 @@ import (
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithScheduleView) {
+templ FormSections(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@selectbox.Script()
 	@forms.Fieldset("core info") {
@@ -69,7 +69,7 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduledto.PersonWithSc
 }
 
 // only renders when the passed value includes more than just the base schedule
-templ SelectedScheduleList(url string, students []scheduledto.PersonWithScheduleView) {
+templ SelectedScheduleList(url string, students []scheduleDTO.PersonWithScheduleView) {
 	<ul>
 		for _, student := range students {
 			@SelectedScheduleItem(url, student)
@@ -77,7 +77,7 @@ templ SelectedScheduleList(url string, students []scheduledto.PersonWithSchedule
 	</ul>
 }
 
-templ SelectedScheduleItem(url string, student scheduledto.PersonWithScheduleView) {
+templ SelectedScheduleItem(url string, student scheduleDTO.PersonWithScheduleView) {
 	<li
 		class="flex items-center rounded-md py-[0.3rem] px-3 hover:bg-primary/20 group"
 		data-color={ student.Color }

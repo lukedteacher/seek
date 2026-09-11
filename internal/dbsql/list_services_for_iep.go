@@ -51,7 +51,7 @@ SELECT
 FROM iep_services
 WHERE iep_id = ?1
 	AND archived_at IS NULL
-ORDER BY service_type DESC, service_name DESC
+ORDER BY service_type DESC, service_name DESC, start_date ASC
     `
 
 	ps := &ListServicesForIepStmt{

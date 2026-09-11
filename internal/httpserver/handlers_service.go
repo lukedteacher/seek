@@ -527,7 +527,6 @@ func getServicesCSV(
 		marssMap := make(map[string]string)
 		for _, student := range students {
 			marssMap[student.MARSSID] = student.ID
-			l.Debug("test", "smid", student.MARSSID)
 		}
 
 		// convert CSV rows with valid MARSS ID to domain models
@@ -613,7 +612,6 @@ func postServicesCSV(
 				csvSvc.StudentID = studentID
 				if len(ieps) > 0 {
 					csvSvc.IEPID = ieps[0].ID
-					l.Debug("test", "iep id", csvSvc.IEPID)
 				} else {
 					continue
 				}
@@ -636,7 +634,6 @@ func postServicesCSV(
 				continue
 			}
 			if diff.Status == sharedmodels.DiffNew {
-				l.Debug("add", "iep id", diff.New.ID)
 				_, err := events.AddServiceToIEPCommandHandler(
 					ctx,
 					events.AddServiceToIEPCommand{

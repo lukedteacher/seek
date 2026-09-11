@@ -42,7 +42,7 @@ templ UserHeaderDropdown(user models.User) {
 					}) {
 					}
 					<div class="flex-1 min-w-0">
-						<div class="text-sm truncate text-neutral-content/80">{ user.Email }</div>
+						<div class="text-sm truncate text-neutral-content/80">{ user.Username }</div>
 						<div class="flex items-center space-x-2 mt-1">
 							@badge.Badge(badge.Props{
 								Variant: badge.VariantSecondary,

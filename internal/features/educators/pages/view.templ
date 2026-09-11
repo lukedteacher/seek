@@ -6,9 +6,9 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/blocks"
 	"seek/internal/features/educators/dto"
-	sblocks "seek/internal/features/schedules/blocks"
-	scheduledto "seek/internal/features/schedules/dto"
-	studentdto "seek/internal/features/students/dto"
+	scheduleBlocks "seek/internal/features/schedules/blocks"
+	scheduleDTO "seek/internal/features/schedules/dto"
+	studentDTO "seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
@@ -17,7 +17,7 @@ import (
 	"seek/pkg/templui/components/tabs"
 )
 
-templ View(view dto.EducatorView, schedule scheduledto.PersonWithScheduleView, caseload []studentdto.StudentView, active string) {
+templ View(view dto.EducatorView, schedule scheduleDTO.PersonWithScheduleView, caseload []studentDTO.StudentView, active string) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: educator") {
 		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
@@ -79,7 +79,7 @@ templ View(view dto.EducatorView, schedule scheduledto.PersonWithScheduleView, c
 					case "schedule":
 						@tabs.Content(tabs.ContentProps{Value: "schedule", IsActive: true}) {
 							<section class="w-full">
-								@sblocks.ScheduleComponent([]scheduledto.PersonWithScheduleView{schedule})
+								@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{schedule})
 							</section>
 						}
 					case "caseload":

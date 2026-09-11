@@ -6,21 +6,21 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
-	sblocks "seek/internal/features/schedules/blocks"
-	sdto "seek/internal/features/schedules/dto"
+	scheduleBlocks "seek/internal/features/schedules/blocks"
+	scheduleDTO "seek/internal/features/schedules/dto"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-templ Create(view dto.PeriodFormView, schedules []sdto.PersonWithScheduleView) {
+templ Create(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: create period") {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("create period")
 			<section class="w-full flex flex-col md:flex-row gap-4 h-full">
 				@blocks.PeriodForm(view, schedules)
-				@sblocks.ScheduleComponent(schedules)
+				@scheduleBlocks.ScheduleComponent(schedules)
 			</section>
 		</main>
 	}

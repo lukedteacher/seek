@@ -7079,6 +7079,9 @@
   .grid-cols-subgrid {
     grid-template-columns: subgrid;
   }
+  .grid-rows-2 {
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
   .grid-rows-\[0fr\] {
     grid-template-rows: 0fr;
   }
@@ -7949,11 +7952,17 @@
   .fill-current {
     fill: currentcolor;
   }
+  .fill-white {
+    fill: var(--color-white);
+  }
   .stroke-neutral-content\/80 {
     stroke: var(--color-neutral-content);
     @supports (color: color-mix(in lab, red, red)) {
       stroke: color-mix(in oklab, var(--color-neutral-content) 80%, transparent);
     }
+  }
+  .stroke-primary {
+    stroke: var(--color-primary);
   }
   .object-cover {
     object-fit: cover;

@@ -87,11 +87,11 @@ func (m *ReadModel) List(ctx context.Context) ([]models.Service, error) {
 	return services, nil
 }
 
-func (m *ReadModel) ListServicesForIEP(ctx context.Context, studentID string) ([]models.Service, error) {
+func (m *ReadModel) ListServicesForIEP(ctx context.Context, iepID string) ([]models.Service, error) {
 	var rows []dbsql.ListServicesForIepRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
-		rows, err = dbsql.OnceListServicesForIep(conn, studentID)
+		rows, err = dbsql.OnceListServicesForIep(conn, iepID)
 		return err
 	}); err != nil {
 		return nil, err

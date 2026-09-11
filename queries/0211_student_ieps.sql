@@ -58,7 +58,8 @@ SELECT
 	updated_at,
 	archived_at
 FROM student_ieps
-WHERE student_id = @student_id;
+WHERE student_id = @student_id
+ORDER BY meeting_date ASC;
 
 -- name: AddIEPToStudent :exec
 INSERT INTO student_ieps (
