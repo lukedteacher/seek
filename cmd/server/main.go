@@ -24,10 +24,14 @@ import (
 	"seek/internal/protectedpii"
 	"seek/internal/storage"
 	"seek/internal/viewstore"
+
+	"zombiezen.com/go/sqlite"
+	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 type runOptions struct {
 	migrateOnly     bool
+	resetMigrations bool
 	seedOnly        bool
 	resetReadModels bool
 }
@@ -57,10 +61,11 @@ func main() {
 
 func parseOptions() runOptions {
 	migrateOnly := flag.Bool("migrate-only", false, "run database migrations and exit")
+	resetMigrations := flag.Bool("reset-migrations", false, "reset database migrations and exit")
 	seedOnly := flag.Bool("seed-only", false, "run seed tasks and exit")
 	resetReadModels := flag.Bool("reset-read-models", false, "reset SQLite read models and event-handler checkpoints")
 	flag.Parse()
-	return runOptions{migrateOnly: *migrateOnly, seedOnly: *seedOnly, resetReadModels: *resetReadModels}
+	return runOptions{migrateOnly: *migrateOnly, resetMigrations: *resetMigrations, seedOnly: *seedOnly, resetReadModels: *resetReadModels}
 }
 
 func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts runOptions, logger *slog.Logger) error {
@@ -72,6 +77,16 @@ func run(ctx context.Context, stop context.CancelFunc, cfg config.Config, opts r
 
 	if opts.migrateOnly {
 		logger.Info("sqlite migrations complete", "path", cfg.SQLitePath)
+		return nil
+	}
+
+	if opts.resetMigrations {
+		if err := db.WriteTX(ctx, func(conn *sqlite.Conn) error {
+			return sqlitex.ExecuteTransient(conn, "PRAGMA user_version = 0;", nil)
+		}); err != nil {
+			return fmt.Errorf("reset user_version: %w", err)
+		}
+		logger.Info("user_version reset to 0 – migrations will run on next start")
 		return nil
 	}
 

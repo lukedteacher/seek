@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.9.11 (26.09.22) student images, view revamp
+
+- added student images as webp
+- load student images in person avatar
+- fallback to initials if no image is present
+- student view cards re-vamped (alpha)
+
 ## v0.9.10 (26.09.11) fixing bugs, csv imports, dashboard
 
 - switched import names for some packages

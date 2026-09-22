@@ -121,7 +121,7 @@ func Hub() templ.Component {
 					},
 					linkProps{
 						text:     "purchase requests",
-						href:     "https://docs.google.com/forms/d/e/1FAIpQLSeR-y2QYHjT5vxxkCJa2e2dTWhlzzUQqYsTaanoW5VhOSpiZA",
+						href:     "https://docs.google.com/forms/d/e/1FAIpQLSeR-y2QYHjT5vxxkCJa2e2dTWhlzzUQqYsTaanoW5VhOSpiZA/viewform",
 						linkType: "file-input",
 					},
 					linkProps{

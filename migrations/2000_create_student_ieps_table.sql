@@ -3,7 +3,7 @@ DROP INDEX IF EXISTS student_ieps_student_id_idx;
 DROP TABLE IF EXISTS student_ieps;
 
 -- create the new table with updated columns
-CREATE TABLE student_ieps (
+CREATE TABLE IF NOT EXISTS student_ieps (
 	id TEXT PRIMARY KEY,
 	student_id TEXT NOT NULL,
 	plan_manager_id TEXT NOT NULL,

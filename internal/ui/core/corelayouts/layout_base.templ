@@ -16,11 +16,9 @@ templ LayoutBase(title string) {
 		<head>
 			<script>
 				if (localStorage.getItem('theme') === null) {
-					console.log("no value found")
 					document.documentElement.setAttribute('data-theme', 'light');
 					localStorage.setItem('theme', 'light')
 				} else {
-					console.log(localStorage.getItem('theme'))
 					document.documentElement.setAttribute(
 						'data-theme',
 						localStorage.getItem('theme')
@@ -30,7 +28,8 @@ templ LayoutBase(title string) {
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ title }</title>
-			<script type="module" src={ resources.StaticPath("scripts/datastar.js") }></script>
+			<script type="module" src={ resources.StaticPath("scripts/seek-wc.js") }></script>
+			<script type="module" src={ resources.StaticPath("scripts/datastar-rocket.js") }></script>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/style.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/stellar.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/global.css") }/>

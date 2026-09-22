@@ -5,6 +5,7 @@ import (
 	scheduleBlocks "seek/internal/features/schedules/blocks"
 	scheduleDTO "seek/internal/features/schedules/dto"
 	studentDTO "seek/internal/features/students/dto"
+	"seek/internal/ui/core/coreblocks/buttons"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 	"seek/pkg/templui/components/button"
@@ -20,7 +21,7 @@ templ Dashboard(view DashboardView) {
 	@corelayouts.LayoutBase("SEEK: dashboard") {
 		<div class="flex flex-col w-full h-full row-2" data-init={ sse.LongRunningGetSSE("dashboard/stream") }>
 			<main class="h-full">
-				<div class="w-full h-full grid grid-cols-2 gap-6">
+				<div class="w-full h-full grid grid-rows-2 md:grid-cols-2 gap-6">
 					@DashboardSchedule(view.Schedule)
 					@DashboardBookmarkedStudents(view.BookmarkedStudents)
 				</div>
@@ -31,12 +32,7 @@ templ Dashboard(view DashboardView) {
 
 templ DashboardSchedule(schedule scheduleDTO.PersonWithScheduleView) {
 	<section id="dashboard-schedule" class="flex flex-col gap-3">
-		@button.Button(button.Props{
-			Href: "/periods/create",
-		}) {
-			@icon.Plus()
-			<span>create period</span>
-		}
+		@corebuttons.FlexIconButton("/periods/create", "plus", "create")
 		@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{schedule})
 	</section>
 }

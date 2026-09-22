@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 )

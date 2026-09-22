@@ -1,4 +1,4 @@
-CREATE TABLE user_student_bookmarks (
+CREATE TABLE IF NOT EXISTS user_student_bookmarks (
 	user_id TEXT NOT NULL,
 	student_id TEXT NOT NULL,
 	last_event_commit_position INTEGER NOT NULL,

@@ -14,7 +14,6 @@ import (
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
-	toggle "seek/pkg/templui/components/switch"
 )
 
 func Components() templ.Component {
@@ -58,11 +57,11 @@ func Components() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<section><h3>toggle (doesn't work)</h3>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<section>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = toggle.Switch().Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = coreblocks.WebCounter().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

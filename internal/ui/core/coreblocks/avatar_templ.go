@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+	"strings"
 
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/pkg/templui/components/avatar"
@@ -80,13 +81,23 @@ func PersonAvatar(objectType string, p sharedmodels.Person) templ.Component {
 					var templ_7745c5c3_Var5 templ.SafeURL
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/%ss/%s/info", objectType, p.Username))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/avatar.templ`, Line: 17, Col: 87}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/avatar.templ`, Line: 20, Col: 87}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = avatar.Image(avatar.ImageProps{
+						Src:   fmt.Sprintf("/static/images/students/%s_%s.webp", strings.ToLower(p.FamilyName), strings.ToLower(p.GivenName)),
+						Class: "object-cover",
+						Attributes: templ.Attributes{
+							"onerror": "this.style.display='none'",
+						},
+					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -105,7 +116,7 @@ func PersonAvatar(objectType string, p sharedmodels.Person) templ.Component {
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(p.Initials())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/avatar.templ`, Line: 21, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/avatar.templ`, Line: 31, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -114,7 +125,7 @@ func PersonAvatar(objectType string, p sharedmodels.Person) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = avatar.Fallback(avatar.FallbackProps{
-						Class: "border-black border-1 bg-secondary hover:bg-primary hover:z-10 relative",
+						Class: "bg-secondary hover:bg-primary",
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -125,7 +136,9 @@ func PersonAvatar(objectType string, p sharedmodels.Person) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = avatar.Avatar().Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = avatar.Avatar(avatar.Props{
+					Class: "border-1 border-black hover:z-10 relative",
+				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -154,7 +167,7 @@ func PersonAvatar(objectType string, p sharedmodels.Person) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.FullName())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/avatar.templ`, Line: 31, Col: 17}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/avatar.templ`, Line: 41, Col: 17}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {

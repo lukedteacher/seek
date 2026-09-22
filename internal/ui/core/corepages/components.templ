@@ -6,7 +6,6 @@ import (
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
-	toggle "seek/pkg/templui/components/switch"
 )
 
 templ Components() {
@@ -14,8 +13,7 @@ templ Components() {
 		<main class="flex flex-col gap-4">
 			@coreblocks.HeaderMain("components")
 			<section>
-				<h3>toggle (doesn't work)</h3>
-				@toggle.Switch()
+				@coreblocks.WebCounter()
 			</section>
 			<section>
 				<h3>buttons</h3>

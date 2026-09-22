@@ -2,6 +2,7 @@ package coreblocks
 
 import (
 	"fmt"
+	"strings"
 
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/pkg/templui/components/avatar"
@@ -13,10 +14,19 @@ templ PersonAvatar(objectType string, p sharedmodels.Person) {
 		Class: "w-full flex justify-center items-center",
 	}) {
 		@tooltip.Trigger() {
-			@avatar.Avatar() {
+			@avatar.Avatar(avatar.Props{
+				Class: "border-1 border-black hover:z-10 relative",
+			}) {
 				<a class="w-full h-full" href={ fmt.Sprintf("/%ss/%s/info", objectType, p.Username) }>
+					@avatar.Image(avatar.ImageProps{
+						Src:   fmt.Sprintf("/static/images/students/%s_%s.webp", strings.ToLower(p.FamilyName), strings.ToLower(p.GivenName)),
+						Class: "object-cover",
+						Attributes: templ.Attributes{
+							"onerror": "this.style.display='none'",
+						},
+					})
 					@avatar.Fallback(avatar.FallbackProps{
-						Class: "border-black border-1 bg-secondary hover:bg-primary hover:z-10 relative",
+						Class: "bg-secondary hover:bg-primary",
 					}) {
 						{ p.Initials() }
 					}
