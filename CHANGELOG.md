@@ -2,6 +2,17 @@
 
 updates for SEEK
 
+## v0.9.12 (26.09.24) homeroom and case manager updates
+
+- added get homeroom by student id query
+- added homeroom info to student view card
+- updated homeroom create & edit to use student filters
+- added auto filter on edit homeroom for selected grades
+- minor style changes to index
+- fixed case manager for student
+  - can add and remove case manager from student edit page
+  - view included on view
+
 ## v0.9.11 (26.09.22) student images, view revamp
 
 - added student images as webp

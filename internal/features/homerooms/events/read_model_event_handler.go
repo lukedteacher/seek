@@ -17,6 +17,7 @@ const HomeroomReadModelEventHandlerName = "homeroom_read_model_event_handler"
 type HomeroomReadModelReader interface {
 	Get(ctx context.Context, homeroomID string) (*models.Homeroom, error)
 	GetWithIDs(ctx context.Context, homeroomID string) (*models.Homeroom, error)
+	GetByStudentID(ctx context.Context, studentID string) (*models.Homeroom, error)
 	List(ctx context.Context) ([]models.Homeroom, error)
 	ListWithIDs(ctx context.Context) ([]models.Homeroom, error)
 }

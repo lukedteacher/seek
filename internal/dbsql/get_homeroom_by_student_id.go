@@ -7,7 +7,7 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type ListHomeroomsWithIdsRes struct {
+type GetHomeroomByStudentIdRes struct {
 	Id            string `json:"id"`
 	Title         string `json:"title"`
 	GradesBitmask int64  `json:"grades_bitmask"`
@@ -15,18 +15,16 @@ type ListHomeroomsWithIdsRes struct {
 	Image         string `json:"image"`
 	CreatedAt     string `json:"created_at"`
 	UpdatedAt     string `json:"updated_at"`
-	EducatorIds   string `json:"educator_ids"`
-	StudentIds    string `json:"student_ids"`
 }
 
-type ListHomeroomsWithIdsStmt struct {
+type GetHomeroomByStudentIdStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func ListHomeroomsWithIds(tx *sqlite.Conn) *ListHomeroomsWithIdsStmt {
+func GetHomeroomByStudentId(tx *sqlite.Conn) *GetHomeroomByStudentIdStmt {
 	const querySQL = `
 SELECT
 	h.id,
@@ -35,23 +33,14 @@ SELECT
 	h.location_id,
 	h.image,
 	h.created_at,
-	h.updated_at,
-	CAST(
-		COALESCE(
-			(SELECT json_group_array(he.educator_id) FROM homerooms_educators he WHERE he.homeroom_id = h.id),
-			'[]'
-		) AS TEXT
-	) AS educator_ids,
-	CAST(
-		COALESCE(
-			(SELECT json_group_array(s.id) FROM students s WHERE s.homeroom_id = h.id),
-			'[]'
-		) AS TEXT
-	) AS student_ids
+	h.updated_at
 FROM homerooms h
+INNER JOIN students s ON h.id = s.homeroom_id
+WHERE s.id = ?1
+  AND h.archived_at IS NULL
     `
 
-	ps := &ListHomeroomsWithIdsStmt{
+	ps := &GetHomeroomByStudentIdStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -64,8 +53,10 @@ FROM homerooms h
 	return ps
 }
 
-func (ps *ListHomeroomsWithIdsStmt) Run() (
-	res []ListHomeroomsWithIdsRes,
+func (ps *GetHomeroomByStudentIdStmt) Run(
+	studentId string,
+) (
+	res *GetHomeroomByStudentIdRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
@@ -82,15 +73,17 @@ func (ps *ListHomeroomsWithIdsStmt) Run() (
 		_ = stmt.Reset()
 	}()
 
-	// Execute the query
-	for {
-		if hasRow, err := stmt.Step(); err != nil {
-			return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
-		} else if !hasRow {
-			break
-		}
+	bindIndex := 1
+	// Bind parameters
+	stmt.BindText(bindIndex, studentId)
 
-		row := ListHomeroomsWithIdsRes{}
+	bindIndex++
+
+	// Execute the query
+	if hasRow, err := stmt.Step(); err != nil {
+		return res, fmt.Errorf("failed to execute {{.Name.Lower}} SQL: %w", err)
+	} else if hasRow {
+		row := GetHomeroomByStudentIdRes{}
 		row.Id = stmt.ColumnText(0)
 		row.Title = stmt.ColumnText(1)
 		row.GradesBitmask = stmt.ColumnInt64(2)
@@ -98,21 +91,22 @@ func (ps *ListHomeroomsWithIdsStmt) Run() (
 		row.Image = stmt.ColumnText(4)
 		row.CreatedAt = stmt.ColumnText(5)
 		row.UpdatedAt = stmt.ColumnText(6)
-		row.EducatorIds = stmt.ColumnText(7)
-		row.StudentIds = stmt.ColumnText(8)
-		res = append(res, row)
+		res = &row
 	}
 
 	return res, nil
 }
 
-func OnceListHomeroomsWithIds(
+func OnceGetHomeroomByStudentId(
 	tx *sqlite.Conn,
+	studentId string,
 ) (
-	res []ListHomeroomsWithIdsRes,
+	res *GetHomeroomByStudentIdRes,
 	err error,
 ) {
-	ps := ListHomeroomsWithIds(tx)
+	ps := GetHomeroomByStudentId(tx)
 
-	return ps.Run()
+	return ps.Run(
+		studentId,
+	)
 }

@@ -3,17 +3,50 @@ package blocks
 import (
 	"fmt"
 
+	homeroomDTO "seek/internal/features/homerooms/dto"
 	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks/cards"
+	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
 )
 
-templ Card(view dto.StudentView) {
-	<div class="flex flex-wrap gap-8">
+templ Card(view dto.StudentView, homeroomView homeroomDTO.HomeroomView, serviceCount int) {
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+		@card.Card(card.Props{
+			ID:    fmt.Sprintf("student-%s-card-info", view.Username),
+			Class: "student-card w-full h-min bg-linear-3-4 border-muted",
+		}) {
+			@card.Header() {
+				@card.Title() {
+					<div class="flex items-center gap-2">
+						@icon.User()
+						<span>name</span>
+					</div>
+				}
+			}
+			@card.Content(card.ContentProps{
+				Class: "text-sm flex flex-col gap-3",
+			}) {
+				@cards.TextLine(cards.TextLineProps{
+					Key:   "given",
+					Value: view.GivenName,
+				})
+				if view.ChosenName != "" {
+					@cards.TextLine(cards.TextLineProps{
+						Key:   "chosen",
+						Value: view.ChosenName,
+					})
+				}
+				@cards.TextLine(cards.TextLineProps{
+					Key:   "family",
+					Value: view.FamilyName,
+				})
+			}
+		}
 		@card.Card(card.Props{
 			ID:    fmt.Sprintf("student-%s-card", view.Username),
-			Class: "student-card w-110 h-min bg-linear-3-4 border-muted",
+			Class: "student-card w-full h-min bg-linear-3-4 border-muted",
 		}) {
 			@card.Header() {
 				@card.Title() {
@@ -38,7 +71,7 @@ templ Card(view dto.StudentView) {
 		}
 		@card.Card(card.Props{
 			ID:    fmt.Sprintf("student-%s-card", view.Username),
-			Class: "student-card w-110 h-min bg-linear-3-4 border-muted",
+			Class: "student-card w-full h-min bg-linear-3-4 border-muted",
 		}) {
 			@card.Header() {
 				@card.Title() {
@@ -55,14 +88,61 @@ templ Card(view dto.StudentView) {
 					Key:   "grade",
 					Value: view.Grade.Ordinal(),
 				})
-				@cards.TextLine(cards.TextLineProps{
-					Key:   "homeroom",
-					Value: view.HomeroomID,
-				})
+				if homeroomView.ID != "" {
+					<a href={ fmt.Sprintf("/homerooms/%s", homeroomView.ID) }>
+						@cards.BadgeLine(cards.BadgeLineProps{
+							Key:   "homeroom",
+							Value: homeroomView.Title,
+						})
+					</a>
+				} else {
+					@cards.TextLine(cards.TextLineProps{
+						Key:   "homeroom",
+						Value: "not assigned",
+					})
+				}
 				@cards.BadgeLine(cards.BadgeLineProps{
 					Key:   "plan type",
 					Value: view.PlanType.Description(),
 				})
+				if view.CaseManagerID != "" {
+					<a href={ fmt.Sprintf("/educators/%s", view.CaseManager.Username) }>
+						@cards.BadgeLine(cards.BadgeLineProps{
+							Key:   "case manager",
+							Value: view.CaseManager.NameInitial(),
+						})
+					</a>
+				}
+			}
+		}
+		@card.Card(card.Props{
+			ID:    fmt.Sprintf("student-%s-card-schedule", view.Username),
+			Class: "student-card w-full h-min bg-linear-3-4 border-muted",
+		}) {
+			@card.Header() {
+				@card.Title() {
+					<div class="flex items-center gap-2">
+						@icon.CalendarRange()
+						<span>schedule</span>
+					</div>
+				}
+			}
+			@card.Content(card.ContentProps{
+				Class: "text-sm flex flex-col gap-3",
+			}) {
+				@cards.TextLine(cards.TextLineProps{
+					Key:   "periods",
+					Value: fmt.Sprintf("%d", serviceCount),
+				})
+			}
+			@card.Footer() {
+				@button.Button(button.Props{
+					Href:  fmt.Sprintf("/students/%s/schedule", view.Username),
+					Class: "w-full",
+				}) {
+					<span>detail</span>
+					@icon.ArrowRight()
+				}
 			}
 		}
 	</div>

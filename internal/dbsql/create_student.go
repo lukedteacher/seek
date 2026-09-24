@@ -20,6 +20,7 @@ type CreateStudentParams struct {
 	Grade                    int64  `json:"grade"`
 	HomeroomId               string `json:"homeroom_id"`
 	PlanType                 int64  `json:"plan_type"`
+	CaseManagerId            string `json:"case_manager_id"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	CreatedAt                string `json:"created_at"`
@@ -47,6 +48,7 @@ INSERT INTO students (
 	grade, 
 	homeroom_id, 
 	plan_type, 
+	case_manager_id,
 	last_event_commit_position,
 	last_event_prepare_position,
 	created_at, 
@@ -65,10 +67,11 @@ VALUES (
 	?10, 
 	?11, 
 	?12, 
-	?13, 
-	?14,
-	?15, 
-	?15
+	?13,
+	?14, 
+	?15,
+	?16, 
+	?16
 )
 ON CONFLICT (id) DO NOTHING
     `
@@ -141,6 +144,9 @@ func (ps *CreateStudentStmt) Run(
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.PlanType)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.CaseManagerId)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)

@@ -12,6 +12,7 @@ SELECT
 	grade, 
 	homeroom_id, 
 	plan_type, 
+	case_manager_id,
 	created_at, 
 	updated_at
 FROM students
@@ -32,6 +33,7 @@ SELECT
 	grade, 
 	homeroom_id, 
 	plan_type, 
+	case_manager_id,
 	created_at, 
 	updated_at
 FROM students
@@ -52,6 +54,7 @@ SELECT
 	grade, 
 	homeroom_id, 
 	plan_type, 
+	case_manager_id,
 	created_at, 
 	updated_at
 FROM students
@@ -72,6 +75,7 @@ SELECT
 	grade, 
 	homeroom_id, 
 	plan_type, 
+	case_manager_id,
 	created_at, 
 	updated_at
 FROM students
@@ -93,6 +97,7 @@ SELECT
 	s.grade, 
 	s.homeroom_id, 
 	s.plan_type, 
+	s.case_manager_id,
 	s.created_at, 
 	s.updated_at
 FROM students s
@@ -118,6 +123,7 @@ SELECT
 	s.grade,
 	s.homeroom_id, 
 	s.plan_type, 
+	s.case_manager_id,
 	s.created_at,
 	s.updated_at,
 	i.id AS iep_id,
@@ -155,6 +161,7 @@ SELECT
 	s.grade,
 	s.homeroom_id, 
 	s.plan_type, 
+	s.case_manager_id,
 	s.created_at,
 	s.updated_at,
 	i.id AS service_id,
@@ -190,6 +197,7 @@ SELECT
 	s.grade, 
 	s.homeroom_id, 
 	s.plan_type, 
+	s.case_manager_id,
 	s.created_at,
 	s.updated_at
 FROM students s
@@ -211,6 +219,7 @@ INSERT INTO students (
 	grade, 
 	homeroom_id, 
 	plan_type, 
+	case_manager_id,
 	last_event_commit_position,
 	last_event_prepare_position,
 	created_at, 
@@ -229,6 +238,7 @@ VALUES (
 	@grade, 
 	@homeroom_id, 
 	@plan_type, 
+	@case_manager_id,
 	@last_event_commit_position, 
 	@last_event_prepare_position,
 	@created_at, 
@@ -250,10 +260,29 @@ SET
 	grade = @grade,
 	homeroom_id = @homeroom_id,
 	plan_type = @plan_type,
+	case_manager_id = @case_manager_id,
 	last_event_commit_position = @last_event_commit_position,
 	last_event_prepare_position = @last_event_prepare_position,
 	updated_at = @updated_at
 WHERE id = @id;
+
+-- name: AddStudentToHomeroom :exec
+UPDATE students
+SET
+	homeroom_id = @homeroom_id,
+	last_event_commit_position = @last_event_commit_position,
+	last_event_prepare_position = @last_event_prepare_position,
+	updated_at = @updated_at
+WHERE id = @student_id;
+
+-- name: RemoveStudentFromHomeroom :exec
+UPDATE students
+SET
+	homeroom_id = '',
+	last_event_commit_position = @last_event_commit_position,
+	last_event_prepare_position = @last_event_prepare_position,
+	updated_at = @updated_at
+WHERE id = @student_id;
 
 -- name: ArchiveStudent :exec
 UPDATE students

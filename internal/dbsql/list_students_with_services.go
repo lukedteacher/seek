@@ -20,6 +20,7 @@ type ListStudentsWithServicesRes struct {
 	Grade            int64   `json:"grade"`
 	HomeroomId       string  `json:"homeroom_id"`
 	PlanType         int64   `json:"plan_type"`
+	CaseManagerId    string  `json:"case_manager_id"`
 	CreatedAt        string  `json:"created_at"`
 	UpdatedAt        string  `json:"updated_at"`
 	ServiceId        *string `json:"service_id"`
@@ -59,6 +60,7 @@ SELECT
 	s.grade,
 	s.homeroom_id, 
 	s.plan_type, 
+	s.case_manager_id,
 	s.created_at,
 	s.updated_at,
 	i.id AS service_id,
@@ -133,71 +135,72 @@ func (ps *ListStudentsWithServicesStmt) Run() (
 		row.Grade = stmt.ColumnInt64(9)
 		row.HomeroomId = stmt.ColumnText(10)
 		row.PlanType = stmt.ColumnInt64(11)
-		row.CreatedAt = stmt.ColumnText(12)
-		row.UpdatedAt = stmt.ColumnText(13)
-		isNullServiceId := stmt.ColumnIsNull(14)
+		row.CaseManagerId = stmt.ColumnText(12)
+		row.CreatedAt = stmt.ColumnText(13)
+		row.UpdatedAt = stmt.ColumnText(14)
+		isNullServiceId := stmt.ColumnIsNull(15)
 		if !isNullServiceId {
-			tmp := stmt.ColumnText(14)
+			tmp := stmt.ColumnText(15)
 			row.ServiceId = &tmp
 		}
-		isNullServiceName := stmt.ColumnIsNull(15)
+		isNullServiceName := stmt.ColumnIsNull(16)
 		if !isNullServiceName {
-			tmp := stmt.ColumnText(15)
+			tmp := stmt.ColumnText(16)
 			row.ServiceName = &tmp
 		}
-		isNullServiceType := stmt.ColumnIsNull(16)
+		isNullServiceType := stmt.ColumnIsNull(17)
 		if !isNullServiceType {
-			tmp := stmt.ColumnText(16)
+			tmp := stmt.ColumnText(17)
 			row.ServiceType = &tmp
 		}
-		isNullIndirectMinutes := stmt.ColumnIsNull(17)
+		isNullIndirectMinutes := stmt.ColumnIsNull(18)
 		if !isNullIndirectMinutes {
-			tmp := stmt.ColumnInt64(17)
+			tmp := stmt.ColumnInt64(18)
 			row.IndirectMinutes = &tmp
 		}
-		isNullDirectMinutes := stmt.ColumnIsNull(18)
+		isNullDirectMinutes := stmt.ColumnIsNull(19)
 		if !isNullDirectMinutes {
-			tmp := stmt.ColumnInt64(18)
+			tmp := stmt.ColumnInt64(19)
 			row.DirectMinutes = &tmp
 		}
-		isNullFrequencyCount := stmt.ColumnIsNull(19)
+		isNullFrequencyCount := stmt.ColumnIsNull(20)
 		if !isNullFrequencyCount {
-			tmp := stmt.ColumnInt64(19)
+			tmp := stmt.ColumnInt64(20)
 			row.FrequencyCount = &tmp
 		}
-		isNullFrequencyType := stmt.ColumnIsNull(20)
+		isNullFrequencyType := stmt.ColumnIsNull(21)
 		if !isNullFrequencyType {
-			tmp := stmt.ColumnText(20)
+			tmp := stmt.ColumnText(21)
 			row.FrequencyType = &tmp
 		}
-		isNullLocationId := stmt.ColumnIsNull(21)
+		isNullLocationId := stmt.ColumnIsNull(22)
 		if !isNullLocationId {
-			tmp := stmt.ColumnText(21)
+			tmp := stmt.ColumnText(22)
 			row.LocationId = &tmp
 		}
-		isNullStartDate := stmt.ColumnIsNull(22)
+		isNullStartDate := stmt.ColumnIsNull(23)
 		if !isNullStartDate {
-			tmp := stmt.ColumnText(22)
+			tmp := stmt.ColumnText(23)
 			row.StartDate = &tmp
 		}
-		isNullEndDate := stmt.ColumnIsNull(23)
+		isNullEndDate := stmt.ColumnIsNull(24)
 		if !isNullEndDate {
-			tmp := stmt.ColumnText(23)
+			tmp := stmt.ColumnText(24)
 			row.EndDate = &tmp
 		}
-		isNullProviderId := stmt.ColumnIsNull(24)
+		isNullProviderId := stmt.ColumnIsNull(25)
 		if !isNullProviderId {
-			tmp := stmt.ColumnText(24)
+			tmp := stmt.ColumnText(25)
 			row.ProviderId = &tmp
 		}
-		isNullServiceCreatedAt := stmt.ColumnIsNull(25)
+		isNullServiceCreatedAt := stmt.ColumnIsNull(26)
 		if !isNullServiceCreatedAt {
-			tmp := stmt.ColumnText(25)
+			tmp := stmt.ColumnText(26)
 			row.ServiceCreatedAt = &tmp
 		}
-		isNullServiceUpdatedAt := stmt.ColumnIsNull(26)
+		isNullServiceUpdatedAt := stmt.ColumnIsNull(27)
 		if !isNullServiceUpdatedAt {
-			tmp := stmt.ColumnText(26)
+			tmp := stmt.ColumnText(27)
 			row.ServiceUpdatedAt = &tmp
 		}
 		res = append(res, row)

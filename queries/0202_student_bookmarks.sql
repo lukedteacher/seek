@@ -12,6 +12,7 @@ SELECT
 	s.grade,
 	s.homeroom_id, 
 	s.plan_type, 
+	s.case_manager_id,
 	s.created_at,
 	s.updated_at
 FROM students s
@@ -34,6 +35,7 @@ SELECT
 	s.grade,
 	s.homeroom_id, 
 	s.plan_type, 
+	s.case_manager_id,
 	s.created_at,
 	s.updated_at
 FROM students s

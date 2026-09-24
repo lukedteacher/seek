@@ -28,12 +28,26 @@ SELECT
 	) AS educator_ids,
 	CAST(
 		COALESCE(
-			(SELECT json_group_array(hs.student_id) FROM homerooms_students hs WHERE hs.homeroom_id = h.id),
+			(SELECT json_group_array(s.id) FROM students s WHERE s.homeroom_id = h.id),
 			'[]'
 		) AS TEXT
 	) AS student_ids
 FROM homerooms h
 WHERE h.id = @id;
+
+-- name: GetHomeroomByStudentID :one
+SELECT
+	h.id,
+	h.title,
+	h.grades_bitmask,
+	h.location_id,
+	h.image,
+	h.created_at,
+	h.updated_at
+FROM homerooms h
+INNER JOIN students s ON h.id = s.homeroom_id
+WHERE s.id = @student_id
+  AND h.archived_at IS NULL;
 
 -- name: ListHomerooms :many
 SELECT
@@ -65,7 +79,7 @@ SELECT
 	) AS educator_ids,
 	CAST(
 		COALESCE(
-			(SELECT json_group_array(hs.student_id) FROM homerooms_students hs WHERE hs.homeroom_id = h.id),
+			(SELECT json_group_array(s.id) FROM students s WHERE s.homeroom_id = h.id),
 			'[]'
 		) AS TEXT
 	) AS student_ids

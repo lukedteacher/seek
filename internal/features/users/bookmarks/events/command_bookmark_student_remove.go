@@ -103,7 +103,6 @@ func loadRemoveStudentBookmarkContext(
 	for _, event := range events {
 		model.handle(event)
 	}
-	println("q", len(query.Criteria), "e", len(events), "u", model.user.registered)
 	return model, nil
 }
 

@@ -8,7 +8,10 @@ package blocks
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "seek/internal/features/students/dto"
+import (
+	homeroomDTO "seek/internal/features/homerooms/dto"
+	"seek/internal/features/students/dto"
+)
 
 func CardGrid(students []dto.StudentView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -36,7 +39,7 @@ func CardGrid(students []dto.StudentView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		for _, student := range students {
-			templ_7745c5c3_Err = Card(student).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = Card(student, homeroomDTO.HomeroomView{}, 0).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

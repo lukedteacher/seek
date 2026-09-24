@@ -7,32 +7,33 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type RemoveStudentFromHomeroomParams struct {
+type SetStudentCaseManagerParams struct {
+	CaseManagerId            string `json:"case_manager_id"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	UpdatedAt                string `json:"updated_at"`
-	StudentId                string `json:"student_id"`
+	Id                       string `json:"id"`
 }
 
-type RemoveStudentFromHomeroomStmt struct {
+type SetStudentCaseManagerStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func RemoveStudentFromHomeroom(tx *sqlite.Conn) *RemoveStudentFromHomeroomStmt {
+func SetStudentCaseManager(tx *sqlite.Conn) *SetStudentCaseManagerStmt {
 	const querySQL = `
 UPDATE students
 SET
-	homeroom_id = '',
-	last_event_commit_position = ?1,
-	last_event_prepare_position = ?2,
-	updated_at = ?3
-WHERE id = ?4
+	case_manager_id = ?1,
+	last_event_commit_position = ?2,
+	last_event_prepare_position = ?3,
+	updated_at = ?4
+WHERE id = ?5
     `
 
-	ps := &RemoveStudentFromHomeroomStmt{
+	ps := &SetStudentCaseManagerStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -45,8 +46,8 @@ WHERE id = ?4
 	return ps
 }
 
-func (ps *RemoveStudentFromHomeroomStmt) Run(
-	params RemoveStudentFromHomeroomParams,
+func (ps *SetStudentCaseManagerStmt) Run(
+	params SetStudentCaseManagerParams,
 ) (
 	err error,
 ) {
@@ -66,6 +67,9 @@ func (ps *RemoveStudentFromHomeroomStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
+	stmt.BindText(bindIndex, params.CaseManagerId)
+
+	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
 	bindIndex++
@@ -75,25 +79,25 @@ func (ps *RemoveStudentFromHomeroomStmt) Run(
 	stmt.BindText(bindIndex, params.UpdatedAt)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.StudentId)
+	stmt.BindText(bindIndex, params.Id)
 
 	bindIndex++
 
 	// Execute the query
 	if _, err := stmt.Step(); err != nil {
-		return fmt.Errorf("failed to execute removestudentfromhomeroom SQL: %w", err)
+		return fmt.Errorf("failed to execute setstudentcasemanager SQL: %w", err)
 	}
 
 	return nil
 }
 
-func OnceRemoveStudentFromHomeroom(
+func OnceSetStudentCaseManager(
 	tx *sqlite.Conn,
-	params RemoveStudentFromHomeroomParams,
+	params SetStudentCaseManagerParams,
 ) (
 	err error,
 ) {
-	ps := RemoveStudentFromHomeroom(tx)
+	ps := SetStudentCaseManager(tx)
 
 	return ps.Run(
 		params,

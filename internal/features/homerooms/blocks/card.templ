@@ -5,6 +5,7 @@ import (
 
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/homerooms/dto"
+	"seek/internal/ui/core/coreblocks"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
@@ -42,17 +43,20 @@ templ Card(view dto.HomeroomView) {
 				<p>
 					<span class="text-neutral-content/70">teachers ({ len(view.Educators) }):</span>
 				</p>
-				<div class="homeroom-card-educators flex gap-3 flex-wrap">
+				<div class="homeroom-card-educators flex gap-3 flex-wrap justify-center">
 					for _, educator := range view.Educators {
 						@tooltip.Tooltip() {
 							@tooltip.Trigger() {
-								<div class="bg-linear-2 border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
-									{ educator.NameInitial() }
-									for _, role := range educator.Roles {
-										@badge.Badge() {
-											{ role.ShortString() }
+								<div class="flex gap-3 bg-linear-2 border border-muted px-3 h-16 rounded-md justify-center">
+									@coreblocks.PersonAvatar("educator", educator.Person)
+									<div class="flex flex-col gap-1 items-center justify-center">
+										{ educator.NameInitial() }
+										for _, role := range educator.Roles {
+											@badge.Badge() {
+												{ role.ShortString() }
+											}
 										}
-									}
+									</div>
 								</div>
 							}
 							@tooltip.Content(tooltip.ContentProps{
@@ -89,11 +93,14 @@ templ Card(view dto.HomeroomView) {
 				</p>
 				<div class="homeroom-card-students flex gap-3 flex-wrap">
 					for _, student := range view.Students {
-						<div class="bg-linear-2 border border-muted w-24 h-24 rounded-md flex flex-col gap-1 items-center justify-center">
-							{ student.NameInitial() }
-							@badge.Badge() {
-								{ student.Grade.Ordinal() }
-							}
+						<div class="flex gap-3 px-3 justify-center bg-linear-2 border border-muted rounded-md">
+							@coreblocks.PersonAvatar("student", student.Person)
+							<div class="h-16 flex flex-col gap-1 items-center justify-center">
+								{ student.NameInitial() }
+								@badge.Badge() {
+									{ student.Grade.Ordinal() }
+								}
+							</div>
 						</div>
 					}
 				</div>

@@ -7,32 +7,32 @@ import (
 	"zombiezen.com/go/sqlite"
 )
 
-type RemoveStudentFromHomeroomParams struct {
+type ClearStudentCaseManagerParams struct {
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
 	UpdatedAt                string `json:"updated_at"`
-	StudentId                string `json:"student_id"`
+	Id                       string `json:"id"`
 }
 
-type RemoveStudentFromHomeroomStmt struct {
+type ClearStudentCaseManagerStmt struct {
 	conn      *sqlite.Conn
 	stmt      *sqlite.Stmt
 	querySQL  string
 	hasSlices bool
 }
 
-func RemoveStudentFromHomeroom(tx *sqlite.Conn) *RemoveStudentFromHomeroomStmt {
+func ClearStudentCaseManager(tx *sqlite.Conn) *ClearStudentCaseManagerStmt {
 	const querySQL = `
 UPDATE students
 SET
-	homeroom_id = '',
+	case_manager_id = '',
 	last_event_commit_position = ?1,
 	last_event_prepare_position = ?2,
 	updated_at = ?3
 WHERE id = ?4
     `
 
-	ps := &RemoveStudentFromHomeroomStmt{
+	ps := &ClearStudentCaseManagerStmt{
 		conn:      tx,
 		querySQL:  querySQL,
 		hasSlices: false,
@@ -45,8 +45,8 @@ WHERE id = ?4
 	return ps
 }
 
-func (ps *RemoveStudentFromHomeroomStmt) Run(
-	params RemoveStudentFromHomeroomParams,
+func (ps *ClearStudentCaseManagerStmt) Run(
+	params ClearStudentCaseManagerParams,
 ) (
 	err error,
 ) {
@@ -75,25 +75,25 @@ func (ps *RemoveStudentFromHomeroomStmt) Run(
 	stmt.BindText(bindIndex, params.UpdatedAt)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.StudentId)
+	stmt.BindText(bindIndex, params.Id)
 
 	bindIndex++
 
 	// Execute the query
 	if _, err := stmt.Step(); err != nil {
-		return fmt.Errorf("failed to execute removestudentfromhomeroom SQL: %w", err)
+		return fmt.Errorf("failed to execute clearstudentcasemanager SQL: %w", err)
 	}
 
 	return nil
 }
 
-func OnceRemoveStudentFromHomeroom(
+func OnceClearStudentCaseManager(
 	tx *sqlite.Conn,
-	params RemoveStudentFromHomeroomParams,
+	params ClearStudentCaseManagerParams,
 ) (
 	err error,
 ) {
-	ps := RemoveStudentFromHomeroom(tx)
+	ps := ClearStudentCaseManager(tx)
 
 	return ps.Run(
 		params,

@@ -20,6 +20,7 @@ type ListOnlyStudentsWithIepsRes struct {
 	Grade                    int64  `json:"grade"`
 	HomeroomId               string `json:"homeroom_id"`
 	PlanType                 int64  `json:"plan_type"`
+	CaseManagerId            string `json:"case_manager_id"`
 	CreatedAt                string `json:"created_at"`
 	UpdatedAt                string `json:"updated_at"`
 	IepId                    string `json:"iep_id"`
@@ -61,6 +62,7 @@ SELECT
 	s.grade,
 	s.homeroom_id, 
 	s.plan_type, 
+	s.case_manager_id,
 	s.created_at,
 	s.updated_at,
 	i.id AS iep_id,
@@ -137,23 +139,24 @@ func (ps *ListOnlyStudentsWithIepsStmt) Run() (
 		row.Grade = stmt.ColumnInt64(9)
 		row.HomeroomId = stmt.ColumnText(10)
 		row.PlanType = stmt.ColumnInt64(11)
-		row.CreatedAt = stmt.ColumnText(12)
-		row.UpdatedAt = stmt.ColumnText(13)
-		row.IepId = stmt.ColumnText(14)
-		row.IepStudentId = stmt.ColumnText(15)
-		row.IepPlanManagerId = stmt.ColumnText(16)
-		row.IepDisability1 = stmt.ColumnInt64(17)
-		row.IepDisability2 = stmt.ColumnInt64(18)
-		row.IepFederalSetting = stmt.ColumnInt64(19)
-		row.IepMeetingDate = stmt.ColumnText(20)
-		row.IepIepDueDate = stmt.ColumnText(21)
-		row.IepLastEvalDate = stmt.ColumnText(22)
-		row.IepEvalDueDate = stmt.ColumnText(23)
-		row.IepAmendedDate = stmt.ColumnText(24)
-		row.IepIepType = stmt.ColumnInt64(25)
-		row.IepSpecialTransportation = stmt.ColumnInt64(26)
-		row.IepCreatedAt = stmt.ColumnText(27)
-		row.IepUpdatedAt = stmt.ColumnText(28)
+		row.CaseManagerId = stmt.ColumnText(12)
+		row.CreatedAt = stmt.ColumnText(13)
+		row.UpdatedAt = stmt.ColumnText(14)
+		row.IepId = stmt.ColumnText(15)
+		row.IepStudentId = stmt.ColumnText(16)
+		row.IepPlanManagerId = stmt.ColumnText(17)
+		row.IepDisability1 = stmt.ColumnInt64(18)
+		row.IepDisability2 = stmt.ColumnInt64(19)
+		row.IepFederalSetting = stmt.ColumnInt64(20)
+		row.IepMeetingDate = stmt.ColumnText(21)
+		row.IepIepDueDate = stmt.ColumnText(22)
+		row.IepLastEvalDate = stmt.ColumnText(23)
+		row.IepEvalDueDate = stmt.ColumnText(24)
+		row.IepAmendedDate = stmt.ColumnText(25)
+		row.IepIepType = stmt.ColumnInt64(26)
+		row.IepSpecialTransportation = stmt.ColumnInt64(27)
+		row.IepCreatedAt = stmt.ColumnText(28)
+		row.IepUpdatedAt = stmt.ColumnText(29)
 		res = append(res, row)
 	}
 

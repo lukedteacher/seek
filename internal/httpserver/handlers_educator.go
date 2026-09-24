@@ -280,6 +280,10 @@ func getEducatorViewInfoStream(
 		educator, _ := educatorReadModel.GetByUsername(ctx, username)
 		// watches the key value stream for ephemeral changes
 		// lasts 5m
+		if educator == nil {
+			sse.PatchElementTempl(pages.NotFound())
+			return
+		}
 		key := educator.ID + ".view"
 		watcher, err := vs.Watch(
 			ctx,

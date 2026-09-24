@@ -11,7 +11,7 @@ import (
 
 templ PersonAvatar(objectType string, p sharedmodels.Person) {
 	@tooltip.Tooltip(tooltip.Props{
-		Class: "w-full flex justify-center items-center",
+		Class: "flex justify-center items-center",
 	}) {
 		@tooltip.Trigger() {
 			@avatar.Avatar(avatar.Props{
@@ -19,7 +19,7 @@ templ PersonAvatar(objectType string, p sharedmodels.Person) {
 			}) {
 				<a class="w-full h-full" href={ fmt.Sprintf("/%ss/%s/info", objectType, p.Username) }>
 					@avatar.Image(avatar.ImageProps{
-						Src:   fmt.Sprintf("/static/images/students/%s_%s.webp", strings.ToLower(p.FamilyName), strings.ToLower(p.GivenName)),
+						Src:   fmt.Sprintf("/static/images/people/%s_%s.webp", strings.ToLower(p.FamilyName), strings.ToLower(p.GivenName)),
 						Class: "object-cover",
 						Attributes: templ.Attributes{
 							"onerror": "this.style.display='none'",

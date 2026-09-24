@@ -84,6 +84,31 @@ func (m *ReadModel) GetWithIDs(ctx context.Context, homeroomID string) (*models.
 	return homeroom, nil
 }
 
+func (m *ReadModel) GetByStudentID(ctx context.Context, studentID string) (*models.Homeroom, error) {
+	var row *dbsql.GetHomeroomByStudentIdRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		row, err = dbsql.OnceGetHomeroomByStudentId(conn, studentID)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+	if row == nil {
+		return nil, fmt.Errorf("homeroom not found")
+	}
+	homeroom := &models.Homeroom{
+		ID:            row.Id,
+		Title:         row.Title,
+		GradesBitmask: sharedmodels.GradesBitmask(row.GradesBitmask),
+		LocationID:    row.LocationId,
+		Image:         row.Image,
+		CreatedAt:     row.CreatedAt,
+		UpdatedAt:     row.UpdatedAt,
+	}
+
+	return homeroom, nil
+}
+
 func (m *ReadModel) List(ctx context.Context) ([]models.Homeroom, error) {
 	var rows []dbsql.ListHomeroomsRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
@@ -218,7 +243,7 @@ func (m *ReadModel) AddStudentToHomeroom(ctx context.Context, event StudentAdded
 		return dbsql.OnceAddStudentToHomeroom(conn, dbsql.AddStudentToHomeroomParams{
 			HomeroomId:               event.HomeroomID,
 			StudentId:                event.StudentID,
-			CreatedAt:                appdb.SQLTime(event.AddedAt),
+			UpdatedAt:                appdb.SQLTime(event.AddedAt),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
 		})
@@ -228,8 +253,7 @@ func (m *ReadModel) AddStudentToHomeroom(ctx context.Context, event StudentAdded
 func (m *ReadModel) RemoveStudentFromHomeroom(ctx context.Context, event StudentRemovedFromHomeroomProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceRemoveStudentFromHomeroom(conn, dbsql.RemoveStudentFromHomeroomParams{
-			HomeroomId: event.HomeroomID,
-			StudentId:  event.StudentID,
+			StudentId: event.StudentID,
 		})
 	})
 }

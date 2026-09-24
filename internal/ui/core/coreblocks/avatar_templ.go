@@ -92,7 +92,7 @@ func PersonAvatar(objectType string, p sharedmodels.Person) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					templ_7745c5c3_Err = avatar.Image(avatar.ImageProps{
-						Src:   fmt.Sprintf("/static/images/students/%s_%s.webp", strings.ToLower(p.FamilyName), strings.ToLower(p.GivenName)),
+						Src:   fmt.Sprintf("/static/images/people/%s_%s.webp", strings.ToLower(p.FamilyName), strings.ToLower(p.GivenName)),
 						Class: "object-cover",
 						Attributes: templ.Attributes{
 							"onerror": "this.style.display='none'",
@@ -186,7 +186,7 @@ func PersonAvatar(objectType string, p sharedmodels.Person) templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = tooltip.Tooltip(tooltip.Props{
-			Class: "w-full flex justify-center items-center",
+			Class: "flex justify-center items-center",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

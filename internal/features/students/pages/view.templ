@@ -5,169 +5,121 @@ import (
 	"strings"
 
 	"seek/internal/features/_shared/sharedmodels"
+	homeroomDTO "seek/internal/features/homerooms/dto"
 	scheduleBlocks "seek/internal/features/schedules/blocks"
 	scheduleDTO "seek/internal/features/schedules/dto"
 	serviceDTO "seek/internal/features/services/dto"
 	"seek/internal/features/students/blocks"
 	"seek/internal/features/students/dto"
 	userModels "seek/internal/features/users/models"
-	"seek/internal/ui/core/coreblocks/cards"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
+	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/dropdown"
 	"seek/pkg/templui/components/icon"
-	"seek/pkg/templui/components/tabs"
 )
 
-templ View(view dto.StudentView, scheduleView scheduleDTO.PersonWithScheduleView, services []serviceDTO.ServiceView, active string) {
+type StudentPageView struct {
+	Active   string
+	Student  dto.StudentView
+	Homeroom homeroomDTO.HomeroomView
+	Schedule scheduleDTO.PersonWithScheduleView
+	Services []serviceDTO.ServiceView
+}
+
+templ View(view StudentPageView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: student") {
-		<main id="main" class="flex flex-col" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
-			<div class="p-8 max-w-[900px] flex flex-col sm:flex-row justify-center gap-6 border border-muted w-full rounded-md bg-black bg-linear-3-4 relative">
-				{{
-					user := userModels.GetUserFromContext(ctx)
-					variant := button.VariantGhost
-					if view.Bookmarked {
-						variant = button.VariantDefault
-					}
-				}}
-				@button.Button(button.Props{
-					Variant: variant,
-					Class:   "absolute left-2 top-2",
-					Attributes: templ.Attributes{
-						"data-on:click": fmt.Sprintf("@post('/users/%s/bookmarks/students/%s')", user.ID, view.ID),
-					},
-				}) {
-					if view.Bookmarked {
-						@icon.BookmarkCheck(icon.Props{
-							Class: "fill-white stroke-primary",
-						})
-					} else {
-						@icon.Bookmark()
-					}
-					<span>bookmark</span>
-				}
-				@dropdown.Dropdown() {
-					@dropdown.Trigger() {
-						@button.Button(button.Props{
-							Variant: button.VariantGhost,
-							Class:   "absolute top-2 right-2",
-						}) {
-							@icon.EllipsisVertical()
-						}
-					}
-					@dropdown.Content() {
-						@dropdown.Item(dropdown.ItemProps{
-							Href: fmt.Sprintf("/students/%s/edit", view.Username),
-						}) {
-							@icon.Pencil(icon.Props{
-								Size: "16",
-							})
-							edit
-						}
-					}
-				}
-				<div class="flex justify-center">
-					{{ imgURL := fmt.Sprintf("/static/images/students/%s_%s.webp", strings.ToLower(view.FamilyName), strings.ToLower(view.GivenName)) }}
-					<img src={ imgURL } style="width:12rem; height:12rem; object-fit:cover; border-radius: 50%;" onerror="this.style.display='none'"/>
-				</div>
-				<div class="w-full flex flex-col gap-3 max-w-[400px]">
-					<h3>{ view.FullName() }</h3>
-					@cards.TextLine(cards.TextLineProps{
-						Key:   "given",
-						Value: view.GivenName,
-					})
-					if view.ChosenName != "" {
-						@cards.TextLine(cards.TextLineProps{
-							Key:   "chosen",
-							Value: view.ChosenName,
-						})
-					}
-					@cards.TextLine(cards.TextLineProps{
-						Key:   "family",
-						Value: view.FamilyName,
-					})
-					@cards.BadgeLine(cards.BadgeLineProps{
-						Key:   "grade",
-						Value: view.Grade.Ordinal(),
-					})
-					@cards.TextLine(cards.TextLineProps{
-						Key:   "homeroom",
-						Value: view.HomeroomID,
-					})
-				</div>
-			</div>
-			@tabs.Tabs(tabs.Props{
-				ID:    "student-tabs",
-				Class: "w-full md:px-3 flex flex-col gap-3",
-			}) {
-				<div class="flex justify-between items-center">
-					@tabs.List(tabs.ListProps{
-						ID:    "student-tabs-list",
-						Class: "tabs-list flex w-full max-w-128 gap-1",
-					}) {
-						@button.Button(button.Props{
-							Class: "basis-1 flex-grow py-1 h-auto",
-							Href:  fmt.Sprintf("/students/%s/info", view.Username),
-							Attributes: templ.Attributes{
-								"data-tab-active": active == "info",
-							},
-						}) {
-							@icon.Info(icon.Props{
-								Class: "size-4",
-							})
-							<span class="hidden md:flex">info</span>
-						}
-						@button.Button(button.Props{
-							Class: "basis-1 flex-grow py-1 h-auto",
-							Href:  fmt.Sprintf("/students/%s/schedule", view.Username),
-							Attributes: templ.Attributes{
-								"data-tab-active": active == "schedule",
-							},
-						}) {
-							@icon.CalendarRange(icon.Props{
-								Class: "size-4",
-							})
-							<span class="hidden md:flex">schedule</span>
-						}
-						if view.PlanType == 3 {
-							@button.Button(button.Props{
-								Class: "basis-1 flex-grow py-1 h-auto",
-								Href:  fmt.Sprintf("/students/%s/services", view.Username),
-								Attributes: templ.Attributes{
-									"data-tab-active": active == "services",
-								},
-							}) {
-								@icon.Blocks(icon.Props{
-									Class: "size-4",
-								})
-								<span class="hidden md:flex">services</span>
-							}
-						}
-					}
-				</div>
-				switch active {
-					case "info":
-						@tabs.Content(tabs.ContentProps{Value: "info", IsActive: true}) {
-							<section class="w-full">
-								@blocks.Card(view)
-							</section>
-						}
-					case "schedule":
-						@tabs.Content(tabs.ContentProps{Value: "schedule", IsActive: true}) {
-							<section class="w-full">
-								@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{scheduleView})
-							</section>
-						}
-					case "services":
-						@tabs.Content(tabs.ContentProps{Value: "services", IsActive: true}) {
-							<section class="w-full flex flex-col gap-2">
-								@blocks.Services(services)
-							</section>
-						}
-				}
+		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@StudentCardMain(view.Student, view.Homeroom)
+			switch view.Active {
+				case "info":
+					<section class="w-full max-w-[900px]">
+						@blocks.Card(view.Student, view.Homeroom, len(view.Schedule.Periods))
+					</section>
+				case "schedule":
+					<section class="w-full max-w-[900px]">
+						@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{view.Schedule})
+					</section>
+				case "services":
+					<section class="w-full max-w-[900px] flex flex-col gap-2">
+						@blocks.Services(view.Services)
+					</section>
 			}
 		</main>
+	}
+}
+
+templ StudentCardMain(view dto.StudentView, homeroomView homeroomDTO.HomeroomView) {
+	<div class="p-6 max-w-[900px] flex flex-col sm:flex-row justify-center gap-6 border border-muted w-full rounded-md bg-black bg-linear-3-4 relative">
+		@BookmarkedButton(view)
+		@StudentActionMenu(view)
+		<div class="flex justify-center items-center">
+			{{ imgURL := fmt.Sprintf("/static/images/people/%s_%s.webp", strings.ToLower(view.FamilyName), strings.ToLower(view.GivenName)) }}
+			<img src={ imgURL } style="width:8rem; height:8rem; object-fit:cover; border-radius: 50%;" onerror="this.style.display='none'"/>
+		</div>
+		<div class="w-full flex flex-col gap-3 max-w-[400px]">
+			<h2>{ view.FullName() }</h2>
+			@badge.Badge() {
+				{ view.Grade.Ordinal() }
+			}
+			if homeroomView.ID != "" {
+				<a href={ fmt.Sprintf("/homerooms/%s", homeroomView.ID) }>
+					@badge.Badge() {
+						{ homeroomView.Title }
+					}
+				</a>
+			}
+		</div>
+	</div>
+}
+
+templ BookmarkedButton(view dto.StudentView) {
+	{{
+		user := userModels.GetUserFromContext(ctx)
+		variant := button.VariantGhost
+		if view.Bookmarked {
+			variant = button.VariantDefault
+		}
+	}}
+	@button.Button(button.Props{
+		Variant: variant,
+		Class:   "absolute left-2 top-2",
+		Attributes: templ.Attributes{
+			"data-on:click": fmt.Sprintf("@post('/users/%s/bookmarks/students/%s')", user.ID, view.ID),
+		},
+	}) {
+		if view.Bookmarked {
+			@icon.BookmarkCheck(icon.Props{
+				Class: "fill-white stroke-primary",
+			})
+		} else {
+			@icon.Bookmark()
+		}
+		<span>bookmark</span>
+	}
+}
+
+templ StudentActionMenu(view dto.StudentView) {
+	@dropdown.Dropdown() {
+		@dropdown.Trigger() {
+			@button.Button(button.Props{
+				Variant: button.VariantGhost,
+				Class:   "absolute top-2 right-2",
+			}) {
+				@icon.EllipsisVertical()
+			}
+		}
+		@dropdown.Content() {
+			@dropdown.Item(dropdown.ItemProps{
+				Href: fmt.Sprintf("/students/%s/edit", view.Username),
+			}) {
+				@icon.Pencil(icon.Props{
+					Size: "16",
+				})
+				edit
+			}
+		}
 	}
 }

@@ -43,7 +43,7 @@ tasks:
 
   reset:
     cmds:
-      - go run ./cmd/server -reset-read-models
+      - go run ./cmd/server -reset-migrations
 
   templ:
     sources:

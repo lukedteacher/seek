@@ -6,7 +6,8 @@ import (
 	"seek/internal/features/_shared/shareddto"
 	educatorBlocks "seek/internal/features/educators/blocks"
 	educatorDTO "seek/internal/features/educators/dto"
-	educatorModels "seek/internal/features/educators/models"
+	homeroomBlocks "seek/internal/features/homerooms/blocks"
+	homeroomDTO "seek/internal/features/homerooms/dto"
 	iepModels "seek/internal/features/ieps/models"
 	serviceDTO "seek/internal/features/services/dto"
 	serviceModels "seek/internal/features/services/models"
@@ -17,8 +18,9 @@ import (
 
 type StudentWithData struct {
 	studentModels.Student
+	Homeroom    homeroomDTO.HomeroomView
 	IEP         iepModels.IEP
-	CaseManager educatorModels.Educator
+	CaseManager educatorDTO.EducatorView
 	Services    []serviceModels.Service
 }
 
@@ -42,7 +44,7 @@ var StudentWithDataColumns = []shareddto.ColumnView{
 	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name"},
 	{Field: "Email", Display: "email", Signal: "email"},
 	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center", Signal: "grade"},
-	{Field: "Homeroom", Display: "homeroom", Signal: "homeroom"},
+	{Field: "Homeroom", Display: "homeroom", RenderFunc: homeroomRenderer, Signal: "homeroom"},
 	{Field: "PlanType", Display: "plan", Renderer: "badge", Alignment: "center", Signal: "plan_type"},
 	{Field: "CaseManager", Display: "case manager", RenderFunc: caseManagerRenderer, Signal: "case_manager"},
 }
@@ -73,11 +75,6 @@ func valueExtractor(m *StudentWithData, field string) string {
 		return m.Email
 	case "Grade":
 		return m.Grade.Ordinal()
-	case "Homeroom":
-		if m.HomeroomID != "" {
-			return m.HomeroomID
-		}
-		return ""
 	case "PlanType":
 		return m.PlanType.Description()
 	default:
@@ -87,6 +84,16 @@ func valueExtractor(m *StudentWithData, field string) string {
 
 func targetExtractor(m *StudentWithData) string {
 	return m.Username
+}
+
+func homeroomRenderer(item any) templ.Component {
+	s := item.(StudentWithData)
+	if s.Homeroom.ID == "" {
+		return templ.NopComponent
+	}
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+		return homeroomBlocks.HomeroomBadge(s.Homeroom).Render(ctx, w)
+	})
 }
 
 func caseManagerRenderer(item any) templ.Component {

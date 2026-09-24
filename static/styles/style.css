@@ -6721,9 +6721,6 @@
   .w-100 {
     width: calc(var(--spacing) * 100);
   }
-  .w-110 {
-    width: calc(var(--spacing) * 110);
-  }
   .w-128 {
     width: calc(var(--spacing) * 128);
   }
@@ -7070,6 +7067,9 @@
       grid-auto-flow: column dense;
     }
   }
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
   .grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -7165,9 +7165,6 @@
   }
   .gap-16 {
     gap: calc(var(--spacing) * 16);
-  }
-  .gap-\[var\(--size-6\)\] {
-    gap: var(--size-6);
   }
   :where(.space-y-0\.5 > :not(:last-child)) {
     --tw-space-y-reverse: 0;
@@ -8051,9 +8048,6 @@
   }
   .p-6 {
     padding: calc(var(--spacing) * 6);
-  }
-  .p-8 {
-    padding: calc(var(--spacing) * 8);
   }
   .p-\[1px\] {
     padding: 1px;
@@ -10217,6 +10211,9 @@
     }
     .md\:grid-cols-3 {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .md\:grid-rows-1 {
+      grid-template-rows: repeat(1, minmax(0, 1fr));
     }
     .md\:flex-row {
       flex-direction: row;

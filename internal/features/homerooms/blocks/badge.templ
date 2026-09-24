@@ -1,0 +1,18 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/homerooms/dto"
+	"seek/pkg/templui/components/badge"
+)
+
+templ HomeroomBadge(homeroom dto.HomeroomView) {
+	<div class="w-full flex justify-center items-center">
+		<a href={ fmt.Sprintf("/homerooms/%s", homeroom.ID) }>
+			@badge.Badge() {
+				{ homeroom.Title }
+			}
+		</a>
+	</div>
+}

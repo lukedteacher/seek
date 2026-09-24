@@ -8,20 +8,21 @@ import (
 )
 
 type ListStudentsRes struct {
-	Id         string `json:"id"`
-	MarssId    string `json:"marss_id"`
-	Birthdate  string `json:"birthdate"`
-	GivenName  string `json:"given_name"`
-	ChosenName string `json:"chosen_name"`
-	FamilyName string `json:"family_name"`
-	Pronouns   string `json:"pronouns"`
-	Email      string `json:"email"`
-	Username   string `json:"username"`
-	Grade      int64  `json:"grade"`
-	HomeroomId string `json:"homeroom_id"`
-	PlanType   int64  `json:"plan_type"`
-	CreatedAt  string `json:"created_at"`
-	UpdatedAt  string `json:"updated_at"`
+	Id            string `json:"id"`
+	MarssId       string `json:"marss_id"`
+	Birthdate     string `json:"birthdate"`
+	GivenName     string `json:"given_name"`
+	ChosenName    string `json:"chosen_name"`
+	FamilyName    string `json:"family_name"`
+	Pronouns      string `json:"pronouns"`
+	Email         string `json:"email"`
+	Username      string `json:"username"`
+	Grade         int64  `json:"grade"`
+	HomeroomId    string `json:"homeroom_id"`
+	PlanType      int64  `json:"plan_type"`
+	CaseManagerId string `json:"case_manager_id"`
+	CreatedAt     string `json:"created_at"`
+	UpdatedAt     string `json:"updated_at"`
 }
 
 type ListStudentsStmt struct {
@@ -46,6 +47,7 @@ SELECT
 	grade, 
 	homeroom_id, 
 	plan_type, 
+	case_manager_id,
 	created_at, 
 	updated_at
 FROM students
@@ -105,8 +107,9 @@ func (ps *ListStudentsStmt) Run() (
 		row.Grade = stmt.ColumnInt64(9)
 		row.HomeroomId = stmt.ColumnText(10)
 		row.PlanType = stmt.ColumnInt64(11)
-		row.CreatedAt = stmt.ColumnText(12)
-		row.UpdatedAt = stmt.ColumnText(13)
+		row.CaseManagerId = stmt.ColumnText(12)
+		row.CreatedAt = stmt.ColumnText(13)
+		row.UpdatedAt = stmt.ColumnText(14)
 		res = append(res, row)
 	}
 

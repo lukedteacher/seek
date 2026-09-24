@@ -44,7 +44,7 @@ SELECT
 	) AS educator_ids,
 	CAST(
 		COALESCE(
-			(SELECT json_group_array(hs.student_id) FROM homerooms_students hs WHERE hs.homeroom_id = h.id),
+			(SELECT json_group_array(s.id) FROM students s WHERE s.homeroom_id = h.id),
 			'[]'
 		) AS TEXT
 	) AS student_ids

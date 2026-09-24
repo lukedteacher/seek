@@ -9,10 +9,10 @@ import (
 
 type AddStudentToHomeroomParams struct {
 	HomeroomId               string `json:"homeroom_id"`
-	StudentId                string `json:"student_id"`
 	LastEventCommitPosition  int64  `json:"last_event_commit_position"`
 	LastEventPreparePosition int64  `json:"last_event_prepare_position"`
-	CreatedAt                string `json:"created_at"`
+	UpdatedAt                string `json:"updated_at"`
+	StudentId                string `json:"student_id"`
 }
 
 type AddStudentToHomeroomStmt struct {
@@ -24,23 +24,13 @@ type AddStudentToHomeroomStmt struct {
 
 func AddStudentToHomeroom(tx *sqlite.Conn) *AddStudentToHomeroomStmt {
 	const querySQL = `
-INSERT INTO homerooms_students (
-	homeroom_id, 
-	student_id, 
-	last_event_commit_position, 
-	last_event_prepare_position,
-	created_at, 
-	updated_at
-)
-VALUES (
-	?1, 
-	?2, 
-	?3, 
-	?4,
-	?5, 
-	?5
-)
-ON CONFLICT (homeroom_id, student_id) DO NOTHING
+UPDATE students
+SET
+	homeroom_id = ?1,
+	last_event_commit_position = ?2,
+	last_event_prepare_position = ?3,
+	updated_at = ?4
+WHERE id = ?5
     `
 
 	ps := &AddStudentToHomeroomStmt{
@@ -80,16 +70,16 @@ func (ps *AddStudentToHomeroomStmt) Run(
 	stmt.BindText(bindIndex, params.HomeroomId)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.StudentId)
-
-	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventCommitPosition)
 
 	bindIndex++
 	stmt.BindInt64(bindIndex, params.LastEventPreparePosition)
 
 	bindIndex++
-	stmt.BindText(bindIndex, params.CreatedAt)
+	stmt.BindText(bindIndex, params.UpdatedAt)
+
+	bindIndex++
+	stmt.BindText(bindIndex, params.StudentId)
 
 	bindIndex++
 

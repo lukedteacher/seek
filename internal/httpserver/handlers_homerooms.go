@@ -36,7 +36,7 @@ func (s Server) homeroomRoutes(r chi.Router) {
 	r.Get("/homerooms/{id}", getHomeroomView(s.Logger))
 	r.Get("/homerooms/{id}/stream", getHomeroomViewStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Homerooms, s.ReadModels.Educators, s.ReadModels.Students))
 	r.Get("/homerooms/{id}/edit", getHomeroomEdit(s.Logger))
-	r.Get("/homerooms/{id}/edit/stream", getHomeroomEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Homerooms, s.ReadModels.Students, s.ReadModels.Educators))
+	r.Get("/homerooms/{id}/edit/stream", getHomeroomEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Homerooms, s.ReadModels.Educators, s.ReadModels.Students))
 	r.Post("/homerooms/{id}/edit/validate", postHomeroomEditValidate(s.Logger, s.ViewStore))
 	r.Post("/homerooms/{id}/edit/grades/{grade}", postHomeroomEditGrades(s.Logger, s.ViewStore))
 	r.Post("/homerooms/{id}/edit/educators/{eid}", postHomeroomEditEducators(s.Logger, s.ViewStore))
@@ -162,20 +162,21 @@ func getHomeroomCreateStream(
 				if !ok {
 					return
 				}
-				model := &models.Homeroom{}
-				if err := entry.JSON(model); err != nil {
+				view := &dto.HomeroomFormView{}
+				if err := entry.JSON(view); err != nil {
 					l.Error("json decode", "err", err)
 					return
 				}
 				educators, _ := listEducators(ctx, l, educatorReadModel, nil)
-				students := listStudents(ctx, l, studentReadModel, nil)
-				view := dto.NewHomeroomFormView(
-					model,
+				students := listStudents(ctx, l, studentReadModel, &view.StudentSelectView.Filter)
+				model := dto.NewHomeroomModelFromFormView(*view)
+				*view = dto.NewHomeroomFormView(
+					&model,
 					students,
-					nil,
+					&view.StudentSelectView.Filter,
 					educators,
 				)
-				sse.PatchElementTempl(pages.Create(view))
+				sse.PatchElementTempl(pages.Create(*view))
 			}
 		}
 	}
@@ -198,11 +199,9 @@ func postHomeroomCreateValidate(
 			l.ErrorContext(ctx, "homeroom create validate signals", "err", err.Error())
 			return
 		}
-		model := dto.NewHomeroomModelFromFormView(signals.FormView)
-
 		// store the signals under a unique user key so the create stream can react
 		key := user.Username + ".homerooms.create"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
 			l.ErrorContext(ctx, "post homeroom create validate viewstore", "err", err)
 		}
 	}
@@ -231,8 +230,9 @@ func postHomeroomCreateGrades(
 		}
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.GradesBitmask = *model.GradesBitmask.ToggleGrade(grade)
+		signals.FormView.GradesBitmask = model.GradesBitmask
 		key := user.Username + ".homerooms.create"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
 			return
 		}
@@ -256,8 +256,9 @@ func postHomeroomCreateEducators(
 		}
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.EducatorIDs = toggleID(model.EducatorIDs, educatorID)
+		signals.FormView.EducatorIDs = model.EducatorIDs
 		key := user.Username + ".homerooms.create"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
 			l.ErrorContext(ctx, "phce vs", "error", err)
 		}
 	}
@@ -280,8 +281,9 @@ func postHomeroomCreateStudents(
 		}
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.StudentIDs = toggleID(model.StudentIDs, studentID)
+		signals.FormView.StudentIDs = model.StudentIDs
 		key := user.Username + ".homerooms.create"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
 		}
 	}
@@ -457,8 +459,8 @@ func getHomeroomEditStream(
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
 	homeroomsReadModel *events.ReadModel,
-	studentReadModel *studentEvents.ReadModel,
 	educatorReadModel *educatorEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -487,6 +489,8 @@ func getHomeroomEditStream(
 				l,
 				homeroomID,
 				homeroomsReadModel,
+				educatorReadModel,
+				studentReadModel,
 				vs,
 			); err != nil {
 				if err.Error() == "homeroom not found" {
@@ -526,6 +530,8 @@ func getHomeroomEditStream(
 					l,
 					homeroomID,
 					homeroomsReadModel,
+					educatorReadModel,
+					studentReadModel,
 					vs,
 				); err != nil {
 					if err.Error() == "homeroom not found" {
@@ -539,20 +545,21 @@ func getHomeroomEditStream(
 				if !ok {
 					return
 				}
-				model := &models.Homeroom{}
-				if err := entry.JSON(model); err != nil {
+				view := &dto.HomeroomFormView{}
+				if err := entry.JSON(view); err != nil {
 					l.Error("homeroom edit stream json", "err", err)
 					return
 				}
 				educators, _ := listEducators(ctx, l, educatorReadModel, nil)
-				students := listStudents(ctx, l, studentReadModel, nil)
-				view := dto.NewHomeroomFormView(
-					model,
+				students := listStudents(ctx, l, studentReadModel, &view.StudentSelectView.Filter)
+				model := dto.NewHomeroomModelFromFormView(*view)
+				*view = dto.NewHomeroomFormView(
+					&model,
 					students,
-					nil,
+					&view.StudentSelectView.Filter,
 					educators,
 				)
-				sse.PatchElementTempl(pages.Edit(view))
+				sse.PatchElementTempl(pages.Edit(*view))
 			}
 		}
 	}
@@ -577,7 +584,7 @@ func postHomeroomEditValidate(
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		// store the signals under a key scoped to the homeroom
 		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
 			l.ErrorContext(ctx, "post homeroom edit validate viewstore", "err", err)
 		}
 	}
@@ -605,8 +612,9 @@ func postHomeroomEditGrades(
 		}
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.GradesBitmask = *model.GradesBitmask.ToggleGrade(grade)
+		signals.FormView.GradesBitmask = model.GradesBitmask
 		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
 			return
 		}
@@ -629,8 +637,9 @@ func postHomeroomEditEducators(
 		}
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.EducatorIDs = toggleID(model.EducatorIDs, educatorID)
+		signals.FormView.EducatorIDs = model.EducatorIDs
 		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
 		}
 	}
@@ -652,8 +661,9 @@ func postHomeroomEditStudents(
 		}
 		model := dto.NewHomeroomModelFromFormView(signals.FormView)
 		model.StudentIDs = toggleID(model.StudentIDs, studentID)
+		signals.FormView.StudentIDs = model.StudentIDs
 		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
+		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
 		}
 	}
@@ -786,17 +796,38 @@ func refreshHomeroomViewState(
 // gets homeroom data from the db, converts it to a form view, and saves it to the store
 func refreshHomeroomEditState(
 	ctx context.Context,
-	_ *slog.Logger,
+	l *slog.Logger,
 	homeroomID string,
-	homerooms *events.ReadModel,
+	homeroomEvents *events.ReadModel,
+	educatorReadModel *educatorEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 	vs viewstore.Store,
 ) error {
-	model, err := homerooms.GetWithIDs(ctx, homeroomID)
+	model, err := homeroomEvents.GetWithIDs(ctx, homeroomID)
 	if err != nil {
 		return err
 	}
+	studentGradeFilter := make(map[string]bool)
+	if model.GradesBitmask != -1 {
+		for _, grade := range sharedmodels.GradeList {
+			if model.GradesBitmask.IsGradeSet(grade) {
+				studentGradeFilter[grade.String()] = true
+			}
+		}
+	}
+	educators, _ := listEducators(ctx, l, educatorReadModel, nil)
+	studentFilter := studentDTO.Filter{
+		Grade: studentGradeFilter,
+	}
+	students := listStudents(ctx, l, studentReadModel, &studentFilter)
+	view := dto.NewHomeroomFormView(
+		model,
+		students,
+		&studentFilter,
+		educators,
+	)
 	key := model.ID + ".edit"
-	return viewstore.PutState(ctx, vs, key, model)
+	return viewstore.PutState(ctx, vs, key, view)
 }
 
 func toggleID(slice []string, value string) []string {

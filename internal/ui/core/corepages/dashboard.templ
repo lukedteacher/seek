@@ -5,9 +5,11 @@ import (
 	scheduleBlocks "seek/internal/features/schedules/blocks"
 	scheduleDTO "seek/internal/features/schedules/dto"
 	studentDTO "seek/internal/features/students/dto"
+	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/buttons"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
+	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 )
@@ -21,7 +23,7 @@ templ Dashboard(view DashboardView) {
 	@corelayouts.LayoutBase("SEEK: dashboard") {
 		<div class="flex flex-col w-full h-full row-2" data-init={ sse.LongRunningGetSSE("dashboard/stream") }>
 			<main class="h-full">
-				<div class="w-full h-full grid grid-rows-2 md:grid-cols-2 gap-6">
+				<div class="w-full h-full grid grid-rows-2 md:grid-cols-2 md:grid-rows-1 gap-6">
 					@DashboardSchedule(view.Schedule)
 					@DashboardBookmarkedStudents(view.BookmarkedStudents)
 				</div>
@@ -49,7 +51,13 @@ templ DashboardBookmarkedStudents(students []studentDTO.StudentView) {
 			<ul class="flex flex-col gap-1">
 				for _, student := range students {
 					<li class="border border-muted rounded-md w-full bg-neutral text-sm p-2 flex items-center justify-between">
-						<span>{ student.NameInitial() }</span>
+						<div class="flex gap-2 items-center">
+							@coreblocks.PersonAvatar("student", student.Person)
+							<span>{ student.NameInitial() }</span>
+							@badge.Badge() {
+								{ student.Grade.Ordinal() }
+							}
+						</div>
 						<div>
 							@button.Button(button.Props{
 								Variant: button.VariantGhost,

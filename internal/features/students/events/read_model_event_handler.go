@@ -28,20 +28,21 @@ type StudentReadModelWriter interface {
 }
 
 type StudentState struct {
-	ID         string    `json:"id"`
-	MARSSID    string    `json:"marss_id"`
-	Birthdate  string    `json:"birthdate"`
-	GivenName  string    `json:"given_name"`
-	ChosenName string    `json:"chosen_name"`
-	FamilyName string    `json:"family_name"`
-	Pronouns   string    `json:"pronouns"`
-	Email      string    `json:"email"`
-	Username   string    `json:"username"`
-	Grade      int       `json:"grade"`
-	HomeroomID string    `json:"homeroom_id"`
-	PlanType   int       `json:"plan_type"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID            string    `json:"id"`
+	MARSSID       string    `json:"marss_id"`
+	Birthdate     string    `json:"birthdate"`
+	GivenName     string    `json:"given_name"`
+	ChosenName    string    `json:"chosen_name"`
+	FamilyName    string    `json:"family_name"`
+	Pronouns      string    `json:"pronouns"`
+	Email         string    `json:"email"`
+	Username      string    `json:"username"`
+	Grade         int       `json:"grade"`
+	HomeroomID    string    `json:"homeroom_id"`
+	PlanType      int       `json:"plan_type"`
+	CaseManagerID string    `json:"case_manager_id"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type StudentCreatedProjection struct {
