@@ -29,7 +29,7 @@ const (
 
 // event fields
 const (
-	FieldServiceID              = "iep_service_id"
+	FieldServiceID              = "service_id"
 	FieldServiceIEPID           = "iep_id"
 	FieldServiceStudentID       = "student_id"
 	FieldServiceServiceName     = "service_name"
@@ -46,7 +46,7 @@ const (
 	FieldServiceUpdatedAt       = "updated_at"
 	FieldServiceArchivedAt      = "archived_at"
 	FieldServiceDeletedAt       = "deleted_at"
-	FieldServiceScopeID         = "scope.iep_service_added_to_student_event_id"
+	FieldServiceScopeID         = "scope.service_id"
 )
 
 type ServiceState struct {
@@ -224,6 +224,7 @@ func NewServiceDeletedEvent(
 ) eventstore.DomainEvent {
 	event := ServiceDeletedEvent{
 		EventID:   eventID,
+		ServiceID: serviceID,
 		DeletedAt: deletedAt.Format(time.RFC3339),
 		Scope:     serviceScope(serviceID, iepID, studentID),
 	}

@@ -21,6 +21,7 @@ templ EducatorForm(view dto.EducatorFormView) {
 			@FormSections(view)
 		</div>
 		<footer class="flex gap-8">
+			@forms.DeleteButton("educator", view.ID)
 			@forms.CancelButton("/educators")
 			@forms.SaveButton()
 		</footer>

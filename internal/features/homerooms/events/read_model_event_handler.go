@@ -158,13 +158,16 @@ func (h *HomeroomReadModelEventHandler) handle(ctx context.Context, resolved eve
 			slog.Error("homeroom rm handle create unmarshal", "err", err)
 		}
 		projection := HomeroomCreatedProjection{
+			Position: resolved.Position,
 			Homeroom: models.Homeroom{
 				ID:            homeroomID,
 				Title:         event.Title,
 				GradesBitmask: sharedmodels.GradesBitmask(event.GradesBitmask),
 				LocationID:    event.LocationID,
 				Image:         event.Image,
+				CreatedAt:     event.CreatedAt,
 			},
+			CreatedAt: parseDBTime(event.CreatedAt),
 		}
 		if err := h.readModel.CreateHomeroom(ctx, projection); err != nil {
 			return err
@@ -175,13 +178,16 @@ func (h *HomeroomReadModelEventHandler) handle(ctx context.Context, resolved eve
 			slog.Error("homeroom rm handle update unmarshal", "err", err)
 		}
 		projection := HomeroomUpdatedProjection{
+			Position: resolved.Position,
 			Homeroom: models.Homeroom{
 				ID:            homeroomID,
 				Title:         event.Title,
 				GradesBitmask: sharedmodels.GradesBitmask(event.GradesBitmask),
 				LocationID:    event.LocationID,
 				Image:         event.Image,
+				UpdatedAt:     event.UpdatedAt,
 			},
+			UpdatedAt: parseDBTime(event.UpdatedAt),
 		}
 		if err := h.readModel.UpdateHomeroom(ctx, projection); err != nil {
 			return err

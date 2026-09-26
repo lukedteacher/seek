@@ -25,9 +25,6 @@ type CaseManagerStudentReadModelWriter interface {
 // period educator read model writer functions
 
 func (m *ReadModel) AddStudentToCaseload(ctx context.Context, event StudentAddedToCaseloadProjection) error {
-	println("add")
-	println("sid", event.StudentID)
-	println("eid", event.EducatorID)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		if err := dbsql.OnceAddStudentToCaseload(conn, dbsql.AddStudentToCaseloadParams{
 			EducatorId:               event.EducatorID,
@@ -49,9 +46,6 @@ func (m *ReadModel) AddStudentToCaseload(ctx context.Context, event StudentAdded
 }
 
 func (m *ReadModel) RemoveStudentFromCaseload(ctx context.Context, event StudentRemovedFromCaseloadProjection) error {
-	println("remove")
-	println("sid", event.StudentID)
-	println("eid", event.EducatorID)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		if err := dbsql.OnceRemoveStudentFromCaseload(conn, dbsql.RemoveStudentFromCaseloadParams{
 			EducatorId: event.EducatorID,

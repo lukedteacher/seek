@@ -120,7 +120,7 @@
     --neo-popover-padding: 0.4rem; /* default tailwind p-4 */
     --neo-popover-shadow:
       0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --neo-popover-max-width: 24rem;
+    --neo-popover-max-width: 48rem;
     --neo-popover-z-index: 1000;
     --neo-popover-enter-duration: 150ms; /* duration-150 */
     --neo-popover-screen-offset: 1rem; /* gives (100vw - 2rem) */

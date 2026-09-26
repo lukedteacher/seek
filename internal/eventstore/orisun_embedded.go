@@ -120,7 +120,16 @@ func (s *EmbeddedOrisun) NATSConnection() *natsgo.Conn {
 	return s.natsRuntime.Conn
 }
 
-func (s *EmbeddedOrisun) SaveEvents(ctx context.Context, events []DomainEvent, expected Position, scopeEvents []ResolvedEvent, subset Query) (WriteResult, error) {
+func (s *EmbeddedOrisun) SaveEvents(
+	ctx context.Context,
+	events []DomainEvent,
+	expected Position,
+	scopeEvents []ResolvedEvent,
+	subset Query,
+) (
+	WriteResult,
+	error,
+) {
 	toSave := make([]orisunapi.EventWithMapTags, 0, len(events))
 	for _, event := range events {
 		merged, err := MergeScope(scopeEvents, event)

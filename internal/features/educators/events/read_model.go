@@ -266,6 +266,35 @@ func (m *ReadModel) listAll(ctx context.Context) ([]models.Educator, error) {
 	return educators, nil
 }
 
+func (m *ReadModel) ListByIDs(ctx context.Context, educatorIDs []string) ([]models.Educator, error) {
+	var rows []dbsql.ListEducatorsByIdsRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceListEducatorsByIds(conn, educatorIDs)
+		println("row length", len(rows))
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	educators := make([]models.Educator, len(rows))
+	for i := range rows {
+		row := rows[i]
+		educators[i] = models.Educator{
+			ID: row.Id,
+			Person: sharedmodels.Person{
+				GivenName:  row.GivenName,
+				ChosenName: row.ChosenName,
+				FamilyName: row.FamilyName,
+				Pronouns:   parsePronouns(row.Pronouns),
+				Email:      row.Email,
+				Username:   row.Username,
+			},
+		}
+	}
+	return educators, nil
+}
+
 func (m *ReadModel) listAllWithSearch(
 	ctx context.Context,
 	search string,

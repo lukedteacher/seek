@@ -13,6 +13,7 @@ func serviceStreamQuery(serviceID, iepID string) eventstore.Query {
 	serviceEventTypes := []eventType{
 		EventServiceAddedToIEP,
 		EventServiceUpdated,
+		EventServiceArchived,
 		EventServiceDeleted,
 	}
 	iepEventTypes := []eventType{

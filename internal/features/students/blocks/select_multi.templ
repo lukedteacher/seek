@@ -2,9 +2,12 @@ package blocks
 
 import (
 	"fmt"
+	"strings"
+
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/students/dto"
 	"seek/pkg/templui/components/avatar"
+	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
@@ -13,10 +16,10 @@ import (
 	"seek/pkg/utils"
 )
 
-templ SelectMulti(objectType string, view dto.SelectView, withCards bool) {
+templ SelectMulti(objectType string, view dto.SelectView) {
 	{{
 		url := sharedmodels.GetURLFromContext(ctx)
-		filterSignalName := objectType + ".student_select"
+		filterSignalName := "student_select"
 	}}
 	<div class="flex flex-col">
 		@label.Label(label.Props{
@@ -26,7 +29,7 @@ templ SelectMulti(objectType string, view dto.SelectView, withCards bool) {
 			select a student
 		}
 		<div class="flex gap-3 items-center">
-			<neo-popover class="w-full" placement="top">
+			<neo-popover class="w-full" placement="bottom" match-trigger-width="true">
 				<div
 					class="flex items-center gap-2 relative input"
 					data-neo-popover-trigger
@@ -35,11 +38,11 @@ templ SelectMulti(objectType string, view dto.SelectView, withCards bool) {
 						Class: "size-4 absolute left-2 top-1/2 -translate-y-1/2 stroke-neutral-content/80",
 					})
 					<input
+						type="search"
 						id="students-list-search"
 						class="pl-8"
-						{ fmt.Sprintf("data-bind:%s.filter.search", filterSignalName) }
-						data-on:input__debounce.250ms={ fmt.Sprintf("@post('%s/validate')", url) }
-						type="search"
+						data-bind:student_select.filter.search
+						data-on:input__debounce.250ms={ fmt.Sprintf("@query('%s/validate')", url) }
 					/>
 				</div>
 				@SelectOptions(view.Options)
@@ -47,9 +50,6 @@ templ SelectMulti(objectType string, view dto.SelectView, withCards bool) {
 			@SelectFilterMenu(view.Filter, filterSignalName)
 		</div>
 	</div>
-	if withCards {
-		@SelectCards(view.Options)
-	}
 }
 
 templ SelectOptions(options []dto.SelectOption) {
@@ -60,15 +60,33 @@ templ SelectOptions(options []dto.SelectOption) {
 	>
 		for _, student := range options {
 			<li
-				data-on:click={ fmt.Sprintf("@post('%s/students/%s')", url, student.ID) }
+				data-on:click={ fmt.Sprintf("@query('%s/students/%s')", url, student.ID) }
 				class={ utils.TwMerge(
-							"text-sm flex items-center justify-between cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
+							"text-sm grid grid-cols-3 items-center cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
 							utils.If(student.Selected, "bg-primary"),
 						) }
 			>
-				<span>{ student.NameInitial() }</span>
+				<div class="flex gap-2 ml-2 items-center">
+					@avatar.Avatar() {
+						@avatar.Image(avatar.ImageProps{
+							Src:   fmt.Sprintf("/static/images/people/%s_%s.webp", strings.ToLower(student.FamilyName), strings.ToLower(student.GivenName)),
+							Class: "object-cover",
+						})
+						@avatar.Fallback(avatar.FallbackProps{
+							Class: "bg-secondary",
+						}) {
+							{ student.Initials() }
+						}
+					}
+					<span>{ student.NameInitial() }</span>
+				</div>
+				@badge.Badge(badge.Props{
+					Class: "bg-neutral mx-auto",
+				}) {
+					{ student.Grade.Ordinal() }
+				}
 				if student.Selected {
-					@icon.Check(icon.Props{Class: "size-4"})
+					@icon.Check(icon.Props{Class: "size-4 ml-auto mr-2"})
 				}
 			</li>
 		}

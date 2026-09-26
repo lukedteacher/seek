@@ -443,7 +443,7 @@ func getPeriodViewStream(
 				view := dto.NewPeriodView(period)
 				for i := range period.EducatorIDs {
 					educator, _ := educatorReadModel.GetByID(ctx, period.EducatorIDs[i])
-					educatorView := educatorDTO.NewEducatorView(educator)
+					educatorView := educatorDTO.NewView(educator)
 					view.Educators = append(view.Educators, educatorView)
 				}
 				for i := range period.StudentIDs {
@@ -929,7 +929,7 @@ func createPeriodsListView(
 					l.ErrorContext(ctx, "cplv get educator", "err", err, "eid", educatorID)
 					return shareddto.TableView{}
 				}
-				educatorView := educatorDTO.NewEducatorView(educator)
+				educatorView := educatorDTO.NewView(educator)
 				educatorViews[i] = educatorView
 			}
 			periodsWithData[i].Educators = educatorViews

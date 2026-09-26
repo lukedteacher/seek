@@ -11,7 +11,7 @@ type EducatorView struct {
 	Roles               []sharedmodels.EducatorRole `json:"roles"`
 }
 
-func NewEducatorView(e *models.Educator) EducatorView {
+func NewView(e *models.Educator) EducatorView {
 	if e == nil {
 		return EducatorView{}
 	}
@@ -22,10 +22,10 @@ func NewEducatorView(e *models.Educator) EducatorView {
 	}
 }
 
-func NewEducatorViews(educators []models.Educator) []EducatorView {
+func NewViews(educators []models.Educator) []EducatorView {
 	views := make([]EducatorView, len(educators))
 	for i := range educators {
-		views[i] = NewEducatorView(&educators[i])
+		views[i] = NewView(&educators[i])
 	}
 	return views
 }

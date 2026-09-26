@@ -47,7 +47,13 @@ func UpdateHomeroomCommandHandler(
 		time.Now(),
 		metadataWithQuery(cmd.Metadata, model.query),
 	)
-	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
+	if _, err := saver.SaveEvents(
+		ctx,
+		[]eventstore.DomainEvent{event},
+		model.position,
+		model.events,
+		model.query,
+	); err != nil {
 		return UpdateHomeroomResult{}, err
 	}
 	return UpdateHomeroomResult{HomeroomUpdatedID: eventID}, nil
@@ -108,6 +114,7 @@ func (m *updateHomeroomContext) handle(resolved eventstore.ResolvedEvent) {
 			GradesBitmask: sharedmodels.GradesBitmask(event.GradesBitmask),
 			LocationID:    event.LocationID,
 			Image:         event.LocationID,
+			CreatedAt:     event.CreatedAt,
 		}
 	case EventHomeroomUpdated:
 		var event HomeroomUpdatedEvent
@@ -121,6 +128,7 @@ func (m *updateHomeroomContext) handle(resolved eventstore.ResolvedEvent) {
 			GradesBitmask: sharedmodels.GradesBitmask(event.GradesBitmask),
 			LocationID:    event.LocationID,
 			Image:         event.LocationID,
+			UpdatedAt:     event.UpdatedAt,
 		}
 	case EventHomeroomArchived:
 		m.archived = true

@@ -1,23 +1,39 @@
 package dto
 
 import (
-	educatorDTO "seek/internal/features/educators/dto"
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/homerooms/models"
-	studentDTO "seek/internal/features/students/dto"
 )
 
 type HomeroomView struct {
-	models.Homeroom
-	Educators []educatorDTO.EducatorView
-	Students  []studentDTO.StudentView
+	ID            string                     `json:"id"`
+	Title         string                     `json:"title"`
+	GradesBitmask sharedmodels.GradesBitmask `json:"grades_bitmask"`
+	LocationID    string                     `json:"locationID"`
+	Image         string                     `json:"image"`
+	EducatorIDs   []string                   `json:"educator_ids"`
+	StudentIDs    []string                   `json:"student_ids"`
+	CreatedAt     string                     `json:"created_at,omitempty"`
+	UpdatedAt     string                     `json:"updated_at,omitempty"`
 }
 
 func NewHomeroomView(m *models.Homeroom) HomeroomView {
 	if m == nil {
-		return HomeroomView{}
+		return HomeroomView{
+			EducatorIDs: []string{},
+			StudentIDs:  []string{},
+		}
 	}
 	return HomeroomView{
-		Homeroom: *m,
+		ID:            m.ID,
+		Title:         m.Title,
+		GradesBitmask: m.GradesBitmask,
+		LocationID:    m.LocationID,
+		Image:         m.Image,
+		EducatorIDs:   m.EducatorIDs,
+		StudentIDs:    m.StudentIDs,
+		CreatedAt:     m.CreatedAt,
+		UpdatedAt:     m.UpdatedAt,
 	}
 }
 
@@ -28,5 +44,9 @@ func NewHomeroomModelFromView(v HomeroomView) models.Homeroom {
 		GradesBitmask: v.GradesBitmask,
 		LocationID:    v.LocationID,
 		Image:         v.Image,
+		EducatorIDs:   v.EducatorIDs,
+		StudentIDs:    v.StudentIDs,
+		CreatedAt:     v.CreatedAt,
+		UpdatedAt:     v.UpdatedAt,
 	}
 }

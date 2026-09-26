@@ -86,7 +86,7 @@ func TextInputWithLabel(p TextInputWithLabelProps) templ.Component {
 			Value: p.Value,
 			Attributes: templ.Attributes{
 				"data-bind":                     p.Bind,
-				"data-on:input__debounce.250ms": fmt.Sprintf("@post('%s/validate')", p.URL),
+				"data-on:input__debounce.250ms": fmt.Sprintf("@query('%s/validate')", p.URL),
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

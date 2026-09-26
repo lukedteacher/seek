@@ -26,6 +26,83 @@ templ Hub() {
 		<main class="flex flex-col gap-2 row-2" data-init={ sse.LongRunningGetSSE("/stream") }>
 			<section class="grid gap-16 w-full max-w-400" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
 				@HubCard(HubCardProps{
+					icon:        "calendar-range",
+					title:       "schedules",
+					description: "other documents that include schedule data",
+					links: []linkProps{
+						linkProps{
+							text:     "K/1 Gretchen / Annie",
+							href:     "https://docs.google.com/document/d/1Ew20WVhcthcfSS15-fYVZRbbFjsHepnZDHxLNkqj7rU",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "1/2 Lexi / Masia",
+							href:     "https://docs.google.com/document/d/10H7ejSEwAbrzXR6ETF7xC8ZxFnS63GIBlSGscaicyh4",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "3/4 Spencer / Megan",
+							href:     "https://docs.google.com/document/d/19d6jwRh2dMfDdVZSYAlARfSX8oe6RYr16_8feZ7J8SU",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "3/4 Scott / Ula",
+							href:     "https://docs.google.com/document/d/1GplfO5xv7_G_60prXfih9nZp2ft0bgJRcAco0JSBDEE",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "3/4 Sallie / Chris",
+							href:     "https://docs.google.com/document/d/19smb47AyEVnO4gq0EkD4eiocdtXVas94upBfjOI7jls",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "5/6 Casie / Lori",
+							href:     "https://docs.google.com/document/d/1yR-uETMovO9762BRqvQfzIt4F7zG6NdAQm27yznQq24",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "5/6 Sophie / Helen",
+							href:     "https://docs.google.com/document/d/1JWzxM9lxd-xiu8CFlRI_--vc9EynVYqqK5MNW6eu_vU",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "5/6 Jordyn / Ellen",
+							href:     "https://docs.google.com/spreadsheets/u/0/d/1BkIN4LYEGBpq_F9grK8cNayXvVjvLQHjxbf4JEkj0F8",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "7/8 Gerber / Ava",
+							href:     "https://docs.google.com/spreadsheets/d/1p2Hu_3D2GWsFMnCed-9fKASagf_PMwYGe45e4vyvfnY",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "7/8 Jenn / Theresa",
+							href:     "https://docs.google.com/spreadsheets/d/1RIWvIMcGSn_qNdHFyxPzeOv_CgHmgi1s6AaLJU1DqxI",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "resource room",
+							href:     "https://docs.google.com/spreadsheets/d/1If9Er_Mi78ahE9kGn7lM0bGJxcXZ_Y3XISIyBudAKrs",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "the cove",
+							href:     "https://docs.google.com/spreadsheets/d/195zeMyMzZ-ip5wa3B-Zfu6_QbRt0DOEct4MSBxTUBSQ",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "Crystal general daily schedule",
+							href:     "https://docs.google.com/document/d/1d5dUSv6BZYdm1U8IunIed3kz9Qv-y2q2b95dSv5czYA",
+							linkType: "file-type-corner",
+						},
+						linkProps{
+							text:     "social work",
+							href:     "https://docs.google.com/document/d/1wfrKxv2NT5x5UFeAxY1x2yPeSwte2IGIiDQJu4ymQhg",
+							linkType: "file-type-corner",
+						},
+					},
+				})
+				@HubCard(HubCardProps{
 					icon:        "school",
 					title:       "general",
 					description: "links to commonly used resources",
@@ -59,18 +136,8 @@ templ Hub() {
 					links: []linkProps{
 						linkProps{
 							text:     "friday meeting agenda",
-							href:     "https://docs.google.com/document/d/1BiqEpjzugP0_tA49-XdzAdrlWYsOvVv9IhM2MufsR1k",
+							href:     "https://docs.google.com/document/d/1kit887u-36NRFIFu8xuM3-e7Rqpb3brKCgW3a_HEu_Q",
 							linkType: "file-type-corner",
-						},
-						linkProps{
-							text:     "purchase requests",
-							href:     "https://docs.google.com/forms/d/e/1FAIpQLSeR-y2QYHjT5vxxkCJa2e2dTWhlzzUQqYsTaanoW5VhOSpiZA/viewform",
-							linkType: "file-input",
-						},
-						linkProps{
-							text:     "services at a glance",
-							href:     "https://docs.google.com/spreadsheets/d/1e9cq_x-7b59FNiizvsfSeCerRqClFqNvY9spg7XdbJM",
-							linkType: "file-spreadsheet",
 						},
 						linkProps{
 							text:     "placement decision flowchart",
@@ -80,6 +147,16 @@ templ Hub() {
 						linkProps{
 							text:     "dashboard (2025-26)",
 							href:     "https://docs.google.com/spreadsheets/d/1dF8OIyaSjSJ4LjCoRiVw3tqCBUOSdE9dodDir26bayA",
+							linkType: "file-spreadsheet",
+						},
+						linkProps{
+							text:     "purchase requests",
+							href:     "https://docs.google.com/forms/d/e/1FAIpQLSeR-y2QYHjT5vxxkCJa2e2dTWhlzzUQqYsTaanoW5VhOSpiZA/viewform",
+							linkType: "file-input",
+						},
+						linkProps{
+							text:     "services at a glance",
+							href:     "https://docs.google.com/spreadsheets/d/1e9cq_x-7b59FNiizvsfSeCerRqClFqNvY9spg7XdbJM",
 							linkType: "file-spreadsheet",
 						},
 					},
@@ -149,6 +226,26 @@ templ Hub() {
 						linkProps{
 							text:     "goal and objective guidelines",
 							href:     "https://drive.google.com/file/d/1ldFMdH4zhIv6l-T_yTyf3k-9R8ewa6zp",
+							linkType: "file-text",
+						},
+						linkProps{
+							text:     "PLAAFP guide and template",
+							href:     "https://docs.google.com/document/d/1gw5qA2-IPx7GVcTl6bYHH7M7p2zlhG8PxXWTy7_f4bs",
+							linkType: "file-text",
+						},
+						linkProps{
+							text:     "educational domains",
+							href:     "https://docs.google.com/document/d/1AcLsDms-iqZ1ROin6LtYSs1YNRpKNTxgRkRZDgLSg4k",
+							linkType: "file-text",
+						},
+						linkProps{
+							text:     "LRE statement template",
+							href:     "https://docs.google.com/document/d/18EqdewHBuOwI3mda_uTezKPQ8hg1fhkMcnPKqhvxa3A",
+							linkType: "file-text",
+						},
+						linkProps{
+							text:     "accommodations & modifications template",
+							href:     "https://docs.google.com/document/d/1c8qrMBYJ1EiZcV-fek0Ezr4QdvO2ZOY1_mmeeWICQcc",
 							linkType: "file-text",
 						},
 					},

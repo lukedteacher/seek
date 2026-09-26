@@ -2,6 +2,16 @@
 
 updates for SEEK
 
+## v0.9.13 (26.09.26) bug fixes, homeroom updates
+
+- re-added button to delete service
+- fixed flat implementation for flat deletion
+- added delete by id for educator
+- added custom view to delete un-usernamed educators
+- refactored homeroom to consolidate form and http handlers
+- updated styling of homeroom view and forms
+- added form type in shared models
+
 ## v0.9.12 (26.09.24) homeroom and case manager updates
 
 - added get homeroom by student id query

@@ -90,7 +90,23 @@ SELECT
 	updated_at
 FROM educators
 WHERE archived_at IS NULL
-ORDER BY family_name ASC, given_name ASC;
+ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC;
+
+-- name: ListEducatorsByIDs :many
+SELECT
+	id, 
+	given_name, 
+	chosen_name, 
+	family_name, 
+	pronouns,
+	email, 
+	username,
+	created_at, 
+	updated_at
+FROM educators
+WHERE archived_at IS NULL
+  AND id IN (sqlc.slice('ids'))
+ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC;
 
 -- name: ListEducatorsByRole :many
 SELECT

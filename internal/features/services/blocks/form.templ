@@ -14,11 +14,12 @@ templ ServiceForm(view dto.ServiceFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
 		id={ fmt.Sprintf("form-iep-service-%s", view.FormType) }
-		class="seek-form"
+		class="seek-form gap-4"
 		data-on:submit={ datastar.PostSSE("%s", url) }
 	>
 		@FormSections(view)
 		<footer>
+			@forms.DeleteButton("service", view.Service.ID)
 			@forms.CancelButton("/services")
 			@forms.SaveButton()
 		</footer>

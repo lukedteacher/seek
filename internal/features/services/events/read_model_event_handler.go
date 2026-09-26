@@ -123,9 +123,15 @@ func (h *ServiceReadModelEventHandler) handle(ctx context.Context, resolved even
 			return err
 		}
 	case EventServiceDeleted:
+		var flat ServiceFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
+			return err
+		}
+		model := NewModelFromFlat(flat)
+		println("read model handle delete event", model.ID)
 		projection := ServiceDeletedProjection{
 			Position:  resolved.Position,
-			ServiceID: eventID,
+			ServiceID: model.ID,
 			DeletedAt: parseTime(data[FieldServiceDeletedAt]),
 		}
 		if err := h.readModel.DeleteService(ctx, projection); err != nil {

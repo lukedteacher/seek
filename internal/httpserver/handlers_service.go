@@ -27,15 +27,15 @@ import (
 
 func (s Server) serviceRoutes(r chi.Router) {
 	r.Get("/services", getServicesList(s.Logger))
-	r.Get("/services/stream", getServicesListStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Services))
+	r.Get("/services/stream", getServicesListStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Services))
 	r.Get("/services/create", getServiceCreate(s.Logger))
-	r.Get("/services/create/stream", getServiceCreateStream(s.Logger, s.ViewStore, *s.ReadModels.Students))
+	r.Get("/services/create/stream", getServiceCreateStream(s.Logger, s.ViewStore, s.ReadModels.Students))
 	r.Post("/services/create/validate", postServiceCreateValidate(s.Logger, s.ViewStore))
 	r.Post("/services/create", postServiceCreate(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Get("/services/{id}", getServiceView(s.Logger))
-	r.Get("/services/{id}/stream", getServiceViewStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Services))
+	r.Get("/services/{id}/stream", getServiceViewStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Services))
 	r.Get("/services/{id}/edit", getServiceEdit(s.Logger))
-	r.Get("/services/{id}/edit/stream", getServiceEditStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Services, *s.ReadModels.Students))
+	r.Get("/services/{id}/edit/stream", getServiceEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Services, s.ReadModels.IEPs, s.ReadModels.Students))
 	r.Post("/services/{id}/edit", postServiceEdit(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Post("/services/{id}/edit/validate", postServiceEditValidate(s.Logger, s.ViewStore))
 	r.Delete("/services/{id}", deleteService(s.Logger, s.EventSaver, s.EventRetriever))
@@ -59,7 +59,7 @@ func getServicesListStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	_ viewstore.Store,
-	serviceReadModel events.ReadModel,
+	serviceReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -117,7 +117,7 @@ func getServiceCreate(
 func getServiceCreateStream(
 	l *slog.Logger,
 	vs viewstore.Store,
-	studentReadModel studentEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -254,7 +254,7 @@ func getServiceViewStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	serviceReadModel events.ReadModel,
+	serviceReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -335,8 +335,9 @@ func getServiceEditStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	serviceReadModel events.ReadModel,
-	studentReadModel studentEvents.ReadModel,
+	serviceReadModel *events.ReadModel,
+	iepReadModel *iepEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -369,7 +370,7 @@ func getServiceEditStream(
 		}
 		defer watcher.Stop()
 
-		if err := refreshServiceEditState(ctx, l, vs, serviceID, serviceReadModel); err != nil {
+		if err := refreshServiceEditState(ctx, l, vs, serviceID, serviceReadModel, iepReadModel); err != nil {
 			if err.Error() == "service not found" {
 				sse.PatchElementTempl(pages.NotFound())
 			}
@@ -382,7 +383,7 @@ func getServiceEditStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal():
-				if err := refreshServiceEditState(ctx, l, vs, serviceID, serviceReadModel); err != nil {
+				if err := refreshServiceEditState(ctx, l, vs, serviceID, serviceReadModel, iepReadModel); err != nil {
 					if err.Error() == "service not found" {
 						sse.PatchElementTempl(pages.NotFound())
 					}
@@ -478,8 +479,17 @@ func deleteService(
 		ctx := r.Context()
 		user := currentUser(r)
 		serviceID := chi.URLParam(r, "id")
+		signals := &struct {
+			Service dto.ServiceView `json:"service"`
+		}{}
+		if err := datastar.ReadSignals(r, signals); err != nil {
+			l.ErrorContext(ctx, "post iep service edit signals", "err", err)
+			return
+		}
 		_, err := events.DeleteServiceCommandHandler(ctx, events.DeleteServiceCommand{
 			ServiceID: serviceID,
+			IEPID:     signals.Service.IEPID,
+			StudentID: signals.Service.StudentID,
 			Metadata:  eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}, saver, retriever)
 		if err != nil {
@@ -687,7 +697,7 @@ func refreshServiceViewState(
 	_ *slog.Logger,
 	vs viewstore.Store,
 	serviceID string,
-	serviceReadModel events.ReadModel,
+	serviceReadModel *events.ReadModel,
 ) error {
 	model, err := serviceReadModel.Get(ctx, serviceID)
 	if err != nil {
@@ -702,12 +712,15 @@ func refreshServiceEditState(
 	_ *slog.Logger,
 	vs viewstore.Store,
 	serviceID string,
-	serviceReadModel events.ReadModel,
+	serviceReadModel *events.ReadModel,
+	iepReadModel *iepEvents.ReadModel,
 ) error {
 	model, err := serviceReadModel.Get(ctx, serviceID)
 	if err != nil {
 		return err
 	}
+	iep, _ := iepReadModel.Get(ctx, model.IEPID)
+	model.StudentID = iep.StudentID
 	key := model.ID + ".edit"
 	return viewstore.PutState(ctx, vs, key, model)
 }

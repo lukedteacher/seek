@@ -2,9 +2,13 @@ package events
 
 import (
 	"context"
+	"encoding/json"
+	"log/slog"
 	"time"
 
 	"seek/internal/eventstore"
+	iepEvents "seek/internal/features/ieps/events"
+	"seek/internal/features/services/models"
 	"seek/pkg/uuidv7"
 )
 
@@ -50,7 +54,6 @@ func DeleteServiceCommandHandler(
 		time.Now(),
 		metadataWithQuery(cmd.Metadata, model.query),
 	)
-
 	if _, err := saver.SaveEvents(ctx, []eventstore.DomainEvent{event}, model.position, model.events, model.query); err != nil {
 		return DeleteServiceResult{}, err
 	}
@@ -58,11 +61,14 @@ func DeleteServiceCommandHandler(
 }
 
 type deleteServiceContext struct {
-	exists   bool
-	deleted  bool
-	position eventstore.Position
-	events   []eventstore.ResolvedEvent
-	query    eventstore.Query
+	serviceCreated  bool
+	serviceArchived bool
+	serviceDeleted  bool
+	service         models.Service
+	iep             IEPState
+	position        eventstore.Position
+	events          []eventstore.ResolvedEvent
+	query           eventstore.Query
 }
 
 func loadDeleteServiceContext(
@@ -79,7 +85,6 @@ func loadDeleteServiceContext(
 	if err != nil {
 		return nil, err
 	}
-
 	model := &deleteServiceContext{position: eventstore.NoEventPosition, events: events, query: query}
 	for _, event := range events {
 		model.handle(event)
@@ -88,19 +93,40 @@ func loadDeleteServiceContext(
 }
 
 func (m *deleteServiceContext) isActive() bool {
-	if !m.exists || m.deleted {
+	if !m.serviceCreated || m.serviceArchived || m.serviceDeleted {
 		return false
 	}
 	return true
 }
 
 func (m *deleteServiceContext) handle(resolved eventstore.ResolvedEvent) {
+	rawData := resolved.Event.RawData
 	switch resolved.Event.EventType {
+	case iepEvents.EventIEPAddedToStudent:
+		m.iep.created = true
+	case iepEvents.EventIEPArchived:
+		m.iep.archived = true
+	case iepEvents.EventIEPDeleted:
+		m.iep.deleted = true
 	case EventServiceAddedToIEP:
-		m.exists = true
-		m.deleted = false
+		m.serviceCreated = true
+		var flat ServiceFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
+			slog.Error("service delete handle add unmarshal", "err", err)
+			return
+		}
+		m.service = NewModelFromFlat(flat)
+	case EventServiceUpdated:
+		var flat ServiceFlat
+		if err := json.Unmarshal([]byte(rawData), &flat); err != nil {
+			slog.Error("service delete handle update unmarshal", "err", err)
+			return
+		}
+		m.service = NewModelFromFlat(flat)
+	case EventServiceArchived:
+		m.serviceArchived = true
 	case EventServiceDeleted:
-		m.deleted = true
+		m.serviceDeleted = true
 	}
 	if resolved.Position.After(m.position) {
 		m.position = resolved.Position

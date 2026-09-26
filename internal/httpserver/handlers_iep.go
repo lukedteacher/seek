@@ -14,6 +14,9 @@ import (
 	"seek/internal/features/ieps/events"
 	"seek/internal/features/ieps/models"
 	"seek/internal/features/ieps/pages"
+	serviceDTO "seek/internal/features/services/dto"
+	serviceEvents "seek/internal/features/services/events"
+	studentDTO "seek/internal/features/students/dto"
 	studentEvents "seek/internal/features/students/events"
 	"seek/internal/ui/core/coreblocks/toasts"
 	"seek/internal/viewstore"
@@ -25,15 +28,15 @@ import (
 
 func (s Server) iepRoutes(r chi.Router) {
 	r.Get("/ieps", getIEPsList(s.Logger))
-	r.Get("/ieps/stream", getIEPsListStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.IEPs))
+	r.Get("/ieps/stream", getIEPsListStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.IEPs, s.ReadModels.Students))
 	r.Get("/ieps/create", getIEPCreate(s.Logger))
-	r.Get("/ieps/create/stream", getIEPCreateStream(s.Logger, s.ViewStore, *s.ReadModels.Students))
+	r.Get("/ieps/create/stream", getIEPCreateStream(s.Logger, s.ViewStore, s.ReadModels.Students))
 	r.Post("/ieps/create/validate", postIEPCreateValidate(s.Logger, s.ViewStore))
 	r.Post("/ieps/create", postIEPCreate(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Get("/ieps/{id}", getIEPView(s.Logger))
-	r.Get("/ieps/{id}/stream", getIEPViewStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.IEPs))
+	r.Get("/ieps/{id}/stream", getIEPViewStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.IEPs, s.ReadModels.Students, s.ReadModels.Services))
 	r.Get("/ieps/{id}/edit", getIEPEdit(s.Logger))
-	r.Get("/ieps/{id}/edit/stream", getIEPEditStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.IEPs, *s.ReadModels.Students))
+	r.Get("/ieps/{id}/edit/stream", getIEPEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.IEPs, s.ReadModels.Students))
 	r.Post("/ieps/{id}/edit", postIEPEdit(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Post("/ieps/{id}/edit/validate", postIEPEditValidate(s.Logger, s.ViewStore))
 	r.Delete("/ieps/{id}", deleteIEP(s.Logger, s.EventSaver, s.EventRetriever))
@@ -47,7 +50,7 @@ func getIEPsList(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		view := dto.NewIEPTableView([]models.IEP{})
+		view := dto.NewIEPTableView([]dto.IEPView{})
 		_ = pages.List(view).Render(ctx, w)
 	}
 }
@@ -57,7 +60,8 @@ func getIEPsListStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	_ viewstore.Store,
-	iepReadModel events.ReadModel,
+	iepReadModel *events.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -79,7 +83,13 @@ func getIEPsListStream(
 			l.ErrorContext(ctx, "iep list stream db list", "err", err)
 			return
 		}
-		view := dto.NewIEPTableView(ieps)
+		iepViews := make([]dto.IEPView, len(ieps))
+		for i, iep := range ieps {
+			iepViews[i] = dto.NewIEPView(&iep)
+			student, _ := studentReadModel.GetByID(ctx, iep.StudentID)
+			iepViews[i].Student = studentDTO.NewView(student)
+		}
+		view := dto.NewIEPTableView(iepViews)
 		sse.PatchElementTempl(pages.List(view))
 
 		for {
@@ -94,7 +104,13 @@ func getIEPsListStream(
 					l.ErrorContext(ctx, "iep list stream db list", "err", err)
 					return
 				}
-				view := dto.NewIEPTableView(ieps)
+				iepViews := make([]dto.IEPView, len(ieps))
+				for i, iep := range ieps {
+					iepViews[i] = dto.NewIEPView(&iep)
+					student, _ := studentReadModel.GetByID(ctx, iep.StudentID)
+					iepViews[i].Student = studentDTO.NewView(student)
+				}
+				view := dto.NewIEPTableView(iepViews)
 				sse.PatchElementTempl(pages.List(view))
 			}
 		}
@@ -115,7 +131,7 @@ func getIEPCreate(
 func getIEPCreateStream(
 	l *slog.Logger,
 	vs viewstore.Store,
-	studentReadModel studentEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -252,7 +268,9 @@ func getIEPViewStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	iepReadModel events.ReadModel,
+	iepReadModel *events.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
+	serviceReadModel *serviceEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -312,6 +330,12 @@ func getIEPViewStream(
 					return
 				}
 				view := dto.NewIEPView(model)
+				student, _ := studentReadModel.GetByID(ctx, view.StudentID)
+				studentView := studentDTO.NewView(student)
+				view.Student = studentView
+				services, _ := serviceReadModel.ListServicesForIEP(ctx, view.ID)
+				serviceViews := serviceDTO.NewServiceViews(services)
+				view.Services = serviceViews
 				sse.PatchElementTempl(pages.View(view))
 			}
 		}
@@ -333,8 +357,8 @@ func getIEPEditStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	iepReadModel events.ReadModel,
-	studentReadModel studentEvents.ReadModel,
+	iepReadModel *events.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -534,8 +558,18 @@ func getIEPsCSV(
 			return
 		}
 
-		// compute diff
-		diffs := models.CompareServices(dbIEPs, convertedCSVRows)
+		// convert to views
+		dbIEPViews := make([]dto.IEPView, len(dbIEPs))
+		for i, iep := range dbIEPs {
+			dbIEPViews[i] = dto.NewIEPView(&iep)
+		}
+		convertedCSVViews := make([]dto.IEPView, len(convertedCSVRows))
+		for i, iep := range convertedCSVRows {
+			convertedCSVViews[i] = dto.NewIEPView(&iep)
+		}
+
+		//compute diff
+		diffs := dto.CompareIEPs(dbIEPViews, convertedCSVViews)
 
 		// render view
 		view := dto.NewServiceDiffTableView(diffs)
@@ -591,8 +625,18 @@ func postIEPsCSV(
 			return
 		}
 
-		// compute diff
-		diffs := models.CompareServices(dbIEPs, convertedCSVRows)
+		// convert to views
+		dbIEPViews := make([]dto.IEPView, len(dbIEPs))
+		for i, iep := range dbIEPs {
+			dbIEPViews[i] = dto.NewIEPView(&iep)
+		}
+		convertedCSVViews := make([]dto.IEPView, len(convertedCSVRows))
+		for i, iep := range convertedCSVRows {
+			convertedCSVViews[i] = dto.NewIEPView(&iep)
+		}
+
+		//compute diff
+		diffs := dto.CompareIEPs(dbIEPViews, convertedCSVViews)
 
 		for _, diff := range diffs {
 			if diff.Status == sharedmodels.DiffSame {
@@ -613,10 +657,11 @@ func postIEPsCSV(
 				}
 			}
 			if diff.Status == sharedmodels.DiffNew {
+				newModel := dto.NewModelFromView(diff.New)
 				_, err := events.AddIEPToStudentCommandHandler(
 					ctx,
 					events.AddIEPToStudentCommand{
-						IEP: *diff.New,
+						IEP: newModel,
 					},
 					saver,
 					retriever,
@@ -626,10 +671,11 @@ func postIEPsCSV(
 				}
 			}
 			if diff.Status == sharedmodels.DiffUpdated {
+				newModel := dto.NewModelFromView(diff.New)
 				_, err := events.UpdateIEPCommandHandler(
 					ctx,
 					events.UpdateIEPCommand{
-						IEP: *diff.New,
+						IEP: newModel,
 					},
 					saver,
 					retriever,
@@ -650,7 +696,7 @@ func refreshIEPViewState(
 	_ *slog.Logger,
 	vs viewstore.Store,
 	iepID string,
-	iepReadModel events.ReadModel,
+	iepReadModel *events.ReadModel,
 ) error {
 	model, err := iepReadModel.Get(ctx, iepID)
 	if err != nil {
@@ -665,7 +711,7 @@ func refreshIEPEditState(
 	_ *slog.Logger,
 	vs viewstore.Store,
 	iepID string,
-	iepReadModel events.ReadModel,
+	iepReadModel *events.ReadModel,
 ) error {
 	model, err := iepReadModel.Get(ctx, iepID)
 	if err != nil {

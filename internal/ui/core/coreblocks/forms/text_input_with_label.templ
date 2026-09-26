@@ -31,7 +31,7 @@ templ TextInputWithLabel(p TextInputWithLabelProps) {
 			Value: p.Value,
 			Attributes: templ.Attributes{
 				"data-bind":                     p.Bind,
-				"data-on:input__debounce.250ms": fmt.Sprintf("@post('%s/validate')", p.URL),
+				"data-on:input__debounce.250ms": fmt.Sprintf("@query('%s/validate')", p.URL),
 			},
 		})
 	</div>

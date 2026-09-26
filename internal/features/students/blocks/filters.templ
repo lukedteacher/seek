@@ -36,8 +36,8 @@ templ StudentFilters(target, url string, filters dto.Filter) {
 		<input
 			id="students-list-search"
 			class="input"
-			{ fmt.Sprintf("data-bind:%s.filter.search", target) }
-			data-on:input__debounce.250ms={ fmt.Sprintf("@post('%s')", url) }
+			data-bind:student_select.filter.search
+			data-on:input__debounce.250ms={ fmt.Sprintf("@query('%s')", url) }
 			type="search"
 		/>
 	</div>
@@ -56,7 +56,7 @@ templ StudentGradesFilter(target, url string, gradesFilter map[string]bool) {
 					Variant: button.VariantOutline,
 					Attributes: templ.Attributes{
 						"data-class:bg-primary": fmt.Sprintf("$%s.filter.grade.%d", target, grade),
-						"data-on:click":         fmt.Sprintf("$%[1]s.filter.grade.%[2]d = !$%[1]s.filter.grade.%[2]d; @post('%[3]s')", target, grade, url),
+						"data-on:click":         fmt.Sprintf("$%[1]s.filter.grade.%[2]d = !$%[1]s.filter.grade.%[2]d; @query('%[3]s')", target, grade, url),
 					},
 				}) {
 					{ grade.Ordinal() }
@@ -79,7 +79,7 @@ templ StudentPlanTypesFilter(target, url string, planTypesFilter map[string]bool
 					Variant: button.VariantOutline,
 					Attributes: templ.Attributes{
 						"data-class:bg-primary": fmt.Sprintf("$%s.filter.plan_type.%d", target, plan),
-						"data-on:click":         fmt.Sprintf("$%[1]s.filter.plan_type.%[2]d = !$%[1]s.filter.plan_type.%[2]d; @post('%[3]s')", target, plan, url),
+						"data-on:click":         fmt.Sprintf("$%[1]s.filter.plan_type.%[2]d = !$%[1]s.filter.plan_type.%[2]d; @query('%[3]s')", target, plan, url),
 					},
 				}) {
 					{ plan.Description() }

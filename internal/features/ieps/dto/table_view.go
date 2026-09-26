@@ -1,13 +1,17 @@
 package dto
 
 import (
+	"context"
+	"io"
 	"seek/internal/features/_shared/shareddto"
-	"seek/internal/features/ieps/models"
+	"seek/internal/ui/core/coreblocks"
 	"strconv"
+
+	"github.com/a-h/templ"
 )
 
 // table config (used by both regular and diff tables)
-var IEPTableConfig = shareddto.TableConfig[models.IEP]{
+var IEPTableConfig = shareddto.TableConfig[IEPView]{
 	Name:            "ieps",
 	Columns:         IEPColumns,
 	ValueExtractor:  valueExtractor,
@@ -16,7 +20,7 @@ var IEPTableConfig = shareddto.TableConfig[models.IEP]{
 
 // columns for the iep service table
 var IEPColumns = []shareddto.ColumnView{
-	{Field: "StudentMARSSID", Display: "student MARSS ID"},
+	{Field: "Student", Display: "student", RenderFunc: studentRenderer},
 	{Field: "PlanManagerSPEDFormsID", Display: "pm sf id"},
 	{Field: "Disability1", Display: "disability 1", Renderer: "badge", Alignment: "center"},
 	{Field: "Disability2", Display: "disability 2", Renderer: "badge", Alignment: "center"},
@@ -28,20 +32,18 @@ var IEPColumns = []shareddto.ColumnView{
 	{Field: "IEPType", Display: "IEP type", Renderer: "badge", Alignment: "center"},
 }
 
-func NewIEPTableView(services []models.IEP) shareddto.TableView {
+func NewIEPTableView(services []IEPView) shareddto.TableView {
 	return shareddto.NewTableView(services, IEPTableConfig)
 }
 
 // extract values from an iep service by field name
-func valueExtractor(m *models.IEP, field string) string {
+func valueExtractor(m *IEPView, field string) string {
 	if m == nil {
 		return ""
 	}
 	switch field {
 	case "ID":
 		return m.ID
-	case "StudentMARSSID":
-		return m.StudentMARSSID
 	case "PlanManagerSPEDFormsID":
 		return m.PlanManagerSPEDFormsID
 	case "Disability1":
@@ -76,6 +78,16 @@ func valueExtractor(m *models.IEP, field string) string {
 	}
 }
 
-func targetExtractor(m *models.IEP) string {
+func targetExtractor(m *IEPView) string {
 	return m.ID
+}
+
+func studentRenderer(item any) templ.Component {
+	s := item.(IEPView)
+	if s.StudentID == "" {
+		return templ.NopComponent
+	}
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
+		return coreblocks.PersonAvatar("student", s.Student.Person).Render(ctx, w)
+	})
 }

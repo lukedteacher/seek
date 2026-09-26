@@ -6,7 +6,7 @@ require (
 	github.com/Oudwins/tailwind-merge-go v0.2.0
 	github.com/a-h/templ v0.3.1020
 	github.com/delaneyj/toolbelt v0.9.1
-	github.com/go-chi/chi/v5 v5.3.0
+	github.com/go-chi/chi/v5 v5.3.2
 	github.com/gocarina/gocsv v0.0.0-20260628180327-50907998929c
 	github.com/oexza/Orisun v0.4.1
 	github.com/starfederation/datastar-go v1.2.2

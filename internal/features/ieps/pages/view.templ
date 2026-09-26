@@ -16,7 +16,7 @@ templ View(view dto.IEPView) {
 	@corelayouts.LayoutBase("SEEK: IEP") {
 		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("view IEP")
-			<section class="w-full flex flex-col items-center">
+			<section class="w-full grid grid-cols-1 md:grid-cols-2 gap-6 justify-center">
 				@blocks.Card(view)
 			</section>
 		</main>

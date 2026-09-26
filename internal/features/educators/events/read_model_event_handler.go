@@ -17,6 +17,7 @@ type EducatorReadModelReader interface {
 	GetByID(ctx context.Context, educatorID string) (*models.Educator, error)
 	GetByUsername(ctx context.Context, username string) (*models.Educator, error)
 	List(ctx context.Context) ([]models.Educator, error)
+	ListByIDs(ctx context.Context, educatorIDs []string) ([]models.Educator, error)
 }
 
 type EducatorReadModelWriter interface {

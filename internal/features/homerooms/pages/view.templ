@@ -4,20 +4,32 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/sharedmodels"
+	educatorDTO "seek/internal/features/educators/dto"
 	"seek/internal/features/homerooms/blocks"
 	"seek/internal/features/homerooms/dto"
+	studentDTO "seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-templ View(view dto.HomeroomView) {
+type ViewProps struct {
+	Homeroom  dto.HomeroomView
+	Educators []educatorDTO.EducatorView
+	Students  []studentDTO.StudentView
+}
+
+templ View(p ViewProps) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: homeroom") {
 		<main id="main" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("view homeroom")
 			<section class="w-full">
-				@blocks.Card(view)
+				@blocks.View(blocks.ViewProps{
+					Homeroom:  p.Homeroom,
+					Educators: p.Educators,
+					Students:  p.Students,
+				})
 			</section>
 		</main>
 	}

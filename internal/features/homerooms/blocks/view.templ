@@ -1,0 +1,192 @@
+package blocks
+
+import (
+	"fmt"
+	"strings"
+
+	"seek/internal/features/_shared/sharedmodels"
+	educatorDTO "seek/internal/features/educators/dto"
+	"seek/internal/features/homerooms/dto"
+	studentDTO "seek/internal/features/students/dto"
+	"seek/pkg/templui/components/avatar"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/card"
+	"seek/pkg/templui/components/icon"
+)
+
+type ViewProps struct {
+	Homeroom  dto.HomeroomView
+	Educators []educatorDTO.EducatorView
+	Students  []studentDTO.StudentView
+}
+
+templ View(p ViewProps) {
+	<div class="flex flex-col lg:flex-row gap-6">
+		@CoreCard(p)
+		@EducatorsCard(p.Educators)
+		@StudentsCard(p.Students)
+	</div>
+}
+
+templ CoreCard(p ViewProps) {
+	@card.Card(card.Props{
+		ID:    fmt.Sprintf("homeroom-%s-card", p.Homeroom.ID),
+		Class: "homeroom-card max-w-128 h-fit bg-neutral border-muted relative",
+	}) {
+		@button.Button(button.Props{
+			Variant: button.VariantGhost,
+			Class:   "absolute right-2 top-2",
+			Href:    fmt.Sprintf("/homerooms/%s/edit", p.Homeroom.ID),
+		}) {
+			@icon.Pencil(icon.Props{
+				Size: "16",
+			})
+		}
+		@card.Header() {
+			@card.Title() {
+				@icon.HouseHeart()
+				<span>{ p.Homeroom.Title }</span>
+			}
+		}
+		@card.Content(card.ContentProps{
+			Class: "flex flex-col gap-4 text-sm w-full pt-4",
+		}) {
+			<div class="flex gap-1">
+				for _, grade := range sharedmodels.GradeList {
+					if p.Homeroom.GradesBitmask.IsGradeSet(grade) {
+						@badge.Badge() {
+							{ grade.Ordinal() }
+						}
+					}
+				}
+			</div>
+			<div class="flex flex-col gap-2">
+				<p class="text-neutral-content/70">total educators: { len(p.Educators) }</p>
+				<p class="text-neutral-content/70">total students: { len(p.Students) }</p>
+			</div>
+		}
+	}
+}
+
+templ EducatorsCard(educators []educatorDTO.EducatorView) {
+	@card.Card(card.Props{
+		Class: "max-w-128 bg-neutral border-muted",
+	}) {
+		@card.Header() {
+			@card.Title() {
+				@icon.Apple()
+				<span>educators</span>
+			}
+		}
+		@card.Content(card.ContentProps{
+			Class: "flex flex-col gap-3",
+		}) {
+			for _, educator := range educators {
+				<div class="flex bg-linear-2 border border-muted px-3 h-16 w-full rounded-md justify-between">
+					<div class="flex items-center gap-3">
+						@avatar.Avatar() {
+							@avatar.Image(avatar.ImageProps{
+								Src:   fmt.Sprintf("/static/images/people/%s_%s.webp", strings.ToLower(educator.FamilyName), strings.ToLower(educator.GivenName)),
+								Class: "object-cover",
+								Attributes: templ.Attributes{
+									"onerror": "this.style.display='none'",
+								},
+							})
+							@avatar.Fallback(avatar.FallbackProps{
+								Class: "bg-secondary",
+							}) {
+								{ educator.Initials() }
+							}
+						}
+						<div class="flex flex-col gap-1 text-sm">
+							{ educator.FullName() }
+							for _, role := range educator.Roles {
+								@badge.Badge() {
+									{ role.ShortString() }
+								}
+							}
+						</div>
+					</div>
+					<div class="flex items-center gap-1">
+						@button.Button(button.Props{
+							Variant: button.VariantGhost,
+							Size:    button.SizeIcon,
+							Href:    fmt.Sprintf("/educators/%s/info", educator.Username),
+						}) {
+							@icon.Info()
+						}
+						@button.Button(button.Props{
+							Variant: button.VariantGhost,
+							Size:    button.SizeIcon,
+							Href:    fmt.Sprintf("/educators/%s/schedule", educator.Username),
+						}) {
+							@icon.CalendarRange()
+						}
+					</div>
+				</div>
+			}
+		}
+	}
+}
+
+templ StudentsCard(students []studentDTO.StudentView) {
+	@card.Card(card.Props{
+		Class: "max-w-128 bg-neutral border-muted",
+	}) {
+		@card.Header() {
+			@card.Title() {
+				@icon.GraduationCap()
+				<span>students</span>
+			}
+		}
+		@card.Content(card.ContentProps{
+			Class: "flex flex-col gap-3",
+		}) {
+			for _, student := range students {
+				<div class="flex bg-linear-2 border border-muted px-3 h-16 w-full rounded-md justify-between">
+					<div class="flex items-center gap-3">
+						@avatar.Avatar() {
+							@avatar.Image(avatar.ImageProps{
+								Src:   fmt.Sprintf("/static/images/people/%s_%s.webp", strings.ToLower(student.FamilyName), strings.ToLower(student.GivenName)),
+								Class: "object-cover",
+								Attributes: templ.Attributes{
+									"onerror": "this.style.display='none'",
+								},
+							})
+							@avatar.Fallback(avatar.FallbackProps{
+								Class: "bg-secondary",
+							}) {
+								{ student.Initials() }
+							}
+						}
+						<div class="flex flex-col gap-1 text-sm">
+							{ student.FullName() }
+							@badge.Badge(badge.Props{
+								Class: "text-xs",
+							}) {
+								{ student.Grade.Ordinal() }
+							}
+						</div>
+					</div>
+					<div class="flex items-center gap-1">
+						@button.Button(button.Props{
+							Variant: button.VariantGhost,
+							Size:    button.SizeIcon,
+							Href:    fmt.Sprintf("/students/%s/info", student.Username),
+						}) {
+							@icon.Info()
+						}
+						@button.Button(button.Props{
+							Variant: button.VariantGhost,
+							Size:    button.SizeIcon,
+							Href:    fmt.Sprintf("/students/%s/schedule", student.Username),
+						}) {
+							@icon.CalendarRange()
+						}
+					</div>
+				</div>
+			}
+		}
+	}
+}

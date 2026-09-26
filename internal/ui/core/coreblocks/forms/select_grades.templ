@@ -11,17 +11,12 @@ import (
 )
 
 templ SelectMultiGrades(objectType string, selected sharedmodels.GradesBitmask) {
-	{{
-		url := sharedmodels.GetURLFromContext(ctx)
-		view := shareddto.NewSelectViewGrade(selected)
-	}}
+	{{ view := shareddto.NewSelectViewGrade(selected) }}
 	<input
 		class="hidden"
 		id="grades_bitmask"
 		type="number"
-		data-signals:homeroom.grades_bitmask={ selected.String() }
 		data-bind:homeroom.grades_bitmask
-		data-on:input__debounce.250ms={ fmt.Sprintf("@post('%s/validate')", url) }
 	/>
 	<div class="flex flex-col">
 		@label.Label(label.Props{
@@ -31,7 +26,7 @@ templ SelectMultiGrades(objectType string, selected sharedmodels.GradesBitmask) 
 			select grade(s)
 		}
 		<div class="flex gap-3 items-center">
-			<neo-popover class="w-full" placement="top">
+			<neo-popover class="w-full" placement="bottom">
 				<div
 					class="flex items-center gap-2 relative input"
 					data-neo-popover-trigger
@@ -54,11 +49,11 @@ templ SelectOptions(options []shareddto.SelectOptionGrade) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<ul
 		data-neo-popover-content
-		class="flex flex-col gap-1 w-full h-64"
+		class="flex flex-col gap-1 w-full h-fit"
 	>
 		for _, option := range options {
 			<li
-				data-on:click={ fmt.Sprintf("@post('%s/grades/%s')", url, option.Grade.String()) }
+				data-on:click={ fmt.Sprintf("@query('%s/grades/%s')", url, option.Grade.String()) }
 				class={ utils.TwMerge(
 							"text-sm flex items-center justify-between cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
 							utils.If(option.Selected, "bg-primary"),

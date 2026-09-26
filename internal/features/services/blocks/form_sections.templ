@@ -13,7 +13,6 @@ templ FormSections(view dto.ServiceFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@HiddenInputs(view)
 	@forms.Fieldset("people") {
-		@ServiceStudentWithIEPSelectBox(view.Students)
 		@ServiceProviderSelectBox(view.Providers)
 	}
 	@forms.Fieldset("type") {
@@ -33,6 +32,8 @@ templ FormSections(view dto.ServiceFormView) {
 
 templ HiddenInputs(view dto.ServiceFormView) {
 	<input id="service-id" class="hidden" data-bind="service.id" value={ view.Service.ID }/>
+	<input id="service-iep-id" class="hidden" data-bind="service.iep_id" value={ view.Service.IEPID }/>
+	<input id="service-student-id" class="hidden" data-bind="service.student_id" value={ view.Service.StudentID }/>
 	<input id="service-service-name" class="hidden" data-bind="service.service_name" value={ view.Service.ServiceName }/>
 }
 

@@ -12,14 +12,25 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/sharedmodels"
+	educatorDTO "seek/internal/features/educators/dto"
 	"seek/internal/features/homerooms/blocks"
 	"seek/internal/features/homerooms/dto"
+	studentDTO "seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-func Create(view dto.HomeroomFormView) templ.Component {
+type FormProps struct {
+	FormType           sharedmodels.FormType `json:"form_type"`
+	Homeroom           dto.HomeroomView      `json:"homeroom"`
+	EducatorSelectView educatorDTO.SelectView
+	SelectedEducators  []educatorDTO.EducatorView
+	StudentSelectView  studentDTO.SelectView
+	SelectedStudents   []studentDTO.StudentView
+}
+
+func Form(p FormProps) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -60,7 +71,7 @@ func Create(view dto.HomeroomFormView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/homerooms/pages/create.templ`, Line: 17, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/homerooms/pages/form.templ`, Line: 28, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -70,25 +81,28 @@ func Create(view dto.HomeroomFormView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = coreblocks.HeaderMain("create homeroom").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = coreblocks.HeaderMain(fmt.Sprintf("%s homeroom", p.FormType)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<section class=\"w-full flex flex-col md:flex-row gap-4 h-full\">")
+			templ_7745c5c3_Err = blocks.Form(blocks.FormProps{
+				FormType:           p.FormType,
+				Homeroom:           p.Homeroom,
+				EducatorSelectView: p.EducatorSelectView,
+				SelectedEducators:  p.SelectedEducators,
+				StudentSelectView:  p.StudentSelectView,
+				SelectedStudents:   p.SelectedStudents,
+			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.HomeroomForm(view).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</section></main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: create homeroom").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase(fmt.Sprintf("SEEK: %s homeroom", p.FormType)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

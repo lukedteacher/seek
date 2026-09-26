@@ -9,6 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
+	educatorDTO "seek/internal/features/educators/dto"
 	homeroomDTO "seek/internal/features/homerooms/dto"
 	"seek/internal/features/students/dto"
 )
@@ -39,7 +40,7 @@ func CardGrid(students []dto.StudentView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		for _, student := range students {
-			templ_7745c5c3_Err = Card(student, homeroomDTO.HomeroomView{}, 0).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = Card(student, educatorDTO.EducatorView{}, homeroomDTO.HomeroomView{}, 0).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -3,6 +3,7 @@ package blocks
 import (
 	"fmt"
 
+	educatorDTO "seek/internal/features/educators/dto"
 	homeroomDTO "seek/internal/features/homerooms/dto"
 	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks/cards"
@@ -11,7 +12,7 @@ import (
 	"seek/pkg/templui/components/icon"
 )
 
-templ Card(view dto.StudentView, homeroomView homeroomDTO.HomeroomView, serviceCount int) {
+templ Card(view dto.StudentView, caseManager educatorDTO.EducatorView, homeroomView homeroomDTO.HomeroomView, serviceCount int) {
 	<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 		@card.Card(card.Props{
 			ID:    fmt.Sprintf("student-%s-card-info", view.Username),
@@ -106,10 +107,10 @@ templ Card(view dto.StudentView, homeroomView homeroomDTO.HomeroomView, serviceC
 					Value: view.PlanType.Description(),
 				})
 				if view.CaseManagerID != "" {
-					<a href={ fmt.Sprintf("/educators/%s", view.CaseManager.Username) }>
+					<a href={ fmt.Sprintf("/educators/%s", caseManager.Username) }>
 						@cards.BadgeLine(cards.BadgeLineProps{
 							Key:   "case manager",
-							Value: view.CaseManager.NameInitial(),
+							Value: caseManager.NameInitial(),
 						})
 					</a>
 				}

@@ -40,7 +40,7 @@ SELECT
 	updated_at
 FROM educators
 WHERE archived_at IS NULL
-ORDER BY family_name ASC, given_name ASC
+ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC
     `
 
 	ps := &ListEducatorsStmt{

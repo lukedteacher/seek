@@ -45,6 +45,14 @@ func NewServiceView(sm *models.Service) ServiceView {
 	}
 }
 
+func NewServiceViews(models []models.Service) []ServiceView {
+	views := make([]ServiceView, len(models))
+	for i, model := range models {
+		views[i] = NewServiceView(&model)
+	}
+	return views
+}
+
 func NewModelFromView(v *ServiceView) models.Service {
 	if v == nil {
 		return models.Service{}

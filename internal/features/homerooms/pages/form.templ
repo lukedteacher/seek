@@ -1,0 +1,40 @@
+package pages
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	educatorDTO "seek/internal/features/educators/dto"
+	"seek/internal/features/homerooms/blocks"
+	"seek/internal/features/homerooms/dto"
+	studentDTO "seek/internal/features/students/dto"
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+)
+
+type FormProps struct {
+	FormType           sharedmodels.FormType `json:"form_type"`
+	Homeroom           dto.HomeroomView      `json:"homeroom"`
+	EducatorSelectView educatorDTO.SelectView
+	SelectedEducators  []educatorDTO.EducatorView
+	StudentSelectView  studentDTO.SelectView
+	SelectedStudents   []studentDTO.StudentView
+}
+
+templ Form(p FormProps) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	@corelayouts.LayoutBase(fmt.Sprintf("SEEK: %s homeroom", p.FormType)) {
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain(fmt.Sprintf("%s homeroom", p.FormType))
+			@blocks.Form(blocks.FormProps{
+				FormType:           p.FormType,
+				Homeroom:           p.Homeroom,
+				EducatorSelectView: p.EducatorSelectView,
+				SelectedEducators:  p.SelectedEducators,
+				StudentSelectView:  p.StudentSelectView,
+				SelectedStudents:   p.SelectedStudents,
+			})
+		</main>
+	}
+}

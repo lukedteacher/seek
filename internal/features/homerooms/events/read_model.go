@@ -178,14 +178,15 @@ func (m *ReadModel) CreateHomeroom(ctx context.Context, event HomeroomCreatedPro
 			GradesBitmask:            int64(event.Homeroom.GradesBitmask),
 			LocationId:               event.Homeroom.LocationID,
 			Image:                    event.Homeroom.Image,
-			CreatedAt:                appdb.SQLTime(event.CreatedAt),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
+			CreatedAt:                appdb.SQLTime(event.CreatedAt),
 		})
 	})
 }
 
 func (m *ReadModel) UpdateHomeroom(ctx context.Context, event HomeroomUpdatedProjection) error {
+	println("time", appdb.SQLTime(event.UpdatedAt))
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateHomeroom(conn, dbsql.UpdateHomeroomParams{
 			Id:                       event.Homeroom.ID,
@@ -193,9 +194,9 @@ func (m *ReadModel) UpdateHomeroom(ctx context.Context, event HomeroomUpdatedPro
 			GradesBitmask:            int64(event.Homeroom.GradesBitmask),
 			LocationId:               event.Homeroom.LocationID,
 			Image:                    event.Homeroom.Image,
-			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
+			UpdatedAt:                appdb.SQLTime(event.UpdatedAt),
 		})
 	})
 }
@@ -203,10 +204,10 @@ func (m *ReadModel) UpdateHomeroom(ctx context.Context, event HomeroomUpdatedPro
 func (m *ReadModel) ArchiveHomeroom(ctx context.Context, event HomeroomArchivedProjection) error {
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceArchiveHomeroom(conn, dbsql.ArchiveHomeroomParams{
+			Id:                       event.HomeroomID,
 			ArchivedAt:               appdb.SQLTime(event.ArchivedAt),
 			LastEventCommitPosition:  event.Position.Commit,
 			LastEventPreparePosition: event.Position.Prepare,
-			Id:                       event.HomeroomID,
 		})
 	})
 }

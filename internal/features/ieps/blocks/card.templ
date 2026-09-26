@@ -4,14 +4,17 @@ import (
 	"fmt"
 
 	"seek/internal/features/ieps/dto"
+	serviceBlocks "seek/internal/features/services/blocks"
 	"seek/internal/ui/core/coreblocks/cards"
+	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
+	"seek/pkg/templui/components/icon"
 )
 
 templ Card(view dto.IEPView) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("period-%s-card", view.IEP.ID),
-		Class: "iep-service-card bg-linear-1 w-full",
+		Class: "iep-service-card bg-linear-1 border-muted w-128 h-fit",
 		Attributes: templ.Attributes{
 			"style": "background-color: var(--neutral-4);",
 		},
@@ -20,16 +23,50 @@ templ Card(view dto.IEPView) {
 			@card.Title(card.TitleProps{
 				Class: "text-sm",
 			}) {
-				so and so's IEP
+				{ view.Student.NameInitial() }
 			}
 		}
 		@card.Content(card.ContentProps{
-			Class: "flex justify-around gap-4 text-sm",
+			Class: "flex flex-col justify-around gap-4 text-sm",
 		}) {
 			@cards.TextLine(cards.TextLineProps{
-				Key:   "start",
+				Key:   "meeting",
 				Value: view.IEP.MeetingDate.String(),
 			})
+			@cards.TextLine(cards.TextLineProps{
+				Key:   "next IEP due",
+				Value: view.IEP.IEPDueDate.String(),
+			})
+			@cards.TextLine(cards.TextLineProps{
+				Key:   "last eval",
+				Value: view.IEP.LastEvalDate.String(),
+			})
+			@cards.TextLine(cards.TextLineProps{
+				Key:   "eval due",
+				Value: view.IEP.EvalDueDate.String(),
+			})
+			@cards.TextLine(cards.TextLineProps{
+				Key:   "disability 1",
+				Value: view.IEP.Disability1.Long(),
+			})
+			if view.Disability2.String() != "0" {
+				@cards.TextLine(cards.TextLineProps{
+					Key:   "disability 2",
+					Value: view.IEP.Disability2.Long(),
+				})
+			}
+		}
+		@card.Footer(card.FooterProps{
+			Class: "w-full flex justify-end",
+		}) {
+			@button.Button(button.Props{
+				Variant: button.VariantGhost,
+				Href:    fmt.Sprintf("/ieps/%s/edit", view.ID),
+			}) {
+				@icon.Pencil()
+				<span>edit</span>
+			}
 		}
 	}
+	@serviceBlocks.CardGrid(view.Services)
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"seek/internal/features/_shared/sharedmodels"
+	educatorDTO "seek/internal/features/educators/dto"
 	homeroomDTO "seek/internal/features/homerooms/dto"
 	scheduleBlocks "seek/internal/features/schedules/blocks"
 	scheduleDTO "seek/internal/features/schedules/dto"
@@ -21,11 +22,12 @@ import (
 )
 
 type StudentPageView struct {
-	Active   string
-	Student  dto.StudentView
-	Homeroom homeroomDTO.HomeroomView
-	Schedule scheduleDTO.PersonWithScheduleView
-	Services []serviceDTO.ServiceView
+	Active      string
+	Student     dto.StudentView
+	Homeroom    homeroomDTO.HomeroomView
+	CaseManager educatorDTO.EducatorView
+	Schedule    scheduleDTO.PersonWithScheduleView
+	Services    []serviceDTO.ServiceView
 }
 
 templ View(view StudentPageView) {
@@ -36,7 +38,7 @@ templ View(view StudentPageView) {
 			switch view.Active {
 				case "info":
 					<section class="w-full max-w-[900px]">
-						@blocks.Card(view.Student, view.Homeroom, len(view.Schedule.Periods))
+						@blocks.Card(view.Student, view.CaseManager, view.Homeroom, len(view.Schedule.Periods))
 					</section>
 				case "schedule":
 					<section class="w-full max-w-[900px]">

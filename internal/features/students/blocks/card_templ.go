@@ -11,6 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 
+	educatorDTO "seek/internal/features/educators/dto"
 	homeroomDTO "seek/internal/features/homerooms/dto"
 	"seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks/cards"
@@ -19,7 +20,7 @@ import (
 	"seek/pkg/templui/components/icon"
 )
 
-func Card(view dto.StudentView, homeroomView homeroomDTO.HomeroomView, serviceCount int) templ.Component {
+func Card(view dto.StudentView, caseManager educatorDTO.EducatorView, homeroomView homeroomDTO.HomeroomView, serviceCount int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -374,7 +375,7 @@ func Card(view dto.StudentView, homeroomView homeroomDTO.HomeroomView, serviceCo
 					var templ_7745c5c3_Var14 templ.SafeURL
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/homerooms/%s", homeroomView.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 92, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 93, Col: 60}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -425,9 +426,9 @@ func Card(view dto.StudentView, homeroomView homeroomDTO.HomeroomView, serviceCo
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var15 templ.SafeURL
-					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/educators/%s", view.CaseManager.Username))
+					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/educators/%s", caseManager.Username))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 109, Col: 70}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/card.templ`, Line: 110, Col: 65}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -439,7 +440,7 @@ func Card(view dto.StudentView, homeroomView homeroomDTO.HomeroomView, serviceCo
 					}
 					templ_7745c5c3_Err = cards.BadgeLine(cards.BadgeLineProps{
 						Key:   "case manager",
-						Value: view.CaseManager.NameInitial(),
+						Value: caseManager.NameInitial(),
 					}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

@@ -2,10 +2,14 @@ package dto
 
 import (
 	"seek/internal/features/ieps/models"
+	serviceDTO "seek/internal/features/services/dto"
+	studentDTO "seek/internal/features/students/dto"
 )
 
 type IEPView struct {
 	models.IEP
+	Student  studentDTO.StudentView
+	Services []serviceDTO.ServiceView
 }
 
 func NewIEPView(m *models.IEP) IEPView {

@@ -24,22 +24,23 @@ import (
 
 func (s Server) educatorRoutes(r chi.Router) {
 	r.Get("/educators", getEducatorsList(s.Logger))
-	r.Get("/educators/stream", getEducatorsListStream(s.Logger, s.Subscriber, *s.ReadModels.Educators))
+	r.Get("/educators/stream", getEducatorsListStream(s.Logger, s.Subscriber, s.ReadModels.Educators))
 	r.Get("/educators/create", getEducatorCreate(s.Logger))
 	r.Get("/educators/create/stream", getEducatorCreateStream(s.Logger, s.ViewStore))
 	r.Post("/educators/create/validate", postEducatorCreateValidate(s.Logger, s.ViewStore))
 	r.Post("/educators/create", postEducatorCreate(s.Logger, s.EventSaver))
 	r.Get("/educators/{username}", getEducatorView(s.Logger))
 	r.Get("/educators/{username}/info", getEducatorViewInfo(s.Logger))
-	r.Get("/educators/{username}/info/stream", getEducatorViewInfoStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Educators))
-	r.Get("/educators/{username}/schedule", getEducatorViewSchedule(s.Logger, *s.ReadModels.Educators, *s.ReadModels.Periods))
+	r.Get("/educators/{username}/info/stream", getEducatorViewInfoStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
+	r.Get("/educators/{username}/schedule", getEducatorViewSchedule(s.Logger, s.ReadModels.Educators, s.ReadModels.Periods))
 	r.Get("/educators/{username}/caseload", getEducatorViewCaseload(s.Logger))
-	r.Get("/educators/{username}/caseload/stream", getEducatorViewCaseloadStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Educators))
+	r.Get("/educators/{username}/caseload/stream", getEducatorViewCaseloadStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
 	r.Get("/educators/{username}/edit", getEducatorEdit(s.Logger))
-	r.Get("/educators/{username}/edit/stream", getEducatorEditStream(s.Logger, s.Subscriber, s.ViewStore, *s.ReadModels.Educators))
+	r.Get("/educators/{username}/edit/stream", getEducatorEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
 	r.Post("/educators/{username}/edit/validate", postEducatorEditValidate(s.Logger, s.ViewStore))
 	r.Post("/educators/{username}/edit", postEducatorEdit(s.Logger, s.EventSaver, s.EventRetriever))
-	r.Delete("/educators/{username}", deleteEducator(s.Logger, s.EventSaver, s.EventRetriever, *s.ReadModels.Educators))
+	r.Delete("/educators/{username}", deleteEducator(s.Logger, s.EventSaver, s.EventRetriever, s.ReadModels.Educators))
+	r.Get("/e/{id}", getEducatorEditByID(s.Logger, s.ReadModels.Educators))
 }
 
 // GET request to /educators
@@ -57,7 +58,7 @@ func getEducatorsList(
 func getEducatorsListStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
-	educatorReadModel events.ReadModel,
+	educatorReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -260,7 +261,7 @@ func getEducatorViewInfoStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	educatorReadModel events.ReadModel,
+	educatorReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -324,7 +325,7 @@ func getEducatorViewInfoStream(
 					l.ErrorContext(ctx, "educator view stream json read in select", "err", err)
 					return
 				}
-				view := dto.NewEducatorView(educator)
+				view := dto.NewView(educator)
 				sse.PatchElementTempl(pages.View(view, scheduleDTO.PersonWithScheduleView{}, []studentDTO.StudentView{}, "info"))
 			}
 		}
@@ -334,8 +335,8 @@ func getEducatorViewInfoStream(
 // GET request to /educators/{username}/schedule
 func getEducatorViewSchedule(
 	l *slog.Logger,
-	educatorReadModel events.ReadModel,
-	periodReadModel periodEvents.ReadModel,
+	educatorReadModel *events.ReadModel,
+	periodReadModel *periodEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -353,7 +354,7 @@ func getEducatorViewSchedule(
 		}
 
 		// create the educator view and set the URL
-		educatorView := dto.NewEducatorView(educator)
+		educatorView := dto.NewView(educator)
 
 		// get periods for the educator and make views
 		periods, err := periodReadModel.ListPeriodsForEducator(ctx, educator.ID)
@@ -382,7 +383,7 @@ func getEducatorViewCaseloadStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	educatorReadModel events.ReadModel,
+	educatorReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -445,7 +446,7 @@ func getEducatorViewCaseloadStream(
 				if err != nil {
 					l.ErrorContext(ctx, "educator view caseload stream", "err", err)
 				}
-				view := dto.NewEducatorView(educator)
+				view := dto.NewView(educator)
 				studentViews := studentDTO.NewViews(caseManager.Caseload)
 				sse.PatchElementTempl(pages.View(view, scheduleDTO.PersonWithScheduleView{}, studentViews, "caseload"))
 			}
@@ -469,7 +470,7 @@ func getEducatorEditStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
 	vs viewstore.Store,
-	educatorReadModel events.ReadModel,
+	educatorReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -612,19 +613,14 @@ func deleteEducator(
 	l *slog.Logger,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
-	educatorReadModel events.ReadModel,
+	educatorReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		username := chi.URLParam(r, "username")
-		educator, err := educatorReadModel.GetByUsername(ctx, username, events.WithRoles())
-		if err != nil {
-			l.ErrorContext(ctx, "delete educator db get by username", "err", err)
-			return
-		}
+		educatorID := chi.URLParam(r, "id")
 		cmd := events.DeleteEducatorCommand{
-			EducatorID: educator.ID,
+			EducatorID: educatorID,
 			Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.DeleteEducatorCommandHandler(ctx, cmd, saver, retriever)
@@ -632,9 +628,25 @@ func deleteEducator(
 			l.ErrorContext(ctx, "delete educator command handler", "err", err)
 			return
 		}
-		l.InfoContext(ctx, "delete educator student deleted", "id", educator.ID, "event", result.EventID)
+		l.InfoContext(ctx, "delete educator student deleted", "id", educatorID, "event", result.EventID)
 		sse := newSSE(w, r)
 		sse.Redirect("/educators")
+	}
+}
+
+func getEducatorEditByID(
+	l *slog.Logger,
+	rm *events.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		id := chi.URLParam(r, "id")
+		model, err := rm.GetByID(ctx, id)
+		if err != nil {
+			l.ErrorContext(ctx, "geebid db", "err", err)
+		}
+		view := dto.NewEducatorFormView(model)
+		_ = pages.Edit(view).Render(ctx, w)
 	}
 }
 
@@ -645,7 +657,7 @@ func refreshEducatorViewState(
 	_ *slog.Logger,
 	vs viewstore.Store,
 	username string,
-	educatorReadModel events.ReadModel,
+	educatorReadModel *events.ReadModel,
 ) error {
 	model, err := educatorReadModel.GetByUsername(ctx, username, events.WithRoles())
 	if err != nil {
@@ -660,7 +672,7 @@ func refreshEducatorEditState(
 	_ *slog.Logger,
 	vs viewstore.Store,
 	username string,
-	educatorReadModel events.ReadModel,
+	educatorReadModel *events.ReadModel,
 ) error {
 	model, err := educatorReadModel.GetByUsername(ctx, username, events.WithRoles())
 	if err != nil {
@@ -680,4 +692,36 @@ func listEducators(
 		return rm.List(ctx, events.WithSearchFilter(filter.Search))
 	}
 	return rm.List(ctx)
+}
+
+func listEducatorsByIDs(
+	ctx context.Context,
+	l *slog.Logger,
+	rm *events.ReadModel,
+	ids []string,
+) []models.Educator {
+	for _, id := range ids {
+		l.Debug("why", "id", id)
+	}
+	educators, err := rm.ListByIDs(ctx, ids)
+	if err != nil {
+		l.ErrorContext(ctx, "list educators by ids", "err", err)
+		return []models.Educator{}
+	}
+	return educators
+}
+
+func createEducatorSelectView(
+	ctx context.Context,
+	l *slog.Logger,
+	educatorReadModel *events.ReadModel,
+	filter *dto.Filter,
+	selected []string,
+) dto.SelectView {
+	educators, err := listEducators(ctx, l, educatorReadModel, filter)
+	if err != nil {
+		l.ErrorContext(ctx, "cesv list educators", "err", err)
+		return dto.SelectView{}
+	}
+	return dto.NewSelectView(nil, educators, selected)
 }

@@ -61,6 +61,16 @@ FROM students
 WHERE archived_at IS NULL
 ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC;
 
+-- name: ListStudentsByIDs :many
+SELECT
+    id, marss_id, birthdate, given_name, chosen_name, family_name, pronouns,
+    email, username, grade, homeroom_id, plan_type, case_manager_id,
+    created_at, updated_at
+FROM students
+WHERE archived_at IS NULL
+  AND id IN (sqlc.slice('ids'))
+ORDER BY family_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC;
+
 -- name: ListStudentsByGrade :many
 SELECT 
 	id, 

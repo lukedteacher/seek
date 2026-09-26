@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -28,20 +29,16 @@ func (s Server) homeroomRoutes(r chi.Router) {
 	r.Get("/homerooms/stream", getHomeroomsListStream(s.Logger, s.Subscriber, s.ReadModels.Homerooms, s.ReadModels.Educators, s.ReadModels.Students))
 	r.Get("/homerooms/create", getHomeroomCreate(s.Logger))
 	r.Get("/homerooms/create/stream", getHomeroomCreateStream(s.Logger, s.ViewStore, s.ReadModels.Students, s.ReadModels.Educators))
-	r.Post("/homerooms/create/validate", postHomeroomCreateValidate(s.Logger, s.ViewStore))
-	r.Post("/homerooms/create/grades/{grade}", postHomeroomCreateGrades(s.Logger, s.ViewStore))
-	r.Post("/homerooms/create/educators/{eid}", postHomeroomCreateEducators(s.Logger, s.ViewStore))
-	r.Post("/homerooms/create/students/{sid}", postHomeroomCreateStudents(s.Logger, s.ViewStore))
+	r.Query("/homerooms/create/validate", queryHomeroomFormValidate(s.Logger, s.ViewStore))
+	r.Query("/homerooms/create/{field}/{value}", queryHomeroomFormField(s.Logger, s.ViewStore))
 	r.Post("/homerooms/create", postHomeroomCreate(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Get("/homerooms/{id}", getHomeroomView(s.Logger))
 	r.Get("/homerooms/{id}/stream", getHomeroomViewStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Homerooms, s.ReadModels.Educators, s.ReadModels.Students))
 	r.Get("/homerooms/{id}/edit", getHomeroomEdit(s.Logger))
 	r.Get("/homerooms/{id}/edit/stream", getHomeroomEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Homerooms, s.ReadModels.Educators, s.ReadModels.Students))
-	r.Post("/homerooms/{id}/edit/validate", postHomeroomEditValidate(s.Logger, s.ViewStore))
-	r.Post("/homerooms/{id}/edit/grades/{grade}", postHomeroomEditGrades(s.Logger, s.ViewStore))
-	r.Post("/homerooms/{id}/edit/educators/{eid}", postHomeroomEditEducators(s.Logger, s.ViewStore))
-	r.Post("/homerooms/{id}/edit/students/{sid}", postHomeroomEditStudents(s.Logger, s.ViewStore))
-	r.Post("/homerooms/{id}/edit", postHomeroomEdit(s.Logger, s.EventSaver, s.EventRetriever))
+	r.Query("/homerooms/{id}/edit/validate", queryHomeroomFormValidate(s.Logger, s.ViewStore))
+	r.Query("/homerooms/{id}/edit/{field}/{value}", queryHomeroomFormField(s.Logger, s.ViewStore))
+	r.Post("/homerooms/{id}/edit", postHomeroomEdit(s.Logger, s.ViewStore, s.EventSaver, s.EventRetriever))
 	r.Post("/homerooms/{id}/archive", postHomeroomArchive(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Delete("/homerooms/{id}", deleteHomeroom(s.Logger, s.EventSaver, s.EventRetriever))
 }
@@ -82,6 +79,7 @@ func getHomeroomsListStream(
 			return
 		}
 		defer sub.Close()
+
 		homerooms, err := homeroomReadModel.ListWithIDs(ctx)
 		if err != nil {
 			l.ErrorContext(ctx, "hls list", "err", err)
@@ -106,11 +104,13 @@ func getHomeroomsListStream(
 }
 
 // GET request to /homerooms/create
-func getHomeroomCreate(_ *slog.Logger) http.HandlerFunc {
+func getHomeroomCreate(l *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		view := dto.HomeroomFormView{}
-		_ = pages.Create(view).Render(ctx, w)
+		props := pages.FormProps{
+			FormType: sharedmodels.FormTypeCreate,
+		}
+		_ = pages.Form(props).Render(ctx, w)
 	}
 }
 
@@ -141,18 +141,9 @@ func getHomeroomCreateStream(
 		}
 		defer watcher.Stop()
 
-		educators, _ := listEducators(ctx, l, educatorReadModel, nil)
-		students := listStudents(ctx, l, studentReadModel, nil)
-		view := dto.NewHomeroomFormView(
-			&models.Homeroom{},
-			students,
-			nil,
-			educators,
-		)
-		// since the model is a pointer, need this so signals are initalized properly
-		view.EducatorIDs = []string{}
-		view.StudentIDs = []string{}
-		sse.PatchElementTempl(pages.Create(view))
+		if err := initializeHomeroomCreateState(ctx, l, vs, user.Username, educatorReadModel, studentReadModel); err != nil {
+			l.ErrorContext(ctx, "ghcs initialize viewstore state", "err", err)
+		}
 
 		for {
 			select {
@@ -162,129 +153,96 @@ func getHomeroomCreateStream(
 				if !ok {
 					return
 				}
-				view := &dto.HomeroomFormView{}
-				if err := entry.JSON(view); err != nil {
+				signals := &dto.HomeroomFormSignals{}
+				if err := entry.JSON(signals); err != nil {
 					l.Error("json decode", "err", err)
 					return
 				}
-				educators, _ := listEducators(ctx, l, educatorReadModel, nil)
-				students := listStudents(ctx, l, studentReadModel, &view.StudentSelectView.Filter)
-				model := dto.NewHomeroomModelFromFormView(*view)
-				*view = dto.NewHomeroomFormView(
-					&model,
-					students,
-					&view.StudentSelectView.Filter,
-					educators,
-				)
-				sse.PatchElementTempl(pages.Create(*view))
+				educators := listEducatorsByIDs(ctx, l, educatorReadModel, signals.Homeroom.EducatorIDs)
+				students := listStudentsByIDs(ctx, l, studentReadModel, signals.Homeroom.StudentIDs)
+				props := pages.FormProps{
+					FormType:           sharedmodels.FormTypeCreate,
+					Homeroom:           signals.Homeroom,
+					EducatorSelectView: createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filter, signals.Homeroom.EducatorIDs),
+					SelectedEducators:  educatorDTO.NewViews(educators),
+					StudentSelectView:  createStudentSelectView(ctx, l, studentReadModel, &signals.StudentSelect.Filter, signals.Homeroom.StudentIDs),
+					SelectedStudents:   studentDTO.NewViews(students),
+				}
+				sse.PatchElementTempl(pages.Form(props))
 			}
 		}
 	}
 }
 
-// POST request to /homerooms/create/validate
-// reads datastar signals from the form and saves them to the view store.
-// this allows the SSE stream to detect changes and refresh the form preview.
-func postHomeroomCreateValidate(
+// QUERY request to /homerooms/create/validate or
+// QUERY request to  /homerooms/{id}/edit/validate
+// reads datastar signals from the form and saves them to the view store
+// this allows the SSE stream to detect changes and refresh the form with validation
+func queryHomeroomFormValidate(
 	l *slog.Logger,
 	vs viewstore.Store,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		signals := &struct {
-			FormView dto.HomeroomFormView `json:"homeroom"`
-		}{}
+		signals := &dto.HomeroomFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "homeroom create validate signals", "err", err.Error())
+			l.ErrorContext(ctx, "qhfv read signals", "err", err)
 			return
 		}
-		// store the signals under a unique user key so the create stream can react
-		key := user.Username + ".homerooms.create"
-		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
-			l.ErrorContext(ctx, "post homeroom create validate viewstore", "err", err)
-		}
-	}
-}
-
-func postHomeroomCreateGrades(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		user := currentUser(r)
-		gradeString := chi.URLParam(r, "grade")
-		gradeInt, err := strconv.Atoi(gradeString)
-		grade := sharedmodels.Grade(gradeInt)
+		// store the signals in the viewstore based on form type
+		key, err := getViewstoreKey(signals.FormType, user.Username, signals.Homeroom.ID)
 		if err != nil {
-			l.ErrorContext(ctx, "phcg url", "err", err)
+			l.ErrorContext(ctx, "qhfg vs key", "err", err, "form type", signals.FormType, "username", user.Username, "hid", signals.Homeroom.ID)
 			return
 		}
-		signals := &struct {
-			FormView dto.HomeroomFormView `json:"homeroom"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "phcg signals", "err", err)
-			return
-		}
-		model := dto.NewHomeroomModelFromFormView(signals.FormView)
-		model.GradesBitmask = *model.GradesBitmask.ToggleGrade(grade)
-		signals.FormView.GradesBitmask = model.GradesBitmask
-		key := user.Username + ".homerooms.create"
-		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
-			return
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
+			l.ErrorContext(ctx, "qhfv put state viewstore", "err", err, "key", key)
 		}
 	}
 }
 
-func postHomeroomCreateEducators(
+// QUERY request to /homerooms/create/grades/{grade}
+// toggles selected grade
+func queryHomeroomFormField(
 	l *slog.Logger,
 	vs viewstore.Store,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		educatorID := chi.URLParam(r, "eid")
-		signals := &struct {
-			FormView dto.HomeroomFormView `json:"homeroom"`
-		}{}
+		field := chi.URLParam(r, "field")
+		value := chi.URLParam(r, "value")
+		signals := &dto.HomeroomFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "phce signals", "err", err)
+			l.ErrorContext(ctx, "qhfg signals", "err", err)
 			return
 		}
-		model := dto.NewHomeroomModelFromFormView(signals.FormView)
-		model.EducatorIDs = toggleID(model.EducatorIDs, educatorID)
-		signals.FormView.EducatorIDs = model.EducatorIDs
-		key := user.Username + ".homerooms.create"
-		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
-			l.ErrorContext(ctx, "phce vs", "error", err)
-		}
-	}
-}
-
-func postHomeroomCreateStudents(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		user := currentUser(r)
-		studentID := chi.URLParam(r, "sid")
-		signals := &struct {
-			FormView dto.HomeroomFormView `json:"homeroom"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "phes signals", "err", err)
+		switch field {
+		case "grades":
+			gradeInt, err := strconv.Atoi(value)
+			if err != nil {
+				l.ErrorContext(ctx, "qhfg a to i", "err", err)
+				return
+			}
+			grade := sharedmodels.Grade(gradeInt)
+			signals.Homeroom.GradesBitmask.ToggleGrade(grade)
+		case "educators":
+			signals.Homeroom.EducatorIDs = toggleID(signals.Homeroom.EducatorIDs, value)
+		case "students":
+			signals.Homeroom.StudentIDs = toggleID(signals.Homeroom.StudentIDs, value)
+		default:
+			l.ErrorContext(ctx, "qhff", "invalid field in form", field)
 			return
 		}
-		model := dto.NewHomeroomModelFromFormView(signals.FormView)
-		model.StudentIDs = toggleID(model.StudentIDs, studentID)
-		signals.FormView.StudentIDs = model.StudentIDs
-		key := user.Username + ".homerooms.create"
-		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
+		key, err := getViewstoreKey(signals.FormType, user.Username, signals.Homeroom.ID)
+		if err != nil {
+			l.ErrorContext(ctx, "qhfg vs key", "err", err, "form type", signals.FormType, "username", user.Username, "hid", signals.Homeroom.ID)
+			return
+		}
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
+			l.ErrorContext(ctx, "qhfg view store error", "error", err)
+			return
 		}
 	}
 }
@@ -300,18 +258,16 @@ func postHomeroomCreate(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-
-		signals := &struct {
-			Homeroom dto.HomeroomFormView `json:"homeroom"`
-		}{}
+		signals := &dto.HomeroomFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "post homeroom create signals", "err", err)
 			return
 		}
 
 		// create the homeroom
+		model := dto.NewHomeroomModelFromView(signals.Homeroom)
 		cmd := events.CreateHomeroomCommand{
-			Homeroom: signals.Homeroom.Homeroom,
+			Homeroom: model,
 			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.CreateHomeroomCommandHandler(ctx, cmd, saver)
@@ -353,7 +309,7 @@ func getHomeroomView(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		// minimal empty view
-		view := dto.HomeroomView{}
+		view := pages.ViewProps{}
 		_ = pages.View(view).Render(ctx, w)
 	}
 }
@@ -419,19 +375,21 @@ func getHomeroomViewStream(
 				if !ok {
 					return
 				}
-				homeroom := &models.Homeroom{}
-				if err := entry.JSON(homeroom); err != nil {
+				model := &models.Homeroom{}
+				if err := entry.JSON(model); err != nil {
 					l.ErrorContext(ctx, "get homeroom view stream json", "err", err)
 					return
 				}
-				view := dto.NewHomeroomView(homeroom)
-				for i := range homeroom.EducatorIDs {
-					educator, _ := educatorReadModel.GetByID(ctx, homeroom.EducatorIDs[i])
-					educatorView := educatorDTO.NewEducatorView(educator)
+				view := pages.ViewProps{
+					Homeroom: dto.NewHomeroomView(model),
+				}
+				for i := range view.Homeroom.EducatorIDs {
+					educator, _ := educatorReadModel.GetByID(ctx, view.Homeroom.EducatorIDs[i])
+					educatorView := educatorDTO.NewView(educator)
 					view.Educators = append(view.Educators, educatorView)
 				}
-				for i := range homeroom.StudentIDs {
-					student, _ := studentReadModel.GetByID(ctx, homeroom.StudentIDs[i])
+				for i := range view.Homeroom.StudentIDs {
+					student, _ := studentReadModel.GetByID(ctx, view.Homeroom.StudentIDs[i])
 					studentView := studentDTO.NewView(student)
 					view.Students = append(view.Students, studentView)
 				}
@@ -447,8 +405,10 @@ func getHomeroomEdit(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		// creates a minimal view
-		view := dto.HomeroomFormView{}
-		_ = pages.Edit(view).Render(ctx, w)
+		props := pages.FormProps{
+			FormType: sharedmodels.FormTypeEdit,
+		}
+		_ = pages.Form(props).Render(ctx, w)
 	}
 }
 
@@ -477,11 +437,27 @@ func getHomeroomEditStream(
 			return
 		}
 		defer sub.Close()
+		key, err := getViewstoreKey(sharedmodels.FormTypeEdit, "", homeroomID)
+		if err != nil {
+			l.ErrorContext(ctx, "ghes vs key", "err", err)
+		}
+		// subscribe to the kv store for changes to the edit view state
+		watcher, err := vs.Watch(
+			ctx,
+			key,
+			viewstore.WatchOptions{
+				IgnoreDeletes: true,
+			},
+		)
+		if err != nil {
+			l.ErrorContext(ctx, "ghes watch", "err", err)
+			return
+		}
+		defer watcher.Stop()
 
 		// check if the kv store has an edit view already created
 		// aka someone else is editing the homeroom
 		// if not, populate the view with data from the db
-		key := homeroomID + ".edit"
 		_, ok, err := vs.Get(ctx, key)
 		if !ok {
 			if err := refreshHomeroomEditState(
@@ -504,20 +480,6 @@ func getHomeroomEditStream(
 		if err != nil {
 			l.ErrorContext(ctx, "ghes get state", "vs get err", err)
 		}
-
-		// subscribe to the kv store for changes to the edit view state
-		watcher, err := vs.Watch(
-			ctx,
-			key,
-			viewstore.WatchOptions{
-				IgnoreDeletes: true,
-			},
-		)
-		if err != nil {
-			l.ErrorContext(ctx, "ghes watch", "err", err)
-			return
-		}
-		defer watcher.Stop()
 
 		for {
 			select {
@@ -545,126 +507,23 @@ func getHomeroomEditStream(
 				if !ok {
 					return
 				}
-				view := &dto.HomeroomFormView{}
-				if err := entry.JSON(view); err != nil {
+				signals := &dto.HomeroomFormSignals{}
+				if err := entry.JSON(signals); err != nil {
 					l.Error("homeroom edit stream json", "err", err)
 					return
 				}
-				educators, _ := listEducators(ctx, l, educatorReadModel, nil)
-				students := listStudents(ctx, l, studentReadModel, &view.StudentSelectView.Filter)
-				model := dto.NewHomeroomModelFromFormView(*view)
-				*view = dto.NewHomeroomFormView(
-					&model,
-					students,
-					&view.StudentSelectView.Filter,
-					educators,
-				)
-				sse.PatchElementTempl(pages.Edit(*view))
+				educators := listEducatorsByIDs(ctx, l, educatorReadModel, signals.Homeroom.EducatorIDs)
+				students := listStudentsByIDs(ctx, l, studentReadModel, signals.Homeroom.StudentIDs)
+				props := pages.FormProps{
+					FormType:           sharedmodels.FormTypeEdit,
+					Homeroom:           signals.Homeroom,
+					EducatorSelectView: createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filter, signals.Homeroom.EducatorIDs),
+					SelectedEducators:  educatorDTO.NewViews(educators),
+					StudentSelectView:  createStudentSelectView(ctx, l, studentReadModel, &signals.StudentSelect.Filter, signals.Homeroom.StudentIDs),
+					SelectedStudents:   studentDTO.NewViews(students),
+				}
+				sse.PatchElementTempl(pages.Form(props))
 			}
-		}
-	}
-}
-
-// POST request to /homerooms/{id}/edit/validate
-// reads datastar signals from the form and saves them to the view store.
-// this allows the SSE stream to detect changes and refresh the edit form preview.
-func postHomeroomEditValidate(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		signals := &struct {
-			FormView dto.HomeroomFormView `json:"homeroom"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "homeroom edit validate signals", "err", err)
-			return
-		}
-		model := dto.NewHomeroomModelFromFormView(signals.FormView)
-		// store the signals under a key scoped to the homeroom
-		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
-			l.ErrorContext(ctx, "post homeroom edit validate viewstore", "err", err)
-		}
-	}
-}
-
-func postHomeroomEditGrades(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		gradeString := chi.URLParam(r, "grade")
-		gradeInt, err := strconv.Atoi(gradeString)
-		grade := sharedmodels.Grade(gradeInt)
-		if err != nil {
-			l.ErrorContext(ctx, "pheg url", "err", err)
-			return
-		}
-		signals := &struct {
-			FormView dto.HomeroomFormView `json:"homeroom"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "phcg signals", "err", err)
-			return
-		}
-		model := dto.NewHomeroomModelFromFormView(signals.FormView)
-		model.GradesBitmask = *model.GradesBitmask.ToggleGrade(grade)
-		signals.FormView.GradesBitmask = model.GradesBitmask
-		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
-			return
-		}
-	}
-}
-
-func postHomeroomEditEducators(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		educatorID := chi.URLParam(r, "eid")
-		signals := &struct {
-			FormView dto.HomeroomFormView `json:"homeroom"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "phee signals", "err", err)
-			return
-		}
-		model := dto.NewHomeroomModelFromFormView(signals.FormView)
-		model.EducatorIDs = toggleID(model.EducatorIDs, educatorID)
-		signals.FormView.EducatorIDs = model.EducatorIDs
-		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
-		}
-	}
-}
-
-func postHomeroomEditStudents(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		studentID := chi.URLParam(r, "sid")
-		signals := &struct {
-			FormView dto.HomeroomFormView `json:"homeroom"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "phes signals", "err", err)
-			return
-		}
-		model := dto.NewHomeroomModelFromFormView(signals.FormView)
-		model.StudentIDs = toggleID(model.StudentIDs, studentID)
-		signals.FormView.StudentIDs = model.StudentIDs
-		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, signals.FormView); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
 		}
 	}
 }
@@ -674,31 +533,28 @@ func postHomeroomEditStudents(
 // then redirects to the homeroom view page.
 func postHomeroomEdit(
 	l *slog.Logger,
+	vs viewstore.Store,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-
-		signals := &struct {
-			Homeroom dto.HomeroomFormView `json:"homeroom"`
-		}{}
+		homeroomID := chi.URLParam(r, "id")
+		signals := &dto.HomeroomFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "post homeroom edit signals", "err", err)
 			return
 		}
-
-		homeroom := signals.Homeroom.Homeroom
-
+		model := dto.NewHomeroomModelFromView(signals.Homeroom)
 		// update the homeroom itself
 		cmd := events.UpdateHomeroomCommand{
-			Homeroom: homeroom,
+			Homeroom: model,
 			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.UpdateHomeroomCommandHandler(ctx, cmd, saver, retriever)
 		if err != nil {
-			l.ErrorContext(ctx, "post homeroom edit command handler", "err", err, "pid", homeroom.ID)
+			l.ErrorContext(ctx, "post homeroom edit command handler", "err", err, "pid", model.ID)
 			return
 		}
 		if result.Skipped {
@@ -707,27 +563,30 @@ func postHomeroomEdit(
 
 		// sync educators (proposed list from form)
 		secmd := events.SyncEducatorsInHomeroomCommand{
-			HomeroomID:          homeroom.ID,
-			ProposedEducatorIDs: signals.Homeroom.EducatorIDs,
+			HomeroomID:          model.ID,
+			ProposedEducatorIDs: model.EducatorIDs,
 		}
 		_, err = events.SyncEducatorsInHomeroomCommandHandler(ctx, secmd, saver, retriever)
 		if err != nil {
-			l.ErrorContext(ctx, "post homeroom create sync educators", "err", err)
+			l.ErrorContext(ctx, "post homeroom edit sync educators", "err", err)
 		}
 
 		// sync students (proposed list from form)
 		sscmd := events.SyncStudentsInHomeroomCommand{
-			HomeroomID:         homeroom.ID,
-			ProposedStudentIDs: signals.Homeroom.StudentIDs,
+			HomeroomID:         model.ID,
+			ProposedStudentIDs: model.StudentIDs,
 		}
 		_, err = events.SyncStudentsInHomeroomCommandHandler(ctx, sscmd, saver, retriever)
 		if err != nil {
-			l.ErrorContext(ctx, "post homeroom create sync students", "err", err)
+			l.ErrorContext(ctx, "post homeroom edit sync students", "err", err)
 		}
-
+		key := homeroomID + ".edit"
+		if err := vs.Delete(ctx, key); err != nil {
+			l.ErrorContext(ctx, "phe delete viewstore state", "err", err)
+		}
 		// redirect to the homeroom view
 		sse := newSSE(w, r)
-		sse.Redirect(fmt.Sprintf("/homerooms/%s", homeroom.ID))
+		sse.Redirect(fmt.Sprintf("/homerooms/%s", model.ID))
 	}
 }
 
@@ -793,6 +652,19 @@ func refreshHomeroomViewState(
 	return viewstore.PutState(ctx, vs, key, model)
 }
 
+func initializeHomeroomCreateState(
+	ctx context.Context,
+	l *slog.Logger,
+	vs viewstore.Store,
+	username string,
+	educatorReadModel *educatorEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
+) error {
+	signals := dto.NewHomeroomFormSignals(sharedmodels.FormTypeCreate, nil)
+	key := username + ".homerooms.create"
+	return viewstore.PutState(ctx, vs, key, signals)
+}
+
 // gets homeroom data from the db, converts it to a form view, and saves it to the store
 func refreshHomeroomEditState(
 	ctx context.Context,
@@ -807,26 +679,36 @@ func refreshHomeroomEditState(
 	if err != nil {
 		return err
 	}
-	studentGradeFilter := make(map[string]bool)
+	studentGradeFilter := make(map[string]bool, len(sharedmodels.GradeList))
 	if model.GradesBitmask != -1 {
 		for _, grade := range sharedmodels.GradeList {
 			if model.GradesBitmask.IsGradeSet(grade) {
 				studentGradeFilter[grade.String()] = true
+			} else {
+				studentGradeFilter[grade.String()] = false
 			}
 		}
 	}
-	educators, _ := listEducators(ctx, l, educatorReadModel, nil)
-	studentFilter := studentDTO.Filter{
-		Grade: studentGradeFilter,
+	studentPlanFilter := make(map[string]bool, len(sharedmodels.PlanTypeList))
+	for _, planType := range sharedmodels.PlanTypeList {
+		studentPlanFilter[planType.String()] = true
 	}
-	students := listStudents(ctx, l, studentReadModel, &studentFilter)
+	educators, _ := listEducators(ctx, l, educatorReadModel, nil)
+	studentFilter := &studentDTO.Filter{
+		Grade:    studentGradeFilter,
+		PlanType: studentPlanFilter,
+	}
+	students := listStudents(ctx, l, studentReadModel, studentFilter)
 	view := dto.NewHomeroomFormView(
 		model,
 		students,
-		&studentFilter,
+		studentFilter,
 		educators,
 	)
-	key := model.ID + ".edit"
+	key, err := getViewstoreKey(sharedmodels.FormTypeEdit, "", homeroomID)
+	if err != nil {
+		return err
+	}
 	return viewstore.PutState(ctx, vs, key, view)
 }
 
@@ -839,4 +721,18 @@ func toggleID(slice []string, value string) []string {
 	}
 	// not found – add it
 	return append(slice, value)
+}
+
+func getViewstoreKey(
+	formType sharedmodels.FormType,
+	username string,
+	homeroomID string,
+) (string, error) {
+	if formType == sharedmodels.FormTypeCreate && username != "" {
+		return username + ".homerooms.create", nil
+	} else if formType == sharedmodels.FormTypeEdit && homeroomID != "" {
+		return homeroomID + ".edit", nil
+	} else {
+		return "", errors.New("error getting viewstore key")
+	}
 }

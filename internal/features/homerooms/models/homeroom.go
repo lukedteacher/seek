@@ -15,5 +15,8 @@ type Homeroom struct {
 }
 
 func NewHomeroom() Homeroom {
-	return Homeroom{}
+	return Homeroom{
+		EducatorIDs: []string{},
+		StudentIDs:  []string{},
+	}
 }

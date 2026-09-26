@@ -45,8 +45,7 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithSc
 		{{ educatorIDs, _ := templ.JSONString(view.EducatorIDs) }}
 		<div class="hidden" data-signals:period.educator_ids={ educatorIDs }></div>
 		<input id="educator-ids" class="hidden" data-bind:period.educator_ids/>
-		{{ withCards := len(view.EducatorIDs) > 0 }}
-		@educatorBlocks.SelectMulti("period", view.EducatorSelect, withCards)
+		@educatorBlocks.SelectMulti("period", view.EducatorSelect)
 	}
 	@forms.Fieldset("time") {
 		<div class="w-full flex gap-8 items-center">
@@ -61,7 +60,7 @@ templ FormSections(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithSc
 		{{ studentIDs, _ := templ.JSONString(view.StudentIDs) }}
 		<div class="hidden" data-signals:period.student_ids={ studentIDs }></div>
 		<input id="student-ids" class="hidden" data-bind:period.student_ids/>
-		@studentBlocks.SelectMulti("period", view.StudentSelect, false)
+		@studentBlocks.SelectMulti("period", view.StudentSelect)
 		if len(schedules) > 1 {
 			@SelectedScheduleList(url, schedules)
 		}

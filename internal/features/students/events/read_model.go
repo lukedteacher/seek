@@ -285,6 +285,40 @@ func (m *ReadModel) listAllWithSorting(
 	return students, nil
 }
 
+func (m *ReadModel) ListByIDs(ctx context.Context, studentIDs []string) ([]models.Student, error) {
+	var rows []dbsql.ListStudentsByIdsRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		rows, err = dbsql.OnceListStudentsByIds(conn, studentIDs)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	students := make([]models.Student, len(rows))
+	for i := range rows {
+		row := rows[i]
+		students[i] = models.Student{
+			ID:      row.Id,
+			MARSSID: row.MarssId,
+			Person: sharedmodels.Person{
+				Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
+				GivenName:  row.GivenName,
+				ChosenName: row.ChosenName,
+				FamilyName: row.FamilyName,
+				Pronouns:   parsePronouns(row.Pronouns),
+				Email:      row.Email,
+				Username:   row.Username,
+			},
+			Grade:         sharedmodels.Grade(row.Grade),
+			HomeroomID:    row.HomeroomId,
+			PlanType:      sharedmodels.PlanType(row.PlanType),
+			CaseManagerID: row.CaseManagerId,
+		}
+	}
+	return students, nil
+}
+
 func (m *ReadModel) listAll(ctx context.Context) ([]models.Student, error) {
 	var rows []dbsql.ListStudentsRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {

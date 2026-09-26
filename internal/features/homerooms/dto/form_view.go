@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"seek/internal/features/_shared/sharedmodels"
 	educatorDTO "seek/internal/features/educators/dto"
 	educatorModels "seek/internal/features/educators/models"
 	"seek/internal/features/homerooms/models"
@@ -9,9 +10,8 @@ import (
 )
 
 type HomeroomFormView struct {
-	FormType string
-	models.Homeroom
-	Educators          map[string]bool        `json:"educators"`
+	FormType           sharedmodels.FormType
+	Homeroom           HomeroomView
 	StudentSelectView  studentDTO.SelectView  `json:"student_select"`
 	EducatorSelectView educatorDTO.SelectView `json:"educator_select"`
 }
@@ -26,7 +26,7 @@ func NewHomeroomFormView(
 		return HomeroomFormView{}
 	}
 	return HomeroomFormView{
-		Homeroom:           *p,
+		Homeroom:           NewHomeroomView(p),
 		StudentSelectView:  studentDTO.NewSelectView(studentFilter, allStudents, p.StudentIDs),
 		EducatorSelectView: educatorDTO.NewSelectView(&educatorDTO.Filter{}, allEducators, p.EducatorIDs),
 	}
@@ -36,12 +36,12 @@ func NewHomeroomModelFromFormView(
 	fv HomeroomFormView,
 ) models.Homeroom {
 	return models.Homeroom{
-		ID:            fv.ID,
-		Title:         fv.Title,
-		GradesBitmask: fv.GradesBitmask,
-		LocationID:    fv.LocationID,
-		Image:         fv.Image,
-		EducatorIDs:   fv.EducatorIDs,
-		StudentIDs:    fv.StudentIDs,
+		ID:            fv.Homeroom.ID,
+		Title:         fv.Homeroom.Title,
+		GradesBitmask: fv.Homeroom.GradesBitmask,
+		LocationID:    fv.Homeroom.LocationID,
+		Image:         fv.Homeroom.Image,
+		EducatorIDs:   fv.Homeroom.EducatorIDs,
+		StudentIDs:    fv.Homeroom.StudentIDs,
 	}
 }

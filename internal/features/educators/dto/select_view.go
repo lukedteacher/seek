@@ -53,7 +53,7 @@ func NewSelectOption(
 	selected bool,
 ) SelectOption {
 	return SelectOption{
-		EducatorView: NewEducatorView(&m),
+		EducatorView: NewView(&m),
 		Selected:     selected,
 	}
 }

@@ -1,6 +1,7 @@
 package blocks
 
 import (
+	educatorDTO "seek/internal/features/educators/dto"
 	homeroomDTO "seek/internal/features/homerooms/dto"
 	"seek/internal/features/students/dto"
 )
@@ -8,7 +9,7 @@ import (
 templ CardGrid(students []dto.StudentView) {
 	<div class="student-card-grid">
 		for _, student := range students {
-			@Card(student, homeroomDTO.HomeroomView{}, 0)
+			@Card(student, educatorDTO.EducatorView{}, homeroomDTO.HomeroomView{}, 0)
 		}
 	</div>
 }

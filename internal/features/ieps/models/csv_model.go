@@ -73,7 +73,7 @@ func NewModelFromCSVRow(r IEPCSVRow) IEP {
 	}
 }
 
-func CompareServices(db, csv []IEP) []sharedmodels.Diff[IEP] {
+func CompareIEPs(db, csv []IEP) []sharedmodels.Diff[IEP] {
 	keyFn := func(i IEP) string {
 		return fmt.Sprintf("%s|%s", i.StudentID, i.MeetingDate)
 	}
