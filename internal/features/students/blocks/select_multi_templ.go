@@ -144,7 +144,6 @@ func SelectOptions(options []dto.SelectOption) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		url := sharedmodels.GetURLFromContext(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<ul data-neo-popover-content class=\"flex flex-col gap-1 w-full h-64\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -163,9 +162,9 @@ func SelectOptions(options []dto.SelectOption) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("@query('%s/students/%s')", url, student.ID))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("@query('%s/students/%s')", student.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 63, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 62, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -226,7 +225,7 @@ func SelectOptions(options []dto.SelectOption) templ.Component {
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(student.Initials())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 78, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 77, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -253,7 +252,7 @@ func SelectOptions(options []dto.SelectOption) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(student.NameInitial())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 81, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 80, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -278,7 +277,7 @@ func SelectOptions(options []dto.SelectOption) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(student.Grade.Ordinal())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 86, Col: 30}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 85, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -514,7 +513,7 @@ func SelectCards(options []dto.SelectOption) templ.Component {
 						var templ_7745c5c3_Var22 string
 						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(student.Initials())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 138, Col: 27}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 137, Col: 27}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 						if templ_7745c5c3_Err != nil {
@@ -539,7 +538,7 @@ func SelectCards(options []dto.SelectOption) templ.Component {
 				var templ_7745c5c3_Var23 string
 				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(student.NameInitial())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 141, Col: 34}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/students/blocks/select_multi.templ`, Line: 140, Col: 34}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 				if templ_7745c5c3_Err != nil {

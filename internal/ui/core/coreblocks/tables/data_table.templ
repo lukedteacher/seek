@@ -96,7 +96,7 @@ templ Header(view shareddto.TableView) {
 						},
 					}) {
 						<div class="flex justify-between items-center">
-							<span>{ col.Display }</span>
+							<span class="mr-3">{ col.Display }</span>
 							@SortButton(col.Signal, view.Sort.Column, view.Sort.Direction)
 						</div>
 					}

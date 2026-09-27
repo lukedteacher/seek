@@ -12,8 +12,8 @@ type TableConfig[T any] struct {
 }
 
 type TableSort struct {
-	Column    string
-	Direction string
+	Column    string `json:"column"`
+	Direction string `json:"direction"`
 }
 
 type TableView struct {

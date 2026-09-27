@@ -2,6 +2,14 @@
 
 updates for SEEK
 
+## v0.9.14 (26.09.27) bug fixes, style tweaks
+
+- added nocase to manual student db query (not working?)
+- fixed student table view bug
+- tweaked styling of student table view
+- added search component in uifilters
+- added helper functions for query actions and oninput actions
+
 ## v0.9.13 (26.09.26) bug fixes, homeroom updates
 
 - re-added button to delete service

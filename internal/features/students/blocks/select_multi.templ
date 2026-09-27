@@ -53,14 +53,13 @@ templ SelectMulti(objectType string, view dto.SelectView) {
 }
 
 templ SelectOptions(options []dto.SelectOption) {
-	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<ul
 		data-neo-popover-content
 		class="flex flex-col gap-1 w-full h-64"
 	>
 		for _, student := range options {
 			<li
-				data-on:click={ fmt.Sprintf("@query('%s/students/%s')", url, student.ID) }
+				data-on:click={ fmt.Sprintf("@query('%s/students/%s')", student.ID) }
 				class={ utils.TwMerge(
 							"text-sm grid grid-cols-3 items-center cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
 							utils.If(student.Selected, "bg-primary"),

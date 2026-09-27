@@ -187,18 +187,17 @@ func (m *ReadModel) listAllWithSorting(
 	search string,
 ) ([]models.Student, error) {
 	allowedColumns := map[string]bool{
-		"marss_id":     true,
-		"birthdate":    true,
-		"given_name":   true,
-		"chosen_name":  true,
-		"family_name":  true,
-		"email":        true,
-		"grade":        true,
-		"homeroom_id":  true,
-		"plan_type":    true,
-		"case_manager": true,
-		"created_at":   true,
-		"updated_at":   true,
+		"birthdate":       true,
+		"given_name":      true,
+		"chosen_name":     true,
+		"family_name":     true,
+		"email":           true,
+		"grade":           true,
+		"homeroom_id":     true,
+		"plan_type":       true,
+		"case_manager_id": true,
+		"created_at":      true,
+		"updated_at":      true,
 	}
 	allowedDirs := map[string]bool{"ASC": true, "DESC": true}
 
@@ -244,14 +243,26 @@ func (m *ReadModel) listAllWithSorting(
 	}
 
 	query := fmt.Sprintf(`
-			SELECT 
-				id, marss_id, birthdate, given_name, chosen_name, family_name, pronouns,
-				email, username, grade, homeroom_id, plan_type, case_manager_id,
-				created_at, updated_at
-			FROM students
-			WHERE %s
-			ORDER BY %s %s, family_name ASC, given_name ASC
-    `, where, sortBy, sortDir)
+		SELECT 
+			id,
+			marss_id,
+			birthdate,
+			given_name,
+			chosen_name,
+			family_name,
+			pronouns,
+			email,
+			username,
+			grade, 
+			homeroom_id, 
+			plan_type, 
+			case_manager_id,
+			created_at, 
+			updated_at
+		FROM students
+		WHERE %s
+		ORDER BY %s %s, family_name COLLATE NOCASE ASC, chosen_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC
+	`, where, sortBy, sortDir)
 
 	var students []models.Student
 	err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {

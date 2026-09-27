@@ -11,8 +11,6 @@ import (
 	"seek/internal/ui/core/coreblocks/tables"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
-	"seek/pkg/templui/components/button"
-	"seek/pkg/templui/components/icon"
 )
 
 type ListView struct {
@@ -26,15 +24,7 @@ templ List(view ListView) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
 			@coreblocks.HeaderMain("student list")
 			@tables.DataTable(view.Table) {
-				<div class="w-full flex gap-3">
-					@button.Button(button.Props{
-						Href: "/students/create",
-					}) {
-						@icon.UserRoundPlus()
-						<span>create</span>
-					}
-				</div>
-				<div class="flex gap-8 w-100">
+				<div class="flex gap-4 max-w-128">
 					@blocks.StudentFilters("table", url, view.Filters)
 				</div>
 			}

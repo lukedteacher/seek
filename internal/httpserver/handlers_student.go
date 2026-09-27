@@ -40,6 +40,7 @@ import (
 func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students", getStudentsList(s.Logger))
 	r.Get("/students/stream", getStudentsListStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Students, s.ReadModels.Educators, s.ReadModels.Homerooms, s.ReadModels.IEPs, s.ReadModels.Services))
+	r.Query("/students", postStudentsList(s.Logger, s.ViewStore))
 	r.Post("/students", postStudentsList(s.Logger, s.ViewStore))
 	r.Get("/students/create", getStudentCreate(s.Logger))
 	r.Get("/students/create/stream", getStudentCreateStream(s.Logger, s.ViewStore, s.ReadModels.Educators))
@@ -69,7 +70,7 @@ func getStudentsList(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		studentTableView := dto.NewStudentTableView([]models.Student{})
+		studentTableView := compositedto.NewStudentWithDataTableView([]compositedto.StudentWithData{}, shareddto.TableSort{})
 		_ = pages.List(pages.ListView{Table: studentTableView}).Render(ctx, w)
 	}
 }
@@ -116,25 +117,14 @@ func getStudentsListStream(
 		}
 		defer watcher.Stop()
 
-		defaultGradeFilter := make(map[string]bool, 9)
-		for _, grade := range sharedmodels.GradeList {
-			defaultGradeFilter[grade.String()] = true
-		}
-		defaultPlanTypeFilter := make(map[string]bool, 4)
-		for _, planType := range sharedmodels.PlanTypeList {
-			defaultPlanTypeFilter[planType.String()] = true
-		}
+		filter := dto.NewFilter()
 		listView := createListView(
 			ctx,
 			l,
 			studentReadModel,
 			"family_name",
 			"ASC",
-			dto.Filter{
-				Grade:    defaultGradeFilter,
-				PlanType: defaultPlanTypeFilter,
-				Search:   "",
-			},
+			filter,
 			educatorReadModel,
 			homeroomReadModel,
 			iepReadModel,
@@ -154,10 +144,7 @@ func getStudentsListStream(
 				}
 				toastMsg := fmt.Sprintf("Updated: %s", msg["studentID"]) // example
 
-				type tableSignals struct {
-					Table dto.StudentTableState `json:"table"`
-				}
-				signals, ok, err := viewstore.GetState[tableSignals](ctx, vs, user.Username+".students.list")
+				signals, ok, err := viewstore.GetState[dto.TableSignals](ctx, vs, user.Username+".students.list")
 				if err != nil {
 					l.ErrorContext(ctx, "student create stream subscriber update", "err", err)
 				}
@@ -183,9 +170,7 @@ func getStudentsListStream(
 				if !ok {
 					return
 				}
-				signals := &struct {
-					Table dto.StudentTableState `json:"table"`
-				}{}
+				signals := &dto.TableSignals{}
 				if err := entry.JSON(signals); err != nil {
 					l.ErrorContext(ctx, "student create stream json", "err", err)
 					return
@@ -216,10 +201,11 @@ func postStudentsList(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		signals := &struct {
-			Table dto.StudentTableState `json:"table"`
-		}{}
-		datastar.ReadSignals(r, signals)
+		signals := &dto.TableSignals{}
+		if err := datastar.ReadSignals(r, signals); err != nil {
+			l.ErrorContext(ctx, "psl signals", "err", err)
+			return
+		}
 		key := user.Username + ".students.list"
 		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "psl put state", "err", err)

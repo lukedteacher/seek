@@ -5,12 +5,16 @@ import (
 
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/students/dto"
+	"seek/internal/ui/core/coreblocks/filters"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/separator"
 )
 
+// needs url due to varying url types for filters (/validate, etc.)
 templ StudentFilters(target, url string, filters dto.Filter) {
+	{{ signal := fmt.Sprintf("%s.filter.search", target) }}
+	@uifilters.SearchInput("students-list-search", signal)
 	<neo-popover>
 		@button.Button(button.Props{
 			Attributes: templ.Attributes{
@@ -31,16 +35,6 @@ templ StudentFilters(target, url string, filters dto.Filter) {
 			@StudentPlanTypesFilter(target, url, filters.PlanType)
 		</div>
 	</neo-popover>
-	<div class="flex gap-2 items-center">
-		@icon.Search()
-		<input
-			id="students-list-search"
-			class="input"
-			data-bind:student_select.filter.search
-			data-on:input__debounce.250ms={ fmt.Sprintf("@query('%s')", url) }
-			type="search"
-		/>
-	</div>
 }
 
 templ StudentGradesFilter(target, url string, gradesFilter map[string]bool) {
