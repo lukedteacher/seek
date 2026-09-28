@@ -17,6 +17,7 @@ type HomeroomView struct {
 	UpdatedAt     string                     `json:"updated_at,omitempty"`
 }
 
+// must initialize empty strings so signals save correctly in viewstore
 func NewHomeroomView(m *models.Homeroom) HomeroomView {
 	if m == nil {
 		return HomeroomView{

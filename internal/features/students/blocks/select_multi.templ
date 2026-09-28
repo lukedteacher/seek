@@ -29,7 +29,11 @@ templ SelectMulti(objectType string, view dto.SelectView) {
 			select a student
 		}
 		<div class="flex gap-3 items-center">
-			<neo-popover class="w-full" placement="bottom" match-trigger-width="true">
+			<neo-popover
+				class="w-full"
+				placement="bottom"
+				match-trigger-width="true"
+			>
 				<div
 					class="flex items-center gap-2 relative input"
 					data-neo-popover-trigger
@@ -53,13 +57,14 @@ templ SelectMulti(objectType string, view dto.SelectView) {
 }
 
 templ SelectOptions(options []dto.SelectOption) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<ul
 		data-neo-popover-content
-		class="flex flex-col gap-1 w-full h-64"
+		class="flex flex-col gap-1 w-full h-64 bg-red"
 	>
 		for _, student := range options {
 			<li
-				data-on:click={ fmt.Sprintf("@query('%s/students/%s')", student.ID) }
+				data-on:click={ fmt.Sprintf("@query('%s/students/%s')", url, student.ID) }
 				class={ utils.TwMerge(
 							"text-sm grid grid-cols-3 items-center cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
 							utils.If(student.Selected, "bg-primary"),
@@ -152,4 +157,42 @@ templ SelectCards(options []dto.SelectOption) {
 			}
 		}
 	</div>
+}
+
+templ SelectListCards(selected []dto.StudentView) {
+	if len(selected) > 0 {
+		{{ url := sharedmodels.GetURLFromContext(ctx) }}
+		<ul class="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-3">
+			for _, student := range selected {
+				<li
+					data-on:click={ fmt.Sprintf("@query('%s/students/%s')", url, student.ID) }
+					class="text-sm flex justify-center gap-2 h-24 items-center hover:bg-primary/80 active:bg-primary/90 border border-muted bg-linear-3-4 rounded-md relative group"
+				>
+					@avatar.Avatar() {
+						@avatar.Image(avatar.ImageProps{
+							Src:   fmt.Sprintf("/static/images/people/%s_%s.webp", strings.ToLower(student.FamilyName), strings.ToLower(student.GivenName)),
+							Class: "object-cover",
+						})
+						@avatar.Fallback(avatar.FallbackProps{
+							Class: "bg-secondary",
+						}) {
+							{ student.Initials() }
+						}
+					}
+					<div class="flex flex-col gap-1 items-start">
+						<span>{ student.NameInitial() }</span>
+					</div>
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+						Class:   "absolute top-1 right-1 opacity-0 group-hover:opacity-100",
+						Attributes: templ.Attributes{
+							"data-on:click": fmt.Sprintf("@query('%s/students/%s')", url, student.ID),
+						},
+					}) {
+						@icon.X()
+					}
+				</li>
+			}
+		</ul>
+	}
 }

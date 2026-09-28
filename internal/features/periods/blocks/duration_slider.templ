@@ -9,7 +9,7 @@ import (
 	"seek/pkg/templui/components/slider"
 )
 
-templ DurationSlider(view dto.PeriodFormView) {
+templ DurationSlider(view dto.PeriodView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<div class="flex flex-col">
 		@label.Label(label.Props{
@@ -18,7 +18,10 @@ templ DurationSlider(view dto.PeriodFormView) {
 		}) {
 			minutes
 		}
-		<neo-popover placement="bottom">
+		<neo-popover
+			class="w-full"
+			placement="bottom"
+		>
 			<input
 				data-neo-popover-trigger
 				id="period-duration-slider-trigger"
@@ -28,7 +31,7 @@ templ DurationSlider(view dto.PeriodFormView) {
 				class="input text-lg text-center"
 				style="width: 3rem;"
 				data-bind:period.duration
-				data-on:input__debounce.250ms={ fmt.Sprintf("@post('%s/validate/duration')", url) }
+				data-on:input__debounce.250ms={ fmt.Sprintf("@query('%s/validate/duration')", url) }
 				value={ view.Duration }
 			/>
 			<div data-neo-popover-content class="flex flex-col gap-2 p-3 pt-6 h-full w-full">
@@ -40,7 +43,7 @@ templ DurationSlider(view dto.PeriodFormView) {
 					Class:       "w-full px-[0.1rem]",
 					Value:       view.Duration,
 					DataBind:    "period.duration",
-					DataOnInput: fmt.Sprintf("@post('%s/validate/duration')", url),
+					DataOnInput: fmt.Sprintf("@query('%s/validate/duration')", url),
 				})
 				<div class="period-duration-slider-marks w-full flex justify-between font-xs">
 					<span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span><span>‧</span><span>•</span>

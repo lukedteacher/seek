@@ -10,7 +10,7 @@ import (
 	"seek/pkg/utils"
 )
 
-templ FormTimePickers(view dto.PeriodFormView) {
+templ FormTimePickers(view dto.PeriodView) {
 	@TimePickerField("period", "start", view.StartTime)
 	@TimePickerField("period", "end", view.EndTime)
 }
@@ -30,9 +30,10 @@ templ TimePickerField(target, field string, value sharedmodels.TimeOnly) {
 				Class: "text-neutral-content/80 size-4 absolute left-2 top-1/2 transform -translate-y-1/2 z-1 pointer-events-none",
 			})
 			<neo-popover
-				class="w-full"
 				data-signals={ fmt.Sprintf("{%s: {%s: {hour: '%s', minute: '%s'}}}", target, field, value.Hour(), value.Minute()) }
+				class="w-full"
 				placement="bottom"
+				match-trigger-width="true"
 			>
 				<input
 					class="hidden"
@@ -95,7 +96,7 @@ templ TimePickerLists(target, field string, value sharedmodels.TimeOnly) {
 				}}
 				<li
 					class={ "text-sm px-2 py-1 rounded-md hover:bg-primary/80 cursor-pointer text-center", utils.If(isSelected, "bg-primary") }
-					data-on:click={ fmt.Sprintf("$%[1]s.%[2]s.hour='%[3]s'; $%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute; @post('%[4]s/validate/%[2]s_time')", target, field, hour, url) }
+					data-on:click={ fmt.Sprintf("$%[1]s.%[2]s.hour='%[3]s'; $%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute; @query('%[4]s/validate/%[2]s_time')", target, field, hour, url) }
 				>{ hour }</li>
 			}
 		</ul>
@@ -111,7 +112,7 @@ templ TimePickerLists(target, field string, value sharedmodels.TimeOnly) {
 				}}
 				<li
 					class={ "text-sm px-2 py-1 rounded-md hover:bg-primary/80 cursor-pointer text-center", utils.If(isSelected, "bg-primary") }
-					data-on:click={ fmt.Sprintf("$%[1]s.%[2]s.minute='%[3]s'; $%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute; @post('%[4]s/validate/%[2]s_time')", target, field, minute, url) }
+					data-on:click={ fmt.Sprintf("$%[1]s.%[2]s.minute='%[3]s'; $%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute; @query('%[4]s/validate/%[2]s_time')", target, field, minute, url) }
 				>{ minute }</li>
 			}
 		</ul>

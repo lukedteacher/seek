@@ -15,6 +15,7 @@ import (
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
+	"seek/pkg/utils"
 )
 
 func SelectboxServiceType(url, object string, selected sharedmodels.ServiceType) templ.Component {
@@ -100,7 +101,7 @@ func SelectboxServiceType(url, object string, selected sharedmodels.ServiceType)
 			})
 			templ_7745c5c3_Err = selectbox.Trigger(selectbox.TriggerProps{
 				DataBind:     fmt.Sprintf("%s.service_type", object),
-				DataOnChange: fmt.Sprintf("@post('%s/validate')", url),
+				DataOnChange: utils.QueryValidate(url),
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -161,7 +162,6 @@ func SelectboxServiceType(url, object string, selected sharedmodels.ServiceType)
 						return nil
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-						Value:    sharedmodels.ServiceTypeList[i].String(),
 						Selected: sharedmodels.ServiceTypeList[i] == selected,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {

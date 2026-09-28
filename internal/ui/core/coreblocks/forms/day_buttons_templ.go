@@ -14,7 +14,7 @@ import (
 	"seek/internal/features/periods/dto"
 )
 
-func DayButtons(view dto.PeriodFormView) templ.Component {
+func DayButtons(view dto.PeriodView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -40,15 +40,15 @@ func DayButtons(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for i := range sharedmodels.Days {
+		for _, day := range sharedmodels.Days {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<label for=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(sharedmodels.Days[i].NameLower())
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(day.NameLower())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 14, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 14, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
@@ -59,9 +59,9 @@ func DayButtons(view dto.PeriodFormView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(sharedmodels.Days[i].Short())
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(day.Short())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 17, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 17, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -72,9 +72,9 @@ func DayButtons(view dto.PeriodFormView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(sharedmodels.Days[i].Name())
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(day.Name())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 18, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 18, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -85,9 +85,9 @@ func DayButtons(view dto.PeriodFormView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("period.days.%s", sharedmodels.Days[i].NameLower()))
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("period.days.%s", day.NameLower()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 21, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 21, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
@@ -98,9 +98,9 @@ func DayButtons(view dto.PeriodFormView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(sharedmodels.Days[i].NameLower())
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(day.NameLower())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 24, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 24, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 			if templ_7745c5c3_Err != nil {
@@ -110,7 +110,7 @@ func DayButtons(view dto.PeriodFormView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if view.Days.IsDaySet(sharedmodels.Days[i]) {
+			if view.DaysBitmask.IsDaySet(day) {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " checked")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -121,9 +121,9 @@ func DayButtons(view dto.PeriodFormView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("@post('%s/validate')", url))
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("@query('%s/days/%s')", url, day.NameLower()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 29, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/day_buttons.templ`, Line: 29, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {

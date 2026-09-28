@@ -30,10 +30,10 @@ templ Form(p FormProps) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<section class="w-full h-full">
 		<form
-			id={ fmt.Sprintf("homeroom-%s-form", p.FormType.String()) }
+			id={ fmt.Sprintf("homeroom-%s-form", p.FormType.Word()) }
 			class="flex flex-col gap-8 mb-8"
 			data-on:submit={ fmt.Sprintf("@post('%s')", url) }
-			data-signals:form_type={ fmt.Sprintf("'%s'", p.FormType.String()) }
+			data-signals:form_type={ p.FormType.String() }
 		>
 			<div
 				class="w-full gap-6 grid grid-cols-1 md:grid-cols-2"

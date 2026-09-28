@@ -2,10 +2,12 @@ package blocks
 
 import (
 	"fmt"
+	"strings"
 
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/dto"
 	"seek/pkg/templui/components/avatar"
+	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/utils"
@@ -21,7 +23,11 @@ templ SelectMulti(parent string, view dto.SelectView) {
 			select an educator
 		}
 		<div class="flex gap-3 items-center">
-			<neo-popover class="w-full h-full" placement="bottom" match-trigger-width="true">
+			<neo-popover
+				class="w-full"
+				placement="bottom"
+				match-trigger-width="true"
+			>
 				@SelectSearchInput()
 				@SelectOptions(view.Options)
 			</neo-popover>
@@ -78,4 +84,42 @@ templ SelectOptions(options []dto.SelectOption) {
 			</li>
 		}
 	</ul>
+}
+
+templ SelectListCards(selected []dto.EducatorView) {
+	if len(selected) > 0 {
+		{{ url := sharedmodels.GetURLFromContext(ctx) }}
+		<ul class="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-3">
+			for _, educator := range selected {
+				<li
+					data-on:click={ fmt.Sprintf("@query('%s/educators/%s')", url, educator.ID) }
+					class="text-sm flex justify-center gap-2 h-24 items-center hover:bg-primary/80 active:bg-primary/90 border border-muted bg-linear-3-4 rounded-md relative group"
+				>
+					@avatar.Avatar() {
+						@avatar.Image(avatar.ImageProps{
+							Src:   fmt.Sprintf("/static/images/people/%s_%s.webp", strings.ToLower(educator.FamilyName), strings.ToLower(educator.GivenName)),
+							Class: "object-cover",
+						})
+						@avatar.Fallback(avatar.FallbackProps{
+							Class: "bg-secondary",
+						}) {
+							{ educator.Initials() }
+						}
+					}
+					<div class="flex flex-col gap-1 items-start">
+						<span>{ educator.NameInitial() }</span>
+					</div>
+					@button.Button(button.Props{
+						Variant: button.VariantGhost,
+						Class:   "absolute top-1 right-1 opacity-0 group-hover:opacity-100",
+						Attributes: templ.Attributes{
+							"data-on:click": fmt.Sprintf("@query('%s/educators/%s')", url, educator.ID),
+						},
+					}) {
+						@icon.X()
+					}
+				</li>
+			}
+		</ul>
+	}
 }

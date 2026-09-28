@@ -1,0 +1,44 @@
+package uifilters
+
+import (
+	"seek/pkg/templui/components/button"
+	"seek/pkg/utils"
+)
+
+type FilterButtonsProps struct {
+	Signal string
+	Label  string
+	List []FilterButtonProps
+}
+
+type FilterButtonProps struct {
+	Signal string
+	Label string
+	Active bool
+	URL string
+}
+
+templ FilterButtons(p FilterButtonsProps) {
+	<div
+		class="flex flex-col gap-3"
+		{ utils.DataSignals(p.Signal) }
+	>
+		<h4>{ p.Label }</h4>
+		<div class="button-group grid grid-cols-9 w-fit">
+			for _, item := range p.List {
+				@FilterButton(item)
+			}
+		</div>
+	</div>
+}
+
+templ FilterButton(p FilterButtonProps) {
+	@button.Button(button.Props{
+		Variant: button.VariantOutline,
+		Attributes: templ.Attributes{
+			"data-on:click":         utils.Query(p.URL),
+		},
+	}) {
+		{ p.Label }
+	}
+}

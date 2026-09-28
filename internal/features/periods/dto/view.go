@@ -14,7 +14,9 @@ type PeriodView struct {
 
 func NewPeriodView(p *models.Period) PeriodView {
 	if p == nil {
-		return PeriodView{}
+		return PeriodView{
+			Period: models.NewPeriod(),
+		}
 	}
 	return PeriodView{
 		Period: *p,
@@ -33,5 +35,7 @@ func NewPeriodModelFromView(pv *PeriodView) models.Period {
 		EndTime:     pv.EndTime,
 		Duration:    pv.Duration,
 		DaysBitmask: pv.DaysBitmask,
+		EducatorIDs: pv.EducatorIDs,
+		StudentIDs:  pv.StudentIDs,
 	}
 }

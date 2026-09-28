@@ -271,7 +271,6 @@ func (m *ReadModel) ListByIDs(ctx context.Context, educatorIDs []string) ([]mode
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
 		rows, err = dbsql.OnceListEducatorsByIds(conn, educatorIDs)
-		println("row length", len(rows))
 		return err
 	}); err != nil {
 		return nil, err

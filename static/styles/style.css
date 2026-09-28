@@ -5728,9 +5728,6 @@
   .ml-2 {
     margin-left: calc(var(--spacing) * 2);
   }
-  .ml-4 {
-    margin-left: calc(var(--spacing) * 4);
-  }
   .ml-auto {
     margin-left: auto;
   }
@@ -6737,9 +6734,6 @@
   .w-80 {
     width: calc(var(--spacing) * 80);
   }
-  .w-100 {
-    width: calc(var(--spacing) * 100);
-  }
   .w-128 {
     width: calc(var(--spacing) * 128);
   }
@@ -6775,9 +6769,6 @@
   }
   .max-w-128 {
     max-width: calc(var(--spacing) * 128);
-  }
-  .max-w-256 {
-    max-width: calc(var(--spacing) * 256);
   }
   .max-w-264 {
     max-width: calc(var(--spacing) * 264);
@@ -8254,9 +8245,6 @@
   }
   .py-8 {
     padding-block: calc(var(--spacing) * 8);
-  }
-  .py-\[0\.3rem\] {
-    padding-block: 0.3rem;
   }
   @layer daisyui.l1.l2 {
     .file-input-xl {
@@ -10302,6 +10290,9 @@
     }
   }
   @media (width >= 64rem) {
+    .lg\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
     .lg\:flex-row {
       flex-direction: row;
     }

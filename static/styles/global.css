@@ -558,66 +558,67 @@ div[data-color='default'] {
 
 div[data-color='red'],
 li[data-color='red'] {
+  box-shadow: inset 4px 0 0 var(--gruvbox-red-neutral-0);
   background-color: var(--gruvbox-red-faded-0);
 }
 
 div[data-color='orange'],
 li[data-color='orange'] {
-  background-color: var(--gruvbox-orange-faded-0);
+  box-shadow: inset 4px 0 0 var(--gruvbox-orange-neutral-0);
 }
 
 div[data-color='yellow'],
 li[data-color='yellow'] {
-  background-color: var(--gruvbox-yellow-faded-0);
+  box-shadow: inset 4px 0 0 var(--gruvbox-yellow-neutral-0);
 }
 
 div[data-color='green'],
 li[data-color='green'] {
-  background-color: var(--gruvbox-green-faded-0);
+  box-shadow: inset 4px 0 0 var(--gruvbox-green-neutral-0);
 }
 
 div[data-color='aqua'],
 li[data-color='aqua'] {
-  background-color: var(--gruvbox-aqua-faded-0);
+  box-shadow: inset 4px 0 0 var(--gruvbox-aqua-neutral-0);
 }
 
 div[data-color='blue'],
 li[data-color='blue'] {
-  background-color: var(--gruvbox-blue-faded-0);
+  box-shadow: inset 4px 0 0 var(--gruvbox-blue-neutral-0);
 }
 
 div[data-color='purple'],
 li[data-color='purple'] {
-  background-color: var(--gruvbox-purple-faded-0);
+  box-shadow: inset 4px 0 0 var(--gruvbox-purple-neutral-0);
 }
 
 div[data-service='reading'] {
-  box-shadow: inset 4px 0 0 var(--gruvbox-red-neutral-0);
+  background-color: var(--gruvbox-red-faded-0);
 }
 
 div[data-service='writing'] {
-  box-shadow: inset 4px 0 0 var(--gruvbox-orange-neutral-0);
+  background-color: var(--gruvbox-orange-faded-0);
 }
 
 div[data-service='OT'],
 div[data-service='SW'] {
-  box-shadow: inset 4px 0 0 var(--gruvbox-yellow-neutral-0);
+  background-color: var(--gruvbox-yellow-faded-0);
 }
 
 div[data-service='EF'] {
-  box-shadow: inset 4px 0 0 var(--gruvbox-green-neutral-0);
+  background-color: var(--gruvbox-green-faded-0);
 }
 
 div[data-service='speech'] {
-  box-shadow: inset 4px 0 0 var(--gruvbox-aqua-neutral-0);
+  background-color: var(--gruvbox-aqua-faded-0);
 }
 
 div[data-service='math'] {
-  box-shadow: inset 4px 0 0 var(--gruvbox-blue-neutral-0);
+  background-color: var(--gruvbox-blue-faded-0);
 }
 
 div[data-service='SEL'] {
-  box-shadow: inset 4px 0 0 var(--gruvbox-purple-neutral-0);
+  background-color: var(--gruvbox-purple-faded-0);
 }
 
 span[data-service='reading'] {

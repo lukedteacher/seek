@@ -37,6 +37,11 @@ func (m DaysBitmask) String() string {
 	return b.String()
 }
 
+func (m *DaysBitmask) ToggleDay(d Day) *DaysBitmask {
+	*m ^= DaysBitmask(d.Bit())
+	return m
+}
+
 func (m DaysBitmask) MarshalJSON() ([]byte, error) {
 	return json.Marshal(int(m))
 }

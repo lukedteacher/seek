@@ -17,7 +17,7 @@ import (
 	"seek/pkg/templui/components/slider"
 )
 
-func DurationSlider(view dto.PeriodFormView) templ.Component {
+func DurationSlider(view dto.PeriodView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -68,14 +68,14 @@ func DurationSlider(view dto.PeriodFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<neo-popover placement=\"bottom\"><input data-neo-popover-trigger id=\"period-duration-slider-trigger\" type=\"number\" inputmode=\"numeric\" pattern=\"[0-9]*\" class=\"input text-lg text-center\" style=\"width: 3rem;\" data-bind:period.duration data-on:input__debounce.250ms=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<neo-popover class=\"w-full\" placement=\"bottom\"><input data-neo-popover-trigger id=\"period-duration-slider-trigger\" type=\"number\" inputmode=\"numeric\" pattern=\"[0-9]*\" class=\"input text-lg text-center\" style=\"width: 3rem;\" data-bind:period.duration data-on:input__debounce.250ms=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("@post('%s/validate/duration')", url))
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("@query('%s/validate/duration')", url))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/duration_slider.templ`, Line: 31, Col: 85}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/duration_slider.templ`, Line: 34, Col: 86}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -88,7 +88,7 @@ func DurationSlider(view dto.PeriodFormView) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(view.Duration)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/duration_slider.templ`, Line: 32, Col: 25}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/duration_slider.templ`, Line: 35, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -106,7 +106,7 @@ func DurationSlider(view dto.PeriodFormView) templ.Component {
 			Class:       "w-full px-[0.1rem]",
 			Value:       view.Duration,
 			DataBind:    "period.duration",
-			DataOnInput: fmt.Sprintf("@post('%s/validate/duration')", url),
+			DataOnInput: fmt.Sprintf("@query('%s/validate/duration')", url),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

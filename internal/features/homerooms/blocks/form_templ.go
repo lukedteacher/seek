@@ -61,9 +61,9 @@ func Form(p FormProps) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("homeroom-%s-form", p.FormType.String()))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("homeroom-%s-form", p.FormType.Word()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/homerooms/blocks/form.templ`, Line: 33, Col: 60}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/homerooms/blocks/form.templ`, Line: 33, Col: 58}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -87,9 +87,9 @@ func Form(p FormProps) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("'%s'", p.FormType.String()))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.FormType.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/homerooms/blocks/form.templ`, Line: 36, Col: 68}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/homerooms/blocks/form.templ`, Line: 36, Col: 47}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {

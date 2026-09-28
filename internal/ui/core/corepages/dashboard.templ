@@ -15,7 +15,7 @@ import (
 )
 
 type DashboardView struct {
-	Schedule           scheduleDTO.PersonWithScheduleView
+	Periods            []scheduleDTO.SchedulePeriodView
 	BookmarkedStudents []studentDTO.StudentView
 }
 
@@ -23,8 +23,8 @@ templ Dashboard(view DashboardView) {
 	@corelayouts.LayoutBase("SEEK: dashboard") {
 		<div class="flex flex-col w-full h-full row-2" data-init={ sse.LongRunningGetSSE("dashboard/stream") }>
 			<main class="h-full">
-				<div class="w-full h-full grid grid-rows-2 md:grid-cols-2 md:grid-rows-1 gap-6">
-					@DashboardSchedule(view.Schedule)
+				<div class="w-full h-full grid grid-rows-2 lg:grid-cols-2 md:grid-rows-1 gap-6">
+					@DashboardSchedule(view.Periods)
 					@DashboardBookmarkedStudents(view.BookmarkedStudents)
 				</div>
 			</main>
@@ -32,10 +32,17 @@ templ Dashboard(view DashboardView) {
 	}
 }
 
-templ DashboardSchedule(schedule scheduleDTO.PersonWithScheduleView) {
+templ DashboardSchedule(periods []scheduleDTO.SchedulePeriodView) {
 	<section id="dashboard-schedule" class="flex flex-col gap-3">
 		@corebuttons.FlexIconButton("/periods/create", "plus", "create")
-		@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{schedule})
+		@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{}) {
+			for _, period := range periods {
+				@scheduleBlocks.DashboardPeriodCard(scheduleBlocks.DashboardPeriodCardProps{
+					View:  period,
+					Color: "blue",
+				})
+			}
+		}
 	</section>
 }
 

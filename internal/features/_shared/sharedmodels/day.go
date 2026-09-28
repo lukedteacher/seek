@@ -1,6 +1,7 @@
 package sharedmodels
 
 import (
+	"fmt"
 	"strings"
 	"time"
 )
@@ -8,6 +9,14 @@ import (
 type Day time.Weekday
 
 var Days = []Day{
+	Day(time.Monday),
+	Day(time.Tuesday),
+	Day(time.Wednesday),
+	Day(time.Thursday),
+	Day(time.Friday),
+}
+
+var DayList = []Day{
 	Day(time.Monday),
 	Day(time.Tuesday),
 	Day(time.Wednesday),
@@ -59,4 +68,21 @@ func (d Day) Bit() int {
 		time.Friday:    BitFriday,
 	}
 	return bits[time.Weekday(d)]
+}
+
+func ParseDay(s string) (Day, error) {
+	switch s {
+	case "monday":
+		return Day(time.Monday), nil
+	case "tuesday":
+		return Day(time.Tuesday), nil
+	case "wednesday":
+		return Day(time.Wednesday), nil
+	case "thursday":
+		return Day(time.Thursday), nil
+	case "friday":
+		return Day(time.Friday), nil
+	default:
+		return 0, fmt.Errorf("invalid day: %q", s)
+	}
 }

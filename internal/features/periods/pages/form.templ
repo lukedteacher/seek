@@ -13,14 +13,20 @@ import (
 	"seek/pkg/sse"
 )
 
-templ Create(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleView) {
+type PeriodFormPageProps struct {
+	FormProps blocks.PeriodFormProps
+	OldForm   dto.PeriodFormView
+	Schedules []scheduleDTO.PersonWithScheduleView
+}
+
+templ PeriodForm(p PeriodFormPageProps) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	@corelayouts.LayoutBase("SEEK: create period") {
+	@corelayouts.LayoutBase(fmt.Sprintf("SEEK: %s period", p.FormProps.FormType.Word())) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
-			@coreblocks.HeaderMain("create period")
+			@coreblocks.HeaderMain(fmt.Sprintf("%s period", p.FormProps.FormType.Word()))
 			<section class="w-full flex flex-col md:flex-row gap-4 h-full">
-				@blocks.PeriodForm(view, schedules)
-				@scheduleBlocks.ScheduleComponent(schedules)
+				@blocks.PeriodForm(p.FormProps, p.Schedules)
+				@scheduleBlocks.ScheduleComponent(p.Schedules)
 			</section>
 		</main>
 	}

@@ -127,7 +127,11 @@ func getHomeroomCreateStream(
 		sse := newSSE(w, r)
 
 		// watch for view store changes
-		key := user.Username + ".homerooms.create"
+		key, err := getHomeroomViewstoreKey(sharedmodels.FormTypeCreate, user.Username, "")
+		if err != nil {
+			l.ErrorContext(ctx, "ghcs vs key", "err", err)
+			return
+		}
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -141,8 +145,8 @@ func getHomeroomCreateStream(
 		}
 		defer watcher.Stop()
 
-		if err := initializeHomeroomCreateState(ctx, l, vs, user.Username, educatorReadModel, studentReadModel); err != nil {
-			l.ErrorContext(ctx, "ghcs initialize viewstore state", "err", err)
+		if err := initializeHomeroomCreateState(ctx, l, vs, user.Username); err != nil {
+			l.ErrorContext(ctx, "ghcs init vs", "err", err)
 		}
 
 		for {
@@ -191,7 +195,7 @@ func queryHomeroomFormValidate(
 			return
 		}
 		// store the signals in the viewstore based on form type
-		key, err := getViewstoreKey(signals.FormType, user.Username, signals.Homeroom.ID)
+		key, err := getHomeroomViewstoreKey(signals.FormType, user.Username, signals.Homeroom.ID)
 		if err != nil {
 			l.ErrorContext(ctx, "qhfg vs key", "err", err, "form type", signals.FormType, "username", user.Username, "hid", signals.Homeroom.ID)
 			return
@@ -215,7 +219,7 @@ func queryHomeroomFormField(
 		value := chi.URLParam(r, "value")
 		signals := &dto.HomeroomFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "qhfg signals", "err", err)
+			l.ErrorContext(ctx, "qhff signals", "err", err)
 			return
 		}
 		switch field {
@@ -235,13 +239,13 @@ func queryHomeroomFormField(
 			l.ErrorContext(ctx, "qhff", "invalid field in form", field)
 			return
 		}
-		key, err := getViewstoreKey(signals.FormType, user.Username, signals.Homeroom.ID)
+		key, err := getHomeroomViewstoreKey(signals.FormType, user.Username, signals.Homeroom.ID)
 		if err != nil {
-			l.ErrorContext(ctx, "qhfg vs key", "err", err, "form type", signals.FormType, "username", user.Username, "hid", signals.Homeroom.ID)
+			l.ErrorContext(ctx, "qhff vs key", "err", err, "form type", signals.FormType, "username", user.Username, "hid", signals.Homeroom.ID)
 			return
 		}
 		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
-			l.ErrorContext(ctx, "qhfg view store error", "error", err)
+			l.ErrorContext(ctx, "qhff vs", "error", err)
 			return
 		}
 	}
@@ -437,7 +441,7 @@ func getHomeroomEditStream(
 			return
 		}
 		defer sub.Close()
-		key, err := getViewstoreKey(sharedmodels.FormTypeEdit, "", homeroomID)
+		key, err := getHomeroomViewstoreKey(sharedmodels.FormTypeEdit, "", homeroomID)
 		if err != nil {
 			l.ErrorContext(ctx, "ghes vs key", "err", err)
 		}
@@ -657,11 +661,12 @@ func initializeHomeroomCreateState(
 	l *slog.Logger,
 	vs viewstore.Store,
 	username string,
-	educatorReadModel *educatorEvents.ReadModel,
-	studentReadModel *studentEvents.ReadModel,
 ) error {
 	signals := dto.NewHomeroomFormSignals(sharedmodels.FormTypeCreate, nil)
-	key := username + ".homerooms.create"
+	key, err := getHomeroomViewstoreKey(sharedmodels.FormTypeCreate, username, "")
+	if err != nil {
+		return err
+	}
 	return viewstore.PutState(ctx, vs, key, signals)
 }
 
@@ -705,7 +710,7 @@ func refreshHomeroomEditState(
 		studentFilter,
 		educators,
 	)
-	key, err := getViewstoreKey(sharedmodels.FormTypeEdit, "", homeroomID)
+	key, err := getHomeroomViewstoreKey(sharedmodels.FormTypeEdit, "", homeroomID)
 	if err != nil {
 		return err
 	}
@@ -723,7 +728,7 @@ func toggleID(slice []string, value string) []string {
 	return append(slice, value)
 }
 
-func getViewstoreKey(
+func getHomeroomViewstoreKey(
 	formType sharedmodels.FormType,
 	username string,
 	homeroomID string,

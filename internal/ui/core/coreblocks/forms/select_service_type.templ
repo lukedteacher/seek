@@ -5,26 +5,25 @@ import (
 
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
-	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/utils"
 )
 
-templ SelectMultiGrades(objectType string, selected sharedmodels.GradesBitmask) {
-	{{ view := shareddto.NewSelectViewGrade(selected) }}
+templ SelectServiceType(objectType string, selected sharedmodels.ServiceType) {
+	{{ view := shareddto.NewSelectViewServiceType(selected) }}
 	<input
 		class="hidden"
-		id="grades_bitmask"
-		type="number"
-		data-bind:homeroom.grades_bitmask
+		id="service-type"
+		type="text"
+		data-bind:period.service_type
 	/>
 	<div class="flex flex-col">
 		@label.Label(label.Props{
-			For:   "homeroom-grades-input",
-			Class: "mb-3 text-neutral-content/90",
+			For:   "period-service-type-select",
+			Class: "mb-3 text-neutral-content/70",
 		}) {
-			select grade(s)
+			service type
 		}
 		<div class="flex gap-3 items-center">
 			<neo-popover
@@ -38,19 +37,20 @@ templ SelectMultiGrades(objectType string, selected sharedmodels.GradesBitmask) 
 				>
 					for _, option := range view.Options {
 						if option.Selected {
-							@badge.Badge() {
-								{ option.Ordinal() }
-							}
+							@icon.Icon(option.IconName())(icon.Props{
+								Size: "16",
+							})
+							<span>{ option.LongString() }</span>
 						}
 					}
 				</div>
-				@SelectGradeOptions(view.Options)
+				@SelectServiceTypeOptions(view.Options)
 			</neo-popover>
 		</div>
 	</div>
 }
 
-templ SelectGradeOptions(options []shareddto.SelectOptionGrade) {
+templ SelectServiceTypeOptions(options []shareddto.SelectOptionServiceType) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<ul
 		data-neo-popover-content
@@ -58,13 +58,18 @@ templ SelectGradeOptions(options []shareddto.SelectOptionGrade) {
 	>
 		for _, option := range options {
 			<li
-				data-on:click={ fmt.Sprintf("@query('%s/grades/%s')", url, option.Grade.String()) }
+				data-on:click={ fmt.Sprintf("@query('%s/servicetype/%s')", url, option.ServiceType.String()) }
 				class={ utils.TwMerge(
 							"text-sm flex items-center justify-between cursor-pointer hover:bg-primary/80 active:bg-primary/90 px-2 py-1 rounded-md",
 							utils.If(option.Selected, "bg-primary"),
 						) }
 			>
-				<span>{ option.Ordinal() }</span>
+				<div class="flex items-center gap-2">
+					@icon.Icon(option.IconName())(icon.Props{
+						Size: "16",
+					})
+					<span>{ option.LongString() }</span>
+				</div>
 				if option.Selected {
 					@icon.Check(icon.Props{Class: "size-4"})
 				}

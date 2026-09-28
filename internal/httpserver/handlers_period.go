@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	educatorDTO "seek/internal/features/educators/dto"
 	educatorEvents "seek/internal/features/educators/events"
 	epevents "seek/internal/features/educators_periods/events"
+	"seek/internal/features/periods/blocks"
 	"seek/internal/features/periods/dto"
 	"seek/internal/features/periods/events"
 	"seek/internal/features/periods/models"
@@ -28,24 +30,27 @@ import (
 )
 
 func (s Server) periodRoutes(r chi.Router) {
+	// period list
 	r.Get("/periods", getPeriodsList(s.Logger))
 	r.Get("/periods/stream", getPeriodsListStream(s.Logger, s.Subscriber, s.ReadModels.Periods, s.ReadModels.Educators, s.ReadModels.Students))
+	// create periods
 	r.Get("/periods/create", getPeriodCreate(s.Logger))
 	r.Get("/periods/create/stream", getPeriodCreateStream(s.Logger, s.ViewStore, s.ReadModels.Periods, s.ReadModels.Students, s.ReadModels.Educators))
-	r.Post("/periods/create/validate", postPeriodCreateValidate(s.Logger, s.ViewStore))
-	r.Post("/periods/create/validate/{field}", postPeriodCreateValidateField(s.Logger, s.ViewStore))
-	r.Post("/periods/create/educators/{eid}", postPeriodCreateEducators(s.Logger, s.ViewStore))
-	r.Post("/periods/create/students/{sid}", postPeriodCreateStudents(s.Logger, s.ViewStore))
+	r.Query("/periods/create/validate", queryPeriodFormValidate(s.Logger, s.ViewStore))
+	r.Query("/periods/create/validate/{field}", queryPeriodCreateValidateField(s.Logger, s.ViewStore))
+	r.Query("/periods/create/{field}/{value}", queryPeriodFormField(s.Logger, s.ViewStore))
 	r.Post("/periods/create", postPeriodCreate(s.Logger, s.EventSaver, s.EventRetriever))
+	// view period
 	r.Get("/periods/{id}", getPeriodView(s.Logger))
 	r.Get("/periods/{id}/stream", getPeriodViewStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Periods, s.ReadModels.Educators, s.ReadModels.Students))
+	// edit periods
 	r.Get("/periods/{id}/edit", getPeriodEdit(s.Logger))
 	r.Get("/periods/{id}/edit/stream", getPeriodEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Periods, s.ReadModels.Students, s.ReadModels.Educators))
-	r.Post("/periods/{id}/edit/validate", postPeriodEditValidate(s.Logger, s.ViewStore))
-	r.Post("/periods/{id}/edit/educators/{eid}", postPeriodEditEducators(s.Logger, s.ViewStore))
-	r.Post("/periods/{id}/edit/students/{sid}", postPeriodEditStudents(s.Logger, s.ViewStore))
-	r.Post("/periods/{id}/edit/validate/{field}", postPeriodEditValidateField(s.Logger, s.ViewStore))
+	r.Query("/periods/{id}/edit/validate", queryPeriodFormValidate(s.Logger, s.ViewStore))
+	r.Query("/periods/{id}/edit/validate/{field}", queryPeriodCreateValidateField(s.Logger, s.ViewStore))
+	r.Query("/periods/{id}/edit/{field}/{value}", queryPeriodFormField(s.Logger, s.ViewStore))
 	r.Post("/periods/{id}/edit", postPeriodEdit(s.Logger, s.EventSaver, s.EventRetriever))
+	// other period functions
 	r.Post("/periods/{id}/archive", postPeriodArchive(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Delete("/periods/{id}", deletePeriod(s.Logger, s.EventSaver, s.EventRetriever))
 }
@@ -108,8 +113,12 @@ func getPeriodsListStream(
 func getPeriodCreate(_ *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		view := dto.PeriodFormView{}
-		_ = pages.Create(view, nil).Render(ctx, w)
+		props := pages.PeriodFormPageProps{
+			FormProps: blocks.PeriodFormProps{
+				FormType: sharedmodels.FormTypeCreate,
+			},
+		}
+		_ = pages.PeriodForm(props).Render(ctx, w)
 	}
 }
 
@@ -126,20 +135,12 @@ func getPeriodCreateStream(
 		user := currentUser(r)
 		sse := newSSE(w, r)
 
-		// initial load: empty period, empty schedules
-		model := models.NewPeriod()
-
-		scheduleViews := buildScheduleViews(ctx, l, model, nil, periodReadModel, studentReadModel)
-
-		educators, _ := listEducators(ctx, l, educatorReadModel, nil)
-		students := listStudents(ctx, l, studentReadModel, nil)
-		view := dto.NewPeriodFormView(&model, students, nil, educators)
-		view.EducatorIDs = []string{}
-		view.StudentIDs = []string{}
-		sse.PatchElementTempl(pages.Create(view, scheduleViews))
-
 		// watch for view store changes
-		key := viewstoreKeyCreate(user.Username)
+		key, err := getPeriodViewstoreKey(sharedmodels.FormTypeCreate, user.Username, "")
+		if err != nil {
+			l.ErrorContext(ctx, "gpcs vs key", "err", err)
+			return
+		}
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -148,10 +149,14 @@ func getPeriodCreateStream(
 			},
 		)
 		if err != nil {
-			l.ErrorContext(ctx, "watch", "err", err)
+			l.ErrorContext(ctx, "gpcs watch", "err", err)
 			return
 		}
 		defer watcher.Stop()
+
+		if err := initializePeriodCreateState(ctx, l, vs, user.Username); err != nil {
+			l.ErrorContext(ctx, "gpcs init vs", "err", err)
+		}
 
 		for {
 			select {
@@ -161,14 +166,14 @@ func getPeriodCreateStream(
 				if !ok {
 					return
 				}
-				signals := &struct {
-					Period dto.PeriodFormView `json:"period"`
-				}{}
+				signals := &dto.PeriodFormSignals{}
 				if err := entry.JSON(signals); err != nil {
 					l.Error("json decode", "err", err)
 					return
 				}
-				model := dto.NewModelFromFormView(signals.Period)
+				model := dto.NewPeriodModelFromView(&signals.Period)
+				educators := listEducatorsByIDs(ctx, l, educatorReadModel, signals.Period.EducatorIDs)
+				students := listStudentsByIDs(ctx, l, studentReadModel, signals.Period.StudentIDs)
 				scheduleViews := buildScheduleViews(
 					ctx,
 					l,
@@ -177,51 +182,61 @@ func getPeriodCreateStream(
 					periodReadModel,
 					studentReadModel,
 				)
-				educators, _ := listEducators(ctx, l, educatorReadModel, &signals.Period.EducatorSelect.Filter)
-				students := listStudents(ctx, l, studentReadModel, &signals.Period.StudentSelect.Filter)
-				view := dto.NewPeriodFormView(&model, students, nil, educators)
-				sse.PatchElementTempl(pages.Create(view, scheduleViews))
+				props := pages.PeriodFormPageProps{
+					FormProps: blocks.PeriodFormProps{
+						FormType:          sharedmodels.FormTypeCreate,
+						Period:            signals.Period,
+						EducatorSelect:    createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filter, signals.Period.EducatorIDs),
+						SelectedEducators: educatorDTO.NewViews(educators),
+						StudentSelect:     createStudentSelectView(ctx, l, studentReadModel, &signals.StudentSelect.Filter, signals.Period.StudentIDs),
+						SelectedStudents:  studentDTO.NewViews(students),
+					},
+					Schedules: scheduleViews,
+				}
+				for _, s := range props.FormProps.StudentSelect.Options {
+					l.Debug("***", "sid", s.ID, "n", s.GivenName)
+				}
+				sse.PatchElementTempl(pages.PeriodForm(props))
 			}
 		}
 	}
 }
 
-// POST request to /periods/create/validate
+// QUERY request to /periods/create/validate
 // reads datastar signals from the form and saves them to the view store.
 // this allows the SSE stream to detect changes and refresh the form preview.
-func postPeriodCreateValidate(
+func queryPeriodFormValidate(
 	l *slog.Logger,
 	vs viewstore.Store,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		signals := &struct {
-			Period    dto.PeriodFormView `json:"period"`
-			Schedules map[string]bool    `json:"schedules"`
-		}{}
+		signals := &dto.PeriodFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "period create validate signals", "err", err.Error())
+			l.ErrorContext(ctx, "qpfv signals", "err", err.Error())
 			return
 		}
-		key := viewstoreKeyCreate(user.Username)
+		key, err := getPeriodViewstoreKey(signals.FormType, user.Username, signals.Period.ID)
+		if err != nil {
+			l.ErrorContext(ctx, "qpfv get vs key", "err", err, "form type", signals.FormType.Word(), "username", user.Username, "period id", signals.Period.ID)
+			return
+		}
 		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
-			l.ErrorContext(ctx, "post period create validate viewstore", "err", err)
+			l.ErrorContext(ctx, "gpfv vs", "err", err)
+			return
 		}
 	}
 }
 
-func postPeriodCreateValidateField(
+func queryPeriodCreateValidateField(
 	l *slog.Logger,
 	vs viewstore.Store,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		signals := &struct {
-			Period    dto.PeriodFormView `json:"period"`
-			Schedules map[string]bool    `json:"schedules"`
-		}{}
+		signals := &dto.PeriodFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "pcvf signal read", "error", err)
 			return
@@ -246,30 +261,11 @@ func postPeriodCreateValidateField(
 			http.Error(w, "unknown field", http.StatusBadRequest)
 			return
 		}
-		key := viewstoreKeyCreate(user.Username)
-		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
-		}
-	}
-}
-
-func postPeriodCreateEducators(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		user := currentUser(r)
-		educatorID := chi.URLParam(r, "eid")
-		signals := &struct {
-			FormView dto.PeriodFormView `json:"period"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "ppce signals", "err", err)
+		key, err := getPeriodViewstoreKey(signals.FormType, user.Username, signals.Period.ID)
+		if err != nil {
+			l.ErrorContext(ctx, "qpcvf vs key", "err", err)
 			return
 		}
-		signals.FormView.EducatorIDs = toggleID(signals.FormView.EducatorIDs, educatorID)
-		key := viewstoreKeyCreate(user.Username)
 		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "view store error", "error", err)
 			return
@@ -277,25 +273,48 @@ func postPeriodCreateEducators(
 	}
 }
 
-func postPeriodCreateStudents(
+func queryPeriodFormField(
 	l *slog.Logger,
 	vs viewstore.Store,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		studentID := chi.URLParam(r, "sid")
-		signals := &struct {
-			FormView dto.PeriodFormView `json:"period"`
-		}{}
+		field := chi.URLParam(r, "field")
+		value := chi.URLParam(r, "value")
+		signals := &dto.PeriodFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "ppcs signals", "err", err)
+			l.ErrorContext(ctx, "qpff signals", "err", err)
 			return
 		}
-		signals.FormView.StudentIDs = toggleID(signals.FormView.StudentIDs, studentID)
-		key := viewstoreKeyCreate(user.Username)
+		switch field {
+		case "servicetype":
+			serviceType, err := sharedmodels.ParseServiceType(value)
+			if err != nil {
+				l.ErrorContext(ctx, "qpff st parse", "err", err)
+			}
+			signals.Period.ServiceType = serviceType
+		case "educators":
+			signals.Period.EducatorIDs = toggleID(signals.Period.EducatorIDs, value)
+		case "days":
+			day, err := sharedmodels.ParseDay(value)
+			if err != nil {
+				l.ErrorContext(ctx, "qpff day parse", "err", err)
+				return
+			}
+			signals.Period.DaysBitmask.ToggleDay(day)
+		case "students":
+			signals.Period.StudentIDs = toggleID(signals.Period.StudentIDs, value)
+		default:
+			l.ErrorContext(ctx, "qpff", "invalid field in form", field)
+		}
+		key, err := getPeriodViewstoreKey(signals.FormType, user.Username, signals.Period.ID)
+		if err != nil {
+			l.ErrorContext(ctx, "qpff vs key", "err", err, "form type", signals.FormType, "username", user.Username, "hid", signals.Period.ID)
+			return
+		}
 		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
+			l.ErrorContext(ctx, "qpff vs", "error", err)
 			return
 		}
 	}
@@ -463,9 +482,12 @@ func getPeriodEdit(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		// creates a minimal view
-		view := dto.PeriodFormView{}
-		view.FormType = "edit"
-		_ = pages.Edit(view, nil).Render(ctx, w)
+		props := pages.PeriodFormPageProps{
+			FormProps: blocks.PeriodFormProps{
+				FormType: sharedmodels.FormTypeEdit,
+			},
+		}
+		_ = pages.PeriodForm(props).Render(ctx, w)
 	}
 }
 
@@ -495,7 +517,10 @@ func getPeriodEditStream(
 		}
 		defer sub.Close()
 
-		key := viewstoreKeyEdit(periodID)
+		key, err := getPeriodViewstoreKey(sharedmodels.FormTypeEdit, "", periodID)
+		if err != nil {
+			l.ErrorContext(ctx, "gpes vs key", "err", err)
+		}
 
 		// subscribe to the kv store for changes to the edit view state
 		watcher, err := vs.Watch(
@@ -516,7 +541,7 @@ func getPeriodEditStream(
 		// if not, populate the view with data from the db
 		_, ok, err := vs.Get(ctx, key)
 		if !ok {
-			if err := refreshPeriodEditState(ctx, l, periodID, periodReadModel, educatorReadModel, studentReadModel, vs); err != nil {
+			if err := refreshPeriodEditState(ctx, l, vs, periodReadModel, periodID); err != nil {
 				if err.Error() == "period not found" {
 					sse.PatchElementTempl(pages.NotFound())
 				} else {
@@ -536,7 +561,7 @@ func getPeriodEditStream(
 
 			case <-notifier.Signal():
 				// period changed via event – refresh the view state and re‑render
-				if err := refreshPeriodEditState(ctx, l, periodID, periodReadModel, educatorReadModel, studentReadModel, vs); err != nil {
+				if err := refreshPeriodEditState(ctx, l, vs, periodReadModel, periodID); err != nil {
 					if err.Error() == "period not found" {
 						sse.PatchElementTempl(pages.NotFound())
 					} else {
@@ -548,14 +573,14 @@ func getPeriodEditStream(
 				if !ok {
 					return
 				}
-				signals := &struct {
-					FormView dto.PeriodFormView `json:"period"`
-				}{}
+				signals := &dto.PeriodFormSignals{}
 				if err := entry.JSON(signals); err != nil {
 					l.Error("period edit stream json", "err", err)
 					return
 				}
-				model := dto.NewModelFromFormView(signals.FormView)
+				model := dto.NewPeriodModelFromView(&signals.Period)
+				educators := listEducatorsByIDs(ctx, l, educatorReadModel, signals.Period.EducatorIDs)
+				students := listStudentsByIDs(ctx, l, studentReadModel, signals.Period.StudentIDs)
 				scheduleViews := buildScheduleViews(
 					ctx,
 					l,
@@ -564,123 +589,19 @@ func getPeriodEditStream(
 					periodReadModel,
 					studentReadModel,
 				)
-
-				educators, _ := listEducators(ctx, l, educatorReadModel, nil)
-				students := listStudents(ctx, l, studentReadModel, nil)
-				view := dto.NewPeriodFormView(&model, students, nil, educators)
-				view.FormType = "edit"
-				sse.PatchElementTempl(pages.Edit(view, scheduleViews))
+				props := pages.PeriodFormPageProps{
+					FormProps: blocks.PeriodFormProps{
+						FormType:          sharedmodels.FormTypeEdit,
+						Period:            signals.Period,
+						EducatorSelect:    createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filter, signals.Period.EducatorIDs),
+						SelectedEducators: educatorDTO.NewViews(educators),
+						StudentSelect:     createStudentSelectView(ctx, l, studentReadModel, &signals.StudentSelect.Filter, signals.Period.StudentIDs),
+						SelectedStudents:  studentDTO.NewViews(students),
+					},
+					Schedules: scheduleViews,
+				}
+				sse.PatchElementTempl(pages.PeriodForm(props))
 			}
-		}
-	}
-}
-
-// POST request to /periods/{id}/edit/validate
-// reads datastar signals from the form and saves them to the view store.
-// this allows the SSE stream to detect changes and refresh the edit form preview.
-func postPeriodEditValidate(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		signals := &struct {
-			FormView  dto.PeriodFormView `json:"period"`
-			Schedules map[string]bool    `json:"schedules"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "period edit validate signals", "err", err)
-			return
-		}
-		// store the signals under a key scoped to the period
-		key := viewstoreKeyEdit(signals.FormView.ID)
-		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
-			l.ErrorContext(ctx, "post period edit validate viewstore", "err", err)
-		}
-	}
-}
-
-func postPeriodEditValidateField(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		signals := &struct {
-			Period dto.PeriodFormView `json:"period"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "pcvf signal read", "error", err)
-			return
-		}
-		field := chi.URLParam(r, "field")
-
-		switch field {
-		case "start_time":
-			// update start time → recalculate end time using current duration
-			signals.Period.UpdateStartTime(signals.Period.StartTime)
-
-		case "end_time":
-			// update end time → recalculate duration using current start time
-			signals.Period.UpdateEndTime(signals.Period.EndTime)
-
-		case "duration":
-			// update duration → recalculate end time using current start time
-			signals.Period.UpdateDuration(signals.Period.Duration)
-
-		default:
-			l.WarnContext(ctx, "unknown validation field", "field", field)
-			http.Error(w, "unknown field", http.StatusBadRequest)
-			return
-		}
-		// save the updated signals to the view store so the SSE can refresh the form
-		key := viewstoreKeyEdit(signals.Period.ID)
-		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
-		}
-	}
-}
-
-func postPeriodEditEducators(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		educatorID := chi.URLParam(r, "eid")
-		signals := &struct {
-			FormView dto.PeriodFormView `json:"period"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "ppce signals", "err", err)
-			return
-		}
-		signals.FormView.EducatorIDs = toggleID(signals.FormView.EducatorIDs, educatorID)
-		key := viewstoreKeyEdit(signals.FormView.ID)
-		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
-		}
-	}
-}
-
-func postPeriodEditStudents(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		studentID := chi.URLParam(r, "sid")
-		signals := &struct {
-			FormView dto.PeriodFormView `json:"period"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "ppcs signals", "err", err)
-			return
-		}
-		signals.FormView.StudentIDs = toggleID(signals.FormView.StudentIDs, studentID)
-		key := viewstoreKeyEdit(signals.FormView.ID)
-		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
 		}
 	}
 }
@@ -696,15 +617,11 @@ func postPeriodEdit(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-
-		signals := &struct {
-			Period dto.PeriodFormView `json:"period"`
-		}{}
+		signals := &dto.PeriodFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "post period edit signals", "err", err)
 			return
 		}
-
 		periodID := chi.URLParam(r, "id")
 
 		// update the period itself
@@ -714,7 +631,7 @@ func postPeriodEdit(
 			ServiceType: signals.Period.ServiceType,
 			StartTime:   signals.Period.StartTime,
 			Duration:    signals.Period.Duration,
-			DaysBitmask: signals.Period.Days.ToBitmask(),
+			DaysBitmask: signals.Period.DaysBitmask,
 			Metadata:    eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.UpdatePeriodCommandHandler(ctx, cmd, saver, retriever)
@@ -812,29 +729,36 @@ func refreshPeriodViewState(
 	return viewstore.PutState(ctx, vs, key, model)
 }
 
+func initializePeriodCreateState(
+	ctx context.Context,
+	l *slog.Logger,
+	vs viewstore.Store,
+	username string,
+) error {
+	signals := dto.NewPeriodFormSignals(sharedmodels.FormTypeCreate, nil)
+	key, err := getPeriodViewstoreKey(sharedmodels.FormTypeCreate, username, "")
+	if err != nil {
+		return err
+	}
+	return viewstore.PutState(ctx, vs, key, signals)
+}
+
 // gets period data from the db, converts it to a form view, and saves it to the store
 func refreshPeriodEditState(
 	ctx context.Context,
 	l *slog.Logger,
-	periodID string,
-	periods *events.ReadModel,
-	educatorReadModel *educatorEvents.ReadModel,
-	studentReadModel *studentEvents.ReadModel,
 	vs viewstore.Store,
+	periods *events.ReadModel,
+	periodID string,
 ) error {
 	model, err := periods.GetWithIDs(ctx, periodID)
 	if err != nil {
 		return err
 	}
-	key := viewstoreKeyEdit(model.ID)
-
-	educators, _ := listEducators(ctx, l, educatorReadModel, nil)
-	students := listStudents(ctx, l, studentReadModel, nil)
-	view := dto.NewPeriodFormView(model, students, nil, educators)
-	signals := &struct {
-		FormView dto.PeriodFormView `json:"period"`
-	}{
-		FormView: view,
+	signals := dto.NewPeriodFormSignals(sharedmodels.FormTypeEdit, model)
+	key, err := getPeriodViewstoreKey(sharedmodels.FormTypeEdit, "", periodID)
+	if err != nil {
+		return err
 	}
 	return viewstore.PutState(ctx, vs, key, signals)
 }
@@ -953,23 +877,16 @@ func createPeriodsListView(
 	return compositedto.NewPeriodWithDataTableView(periodsWithData)
 }
 
-func savePeriodViewstoreState(
-	ctx context.Context,
-	l *slog.Logger,
-	vs viewstore.Store,
-	key string,
-	period models.Period,
-) {
-	if err := viewstore.PutState(ctx, vs, key, period); err != nil {
-		l.ErrorContext(ctx, "spvs", "err", err)
-		return
+func getPeriodViewstoreKey(
+	formType sharedmodels.FormType,
+	username string,
+	periodID string,
+) (string, error) {
+	if formType == sharedmodels.FormTypeCreate && username != "" {
+		return username + ".periods.create", nil
+	} else if formType == sharedmodels.FormTypeEdit && periodID != "" {
+		return periodID + ".edit", nil
+	} else {
+		return "", errors.New("error getting viewstore key")
 	}
-}
-
-func viewstoreKeyCreate(username string) string {
-	return "periods.create." + username
-}
-
-func viewstoreKeyEdit(id string) string {
-	return "periods." + id + ".edit"
 }

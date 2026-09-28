@@ -18,7 +18,7 @@ import (
 	"seek/pkg/utils"
 )
 
-func FormTimePickers(view dto.PeriodFormView) templ.Component {
+func FormTimePickers(view dto.PeriodView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -116,27 +116,27 @@ func TimePickerField(target, field string, value sharedmodels.TimeOnly) templ.Co
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<neo-popover class=\"w-full\" data-signals=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<neo-popover data-signals=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("{%s: {%s: {hour: '%s', minute: '%s'}}}", target, field, value.Hour(), value.Minute()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 34, Col: 117}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 33, Col: 117}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" placement=\"bottom\"><input class=\"hidden\" id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"w-full\" placement=\"bottom\" match-trigger-width=\"true\"><input class=\"hidden\" id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s-%s-time-picker", target, field))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 39, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 40, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 		if templ_7745c5c3_Err != nil {
@@ -149,7 +149,7 @@ func TimePickerField(target, field string, value sharedmodels.TimeOnly) templ.Co
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%s.%s_time", target, field))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 40, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 41, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {
@@ -162,7 +162,7 @@ func TimePickerField(target, field string, value sharedmodels.TimeOnly) templ.Co
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("$%s.%s_time", target, field))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 44, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 45, Col: 58}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 		if templ_7745c5c3_Err != nil {
@@ -175,7 +175,7 @@ func TimePickerField(target, field string, value sharedmodels.TimeOnly) templ.Co
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("$%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute", target, field))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 45, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 46, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 		if templ_7745c5c3_Err != nil {
@@ -275,9 +275,9 @@ func TimePickerLists(target, field string, value sharedmodels.TimeOnly) templ.Co
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("$%[1]s.%[2]s.hour='%[3]s'; $%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute; @post('%[4]s/validate/%[2]s_time')", target, field, hour, url))
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("$%[1]s.%[2]s.hour='%[3]s'; $%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute; @query('%[4]s/validate/%[2]s_time')", target, field, hour, url))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 98, Col: 190}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 99, Col: 191}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 			if templ_7745c5c3_Err != nil {
@@ -290,7 +290,7 @@ func TimePickerLists(target, field string, value sharedmodels.TimeOnly) templ.Co
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(hour)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 99, Col: 11}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 100, Col: 11}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -333,9 +333,9 @@ func TimePickerLists(target, field string, value sharedmodels.TimeOnly) templ.Co
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
-			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("$%[1]s.%[2]s.minute='%[3]s'; $%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute; @post('%[4]s/validate/%[2]s_time')", target, field, minute, url))
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("$%[1]s.%[2]s.minute='%[3]s'; $%[1]s.%[2]s_time = $%[1]s.%[2]s.hour + ':' + $%[1]s.%[2]s.minute; @query('%[4]s/validate/%[2]s_time')", target, field, minute, url))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 114, Col: 194}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 115, Col: 195}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {
@@ -348,7 +348,7 @@ func TimePickerLists(target, field string, value sharedmodels.TimeOnly) templ.Co
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(minute)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 115, Col: 13}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/blocks/form_time_pickers.templ`, Line: 116, Col: 13}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {

@@ -7,6 +7,7 @@ import (
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
+	"seek/pkg/utils"
 )
 
 templ SelectboxServiceType(url, object string, selected sharedmodels.ServiceType) {
@@ -18,7 +19,7 @@ templ SelectboxServiceType(url, object string, selected sharedmodels.ServiceType
 		}
 		@selectbox.Trigger(selectbox.TriggerProps{
 			DataBind:     fmt.Sprintf("%s.service_type", object),
-			DataOnChange: fmt.Sprintf("@post('%s/validate')", url),
+			DataOnChange: utils.QueryValidate(url),
 		}) {
 			@selectbox.Value(selectbox.ValueProps{
 				Placeholder: "no service type selected",
@@ -27,7 +28,6 @@ templ SelectboxServiceType(url, object string, selected sharedmodels.ServiceType
 		@selectbox.Content() {
 			for i := range sharedmodels.ServiceTypeList {
 				@selectbox.Item(selectbox.ItemProps{
-					Value:    sharedmodels.ServiceTypeList[i].String(),
 					Selected: sharedmodels.ServiceTypeList[i] == selected,
 				}) {
 					@icon.Icon(sharedmodels.ServiceTypeList[i].IconName())(icon.Props{

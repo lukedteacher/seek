@@ -28,6 +28,7 @@ func NewView(s *models.Student) StudentView {
 		MARSSID:       s.MARSSID,
 		Person:        s.Person,
 		Grade:         s.Grade,
+		HomeroomID:    s.HomeroomID,
 		PlanType:      s.PlanType,
 		CaseManagerID: s.CaseManagerID,
 		CreatedAt:     s.CreatedAt,
@@ -52,5 +53,7 @@ func NewModelFromView(v StudentView) models.Student {
 		HomeroomID:    v.HomeroomID,
 		PlanType:      v.PlanType,
 		CaseManagerID: v.CaseManagerID,
+		CreatedAt:     v.CreatedAt,
+		UpdatedAt:     v.UpdatedAt,
 	}
 }

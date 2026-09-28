@@ -2,6 +2,16 @@
 
 updates for SEEK
 
+## v0.9.15 (26.09.27) period http refactoring, updated dashboard view
+
+- refactored period http handlers to mirror homeroom style
+- added select view for service type
+- updated select component for service type
+- updated period form to use same model as homeroom
+- updated dashboard view
+  - student initials are shown on periods
+  - period color is based on service type
+
 ## v0.9.14 (26.09.27) bug fixes, style tweaks
 
 - added nocase to manual student db query (not working?)

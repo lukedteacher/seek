@@ -21,7 +21,13 @@ import (
 	"seek/pkg/sse"
 )
 
-func Create(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleView) templ.Component {
+type PeriodFormPageProps struct {
+	FormProps blocks.PeriodFormProps
+	OldForm   dto.PeriodFormView
+	Schedules []scheduleDTO.PersonWithScheduleView
+}
+
+func PeriodForm(p PeriodFormPageProps) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -62,7 +68,7 @@ func Create(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleV
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/create.templ`, Line: 19, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/periods/pages/form.templ`, Line: 25, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -72,7 +78,7 @@ func Create(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleV
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = coreblocks.HeaderMain("create period").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = coreblocks.HeaderMain(fmt.Sprintf("%s period", p.FormProps.FormType.Word())).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -80,11 +86,11 @@ func Create(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleV
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = blocks.PeriodForm(view, schedules).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = blocks.PeriodForm(p.FormProps, p.Schedules).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = scheduleBlocks.ScheduleComponent(schedules).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = scheduleBlocks.ScheduleComponent(p.Schedules).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -94,7 +100,7 @@ func Create(view dto.PeriodFormView, schedules []scheduleDTO.PersonWithScheduleV
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: create period").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBase(fmt.Sprintf("SEEK: %s period", p.FormProps.FormType.Word())).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -24,9 +24,9 @@ type FormProps struct {
 
 templ Form(p FormProps) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	@corelayouts.LayoutBase(fmt.Sprintf("SEEK: %s homeroom", p.FormType)) {
+	@corelayouts.LayoutBase(fmt.Sprintf("SEEK: %s homeroom", p.FormType.Word())) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
-			@coreblocks.HeaderMain(fmt.Sprintf("%s homeroom", p.FormType))
+			@coreblocks.HeaderMain(fmt.Sprintf("%s homeroom", p.FormType.Word()))
 			@blocks.Form(blocks.FormProps{
 				FormType:           p.FormType,
 				Homeroom:           p.Homeroom,

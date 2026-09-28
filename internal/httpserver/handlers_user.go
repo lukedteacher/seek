@@ -183,15 +183,17 @@ func refreshDashboardViewState(
 	studentReadModel *studentEvents.ReadModel,
 ) (string, error) {
 	educator, _ := educatorReadModel.GetByUsername(ctx, user.Username)
-	var schedule scheduleDTO.PersonWithScheduleView
+	periodViews := make([]scheduleDTO.SchedulePeriodView, 0)
 	if educator != nil {
 		periods, _ := periodReadModel.ListPeriodsForEducator(ctx, educator.ID)
 		if len(periods) > 0 {
-			schedule = scheduleDTO.NewPersonScheduleView(educator.ID, educator.Person, periods, true, 1)
+			periodViews = append(periodViews, scheduleDTO.NewSchedulePeriodViews(periods...)...)
 		}
 	}
-	if schedule.ID == "" {
-		schedule = scheduleDTO.PersonWithScheduleView{}
+	for i, view := range periodViews {
+		model, _ := periodReadModel.GetWithIDs(ctx, view.Period.ID)
+		students, _ := studentReadModel.ListByIDs(ctx, model.StudentIDs)
+		periodViews[i].Students = studentDTO.NewViews(students)
 	}
 	studentBookmarks, err := studentReadModel.ListStudentBookmarksByUserID(ctx, user.ID)
 	if err != nil {
@@ -203,7 +205,7 @@ func refreshDashboardViewState(
 		studentViews[i] = studentDTO.NewView(&student)
 	}
 	view := corepages.DashboardView{
-		Schedule:           schedule,
+		Periods:            periodViews,
 		BookmarkedStudents: studentViews,
 	}
 	key := "users." + user.ID + ".dashboard"

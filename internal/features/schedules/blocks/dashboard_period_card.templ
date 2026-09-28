@@ -1,0 +1,69 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/schedules/dto"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/tooltip"
+)
+
+type DashboardPeriodCardProps struct {
+	View  dto.SchedulePeriodView
+	Color string
+}
+
+templ DashboardPeriodCard(p DashboardPeriodCardProps) {
+	<div
+		class="w-full h-full p-[1px] text-xs"
+		style={ fmt.Sprintf("grid-column: %d; grid-row: %d / span %d;", p.View.Position.Column, p.View.Position.Row, p.View.Period.Duration) }
+	>
+		@tooltip.Tooltip() {
+			@tooltip.Trigger() {
+				<div
+					id={ fmt.Sprintf("period-schedule-%s-card", p.View.Period.ID) }
+					data-service={ p.View.Period.ServiceType.ShortString() }
+					class="@container period-card w-full h-full flex flex-row gap-2 items-center justify-center rounded-md border border-solid border-muted relative"
+				>
+					@icon.Icon(p.View.Period.ServiceType.IconName())(icon.Props{
+						Class: "z-10 relative",
+						Size:  "14",
+					})
+					<div class="flex flex-col justify-center">
+						<span class="hidden @5xs:flex relative z-10 text-white [text-shadow:_0_1px_4px_rgba(0,0,0,0.7)]">{ p.View.Period.ServiceType.ShortString() }</span>
+						<div class="flex gap-1 text-neutral-content/80">
+							for _, student := range p.View.Students {
+								<span>{ student.Initials() }</span>
+							}
+						</div>
+					</div>
+				</div>
+			}
+			@tooltip.Content(tooltip.ContentProps{
+				Class:         "flex flex-col gap-1 rounded-md background-neutral text-xs p-3 border-muted w-48",
+				HoverDelay:    400,
+				HoverOutDelay: 800,
+			}) {
+				<p class="flex justify-between">
+					<span>start:</span>
+					<span>{ p.View.Period.StartTime.String() }</span>
+				</p>
+				<p class="flex justify-between">
+					<span>end:</span>
+					<span>{ p.View.Period.EndTime.String() }</span>
+				</p>
+				<p class="flex justify-center">
+					<a href={ fmt.Sprintf("/periods/%s", p.View.Period.ID) }>
+						@button.Button(button.Props{
+							Variant: button.VariantGhost,
+						}) {
+							@icon.Search()
+							<span>view</span>
+						}
+					</a>
+				</p>
+			}
+		}
+	</div>
+}

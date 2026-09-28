@@ -6,27 +6,27 @@ import (
 	"seek/internal/features/periods/dto"
 )
 
-templ DayButtons(view dto.PeriodFormView) {
+templ DayButtons(view dto.PeriodView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<div class="days-selector flex justify-center items-center radius-md h-full w-full">
-		for i := range sharedmodels.Days {
+		for _, day := range sharedmodels.Days {
 			<label
-				for={ sharedmodels.Days[i].NameLower() }
+				for={ day.NameLower() }
 				class="@container flex-grow basis-1 first:rounded-l-md last:rounded-r-md flex border border-muted bg-neutral hover:bg-primary/80 active:bg-primary/90 justify-center items-center text-xs has-checked:bg-primary has-checked:hover:bg-primary/50 aspect-square"
 			>
-				<span class="flex @5xs:hidden">{ sharedmodels.Days[i].Short() }</span>
-				<span class="hidden @5xs:flex">{ sharedmodels.Days[i].Name() }</span>
+				<span class="flex @5xs:hidden">{ day.Short() }</span>
+				<span class="hidden @5xs:flex">{ day.Name() }</span>
 				<input
 					hidden
-					data-bind={ fmt.Sprintf("period.days.%s", sharedmodels.Days[i].NameLower()) }
+					data-bind={ fmt.Sprintf("period.days.%s", day.NameLower()) }
 					name="days"
 					type="checkbox"
-					id={ sharedmodels.Days[i].NameLower() }
+					id={ day.NameLower() }
 					class="h-12"
-					if view.Days.IsDaySet(sharedmodels.Days[i]) {
+					if view.DaysBitmask.IsDaySet(day) {
 						checked
 					}
-					data-on:change__debounce.250ms={ fmt.Sprintf("@post('%s/validate')", url) }
+					data-on:change__debounce.250ms={ fmt.Sprintf("@query('%s/days/%s')", url, day.NameLower()) }
 				/>
 			</label>
 		}

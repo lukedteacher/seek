@@ -95,12 +95,22 @@ func (st ServiceType) IconName() string {
 	return "help-circle" // fallback for unknown/custom types
 }
 
-// MarshalJSON implements json.Marshaler.
+func ParseServiceType(s string) (ServiceType, error) {
+	if s == "" {
+		return ServiceTypeUnassigned, nil
+	}
+	for _, valid := range knownServiceTypes {
+		if s == string(valid) {
+			return ServiceType(s), nil
+		}
+	}
+	return "", fmt.Errorf("invalid ServiceType: %q", s)
+}
+
 func (s ServiceType) MarshalJSON() ([]byte, error) {
 	return json.Marshal(string(s))
 }
 
-// MarshalJSON implements json.Marshaler.
 func (s *ServiceType) UnmarshalJSON(b []byte) error {
 	var str string
 	if err := json.Unmarshal(b, &str); err != nil {

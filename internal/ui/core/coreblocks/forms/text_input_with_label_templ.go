@@ -13,6 +13,7 @@ import (
 
 	"seek/pkg/templui/components/input"
 	"seek/pkg/templui/components/label"
+	"seek/pkg/utils"
 )
 
 type TextInputWithLabelProps struct {
@@ -63,7 +64,7 @@ func TextInputWithLabel(p TextInputWithLabelProps) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(p.LabelText)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/text_input_with_label.templ`, Line: 25, Col: 16}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/text_input_with_label.templ`, Line: 26, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -86,7 +87,7 @@ func TextInputWithLabel(p TextInputWithLabelProps) templ.Component {
 			Value: p.Value,
 			Attributes: templ.Attributes{
 				"data-bind":                     p.Bind,
-				"data-on:input__debounce.250ms": fmt.Sprintf("@query('%s/validate')", p.URL),
+				"data-on:input__debounce.250ms": utils.QueryValidate(p.URL),
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

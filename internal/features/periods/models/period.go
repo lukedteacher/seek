@@ -19,13 +19,18 @@ type Period struct {
 	UpdatedAt   string                   `json:"updated_at,omitempty"`
 }
 
+// must initialize empty strings so signals save correctly in viewstore
 func NewPeriod() Period {
 	start, _ := time.Parse("15:04", "9:30")
 	end, _ := time.Parse("15:04", "10:00")
 	return Period{
-		StartTime: sharedmodels.TimeOnly(start),
-		EndTime:   sharedmodels.TimeOnly(end),
-		Duration:  30,
+		ServiceType: sharedmodels.ServiceTypeUnassigned,
+		StartTime:   sharedmodels.TimeOnly(start),
+		EndTime:     sharedmodels.TimeOnly(end),
+		Duration:    30,
+		DaysBitmask: 1,
+		EducatorIDs: []string{},
+		StudentIDs:  []string{},
 	}
 }
 
