@@ -166,7 +166,6 @@ func NewHomeroomUpdatedEvent(
 ) eventstore.DomainEvent {
 	eventID := uuidv7.NewString()
 	homeroom.UpdatedAt = updatedAt.Format(time.RFC3339Nano)
-	println("new hue", homeroom.UpdatedAt)
 	event := HomeroomUpdatedEvent{
 		ID:            eventID,
 		Title:         homeroom.Title,

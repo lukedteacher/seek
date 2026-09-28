@@ -2,6 +2,11 @@
 
 updates for SEEK
 
+## v0.9.16 (26.09.28) streamlined dashboard view data retrieval
+
+- added query for getting educator with periods with students
+- refactored dashboard handler to use that query
+
 ## v0.9.15 (26.09.27) period http refactoring, updated dashboard view
 
 - refactored period http handlers to mirror homeroom style

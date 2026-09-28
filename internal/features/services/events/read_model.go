@@ -161,7 +161,6 @@ func (m *ReadModel) UpdateService(ctx context.Context, event ServiceUpdatedProje
 }
 
 func (m *ReadModel) DeleteService(ctx context.Context, event ServiceDeletedProjection) error {
-	println("delete service called sid:", event.ServiceID)
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceDeleteService(conn, event.ServiceID)
 	})

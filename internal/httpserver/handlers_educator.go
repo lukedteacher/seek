@@ -16,6 +16,7 @@ import (
 	periodEvents "seek/internal/features/periods/events"
 	scheduleDTO "seek/internal/features/schedules/dto"
 	studentDTO "seek/internal/features/students/dto"
+	studentEvents "seek/internal/features/students/events"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -32,14 +33,15 @@ func (s Server) educatorRoutes(r chi.Router) {
 	r.Get("/educators/{username}", getEducatorView(s.Logger))
 	r.Get("/educators/{username}/info", getEducatorViewInfo(s.Logger))
 	r.Get("/educators/{username}/info/stream", getEducatorViewInfoStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
-	r.Get("/educators/{username}/schedule", getEducatorViewSchedule(s.Logger, s.ReadModels.Educators, s.ReadModels.Periods))
+	r.Get("/educators/{username}/schedule", getEducatorViewSchedule(s.Logger))
+	r.Get("/educators/{username}/schedule/stream", getEducatorViewScheduleStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators, s.ReadModels.Periods, s.ReadModels.Students))
 	r.Get("/educators/{username}/caseload", getEducatorViewCaseload(s.Logger))
 	r.Get("/educators/{username}/caseload/stream", getEducatorViewCaseloadStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
 	r.Get("/educators/{username}/edit", getEducatorEdit(s.Logger))
 	r.Get("/educators/{username}/edit/stream", getEducatorEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
 	r.Post("/educators/{username}/edit/validate", postEducatorEditValidate(s.Logger, s.ViewStore))
 	r.Post("/educators/{username}/edit", postEducatorEdit(s.Logger, s.EventSaver, s.EventRetriever))
-	r.Delete("/educators/{username}", deleteEducator(s.Logger, s.EventSaver, s.EventRetriever, s.ReadModels.Educators))
+	r.Delete("/educators/{id}", deleteEducator(s.Logger, s.EventSaver, s.EventRetriever, s.ReadModels.Educators))
 	r.Get("/e/{id}", getEducatorEditByID(s.Logger, s.ReadModels.Educators))
 }
 
@@ -334,15 +336,59 @@ func getEducatorViewInfoStream(
 
 // GET request to /educators/{username}/schedule
 func getEducatorViewSchedule(
-	l *slog.Logger,
-	educatorReadModel *events.ReadModel,
-	periodReadModel *periodEvents.ReadModel,
+	_ *slog.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		// create empty props for the page
+		props := pages.EducatorViewSchedulePageProps{
+			Educator: dto.NewView(&models.Educator{}),
+			Periods:  []scheduleDTO.SchedulePeriodView{},
+		}
+		_ = pages.EducatorViewSchedule(props).Render(ctx, w)
+	}
+}
 
-		// get the username from the URL and get the educator from the db
+// GET request to /educators/{username}/caseload/stream
+func getEducatorViewScheduleStream(
+	l *slog.Logger,
+	subscriber MessageSubscriber,
+	vs viewstore.Store,
+	educatorReadModel *events.ReadModel,
+	periodReadModel *periodEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		username := chi.URLParam(r, "username")
+		sse := newSSE(w, r)
+
+		// subscribes to the channel which publishes changes to the underlying model
+		notifier := NewDedupeNotifier()
+		sub, err := subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
+			notifier.Notify()
+		})
+		if err != nil {
+			l.ErrorContext(ctx, "educator view stream subscribe", "err", err)
+			return
+		}
+		defer sub.Close()
+
+		// watches the key value stream for ephemeral changes
+		// lasts 5m
+		watcher, err := vs.Watch(
+			ctx,
+			username+".view",
+			viewstore.WatchOptions{
+				IgnoreDeletes: true,
+			},
+		)
+		if err != nil {
+			l.ErrorContext(ctx, "educator view stream watcher", "err", err)
+			return
+		}
+		defer watcher.Stop()
+
 		educator, err := educatorReadModel.GetByUsername(ctx, username, events.WithRoles())
 		if educator == nil {
 			_ = pages.NotFound().Render(ctx, w)
@@ -356,15 +402,72 @@ func getEducatorViewSchedule(
 		// create the educator view and set the URL
 		educatorView := dto.NewView(educator)
 
-		// get periods for the educator and make views
+		// get periods and make views
 		periods, err := periodReadModel.ListPeriodsForEducator(ctx, educator.ID)
 		if err != nil {
 			l.ErrorContext(ctx, "get educator view schedule db list periods", "err", err)
 			return
 		}
+		periodViews := scheduleDTO.NewSchedulePeriodViews(periods...)
+		for i, view := range periodViews {
+			model, _ := periodReadModel.GetWithIDs(ctx, view.Period.ID)
+			students, _ := studentReadModel.ListByIDs(ctx, model.StudentIDs)
+			periodViews[i].Students = studentDTO.NewViews(students)
+		}
+		// create props for the page
+		props := pages.EducatorViewSchedulePageProps{
+			Educator: educatorView,
+			Periods:  periodViews,
+		}
+		sse.PatchElementTempl(pages.EducatorViewSchedule(props))
 
-		scheduleView := scheduleDTO.NewPersonScheduleView(educator.ID, educator.Person, periods, true, 1)
-		_ = pages.View(educatorView, scheduleView, []studentDTO.StudentView{}, "schedule").Render(ctx, w)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-notifier.Signal(): // triggers when the read model publishes
+				if err := refreshEducatorViewState(ctx, l, vs, username, educatorReadModel); err != nil {
+					if err.Error() == "educator not found" {
+						sse.PatchElementTempl(pages.NotFound())
+					}
+					l.ErrorContext(ctx, "educator view stream refresh in select", "err", err)
+					return
+				}
+			case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
+				if !ok {
+					return
+				}
+				educatorView := &dto.EducatorView{}
+				if err := entry.JSON(educatorView); err != nil {
+					l.ErrorContext(ctx, "educator view stream json read in select", "err", err)
+					return
+				}
+				// get periods and make views
+				periods, err := periodReadModel.ListPeriodsForEducator(ctx, educator.ID)
+				if err != nil {
+					l.ErrorContext(ctx, "get educator view schedule db list periods", "err", err)
+					return
+				}
+				periodViews := scheduleDTO.NewSchedulePeriodViews(periods...)
+				for i, view := range periodViews {
+					model, err := periodReadModel.GetWithIDs(ctx, view.Period.ID)
+					if err != nil {
+						l.ErrorContext(ctx, "gevss get period", "err", err, "pid", view.Period.ID)
+					}
+					students, err := studentReadModel.ListByIDs(ctx, model.StudentIDs)
+					if err != nil {
+						l.ErrorContext(ctx, "gevss get students", "err", err, "pid", len(model.StudentIDs))
+					}
+					periodViews[i].Students = studentDTO.NewViews(students)
+				}
+				// create props for the page
+				props := pages.EducatorViewSchedulePageProps{
+					Educator: *educatorView,
+					Periods:  periodViews,
+				}
+				sse.PatchElementTempl(pages.EducatorViewSchedule(props))
+			}
+		}
 	}
 }
 
@@ -476,9 +579,14 @@ func getEducatorEditStream(
 		ctx := r.Context()
 		username := chi.URLParam(r, "username")
 		sse := newSSE(w, r)
+
+		if username == "" {
+			sse.Redirect("/404")
+		}
+		model, err := educatorReadModel.GetByUsername(ctx, username)
 		// subscribes to the channel which publishes changes to the underlying model
 		notifier := NewDedupeNotifier()
-		sub, err := subscriber.Subscribe(ctx, events.Channel(username), func(context.Context, []byte) {
+		sub, err := subscriber.Subscribe(ctx, events.Channel(model.ID), func(context.Context, []byte) {
 			notifier.Notify()
 		})
 		if err != nil {
@@ -488,7 +596,7 @@ func getEducatorEditStream(
 		defer sub.Close()
 
 		// watches the educator edit view state kv
-		key := username + ".edit"
+		key := model.ID + ".edit"
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -619,17 +727,22 @@ func deleteEducator(
 		ctx := r.Context()
 		user := currentUser(r)
 		educatorID := chi.URLParam(r, "id")
+		sse := newSSE(w, r)
+		if educatorID == "" {
+			l.ErrorContext(ctx, "de url param empty")
+			sse.Redirect("/404")
+			return
+		}
 		cmd := events.DeleteEducatorCommand{
 			EducatorID: educatorID,
 			Metadata:   eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.DeleteEducatorCommandHandler(ctx, cmd, saver, retriever)
 		if err != nil {
-			l.ErrorContext(ctx, "delete educator command handler", "err", err)
+			l.ErrorContext(ctx, "de command handler", "err", err)
 			return
 		}
-		l.InfoContext(ctx, "delete educator student deleted", "id", educatorID, "event", result.EventID)
-		sse := newSSE(w, r)
+		l.InfoContext(ctx, "de educator deleted", "id", educatorID, "event", result.EventID)
 		sse.Redirect("/educators")
 	}
 }
@@ -700,9 +813,6 @@ func listEducatorsByIDs(
 	rm *events.ReadModel,
 	ids []string,
 ) []models.Educator {
-	for _, id := range ids {
-		l.Debug("why", "id", id)
-	}
 	educators, err := rm.ListByIDs(ctx, ids)
 	if err != nil {
 		l.ErrorContext(ctx, "list educators by ids", "err", err)

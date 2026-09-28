@@ -6,7 +6,7 @@ import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
 	educatorDTO "seek/internal/features/educators/dto"
-	periodModels "seek/internal/features/periods/models"
+	periodDTO "seek/internal/features/periods/dto"
 	studentDTO "seek/internal/features/students/dto"
 	"seek/internal/ui/core/coreblocks"
 	"strconv"
@@ -15,7 +15,7 @@ import (
 )
 
 type PeriodWithData struct {
-	periodModels.Period
+	periodDTO.PeriodView
 	Educators []educatorDTO.EducatorView
 	Students  []studentDTO.StudentView
 }

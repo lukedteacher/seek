@@ -16,6 +16,7 @@ import (
 
 type DashboardView struct {
 	Periods            []scheduleDTO.SchedulePeriodView
+	PeriodStudentsMap  map[string][]studentDTO.StudentView
 	BookmarkedStudents []studentDTO.StudentView
 }
 
@@ -24,7 +25,7 @@ templ Dashboard(view DashboardView) {
 		<div class="flex flex-col w-full h-full row-2" data-init={ sse.LongRunningGetSSE("dashboard/stream") }>
 			<main class="h-full">
 				<div class="w-full h-full grid grid-rows-2 lg:grid-cols-2 md:grid-rows-1 gap-6">
-					@DashboardSchedule(view.Periods)
+					@DashboardSchedule(view.Periods, view.PeriodStudentsMap)
 					@DashboardBookmarkedStudents(view.BookmarkedStudents)
 				</div>
 			</main>
@@ -32,14 +33,14 @@ templ Dashboard(view DashboardView) {
 	}
 }
 
-templ DashboardSchedule(periods []scheduleDTO.SchedulePeriodView) {
+templ DashboardSchedule(periods []scheduleDTO.SchedulePeriodView, psmap map[string][]studentDTO.StudentView) {
 	<section id="dashboard-schedule" class="flex flex-col gap-3">
 		@corebuttons.FlexIconButton("/periods/create", "plus", "create")
 		@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{}) {
 			for _, period := range periods {
 				@scheduleBlocks.DashboardPeriodCard(scheduleBlocks.DashboardPeriodCardProps{
-					View:  period,
-					Color: "blue",
+					View:     period,
+					Students: psmap[period.Period.ID],
 				})
 			}
 		}

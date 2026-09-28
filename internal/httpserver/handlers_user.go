@@ -57,14 +57,14 @@ func getDashboardStream(
 			userNotifier.Notify()
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "dashboard stream subscribe", "err", err)
+			l.ErrorContext(ctx, "gds sub user", "err", err, "key", subKey)
 			return
 		}
 		defer sub.Close()
 
-		educatorID, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel, periodReadModel, studentReadModel)
+		educatorID, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel)
 		if err != nil {
-			l.ErrorContext(ctx, "dashboard stream refresh", "err", err)
+			l.ErrorContext(ctx, "gds refresh", "err", err)
 			return
 		}
 
@@ -75,7 +75,7 @@ func getDashboardStream(
 			educatorNotifier.Notify()
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "dashboard stream subscribe", "err", err)
+			l.ErrorContext(ctx, "gds sub educator", "err", err, "key", educatorSubKey)
 			return
 		}
 		defer educatorSub.Close()
@@ -101,12 +101,12 @@ func getDashboardStream(
 			case <-ctx.Done():
 				return
 			case <-userNotifier.Signal(): // triggers when the read model publishes
-				if _, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel, periodReadModel, studentReadModel); err != nil {
+				if _, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel); err != nil {
 					l.ErrorContext(ctx, "dashboard stream refresh in select", "err", err)
 					return
 				}
 			case <-educatorNotifier.Signal(): // triggers when the read model publishes
-				if _, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel, periodReadModel, studentReadModel); err != nil {
+				if _, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel); err != nil {
 					l.ErrorContext(ctx, "dashboard stream refresh in select", "err", err)
 					return
 				}
@@ -179,34 +179,20 @@ func refreshDashboardViewState(
 	vs viewstore.Store,
 	user userModels.User,
 	educatorReadModel *educatorEvents.ReadModel,
-	periodReadModel *periodEvents.ReadModel,
-	studentReadModel *studentEvents.ReadModel,
 ) (string, error) {
-	educator, _ := educatorReadModel.GetByUsername(ctx, user.Username)
-	periodViews := make([]scheduleDTO.SchedulePeriodView, 0)
-	if educator != nil {
-		periods, _ := periodReadModel.ListPeriodsForEducator(ctx, educator.ID)
-		if len(periods) > 0 {
-			periodViews = append(periodViews, scheduleDTO.NewSchedulePeriodViews(periods...)...)
-		}
-	}
-	for i, view := range periodViews {
-		model, _ := periodReadModel.GetWithIDs(ctx, view.Period.ID)
-		students, _ := studentReadModel.ListByIDs(ctx, model.StudentIDs)
-		periodViews[i].Students = studentDTO.NewViews(students)
-	}
-	studentBookmarks, err := studentReadModel.ListStudentBookmarksByUserID(ctx, user.ID)
+	educator, err := educatorReadModel.GetWithPeriods(ctx, user.Username)
 	if err != nil {
-		l.ErrorContext(ctx, "dashboard", "err", err, "uid", user.ID)
-		return "", err
+		l.ErrorContext(ctx, "rdvs db", "err", err, "un", user.Username)
 	}
-	studentViews := make([]studentDTO.StudentView, len(studentBookmarks))
-	for i, student := range studentBookmarks {
-		studentViews[i] = studentDTO.NewView(&student)
+	periodViews := scheduleDTO.NewSchedulePeriodViews(educator.Periods...)
+	periodStudentsMap := make(map[string][]studentDTO.StudentView)
+	for periodID, studentSlice := range educator.PeriodStudentsMap {
+		periodStudentsMap[periodID] = studentDTO.NewViews(studentSlice)
 	}
 	view := corepages.DashboardView{
 		Periods:            periodViews,
-		BookmarkedStudents: studentViews,
+		PeriodStudentsMap:  periodStudentsMap,
+		BookmarkedStudents: []studentDTO.StudentView{},
 	}
 	key := "users." + user.ID + ".dashboard"
 	err = viewstore.PutState(ctx, vs, key, view)

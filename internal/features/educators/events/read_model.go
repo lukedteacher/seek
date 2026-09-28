@@ -10,7 +10,9 @@ import (
 	"seek/internal/dbsql"
 	"seek/internal/features/_shared/sharedmodels"
 	caseloadStudentsModels "seek/internal/features/caseload_students/models"
+	"seek/internal/features/educators/dto"
 	"seek/internal/features/educators/models"
+	periodModels "seek/internal/features/periods/models"
 	studentModels "seek/internal/features/students/models"
 
 	"zombiezen.com/go/sqlite"
@@ -204,6 +206,64 @@ func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username stri
 	}
 
 	return caseManager, nil
+}
+
+func (m *ReadModel) GetWithPeriods(ctx context.Context, username string) (*dto.EducatorWithPeriods, error) {
+	// 1. execute the query inside a read transaction.
+	var row *dbsql.GetEducatorWithPeriodsRes
+	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		var err error
+		row, err = dbsql.OnceGetEducatorWithPeriods(conn, username)
+		return err
+	}); err != nil {
+		return nil, err
+	}
+
+	// 2. if no educator found, return nil.
+	if row.Id == "" {
+		return nil, nil
+	}
+
+	// 3. build the base educator from the scalar columns.
+	educator := models.Educator{
+		ID: row.Id,
+		Person: sharedmodels.Person{
+			GivenName:  row.GivenName,
+			ChosenName: row.ChosenName,
+			FamilyName: row.FamilyName,
+			Pronouns:   parsePronouns(row.Pronouns),
+			Email:      row.Email,
+			Username:   row.Username,
+		},
+	}
+
+	// 4. unmarshal periods directly into the domain slice.
+	var periods []periodModels.Period
+	if row.PeriodsJson != "" && row.PeriodsJson != "[]" {
+		if err := json.Unmarshal([]byte(row.PeriodsJson), &periods); err != nil {
+			return nil, fmt.Errorf("unmarshal periods: %w", err)
+		}
+	}
+
+	// 5. unmarshal students directly into the map keyed by period id.
+	studentsMap := map[string][]studentModels.Student{}
+	if row.StudentsJson != "" && row.StudentsJson != "{}" {
+		if err := json.Unmarshal([]byte(row.StudentsJson), &studentsMap); err != nil {
+			return nil, fmt.Errorf("unmarshal students: %w", err)
+		}
+	}
+
+	// 6. EndTime is computed, not stored — fill it in.
+	for i := range periods {
+		periods[i].EndTime = periods[i].StartTime.Add(periods[i].Duration)
+	}
+
+	// 7. return the assembled aggregate.
+	return &dto.EducatorWithPeriods{
+		Educator:          educator,
+		Periods:           periods,
+		PeriodStudentsMap: studentsMap,
+	}, nil
 }
 
 type ListOption func(*listConfig)
@@ -548,6 +608,16 @@ func parseDBTime(value string) time.Time {
 		}
 	}
 	return time.Time{}
+}
+
+func parseDBTimeOnly(value string) sharedmodels.TimeOnly {
+	for _, layout := range []string{time.RFC3339Nano, time.RFC3339, "2006-01-02 15:04:05", "15:04"} {
+		parsed, err := time.Parse(layout, value)
+		if err == nil {
+			return sharedmodels.TimeOnly(parsed)
+		}
+	}
+	return sharedmodels.TimeOnly{}
 }
 
 func parsePronouns(s string) []sharedmodels.Pronoun {

@@ -193,9 +193,6 @@ func getPeriodCreateStream(
 					},
 					Schedules: scheduleViews,
 				}
-				for _, s := range props.FormProps.StudentSelect.Options {
-					l.Debug("***", "sid", s.ID, "n", s.GivenName)
-				}
 				sse.PatchElementTempl(pages.PeriodForm(props))
 			}
 		}
@@ -843,7 +840,7 @@ func createPeriodsListView(
 	for i, period := range periods {
 
 		periodsWithData[i] = compositedto.PeriodWithData{
-			Period: period,
+			PeriodView: dto.NewPeriodView(&period),
 		}
 		if len(period.EducatorIDs) > 0 {
 			educatorViews := make([]educatorDTO.EducatorView, len(period.EducatorIDs))

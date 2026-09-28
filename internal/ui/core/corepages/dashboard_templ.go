@@ -24,6 +24,7 @@ import (
 
 type DashboardView struct {
 	Periods            []scheduleDTO.SchedulePeriodView
+	PeriodStudentsMap  map[string][]studentDTO.StudentView
 	BookmarkedStudents []studentDTO.StudentView
 }
 
@@ -67,7 +68,7 @@ func Dashboard(view DashboardView) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE("dashboard/stream"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/dashboard.templ`, Line: 24, Col: 102}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/dashboard.templ`, Line: 25, Col: 102}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -77,7 +78,7 @@ func Dashboard(view DashboardView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = DashboardSchedule(view.Periods).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = DashboardSchedule(view.Periods, view.PeriodStudentsMap).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -99,7 +100,7 @@ func Dashboard(view DashboardView) templ.Component {
 	})
 }
 
-func DashboardSchedule(periods []scheduleDTO.SchedulePeriodView) templ.Component {
+func DashboardSchedule(periods []scheduleDTO.SchedulePeriodView, psmap map[string][]studentDTO.StudentView) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -142,8 +143,8 @@ func DashboardSchedule(periods []scheduleDTO.SchedulePeriodView) templ.Component
 			ctx = templ.InitializeContext(ctx)
 			for _, period := range periods {
 				templ_7745c5c3_Err = scheduleBlocks.DashboardPeriodCard(scheduleBlocks.DashboardPeriodCardProps{
-					View:  period,
-					Color: "blue",
+					View:     period,
+					Students: psmap[period.Period.ID],
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -217,7 +218,7 @@ func DashboardBookmarkedStudents(students []studentDTO.StudentView) templ.Compon
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(student.NameInitial())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/dashboard.templ`, Line: 63, Col: 36}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/dashboard.templ`, Line: 64, Col: 36}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -242,7 +243,7 @@ func DashboardBookmarkedStudents(students []studentDTO.StudentView) templ.Compon
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(student.Grade.Ordinal())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/dashboard.templ`, Line: 65, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/corepages/dashboard.templ`, Line: 66, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {

@@ -12,14 +12,15 @@ import (
 	"fmt"
 
 	"seek/internal/features/schedules/dto"
+	studentDTO "seek/internal/features/students/dto"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/tooltip"
 )
 
 type DashboardPeriodCardProps struct {
-	View  dto.SchedulePeriodView
-	Color string
+	View     dto.SchedulePeriodView
+	Students []studentDTO.StudentView
 }
 
 func DashboardPeriodCard(p DashboardPeriodCardProps) templ.Component {
@@ -50,7 +51,7 @@ func DashboardPeriodCard(p DashboardPeriodCardProps) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-column: %d; grid-row: %d / span %d;", p.View.Position.Column, p.View.Position.Row, p.View.Period.Duration))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 20, Col: 134}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 21, Col: 134}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -91,7 +92,7 @@ func DashboardPeriodCard(p DashboardPeriodCardProps) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("period-schedule-%s-card", p.View.Period.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 25, Col: 66}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 26, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 				if templ_7745c5c3_Err != nil {
@@ -104,7 +105,7 @@ func DashboardPeriodCard(p DashboardPeriodCardProps) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.View.Period.ServiceType.ShortString())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 26, Col: 59}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 27, Col: 59}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 				if templ_7745c5c3_Err != nil {
@@ -128,7 +129,7 @@ func DashboardPeriodCard(p DashboardPeriodCardProps) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(p.View.Period.ServiceType.ShortString())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 34, Col: 144}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 35, Col: 144}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -138,7 +139,7 @@ func DashboardPeriodCard(p DashboardPeriodCardProps) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				for _, student := range p.View.Students {
+				for _, student := range p.Students {
 					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -146,7 +147,7 @@ func DashboardPeriodCard(p DashboardPeriodCardProps) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(student.Initials())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 37, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 38, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -190,7 +191,7 @@ func DashboardPeriodCard(p DashboardPeriodCardProps) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(p.View.Period.StartTime.String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 50, Col: 45}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 51, Col: 45}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -203,7 +204,7 @@ func DashboardPeriodCard(p DashboardPeriodCardProps) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(p.View.Period.EndTime.String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 54, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 55, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -216,7 +217,7 @@ func DashboardPeriodCard(p DashboardPeriodCardProps) templ.Component {
 				var templ_7745c5c3_Var12 templ.SafeURL
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/periods/%s", p.View.Period.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 57, Col: 59}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/schedules/blocks/dashboard_period_card.templ`, Line: 58, Col: 59}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {

@@ -186,7 +186,6 @@ func (m *ReadModel) CreateHomeroom(ctx context.Context, event HomeroomCreatedPro
 }
 
 func (m *ReadModel) UpdateHomeroom(ctx context.Context, event HomeroomUpdatedProjection) error {
-	println("time", appdb.SQLTime(event.UpdatedAt))
 	return m.db.WriteTX(ctx, func(conn *sqlite.Conn) error {
 		return dbsql.OnceUpdateHomeroom(conn, dbsql.UpdateHomeroomParams{
 			Id:                       event.Homeroom.ID,

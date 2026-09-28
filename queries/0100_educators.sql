@@ -77,6 +77,59 @@ WHERE e.username = @username
   AND e.archived_at IS NULL
 ORDER BY s.family_name DESC, s.given_name DESC;
 
+-- name: GetEducatorWithPeriods :one
+SELECT
+	e.id,
+	e.given_name,
+	e.chosen_name,
+	e.family_name,
+	e.pronouns,
+	e.email,
+	e.username,
+	CAST(
+		COALESCE(
+			(SELECT json_group_array(json_object(
+				'id',           p.id,
+				'title',        p.title,
+				'service_type', p.service_type,
+				'start_time',   p.start_time,
+				'duration',     p.duration,
+				'days_bitmask', p.days_bitmask
+			))
+			FROM educators_periods ep
+			JOIN periods p ON ep.period_id = p.id
+			WHERE ep.educator_id = e.id
+				AND p.archived_at IS NULL),
+			'[]'
+		) AS TEXT
+	) AS periods_json,
+	CAST(
+		COALESCE(
+			(SELECT json_group_object(
+				p.id,
+				(SELECT COALESCE(json_group_array(json_object(
+					'id',          s.id,
+					'given_name',  s.given_name,
+					'chosen_name', s.chosen_name,
+					'family_name', s.family_name,
+					'grade',       s.grade
+				)), '[]')
+				FROM periods_students ps
+				JOIN students s ON ps.student_id = s.id
+				WHERE ps.period_id = p.id
+					AND s.archived_at IS NULL)
+			)
+			FROM educators_periods ep
+			JOIN periods p ON ep.period_id = p.id
+			WHERE ep.educator_id = e.id
+				AND p.archived_at IS NULL),
+			'{}'
+		) AS TEXT
+	) AS students_json
+FROM educators e
+WHERE e.username = @username
+  AND e.archived_at IS NULL;
+
 -- name: ListEducators :many
 SELECT 
 	id, 

@@ -128,7 +128,6 @@ func (h *ServiceReadModelEventHandler) handle(ctx context.Context, resolved even
 			return err
 		}
 		model := NewModelFromFlat(flat)
-		println("read model handle delete event", model.ID)
 		projection := ServiceDeletedProjection{
 			Position:  resolved.Position,
 			ServiceID: model.ID,
