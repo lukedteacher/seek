@@ -25,7 +25,8 @@ import (
 
 func (s Server) educatorRoutes(r chi.Router) {
 	r.Get("/educators", getEducatorsList(s.Logger))
-	r.Get("/educators/stream", getEducatorsListStream(s.Logger, s.Subscriber, s.ReadModels.Educators))
+	r.Get("/educators/stream", getEducatorsListStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
+	r.Query("/educators", queryEducatorsList(s.Logger, s.ViewStore))
 	r.Get("/educators/create", getEducatorCreate(s.Logger))
 	r.Get("/educators/create/stream", getEducatorCreateStream(s.Logger, s.ViewStore))
 	r.Post("/educators/create/validate", postEducatorCreateValidate(s.Logger, s.ViewStore))
@@ -52,7 +53,11 @@ func getEducatorsList(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		view := dto.NewEducatorTableView([]models.Educator{})
-		_ = pages.List(view).Render(ctx, w)
+		props := pages.ListPageProps{
+			Signals: pages.ListSignals{},
+			View:    view,
+		}
+		_ = pages.List(props).Render(ctx, w)
 	}
 }
 
@@ -60,21 +65,40 @@ func getEducatorsList(
 func getEducatorsListStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
+	vs viewstore.Store,
 	educatorReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		user := currentUser(r)
 		sse := newSSE(w, r)
-		notifier := NewDedupeNotifier()
+
 		// subscribes to the channel which publishes changes to any educators
+		notifier := NewDedupeNotifier()
 		sub, err := subscriber.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {
 			notifier.Notify()
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "educators list stream subscribe error", "error", err)
+			l.ErrorContext(ctx, "gels sub", "error", err)
 			return
 		}
 		defer sub.Close()
+
+		// watches list key value stream for ephemeral changes
+		// lasts 5m
+		key := user.Username + ".educators.list"
+		watcher, err := vs.Watch(
+			ctx,
+			key,
+			viewstore.WatchOptions{
+				IgnoreDeletes: true,
+			},
+		)
+		if err != nil {
+			l.ErrorContext(ctx, "students list stream watcher", "err", err)
+			return
+		}
+		defer watcher.Stop()
 
 		educators, err := educatorReadModel.ListWithRoles(ctx)
 		if err != nil {
@@ -82,23 +106,80 @@ func getEducatorsListStream(
 			return
 		}
 		view := dto.NewEducatorTableView(educators)
-		sse.PatchElementTempl(pages.List(view))
+		props := pages.ListPageProps{
+			Signals: pages.ListSignals{},
+			View:    view,
+		}
+		sse.PatchElementTempl(pages.List(props))
 
 		for {
 			select {
 			case <-ctx.Done():
 				return
-			case <-notifier.Signal(): // triggers when the read model publishes
-				// for now just reloads the page
-				// consider adding a view store for the list
-				educators, err := educatorReadModel.ListWithRoles(ctx)
+			case <-notifier.Signal():
+				signals, ok, err := viewstore.GetState[pages.ListSignals](ctx, vs, key)
 				if err != nil {
+					l.ErrorContext(ctx, "gels notifier vs get state", "err", err)
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
+				if !ok {
+					l.InfoContext(ctx, "no value for key", "key", key)
+				}
+				educators, err := educatorReadModel.ListWithRoles(ctx)
 				view := dto.NewEducatorTableView(educators)
-				sse.PatchElementTempl(pages.List(view))
+				props := pages.ListPageProps{
+					Signals: signals,
+					View:    view,
+				}
+				sse.PatchElementTempl(pages.List(props))
+			case entry, ok := <-watcher.Updates():
+				if !ok {
+					return
+				}
+
+				signals := &pages.ListSignals{}
+				if err := entry.JSON(signals); err != nil {
+					l.ErrorContext(ctx, "gels watcher json", "err", err)
+					return
+				}
+
+				educators := []models.Educator{}
+				if signals.Filter.Search != "" {
+					educators, _ = educatorReadModel.List(ctx, events.WithSearchFilter(signals.Filter.Search))
+				} else {
+					educators, _ = educatorReadModel.ListWithRoles(ctx)
+				}
+				view := dto.NewEducatorTableView(educators)
+
+				props := pages.ListPageProps{
+					Signals: *signals,
+					View:    view,
+				}
+
+				sse.PatchElementTempl(pages.List(props))
 			}
+		}
+	}
+}
+
+// QUERY request to /educators
+// handles search and filter buttons
+func queryEducatorsList(
+	l *slog.Logger,
+	vs viewstore.Store,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		user := currentUser(r)
+		signals := &pages.ListSignals{}
+		if err := datastar.ReadSignals(r, signals); err != nil {
+			l.ErrorContext(ctx, "qel signals", "err", err)
+			return
+		}
+		key := user.Username + ".educators.list"
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
+			l.ErrorContext(ctx, "qel vs put state", "err", err)
 		}
 	}
 }

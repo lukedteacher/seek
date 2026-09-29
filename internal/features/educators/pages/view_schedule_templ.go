@@ -261,7 +261,7 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 						}
 						ctx = templ.InitializeContext(ctx)
 						for _, period := range p.Periods {
-							templ_7745c5c3_Err = scheduleBlocks.DashboardPeriodCard(scheduleBlocks.DashboardPeriodCardProps{
+							templ_7745c5c3_Err = scheduleBlocks.EducatorPeriodCard(scheduleBlocks.EducatorPeriodCardProps{
 								View: period,
 							}).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {

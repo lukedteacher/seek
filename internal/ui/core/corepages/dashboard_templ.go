@@ -142,7 +142,7 @@ func DashboardSchedule(periods []scheduleDTO.SchedulePeriodView, psmap map[strin
 			}
 			ctx = templ.InitializeContext(ctx)
 			for _, period := range periods {
-				templ_7745c5c3_Err = scheduleBlocks.DashboardPeriodCard(scheduleBlocks.DashboardPeriodCardProps{
+				templ_7745c5c3_Err = scheduleBlocks.EducatorPeriodCard(scheduleBlocks.EducatorPeriodCardProps{
 					View:     period,
 					Students: psmap[period.Period.ID],
 				}).Render(ctx, templ_7745c5c3_Buffer)

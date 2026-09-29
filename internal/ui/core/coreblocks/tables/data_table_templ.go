@@ -1095,7 +1095,7 @@ func SortButton(column, sortCol, sortDir string) templ.Component {
 			Variant: button.VariantGhost,
 			Attributes: templ.Attributes{
 				"data-on:click": fmt.Sprintf(
-					"if ($table.sort.column == '%[1]s') { $table.sort.direction = $table.sort.direction == 'ASC' ? 'DESC' : 'ASC'; } else { $table.sort.column = '%[1]s'; $table.sort.direction = 'ASC'; } @post('%[2]s')",
+					"if ($table.sort.column == '%[1]s') { $table.sort.direction = $table.sort.direction == 'ASC' ? 'DESC' : 'ASC'; } else { $table.sort.column = '%[1]s'; $table.sort.direction = 'ASC'; } @query('%[2]s')",
 					column, url,
 				),
 				"data-class:bg-primary": fmt.Sprintf("$table.sort.column == '%s'", column),

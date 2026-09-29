@@ -38,7 +38,7 @@ templ DashboardSchedule(periods []scheduleDTO.SchedulePeriodView, psmap map[stri
 		@corebuttons.FlexIconButton("/periods/create", "plus", "create")
 		@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{}) {
 			for _, period := range periods {
-				@scheduleBlocks.DashboardPeriodCard(scheduleBlocks.DashboardPeriodCardProps{
+				@scheduleBlocks.EducatorPeriodCard(scheduleBlocks.EducatorPeriodCardProps{
 					View:     period,
 					Students: psmap[period.Period.ID],
 				})

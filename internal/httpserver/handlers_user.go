@@ -62,7 +62,7 @@ func getDashboardStream(
 		}
 		defer sub.Close()
 
-		educatorID, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel)
+		educatorID, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel, studentReadModel)
 		if err != nil {
 			l.ErrorContext(ctx, "gds refresh", "err", err)
 			return
@@ -101,12 +101,12 @@ func getDashboardStream(
 			case <-ctx.Done():
 				return
 			case <-userNotifier.Signal(): // triggers when the read model publishes
-				if _, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel); err != nil {
+				if _, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel, studentReadModel); err != nil {
 					l.ErrorContext(ctx, "dashboard stream refresh in select", "err", err)
 					return
 				}
 			case <-educatorNotifier.Signal(): // triggers when the read model publishes
-				if _, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel); err != nil {
+				if _, err := refreshDashboardViewState(ctx, l, vs, user, educatorReadModel, studentReadModel); err != nil {
 					l.ErrorContext(ctx, "dashboard stream refresh in select", "err", err)
 					return
 				}
@@ -179,6 +179,7 @@ func refreshDashboardViewState(
 	vs viewstore.Store,
 	user userModels.User,
 	educatorReadModel *educatorEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
 ) (string, error) {
 	educator, err := educatorReadModel.GetWithPeriods(ctx, user.Username)
 	if err != nil {
@@ -189,10 +190,13 @@ func refreshDashboardViewState(
 	for periodID, studentSlice := range educator.PeriodStudentsMap {
 		periodStudentsMap[periodID] = studentDTO.NewViews(studentSlice)
 	}
+
+	bookmarks, _ := studentReadModel.ListStudentBookmarksByUserID(ctx, user.ID)
+	bookmarkViews := studentDTO.NewViews(bookmarks)
 	view := corepages.DashboardView{
 		Periods:            periodViews,
 		PeriodStudentsMap:  periodStudentsMap,
-		BookmarkedStudents: []studentDTO.StudentView{},
+		BookmarkedStudents: bookmarkViews,
 	}
 	key := "users." + user.ID + ".dashboard"
 	err = viewstore.PutState(ctx, vs, key, view)

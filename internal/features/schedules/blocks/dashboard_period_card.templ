@@ -5,17 +5,18 @@ import (
 
 	"seek/internal/features/schedules/dto"
 	studentDTO "seek/internal/features/students/dto"
+	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/tooltip"
 )
 
-type DashboardPeriodCardProps struct {
+type EducatorPeriodCardProps struct {
 	View     dto.SchedulePeriodView
 	Students []studentDTO.StudentView
 }
 
-templ DashboardPeriodCard(p DashboardPeriodCardProps) {
+templ EducatorPeriodCard(p EducatorPeriodCardProps) {
 	<div
 		class="w-full h-full p-[1px] text-xs"
 		style={ fmt.Sprintf("grid-column: %d; grid-row: %d / span %d;", p.View.Position.Column, p.View.Position.Row, p.View.Period.Duration) }
@@ -42,28 +43,38 @@ templ DashboardPeriodCard(p DashboardPeriodCardProps) {
 				</div>
 			}
 			@tooltip.Content(tooltip.ContentProps{
-				Class:         "flex flex-col gap-1 rounded-md background-neutral text-xs p-3 border-muted w-48",
+				Class:         "rounded-md background-neutral text-xs p-2 border-muted w-48",
 				HoverDelay:    400,
 				HoverOutDelay: 800,
 			}) {
-				<p class="flex justify-between">
-					<span>start:</span>
-					<span>{ p.View.Period.StartTime.String() }</span>
-				</p>
-				<p class="flex justify-between">
-					<span>end:</span>
-					<span>{ p.View.Period.EndTime.String() }</span>
-				</p>
-				<p class="flex justify-center">
-					<a href={ fmt.Sprintf("/periods/%s", p.View.Period.ID) }>
-						@button.Button(button.Props{
-							Variant: button.VariantGhost,
-						}) {
-							@icon.Search()
-							<span>view</span>
+				<div class="flex flex-col gap-3">
+					<div class="flex justify-center gap-1 text-sm">
+						<span>{ p.View.Period.StartTime.String() }</span>
+						<span>-</span>
+						<span>{ p.View.Period.EndTime.String() }</span>
+					</div>
+					<div class="flex flex-col gap-1">
+						for _, student := range p.Students {
+							<div class="flex justify-between">
+								<p>{ student.FullName() }</p>
+								@badge.Badge() {
+									{ student.Grade.Ordinal() }
+								}
+							</div>
 						}
-					</a>
-				</p>
+					</div>
+					<div class="flex justify-center">
+						<a href={ fmt.Sprintf("/periods/%s", p.View.Period.ID) }>
+							@button.Button(button.Props{
+								Class:   "text-xs",
+								Variant: button.VariantGhost,
+							}) {
+								@icon.Search()
+								<span>view</span>
+							}
+						</a>
+					</div>
+				</div>
 			}
 		}
 	</div>

@@ -76,7 +76,7 @@ templ EducatorViewSchedule(p EducatorViewSchedulePageProps) {
 					<section class="w-full">
 						@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{}) {
 							for _, period := range p.Periods {
-								@scheduleBlocks.DashboardPeriodCard(scheduleBlocks.DashboardPeriodCardProps{
+								@scheduleBlocks.EducatorPeriodCard(scheduleBlocks.EducatorPeriodCardProps{
 									View: period,
 								})
 							}

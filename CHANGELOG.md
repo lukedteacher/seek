@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.10.0 (26.09.29) new period view, educator search
+
+- finished implementing new period view for dashboard and educator view
+- re-added student bookmarks
+- educator search added to list
+- re-initiate state on page load for search on educator list
+
 ## v0.9.16 (26.09.28) streamlined dashboard view data retrieval
 
 - added query for getting educator with periods with students

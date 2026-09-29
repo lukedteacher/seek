@@ -5,18 +5,39 @@ import (
 
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/educators/dto"
 	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/coreblocks/filters"
 	"seek/internal/ui/core/coreblocks/tables"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 )
 
-templ List(view shareddto.TableView) {
+type ListSignals struct {
+	Filter dto.Filter `json:"filter"`
+	Table  struct {
+		Sort shareddto.TableSort `json:"sort"`
+	} `json:"table"`
+}
+
+type ListPageProps struct {
+	View    shareddto.TableView
+	Signals ListSignals
+}
+
+templ List(p ListPageProps) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@corelayouts.LayoutBase("SEEK: educators") {
-		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+		<main
+			data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }
+			data-signals={ templ.JSONString(p.Signals) }
+		>
 			@coreblocks.HeaderMain("list of educators")
-			@tables.DataTable(view)
+			@tables.DataTable(p.View) {
+				<div class="max-w-128">
+					@uifilters.SearchInput("educator-list-search", "filter.search")
+				</div>
+			}
 		</main>
 	}
 }

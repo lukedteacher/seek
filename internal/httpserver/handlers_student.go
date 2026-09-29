@@ -40,8 +40,7 @@ import (
 func (s Server) studentRoutes(r chi.Router) {
 	r.Get("/students", getStudentsList(s.Logger))
 	r.Get("/students/stream", getStudentsListStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Students, s.ReadModels.Educators, s.ReadModels.Homerooms, s.ReadModels.IEPs, s.ReadModels.Services))
-	r.Query("/students", postStudentsList(s.Logger, s.ViewStore))
-	r.Post("/students", postStudentsList(s.Logger, s.ViewStore))
+	r.Query("/students", queryStudentsList(s.Logger, s.ViewStore))
 	r.Get("/students/create", getStudentCreate(s.Logger))
 	r.Get("/students/create/stream", getStudentCreateStream(s.Logger, s.ViewStore, s.ReadModels.Educators))
 	r.Post("/students/create/validate", postStudentCreateValidate(s.Logger, s.ViewStore))
@@ -88,8 +87,8 @@ func getStudentsListStream(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		sse := newSSE(w, r)
 		user := currentUser(r)
+		sse := newSSE(w, r)
 
 		// subscribes to the channel which publishes changes to any students
 		notifier := NewMessageNotifier()
@@ -97,7 +96,7 @@ func getStudentsListStream(
 			notifier.Notify(data)
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "students list stream subscribe", "err", err)
+			l.ErrorContext(ctx, "gsls sub", "err", err)
 			return
 		}
 		defer sub.Close()
@@ -122,8 +121,10 @@ func getStudentsListStream(
 			ctx,
 			l,
 			studentReadModel,
-			"family_name",
-			"ASC",
+			shareddto.TableSort{
+				Column:    "family_name",
+				Direction: "ASC",
+			},
 			filter,
 			educatorReadModel,
 			homeroomReadModel,
@@ -156,8 +157,7 @@ func getStudentsListStream(
 					ctx,
 					l,
 					studentReadModel,
-					signals.Table.Sort.Column,
-					signals.Table.Sort.Direction,
+					signals.Table.Sort,
 					signals.Table.Filter,
 					educatorReadModel,
 					homeroomReadModel,
@@ -172,15 +172,14 @@ func getStudentsListStream(
 				}
 				signals := &dto.TableSignals{}
 				if err := entry.JSON(signals); err != nil {
-					l.ErrorContext(ctx, "student create stream json", "err", err)
+					l.ErrorContext(ctx, "gsls watcher json", "err", err)
 					return
 				}
 				listView := createListView(
 					ctx,
 					l,
 					studentReadModel,
-					signals.Table.Sort.Column,
-					signals.Table.Sort.Direction,
+					signals.Table.Sort,
 					signals.Table.Filter,
 					educatorReadModel,
 					homeroomReadModel,
@@ -193,8 +192,9 @@ func getStudentsListStream(
 	}
 }
 
-// POST request to /students
-func postStudentsList(
+// QUERY request to /students
+// handles search and filter buttons
+func queryStudentsList(
 	l *slog.Logger,
 	vs viewstore.Store,
 ) http.HandlerFunc {
@@ -925,23 +925,22 @@ func createListView(
 	ctx context.Context,
 	l *slog.Logger,
 	studentReadModel *events.ReadModel,
-	sortCol,
-	sortDir string,
-	filters dto.Filter,
+	sort shareddto.TableSort,
+	filter dto.Filter,
 	educatorReadModel *educatorEvents.ReadModel,
 	homeroomReadModel *homeroomEvents.ReadModel,
 	iepReadModel *iepEvents.ReadModel,
 	serviceReadModel *serviceEvents.ReadModel,
 ) pages.ListView {
 	// get students data from db
-	gradeFilter := buildFilterMap(filters.Grade)
-	planTypeFilter := buildFilterMap(filters.PlanType)
+	gradeFilter := buildFilterMap(filter.Grade)
+	planTypeFilter := buildFilterMap(filter.PlanType)
 	students, err := studentReadModel.List(
 		ctx,
-		events.WithSort(sortCol, sortDir),
+		events.WithSort(sort.Column, sort.Direction),
 		events.WithGradeFilter(gradeFilter),
 		events.WithPlanFilter(planTypeFilter),
-		events.WithSearchFilter(filters.Search),
+		events.WithSearchFilter(filter.Search),
 	)
 	if err != nil {
 		l.ErrorContext(ctx, "create students view", "err", err)
@@ -979,17 +978,11 @@ func createListView(
 	}
 
 	// create the table view
-	studentTableView := compositedto.NewStudentWithDataTableView(studentWithDataViews, shareddto.TableSort{
-		Column:    sortCol,
-		Direction: sortDir,
-	})
+	studentTableView := compositedto.NewStudentWithDataTableView(studentWithDataViews, sort)
 
 	return pages.ListView{
-		Table: studentTableView,
-		Filters: dto.Filter{
-			Grade:    filters.Grade,
-			PlanType: filters.PlanType,
-		},
+		Table:   studentTableView,
+		Filters: filter,
 	}
 }
 
