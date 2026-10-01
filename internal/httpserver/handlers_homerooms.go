@@ -25,20 +25,25 @@ import (
 )
 
 func (s Server) homeroomRoutes(r chi.Router) {
+	// homeroom list
 	r.Get("/homerooms", getHomeroomsList(s.Logger))
 	r.Get("/homerooms/stream", getHomeroomsListStream(s.Logger, s.Subscriber, s.ReadModels.Homerooms, s.ReadModels.Educators, s.ReadModels.Students))
+	// homeroom creation
 	r.Get("/homerooms/create", getHomeroomCreate(s.Logger))
 	r.Get("/homerooms/create/stream", getHomeroomCreateStream(s.Logger, s.ViewStore, s.ReadModels.Students, s.ReadModels.Educators))
 	r.Query("/homerooms/create/validate", queryHomeroomFormValidate(s.Logger, s.ViewStore))
 	r.Query("/homerooms/create/{field}/{value}", queryHomeroomFormField(s.Logger, s.ViewStore))
 	r.Post("/homerooms/create", postHomeroomCreate(s.Logger, s.EventSaver, s.EventRetriever))
+	// homeroom viewing
 	r.Get("/homerooms/{id}", getHomeroomView(s.Logger))
 	r.Get("/homerooms/{id}/stream", getHomeroomViewStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Homerooms, s.ReadModels.Educators, s.ReadModels.Students))
+	// homeroom editing
 	r.Get("/homerooms/{id}/edit", getHomeroomEdit(s.Logger))
 	r.Get("/homerooms/{id}/edit/stream", getHomeroomEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Homerooms, s.ReadModels.Educators, s.ReadModels.Students))
 	r.Query("/homerooms/{id}/edit/validate", queryHomeroomFormValidate(s.Logger, s.ViewStore))
 	r.Query("/homerooms/{id}/edit/{field}/{value}", queryHomeroomFormField(s.Logger, s.ViewStore))
 	r.Post("/homerooms/{id}/edit", postHomeroomEdit(s.Logger, s.ViewStore, s.EventSaver, s.EventRetriever))
+	// other homeroom stuff
 	r.Post("/homerooms/{id}/archive", postHomeroomArchive(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Delete("/homerooms/{id}", deleteHomeroom(s.Logger, s.EventSaver, s.EventRetriever))
 }
@@ -75,15 +80,18 @@ func getHomeroomsListStream(
 			notifier.Notify()
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "hls subscribe", "err", err)
+			l.ErrorContext(ctx, "hls sub", "err", err)
 			return
 		}
 		defer sub.Close()
 
+		// initialize data
 		homerooms, err := homeroomReadModel.ListWithIDs(ctx)
 		if err != nil {
 			l.ErrorContext(ctx, "hls list", "err", err)
 		}
+
+		// make the view and push it via SSE
 		view := dto.NewHomeroomTableView(homerooms)
 		sse.PatchElementTempl(pages.List(view))
 
@@ -104,7 +112,10 @@ func getHomeroomsListStream(
 }
 
 // GET request to /homerooms/create
-func getHomeroomCreate(l *slog.Logger) http.HandlerFunc {
+// populates empty form with appropriate form type
+func getHomeroomCreate(
+	l *slog.Logger,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		props := pages.FormProps{
@@ -129,7 +140,7 @@ func getHomeroomCreateStream(
 		// watch for view store changes
 		key, err := getHomeroomViewstoreKey(sharedmodels.FormTypeCreate, user.Username, "")
 		if err != nil {
-			l.ErrorContext(ctx, "ghcs vs key", "err", err)
+			l.ErrorContext(ctx, "ghcs vs key", "err", err, "username", user.Username)
 			return
 		}
 		watcher, err := vs.Watch(
@@ -145,8 +156,10 @@ func getHomeroomCreateStream(
 		}
 		defer watcher.Stop()
 
-		if err := initializeHomeroomCreateState(ctx, l, vs, user.Username); err != nil {
-			l.ErrorContext(ctx, "ghcs init vs", "err", err)
+		// initialize view state to be updated by SSE
+		if err := initializeHomeroomCreateState(ctx, l, vs, key); err != nil {
+			l.ErrorContext(ctx, "ghcs init vs", "err", err, "key", key)
+			return
 		}
 
 		for {
@@ -159,7 +172,7 @@ func getHomeroomCreateStream(
 				}
 				signals := &dto.HomeroomFormSignals{}
 				if err := entry.JSON(signals); err != nil {
-					l.Error("json decode", "err", err)
+					l.Error("ghcs json decode", "err", err)
 					return
 				}
 				educators := listEducatorsByIDs(ctx, l, educatorReadModel, signals.Homeroom.EducatorIDs)
@@ -201,7 +214,7 @@ func queryHomeroomFormValidate(
 			return
 		}
 		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
-			l.ErrorContext(ctx, "qhfv put state viewstore", "err", err, "key", key)
+			l.ErrorContext(ctx, "qhfv vs put state", "err", err, "key", key)
 		}
 	}
 }
@@ -331,8 +344,8 @@ func getHomeroomViewStream(
 		homeroomID := chi.URLParam(r, "id")
 		sse := newSSE(w, r)
 
-		notifier := NewDedupeNotifier()
 		// subscribes to the channel which publishes changes to the underlying model
+		notifier := NewDedupeNotifier()
 		sub, err := subscriber.Subscribe(ctx, events.Channel(homeroomID), func(context.Context, []byte) {
 			notifier.Notify()
 		})
@@ -437,15 +450,18 @@ func getHomeroomEditStream(
 			notifier.Notify()
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "homeroom edit stream subscribe", "err", err)
+			l.ErrorContext(ctx, "ghes sub", "err", err)
 			return
 		}
 		defer sub.Close()
+
+		// get view store key based on form type and info
 		key, err := getHomeroomViewstoreKey(sharedmodels.FormTypeEdit, "", homeroomID)
 		if err != nil {
 			l.ErrorContext(ctx, "ghes vs key", "err", err)
 		}
-		// subscribe to the kv store for changes to the edit view state
+
+		// watch for view store changes
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -454,7 +470,7 @@ func getHomeroomEditStream(
 			},
 		)
 		if err != nil {
-			l.ErrorContext(ctx, "ghes watch", "err", err)
+			l.ErrorContext(ctx, "ghes vs watch", "err", err, "key", key)
 			return
 		}
 		defer watcher.Stop()
@@ -476,13 +492,13 @@ func getHomeroomEditStream(
 				if err.Error() == "homeroom not found" {
 					sse.PatchElementTempl(pages.NotFound())
 				} else {
-					l.ErrorContext(ctx, "refresh homeroom view state", "err", err)
+					l.ErrorContext(ctx, "ghes refresh state", "err", err)
 				}
 				return
 			}
 		}
 		if err != nil {
-			l.ErrorContext(ctx, "ghes get state", "vs get err", err)
+			l.ErrorContext(ctx, "ghes get state", "err", err)
 		}
 
 		for {
@@ -490,7 +506,7 @@ func getHomeroomEditStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal():
-				// homeroom changed via event – refresh the view state and re‑render
+				// if homeroom changed via event, refresh state (will trigger SSE re-render)
 				if err := refreshHomeroomEditState(
 					ctx,
 					l,
@@ -503,7 +519,7 @@ func getHomeroomEditStream(
 					if err.Error() == "homeroom not found" {
 						sse.PatchElementTempl(pages.NotFound())
 					} else {
-						l.ErrorContext(ctx, "refresh homeroom view state", "err", err)
+						l.ErrorContext(ctx, "ghes notifier refresh", "err", err)
 					}
 					return
 				}
@@ -513,7 +529,7 @@ func getHomeroomEditStream(
 				}
 				signals := &dto.HomeroomFormSignals{}
 				if err := entry.JSON(signals); err != nil {
-					l.Error("homeroom edit stream json", "err", err)
+					l.Error("ghes watcher json", "err", err)
 					return
 				}
 				educators := listEducatorsByIDs(ctx, l, educatorReadModel, signals.Homeroom.EducatorIDs)
@@ -660,13 +676,9 @@ func initializeHomeroomCreateState(
 	ctx context.Context,
 	l *slog.Logger,
 	vs viewstore.Store,
-	username string,
+	key string,
 ) error {
 	signals := dto.NewHomeroomFormSignals(sharedmodels.FormTypeCreate, nil)
-	key, err := getHomeroomViewstoreKey(sharedmodels.FormTypeCreate, username, "")
-	if err != nil {
-		return err
-	}
 	return viewstore.PutState(ctx, vs, key, signals)
 }
 

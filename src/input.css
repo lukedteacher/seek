@@ -496,6 +496,12 @@ a {
 }
 
 @theme {
+  --container-6ch: 6ch;
+  --container-12ch: 12ch;
+  --container-23ch: 23ch;
+  --container-56ch: 56ch;
+  --container-112ch: 112ch;
+  --container-7rem: 7rem;
   --container-5xs: 5rem;
   --container-4xs: 9rem;
 }

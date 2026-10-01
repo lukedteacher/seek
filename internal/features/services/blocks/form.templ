@@ -6,6 +6,9 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/services/dto"
 	"seek/internal/ui/core/coreblocks/forms"
+	"seek/pkg/templui/components/datepicker"
+	"seek/pkg/templui/components/label"
+	"seek/pkg/templui/components/selectbox"
 
 	"github.com/starfederation/datastar-go/datastar"
 )
@@ -13,15 +16,120 @@ import (
 templ ServiceForm(view dto.ServiceFormView) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	<form
-		id={ fmt.Sprintf("form-iep-service-%s", view.FormType) }
+		id={ fmt.Sprintf("form-iep-service-%s", view.FormType.Word()) }
 		class="seek-form gap-4"
 		data-on:submit={ datastar.PostSSE("%s", url) }
+		data-signals:form_type={ view.FormType }
 	>
-		@FormSections(view)
+		<div
+			class="flex flex-col gap-3"
+			d
+			data-signals:service={ templ.JSONString(view.Service) }
+		>
+			@HiddenInputs(view)
+			@forms.Fieldset("core info") {
+				@forms.SelectServiceType("service", view.Service.ServiceType)
+				<div class="flex gap-10">
+					@ServiceMinutes(view)
+					@ServiceFrequency(view)
+				</div>
+				@ServiceLocationSelect(view.Service.LocationID)
+			}
+			@forms.Fieldset("dates") {
+				@ServiceDates(view)
+			}
+			@forms.Fieldset("people") {
+				@ServiceProviderSelectBox(view.ProviderSelectView)
+			}
+			@selectbox.Script()
+			@datepicker.Script()
+		</div>
 		<footer>
 			@forms.DeleteButton("service", view.Service.ID)
 			@forms.CancelButton("/services")
 			@forms.SaveButton()
 		</footer>
 	</form>
+}
+
+templ HiddenInputs(view dto.ServiceFormView) {
+	<input id="service-id" class="hidden" data-bind="service.id" value={ view.Service.ID }/>
+	<input id="service-iep-id" class="hidden" data-bind="service.iep_id" value={ view.Service.IEPID }/>
+	<input id="service-student-id" class="hidden" data-bind="service.student_id" value={ view.Service.StudentID }/>
+	<input id="service-service-name" class="hidden" data-bind="service.service_name" value={ view.Service.ServiceName }/>
+}
+
+templ ServiceMinutes(view dto.ServiceFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<div class="flex flex-col gap-2">
+		<p class="text-sm text-neutral-content/80">minutes</p>
+		<div class="flex gap-6">
+			@forms.NumberInputWithLabel(forms.NumberInputWithLabelProps{
+				ID:        "iep-service-indirect-minutes",
+				LabelText: "indirect",
+				Bind:      "service.indirect_minutes",
+				URL:       url,
+			})
+			@forms.NumberInputWithLabel(forms.NumberInputWithLabelProps{
+				ID:        "iep-service-direct-minutes",
+				LabelText: "direct",
+				Bind:      "service.direct_minutes",
+				URL:       url,
+			})
+		</div>
+	</div>
+}
+
+templ ServiceFrequency(view dto.ServiceFormView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<div class="flex flex-col gap-2">
+		<p class="text-sm text-neutral-content/80">frequency</p>
+		<div class="flex items-center gap-3">
+			@forms.NumberInputWithLabel(forms.NumberInputWithLabelProps{
+				ID:        "service-frequency-count",
+				LabelText: "count",
+				Bind:      "service.frequency_count",
+				URL:       url,
+			})
+			<span>x</span>
+			@FrequencyTypeSelect(view.Service.FrequencyType)
+		</div>
+	</div>
+}
+
+templ ServiceDates(view dto.ServiceFormView) {
+	<div class="flex gap-3">
+		<div class="flex-grow">
+			@label.Label(label.Props{
+				For:   "start-date-input",
+				Class: "mb-3 text-neutral-content/90",
+			}) {
+				start
+			}
+			@datepicker.DatePicker(datepicker.Props{
+				ID:       "start-date-input",
+				Class:    "input",
+				DataBind: "service.start_date",
+				Attributes: templ.Attributes{
+					"data-text": "$service.start_date",
+				},
+			})
+		</div>
+		<div class="flex-grow">
+			@label.Label(label.Props{
+				For:   "start-date-input",
+				Class: "mb-3",
+			}) {
+				end
+			}
+			@datepicker.DatePicker(datepicker.Props{
+				ID:       "end-date-input",
+				Class:    "input",
+				DataBind: "service.end_date",
+				Attributes: templ.Attributes{
+					"data-text": "$service.end_date",
+				},
+			})
+		</div>
+	</div>
 }

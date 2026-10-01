@@ -36,7 +36,7 @@ func SearchInput(id, signal string) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		url := sharedmodels.GetURLFromContext(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex gap-2 items-center relative input min-w-128 focus:outline-(secondary)\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex gap-2 items-center relative input min-w-128 max-w-256 shrink-0\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

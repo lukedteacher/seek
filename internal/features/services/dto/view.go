@@ -24,24 +24,24 @@ type ServiceView struct {
 	StudentView     studentDTO.StudentView
 }
 
-func NewServiceView(sm *models.Service) ServiceView {
-	if sm == nil {
+func NewServiceView(m *models.Service) ServiceView {
+	if m == nil {
 		return ServiceView{}
 	}
 	return ServiceView{
-		ID:              sm.ID,
-		IEPID:           sm.IEPID,
-		ServiceName:     sm.ServiceName,
-		ServiceType:     sm.ServiceType,
-		IndirectMinutes: sm.IndirectMinutes,
-		DirectMinutes:   sm.DirectMinutes,
-		FrequencyCount:  sm.FrequencyCount,
-		FrequencyType:   sm.FrequencyType,
-		LocationID:      sm.LocationID,
-		StartDate:       sm.StartDate,
-		EndDate:         sm.EndDate,
-		Provider:        sm.Provider,
-		StudentID:       sm.StudentID,
+		ID:              m.ID,
+		IEPID:           m.IEPID,
+		ServiceName:     m.ServiceName,
+		ServiceType:     m.ServiceType,
+		IndirectMinutes: m.IndirectMinutes,
+		DirectMinutes:   m.DirectMinutes,
+		FrequencyCount:  m.FrequencyCount,
+		FrequencyType:   m.FrequencyType,
+		LocationID:      m.LocationID,
+		StartDate:       m.StartDate,
+		EndDate:         m.EndDate,
+		Provider:        m.Provider,
+		StudentID:       m.StudentID,
 	}
 }
 

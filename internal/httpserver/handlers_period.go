@@ -270,6 +270,7 @@ func queryPeriodCreateValidateField(
 	}
 }
 
+// QUERY request to /periods/{form}/{field}/{value}
 func queryPeriodFormField(
 	l *slog.Logger,
 	vs viewstore.Store,

@@ -22,7 +22,7 @@ type ViewProps struct {
 }
 
 templ View(p ViewProps) {
-	<div class="flex flex-col lg:flex-row gap-6">
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full lg:max-w-4/5">
 		@CoreCard(p)
 		@EducatorsCard(p.Educators)
 		@StudentsCard(p.Students)
@@ -32,7 +32,7 @@ templ View(p ViewProps) {
 templ CoreCard(p ViewProps) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("homeroom-%s-card", p.Homeroom.ID),
-		Class: "homeroom-card max-w-128 h-fit bg-neutral border-muted relative",
+		Class: "homeroom-card h-fit bg-neutral border-muted relative",
 	}) {
 		@button.Button(button.Props{
 			Variant: button.VariantGhost,
@@ -71,7 +71,7 @@ templ CoreCard(p ViewProps) {
 
 templ EducatorsCard(educators []educatorDTO.EducatorView) {
 	@card.Card(card.Props{
-		Class: "max-w-128 bg-neutral border-muted",
+		Class: "w-full max-w-200 h-fit col-span-1 lg:col-span-2 bg-neutral border-muted",
 	}) {
 		@card.Header() {
 			@card.Title() {
@@ -80,7 +80,7 @@ templ EducatorsCard(educators []educatorDTO.EducatorView) {
 			}
 		}
 		@card.Content(card.ContentProps{
-			Class: "flex flex-col gap-3",
+			Class: "grid grid-cols-1 lg:grid-cols-2 gap-3",
 		}) {
 			for _, educator := range educators {
 				<div class="flex bg-linear-2 border border-muted px-3 h-16 w-full rounded-md justify-between">
@@ -132,7 +132,7 @@ templ EducatorsCard(educators []educatorDTO.EducatorView) {
 
 templ StudentsCard(students []studentDTO.StudentView) {
 	@card.Card(card.Props{
-		Class: "max-w-128 bg-neutral border-muted",
+		Class: "@container w-full h-fit col-span-1 md:col-span-2 lg:col-span-3 bg-neutral border-muted",
 	}) {
 		@card.Header() {
 			@card.Title() {
@@ -141,11 +141,11 @@ templ StudentsCard(students []studentDTO.StudentView) {
 			}
 		}
 		@card.Content(card.ContentProps{
-			Class: "flex flex-col gap-3",
+			Class: "grid grid-cols-1 gap-3 @56ch:grid-cols-2 @112ch:grid-cols-3",
 		}) {
 			for _, student := range students {
 				<div class="flex bg-linear-2 border border-muted px-3 h-16 w-full rounded-md justify-between">
-					<div class="flex items-center gap-3">
+					<div class="w-full flex items-center gap-3">
 						@avatar.Avatar() {
 							@avatar.Image(avatar.ImageProps{
 								Src:   fmt.Sprintf("/static/images/people/%s_%s.webp", strings.ToLower(student.FamilyName), strings.ToLower(student.GivenName)),
@@ -160,8 +160,9 @@ templ StudentsCard(students []studentDTO.StudentView) {
 								{ student.Initials() }
 							}
 						}
-						<div class="flex flex-col gap-1 text-sm">
-							{ student.FullName() }
+						<div class="@container w-full flex flex-col gap-1 text-sm">
+							<span class="flex @23ch:hidden">{ student.NameInitial() }</span>
+							<span class="hidden @23ch:flex">{ student.FullName() }</span>
 							@badge.Badge(badge.Props{
 								Class: "text-xs",
 							}) {

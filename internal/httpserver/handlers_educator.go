@@ -914,5 +914,5 @@ func createEducatorSelectView(
 		l.ErrorContext(ctx, "cesv list educators", "err", err)
 		return dto.SelectView{}
 	}
-	return dto.NewSelectView(nil, educators, selected)
+	return dto.NewSelectView(nil, educators, selected...)
 }

@@ -13,5 +13,7 @@ func NewFilter() Filter {
 	for _, role := range roles {
 		roleFilter[role.String()] = true
 	}
-	return Filter{}
+	return Filter{
+		Role: roleFilter,
+	}
 }

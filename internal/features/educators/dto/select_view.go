@@ -18,7 +18,7 @@ type SelectOption struct {
 func NewSelectView(
 	filter *Filter,
 	educators []models.Educator,
-	selected []string,
+	selected ...string,
 ) SelectView {
 	if filter == nil {
 		defaultRoleFilter := make(map[string]bool, len(sharedmodels.EducatorRoleList))

@@ -255,7 +255,7 @@ func getStudentCreateStream(
 			educatorEvents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 		)
 		studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, sharedmodels.PlanTypeNone)
-		studentFormView.CaseManagers = educatorDTO.NewSelectView(&educatorDTO.Filter{}, caseManagers, []string{})
+		studentFormView.CaseManagers = educatorDTO.NewSelectView(&educatorDTO.Filter{}, caseManagers, "")
 		sse.PatchElementTempl(pages.Create(studentFormView))
 
 		for {
@@ -277,7 +277,7 @@ func getStudentCreateStream(
 					educatorEvents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 				)
 				studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, student.PlanType)
-				studentFormView.CaseManagers = educatorDTO.NewSelectView(&educatorDTO.Filter{}, caseManagers, []string{})
+				studentFormView.CaseManagers = educatorDTO.NewSelectView(&educatorDTO.Filter{}, caseManagers, "")
 				sse.PatchElementTempl(pages.Create(studentFormView))
 			}
 		}
@@ -767,7 +767,7 @@ func getStudentEditStream(
 					educatorEvents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
 				)
 				view.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, view.Student.PlanType)
-				view.CaseManagers = educatorDTO.NewSelectView(&educatorDTO.Filter{}, caseManagers, []string{view.Student.CaseManagerID})
+				view.CaseManagers = educatorDTO.NewSelectView(nil, caseManagers, view.Student.CaseManagerID)
 
 				// patch data to page
 				sse.PatchElementTempl(pages.Edit(*view))

@@ -2,6 +2,16 @@
 
 updates for SEEK
 
+## v0.10.1 (26.09.29) styling, service grid view
+
+- added container query to student list
+- refactored homeroom list to be more responsive to screen size
+- added service grid view
+- updated service CSV input
+  - now uses unified function for processing
+  - categorizes services using map of services in spedforms
+  - fixed bug where id wasn't being transfered over to CSV services
+
 ## v0.10.0 (26.09.29) new period view, educator search
 
 - finished implementing new period view for dashboard and educator view

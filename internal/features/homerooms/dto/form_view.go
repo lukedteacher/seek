@@ -28,7 +28,7 @@ func NewHomeroomFormView(
 	return HomeroomFormView{
 		Homeroom:           NewHomeroomView(p),
 		StudentSelectView:  studentDTO.NewSelectView(studentFilter, allStudents, p.StudentIDs),
-		EducatorSelectView: educatorDTO.NewSelectView(&educatorDTO.Filter{}, allEducators, p.EducatorIDs),
+		EducatorSelectView: educatorDTO.NewSelectView(&educatorDTO.Filter{}, allEducators, p.EducatorIDs...),
 	}
 }
 

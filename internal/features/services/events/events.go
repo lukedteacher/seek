@@ -52,6 +52,7 @@ const (
 type ServiceState struct {
 	ID              string `json:"id"`
 	IEPID           string `json:"iep_id"`
+	StudentID       string `json:"student_id"`
 	ServiceName     string `json:"service_name,omitempty"`
 	ServiceType     string `json:"service_type,omitempty"`
 	IndirectMinutes int64  `json:"indirect_minutes,omitempty"`
@@ -72,6 +73,7 @@ func NewStateFromModel(m models.Service) ServiceState {
 	return ServiceState{
 		ID:              m.ID,
 		IEPID:           m.IEPID,
+		StudentID:       m.StudentID,
 		ServiceName:     m.ServiceName,
 		ServiceType:     m.ServiceType.ShortString(),
 		IndirectMinutes: int64(m.IndirectMinutes),
@@ -90,6 +92,7 @@ func NewStateFromModel(m models.Service) ServiceState {
 type ServiceFlat struct {
 	ID              string `json:"service.id"`
 	IEPID           string `json:"service.iep_id"`
+	StudentID       string `json:"service.student_id"`
 	ServiceName     string `json:"service.service_name,omitempty"`
 	ServiceType     string `json:"service.service_type,omitempty"`
 	IndirectMinutes int64  `json:"service.indirect_minutes,omitempty"`
@@ -110,6 +113,7 @@ func NewModelFromFlat(f ServiceFlat) models.Service {
 	return models.Service{
 		ID:              f.ID,
 		IEPID:           f.IEPID,
+		StudentID:       f.StudentID,
 		ServiceName:     f.ServiceName,
 		ServiceType:     sharedmodels.ServiceType(f.ServiceType),
 		IndirectMinutes: int(f.IndirectMinutes),

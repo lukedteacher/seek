@@ -122,7 +122,7 @@ func SelectboxServiceType(url, object string, selected sharedmodels.ServiceType)
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				for i := range sharedmodels.ServiceTypeList {
+				for _, service := range sharedmodels.ServiceTypeList {
 					templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 						templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 						templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -135,7 +135,7 @@ func SelectboxServiceType(url, object string, selected sharedmodels.ServiceType)
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Icon(sharedmodels.ServiceTypeList[i].IconName())(icon.Props{
+						templ_7745c5c3_Err = icon.Icon(service.IconName())(icon.Props{
 							Class: "inline-block mr-2 align-middle",
 							Size:  "16",
 						}).Render(ctx, templ_7745c5c3_Buffer)
@@ -147,9 +147,9 @@ func SelectboxServiceType(url, object string, selected sharedmodels.ServiceType)
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var7 string
-						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(sharedmodels.ServiceTypeList[i].LongString())
+						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(service.LongString())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/selectbox_service_type.templ`, Line: 37, Col: 78}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/forms/selectbox_service_type.templ`, Line: 37, Col: 54}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -162,7 +162,7 @@ func SelectboxServiceType(url, object string, selected sharedmodels.ServiceType)
 						return nil
 					})
 					templ_7745c5c3_Err = selectbox.Item(selectbox.ItemProps{
-						Selected: sharedmodels.ServiceTypeList[i] == selected,
+						Selected: service == selected,
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err

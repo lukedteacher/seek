@@ -26,15 +26,15 @@ templ SelectboxServiceType(url, object string, selected sharedmodels.ServiceType
 			})
 		}
 		@selectbox.Content() {
-			for i := range sharedmodels.ServiceTypeList {
+			for _, service := range sharedmodels.ServiceTypeList {
 				@selectbox.Item(selectbox.ItemProps{
-					Selected: sharedmodels.ServiceTypeList[i] == selected,
+					Selected: service == selected,
 				}) {
-					@icon.Icon(sharedmodels.ServiceTypeList[i].IconName())(icon.Props{
+					@icon.Icon(service.IconName())(icon.Props{
 						Class: "inline-block mr-2 align-middle",
 						Size:  "16",
 					})
-					<span class="align-middle">{ sharedmodels.ServiceTypeList[i].LongString() }</span>
+					<span class="align-middle">{ service.LongString() }</span>
 				}
 			}
 		}

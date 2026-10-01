@@ -14,13 +14,13 @@ templ SelectServiceType(objectType string, selected sharedmodels.ServiceType) {
 	{{ view := shareddto.NewSelectViewServiceType(selected) }}
 	<input
 		class="hidden"
-		id="service-type"
+		id={ fmt.Sprintf("%s-service-type-input", objectType) }
 		type="text"
-		data-bind:period.service_type
+		{ utils.DataBind(fmt.Sprintf("%s.service_type", objectType)) }
 	/>
 	<div class="flex flex-col">
 		@label.Label(label.Props{
-			For:   "period-service-type-select",
+			For:   fmt.Sprintf("%s-service-type-select", objectType),
 			Class: "mb-3 text-neutral-content/70",
 		}) {
 			service type
@@ -32,6 +32,7 @@ templ SelectServiceType(objectType string, selected sharedmodels.ServiceType) {
 				match-trigger-width="true"
 			>
 				<div
+					{ fmt.Sprintf("%s-service-type-select", objectType) }
 					class="flex items-center gap-2 relative input"
 					data-neo-popover-trigger
 				>

@@ -17,6 +17,12 @@ const (
 	ServiceTypeOccupationalTherapy  ServiceType = "OT"
 	ServiceTypeSpeech               ServiceType = "speech"
 	ServiceTypeSocialWork           ServiceType = "SW"
+	ServiceTypeDAPE                 ServiceType = "DAPE"
+	ServiceTypeNursing              ServiceType = "nursing"
+	ServiceTypeVisionInstruction    ServiceType = "VI"
+	ServiceTypeBehavioralSupport    ServiceType = "BS"
+	ServiceTypeEmotionalRegulation  ServiceType = "ER"
+	ServiceTypeFunctionalSkills     ServiceType = "FS"
 )
 
 // knownServiceTypes is used for validation in UnmarshalJSON
@@ -30,6 +36,12 @@ var knownServiceTypes = []ServiceType{
 	ServiceTypeOccupationalTherapy,
 	ServiceTypeSpeech,
 	ServiceTypeSocialWork,
+	ServiceTypeDAPE,
+	ServiceTypeNursing,
+	ServiceTypeVisionInstruction,
+	ServiceTypeBehavioralSupport,
+	ServiceTypeEmotionalRegulation,
+	ServiceTypeFunctionalSkills,
 }
 
 var ServiceTypeList = []ServiceType{
@@ -41,6 +53,12 @@ var ServiceTypeList = []ServiceType{
 	ServiceTypeOccupationalTherapy,
 	ServiceTypeSpeech,
 	ServiceTypeSocialWork,
+	ServiceTypeDAPE,
+	ServiceTypeNursing,
+	ServiceTypeVisionInstruction,
+	ServiceTypeBehavioralSupport,
+	ServiceTypeEmotionalRegulation,
+	ServiceTypeFunctionalSkills,
 }
 
 // returns a simple string of the service type
@@ -58,6 +76,12 @@ func (st ServiceType) ShortString() string {
 		ServiceTypeOccupationalTherapy:  "OT",
 		ServiceTypeSpeech:               "speech",
 		ServiceTypeSocialWork:           "SW",
+		ServiceTypeDAPE:                 "DAPE",
+		ServiceTypeNursing:              "nursing",
+		ServiceTypeVisionInstruction:    "VI",
+		ServiceTypeBehavioralSupport:    "BS",
+		ServiceTypeEmotionalRegulation:  "ER",
+		ServiceTypeFunctionalSkills:     "FS",
 	}[st]
 }
 
@@ -73,6 +97,12 @@ func (st ServiceType) LongString() string {
 		ServiceTypeOccupationalTherapy:  "occupational therapy",
 		ServiceTypeSpeech:               "speech therapy",
 		ServiceTypeSocialWork:           "social work",
+		ServiceTypeDAPE:                 "developmentallly appropriate physical education",
+		ServiceTypeNursing:              "nursing",
+		ServiceTypeVisionInstruction:    "vision instruction",
+		ServiceTypeBehavioralSupport:    "behavioral support",
+		ServiceTypeEmotionalRegulation:  "emotional regulation",
+		ServiceTypeFunctionalSkills:     "functional skills",
 	}[st]
 }
 
@@ -89,6 +119,12 @@ func (st ServiceType) IconName() string {
 		ServiceTypeOccupationalTherapy:  "pencil",
 		ServiceTypeSpeech:               "speech",
 		ServiceTypeSocialWork:           "message-circle-heart",
+		ServiceTypeDAPE:                 "biceps-flexed",
+		ServiceTypeNursing:              "stethoscope",
+		ServiceTypeVisionInstruction:    "eye",
+		ServiceTypeBehavioralSupport:    "plus",
+		ServiceTypeEmotionalRegulation:  "plus",
+		ServiceTypeFunctionalSkills:     "plus",
 	}[st]; ok {
 		return name
 	}

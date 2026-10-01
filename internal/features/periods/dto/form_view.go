@@ -30,7 +30,7 @@ func NewPeriodFormView(
 		Period:         *p,
 		Days:           shareddto.DaysBitmaskToFormView(p.DaysBitmask),
 		StudentSelect:  studentDTO.NewSelectView(studentFilter, allStudents, p.StudentIDs),
-		EducatorSelect: educatorDTO.NewSelectView(&educatorDTO.Filter{}, allEducators, p.EducatorIDs),
+		EducatorSelect: educatorDTO.NewSelectView(&educatorDTO.Filter{}, allEducators, p.EducatorIDs...),
 	}
 }
 

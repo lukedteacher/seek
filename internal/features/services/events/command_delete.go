@@ -37,6 +37,7 @@ func DeleteServiceCommandHandler(
 		retriever,
 		cmd.ServiceID,
 		cmd.IEPID,
+		cmd.StudentID,
 	)
 	if err != nil {
 		return DeleteServiceResult{}, err
@@ -75,7 +76,8 @@ func loadDeleteServiceContext(
 	ctx context.Context,
 	retriever eventstore.Retriever,
 	serviceID,
-	iepID string,
+	iepID,
+	studentID string,
 ) (
 	*deleteServiceContext,
 	error,

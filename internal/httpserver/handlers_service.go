@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -10,13 +11,16 @@ import (
 
 	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
-	educatorModels "seek/internal/features/educators/models"
+	educatorDTO "seek/internal/features/educators/dto"
+	educatorEvents "seek/internal/features/educators/events"
 	iepEvents "seek/internal/features/ieps/events"
 	"seek/internal/features/services/dto"
 	"seek/internal/features/services/events"
 	"seek/internal/features/services/models"
 	"seek/internal/features/services/pages"
+	studentDTO "seek/internal/features/students/dto"
 	studentEvents "seek/internal/features/students/events"
+	studentModels "seek/internal/features/students/models"
 	"seek/internal/ui/core/coreblocks/toasts"
 	"seek/internal/viewstore"
 
@@ -26,24 +30,37 @@ import (
 )
 
 func (s Server) serviceRoutes(r chi.Router) {
+	// service list
 	r.Get("/services", getServicesList(s.Logger))
 	r.Get("/services/stream", getServicesListStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Services))
+	r.Get("/servicegrid", getServiceGrid(s.Logger))
+	r.Get("/servicegrid/stream", getServiceGridStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Services, s.ReadModels.IEPs, s.ReadModels.Students))
+	r.Query("/servicegrid", queryServiceGrid(s.Logger, s.ViewStore))
+	// service creation
 	r.Get("/services/create", getServiceCreate(s.Logger))
-	r.Get("/services/create/stream", getServiceCreateStream(s.Logger, s.ViewStore, s.ReadModels.Students))
-	r.Post("/services/create/validate", postServiceCreateValidate(s.Logger, s.ViewStore))
+	r.Get("/services/create/stream", getServiceCreateStream(s.Logger, s.ViewStore, s.ReadModels.Educators, s.ReadModels.Students))
+	r.Query("/services/create/validate", queryServiceFormValidate(s.Logger, s.ViewStore))
+	r.Query("/services/create/{field}/{value}", queryServiceFormField(s.Logger, s.ViewStore))
 	r.Post("/services/create", postServiceCreate(s.Logger, s.EventSaver, s.EventRetriever))
+	// service viewing
 	r.Get("/services/{id}", getServiceView(s.Logger))
 	r.Get("/services/{id}/stream", getServiceViewStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Services))
+	// service editing
 	r.Get("/services/{id}/edit", getServiceEdit(s.Logger))
 	r.Get("/services/{id}/edit/stream", getServiceEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Services, s.ReadModels.IEPs, s.ReadModels.Students))
+	r.Query("/services/{id}/edit/validate", queryServiceFormValidate(s.Logger, s.ViewStore))
+	r.Query("/services/{id}/edit/{field}/{value}", queryServiceFormField(s.Logger, s.ViewStore))
 	r.Post("/services/{id}/edit", postServiceEdit(s.Logger, s.EventSaver, s.EventRetriever))
-	r.Post("/services/{id}/edit/validate", postServiceEditValidate(s.Logger, s.ViewStore))
+	// other service stuff
 	r.Delete("/services/{id}", deleteService(s.Logger, s.EventSaver, s.EventRetriever))
+	// service CSV processing
 	r.Get("/services/csv", getServicesCSV(s.Logger, s.ReadModels.Services, s.ReadModels.IEPs, s.ReadModels.Students))
 	r.Post("/services/csv", postServicesCSV(s.Logger, s.EventSaver, s.EventRetriever, s.ReadModels.Services, s.ReadModels.IEPs, s.ReadModels.Students))
 }
 
 // GET request to /services
+// renders an empty table template
+// SSE will populate data
 func getServicesList(
 	_ *slog.Logger,
 ) http.HandlerFunc {
@@ -55,6 +72,7 @@ func getServicesList(
 }
 
 // GET request to /services/stream
+// populates data and keeps it updated with changes pushed from server
 func getServicesListStream(
 	l *slog.Logger,
 	subscriber MessageSubscriber,
@@ -71,16 +89,19 @@ func getServicesListStream(
 			notifier.Notify()
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "iep services list stream subscribe", "err", err)
+			l.ErrorContext(ctx, "gsls sub", "err", err)
 			return
 		}
 		defer sub.Close()
 
+		// initialize data
 		services, err := serviceReadModel.List(ctx)
 		if err != nil {
 			l.ErrorContext(ctx, "iep services list stream db list", "err", err)
 			return
 		}
+
+		// make the view and push it via SSE
 		view := dto.NewServiceTableView(services)
 		sse.PatchElementTempl(pages.List(view))
 
@@ -88,9 +109,7 @@ func getServicesListStream(
 			select {
 			case <-ctx.Done():
 				return
-			case <-notifier.Signal(): // triggers when the read model publishes
-				// for now just refreshes the page
-				// consider adding a view store for the list
+			case <-notifier.Signal():
 				services, err := serviceReadModel.List(ctx)
 				if err != nil {
 					l.ErrorContext(ctx, "iep services list stream db list", "err", err)
@@ -103,20 +122,27 @@ func getServicesListStream(
 	}
 }
 
-// GET request to /services/create
-func getServiceCreate(
-	_ *slog.Logger,
+// GET request to /services/grid
+// renders an empty grid template
+// SSE will populate data
+func getServiceGrid(
+	l *slog.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.Create(dto.ServiceFormView{FormType: "create"}).Render(ctx, w)
+		_ = pages.Grid(dto.ServiceGrid{}).Render(ctx, w)
 	}
 }
 
-// GET request to /services/create/stream
-func getServiceCreateStream(
+// GET request to /services/grid/stream
+// populates the grid and keeps it updated with read model changes
+// and per-user column visibility changes
+func getServiceGridStream(
 	l *slog.Logger,
+	subscriber MessageSubscriber,
 	vs viewstore.Store,
+	serviceReadModel *events.ReadModel,
+	iepReadModel *iepEvents.ReadModel,
 	studentReadModel *studentEvents.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -124,9 +150,156 @@ func getServiceCreateStream(
 		user := currentUser(r)
 		sse := newSSE(w, r)
 
-		// watches the key value stream for ephemeral changes
-		// lasts 5m
-		key := user.Username + ".services.create"
+		// subscribe to read model changes
+		notifier := NewDedupeNotifier()
+		sub, err := subscriber.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {
+			notifier.Notify()
+		})
+		if err != nil {
+			l.ErrorContext(ctx, "gsgs sub", "err", err)
+			return
+		}
+		defer sub.Close()
+
+		// watch per-user column visibility
+		key := user.Username + ".servicegrid"
+		watcher, err := vs.Watch(ctx, key, viewstore.WatchOptions{IgnoreDeletes: true})
+		if err != nil {
+			l.ErrorContext(ctx, "gsgs watch", "err", err)
+			return
+		}
+		defer watcher.Stop()
+
+		// initial columns: user's saved list, or defaults
+		columns := sharedmodels.ServiceTypeList
+		if saved, ok, err := viewstore.GetState[dto.ServiceGrid](ctx, vs, key); err != nil {
+			l.ErrorContext(ctx, "gsgs get state", "err", err)
+		} else if ok {
+			columns = saved.Columns
+		}
+
+		// initial render
+		grid, err := buildServiceGrid(
+			ctx,
+			studentReadModel,
+			studentDTO.NewFilter(),
+			iepReadModel,
+			serviceReadModel,
+			columns,
+		)
+		if err != nil {
+			l.ErrorContext(ctx, "gsgs init", "err", err)
+			return
+		}
+		sse.PatchElementTempl(pages.Grid(grid))
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			case <-notifier.Signal():
+				grid, err := buildServiceGrid(
+					ctx,
+					studentReadModel,
+					studentDTO.NewFilter(),
+					iepReadModel,
+					serviceReadModel,
+					columns,
+				)
+				if err != nil {
+					l.ErrorContext(ctx, "gsgs update", "err", err)
+					continue
+				}
+				sse.PatchElementTempl(pages.Grid(grid))
+
+			case entry, ok := <-watcher.Updates():
+				if !ok {
+					return
+				}
+				signals := &dto.ServiceGrid{}
+				if err := entry.JSON(signals); err != nil {
+					l.ErrorContext(ctx, "gsgs json", "err", err)
+					continue
+				}
+				if len(signals.Columns) == 0 {
+					columns = sharedmodels.ServiceTypeList
+				} else {
+					columns = signals.Columns
+				}
+				grid, err := buildServiceGrid(
+					ctx,
+					studentReadModel,
+					studentDTO.Filter{
+						Search: signals.StudentFilter.Search,
+					},
+					iepReadModel,
+					serviceReadModel,
+					columns,
+				)
+				if err != nil {
+					l.ErrorContext(ctx, "gsgs update", "err", err)
+					continue
+				}
+				sse.PatchElementTempl(pages.Grid(grid))
+			}
+		}
+	}
+}
+
+func queryServiceGrid(
+	l *slog.Logger,
+	vs viewstore.Store,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		user := currentUser(r)
+		key := user.Username + ".servicegrid"
+
+		signals := &dto.ServiceGrid{}
+		if err := datastar.ReadSignals(r, signals); err != nil {
+			l.ErrorContext(ctx, "qsg read", "err", err)
+			return
+		}
+
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
+			l.ErrorContext(ctx, "qsg put", "err", err)
+		}
+	}
+}
+
+// GET request to /services/create
+// populates empty form with appropriate form type
+func getServiceCreate(
+	_ *slog.Logger,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		props := dto.ServiceFormView{
+			FormType: sharedmodels.FormTypeCreate,
+		}
+		_ = pages.Create(props).Render(ctx, w)
+	}
+}
+
+// GET request to /services/create/stream
+func getServiceCreateStream(
+	l *slog.Logger,
+	vs viewstore.Store,
+	educatorReadModel *educatorEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		user := currentUser(r)
+		sse := newSSE(w, r)
+
+		// watches for view store changes
+		key, err := getServiceViewstoreKey(sharedmodels.FormTypeCreate, user.Username, "")
+		if err != nil {
+			l.ErrorContext(ctx, "gscs vs key", "err", err, "username", user.Username)
+			return
+		}
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -135,22 +308,15 @@ func getServiceCreateStream(
 			},
 		)
 		if err != nil {
-			l.ErrorContext(ctx, "iep create stream watcher init", "err", err)
+			l.ErrorContext(ctx, "gscs watch", "err", err)
 			return
 		}
 		defer watcher.Stop()
 
-		students, err := studentReadModel.ListWithIEPs(ctx)
-		if err != nil {
-			l.ErrorContext(ctx, "service create stream list students", "err", err)
+		// initialize view state to be updated by SSE
+		if err := initializeServiceCreateState(ctx, l, vs, key); err != nil {
+			l.ErrorContext(ctx, "gscs init vs", "err", err, "key", key)
 		}
-		view := dto.NewServiceFormView(
-			"create",
-			&models.Service{},
-			students,
-			[]educatorModels.Educator{},
-		)
-		sse.PatchElementTempl(pages.Create(view))
 
 		for {
 			select {
@@ -160,44 +326,48 @@ func getServiceCreateStream(
 				if !ok {
 					return
 				}
-				model := &models.Service{}
-				if err := entry.JSON(model); err != nil {
-					l.ErrorContext(ctx, "iep create stream watcher update", "err", err)
+				signals := &dto.ServiceFormSignals{}
+				if err := entry.JSON(signals); err != nil {
+					l.ErrorContext(ctx, "gscs json decode", "err", err)
 					return
 				}
-				students, _ := studentReadModel.ListWithIEPs(ctx)
-				view := dto.NewServiceFormView(
-					"create",
-					model,
-					students,
-					[]educatorModels.Educator{},
+				educators, _ := educatorReadModel.List(
+					ctx,
+					educatorEvents.FilterByRole(
+						sharedmodels.EducatorRoleServiceProvider,
+					),
 				)
+				view := dto.ServiceFormView{
+					FormType:           sharedmodels.FormTypeCreate,
+					Service:            signals.Service,
+					ProviderSelectView: educatorDTO.NewSelectView(&signals.EducatorSelect.Filter, educators, signals.Service.ProviderID),
+				}
 				sse.PatchElementTempl(pages.Create(view))
 			}
 		}
 	}
 }
 
-// POST request to /services/create/validate
-func postServiceCreateValidate(
+// QUERY request to /services/{formURL}/validate
+func queryServiceFormValidate(
 	l *slog.Logger,
 	vs viewstore.Store,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		signals := &struct {
-			View dto.ServiceView `json:"service"`
-		}{}
+		signals := &dto.ServiceFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "iep create validate signals read", "err", err)
 			return
 		}
-		model := dto.NewModelFromView(&signals.View)
-		// saves the state to a view store so that the SSE can update
-		key := user.Username + ".services.create"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
-			l.ErrorContext(ctx, "post iep services create validate viewstore", "err", err)
+		key, err := getServiceViewstoreKey(signals.FormType, user.Username, signals.Service.ID)
+		if err != nil {
+			l.ErrorContext(ctx, "qhfg vs key", "err", err, "form type", signals.FormType, "username", user.Username, "sid", signals.Service.ID)
+			return
+		}
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
+			l.ErrorContext(ctx, "qhfg vs put state", "err", err, "key", key)
 		}
 	}
 }
@@ -211,21 +381,18 @@ func postServiceCreate(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		signals := &struct {
-			View dto.ServiceView `json:"service"`
-		}{}
+		signals := &dto.ServiceFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "post iep services create signals", "err", err)
 			return
 		}
-		if signals.View.StudentID == "" {
+		if signals.Service.StudentID == "" {
 			sse := newSSE(w, r)
 			sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantError, "no student selected"))
 			return
 		}
-		model := dto.NewModelFromView(&signals.View)
 		cmd := events.AddServiceToIEPCommand{
-			Service:  model,
+			Service:  signals.Service,
 			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.AddServiceToIEPCommandHandler(ctx, cmd, saver, retriever)
@@ -244,7 +411,7 @@ func getServiceView(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		view := dto.NewServiceView(&models.Service{})
+		view := dto.NewServiceView(nil)
 		_ = pages.View(view).Render(ctx, w)
 	}
 }
@@ -326,7 +493,10 @@ func getServiceEdit(
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		_ = pages.Edit(dto.ServiceFormView{FormType: "edit"}).Render(ctx, w)
+		props := dto.ServiceFormView{
+			FormType: sharedmodels.FormTypeEdit,
+		}
+		_ = pages.Edit(props).Render(ctx, w)
 	}
 }
 
@@ -344,19 +514,25 @@ func getServiceEditStream(
 		serviceID := chi.URLParam(r, "id")
 		sse := newSSE(w, r)
 
-		notifier := NewDedupeNotifier()
 		// subscribes to the channel which publishes changes to the underlying model
+		notifier := NewDedupeNotifier()
 		sub, err := subscriber.Subscribe(ctx, events.Channel(serviceID), func(context.Context, []byte) {
 			notifier.Notify()
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "iep service edit stream subscribe", "err", err)
+			l.ErrorContext(ctx, "gses sub", "err", err)
 			return
 		}
 		defer sub.Close()
 
-		// watches the service edit view state kv
-		key := serviceID + ".edit"
+		// get view store key based on form type and info
+		key, err := getServiceViewstoreKey(sharedmodels.FormTypeEdit, "", serviceID)
+		if err != nil {
+			l.ErrorContext(ctx, "gses vs key", "err", err, "id", serviceID)
+			return
+		}
+
+		// watch for view store changes
 		watcher, err := vs.Watch(
 			ctx,
 			key,
@@ -365,17 +541,32 @@ func getServiceEditStream(
 			},
 		)
 		if err != nil {
-			l.ErrorContext(ctx, "iep service edit stream watcher", "err", err)
+			l.ErrorContext(ctx, "gses vs watch", "err", err, "key", key)
 			return
 		}
 		defer watcher.Stop()
 
-		if err := refreshServiceEditState(ctx, l, vs, serviceID, serviceReadModel, iepReadModel); err != nil {
-			if err.Error() == "service not found" {
-				sse.PatchElementTempl(pages.NotFound())
+		// check if view exists (someone is already editing the service)
+		// if not, populate the view
+		_, ok, err := vs.Get(ctx, key)
+		if !ok {
+			if err := refreshServiceEditState(
+				ctx,
+				l,
+				vs,
+				serviceID,
+				serviceReadModel,
+				iepReadModel,
+			); err != nil {
+				if err.Error() == "service not found" {
+					sse.PatchElementTempl(pages.NotFound())
+				}
+				l.ErrorContext(ctx, "gses refresh state", "err", err)
+				return
 			}
-			l.ErrorContext(ctx, "service edit stream refresh state", "err", err)
-			return
+		}
+		if err != nil {
+			l.ErrorContext(ctx, "gses get state", "err", err)
 		}
 
 		for {
@@ -383,53 +574,74 @@ func getServiceEditStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal():
-				if err := refreshServiceEditState(ctx, l, vs, serviceID, serviceReadModel, iepReadModel); err != nil {
+				if err := refreshServiceEditState(
+					ctx,
+					l,
+					vs,
+					serviceID,
+					serviceReadModel,
+					iepReadModel,
+				); err != nil {
 					if err.Error() == "service not found" {
 						sse.PatchElementTempl(pages.NotFound())
 					}
-					l.ErrorContext(ctx, "iep service edit stream refresh", "err", err)
+					l.ErrorContext(ctx, "gses notifier refresh", "err", err)
 					return
 				}
 			case entry, ok := <-watcher.Updates():
 				if !ok {
 					return
 				}
-				model := &models.Service{}
-				if err := entry.JSON(model); err != nil {
+				signals := &dto.ServiceFormSignals{}
+				if err := entry.JSON(signals); err != nil {
 					l.ErrorContext(ctx, "iep service edit stream json", "err", err)
 					return
 				}
-				students, _ := studentReadModel.ListWithIEPs(ctx)
-				view := dto.NewServiceFormView(
-					"edit",
-					model,
-					students,
-					[]educatorModels.Educator{},
-				)
+				view := dto.ServiceFormView{
+					FormType: sharedmodels.FormTypeEdit,
+					Service:  signals.Service,
+				}
 				sse.PatchElementTempl(pages.Edit(view))
 			}
 		}
 	}
 }
 
-// POST request to /services/{id}/edit/validate
-func postServiceEditValidate(
+// QUERY request to /services/{formURL}/{field}/{value}
+func queryServiceFormField(
 	l *slog.Logger,
 	vs viewstore.Store,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		signals := &struct {
-			View dto.ServiceView `json:"service"`
-		}{}
+		user := currentUser(r)
+		field := chi.URLParam(r, "field")
+		value := chi.URLParam(r, "value")
+		signals := &dto.ServiceFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "post iep service edit validate signals", "err", err)
 			return
 		}
-		model := dto.NewModelFromView(&signals.View)
-		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
-			l.ErrorContext(ctx, "view store error", "error", err)
+		switch field {
+		case "servicetype":
+			serviceType, err := sharedmodels.ParseServiceType(value)
+			if err != nil {
+				l.ErrorContext(ctx, "qsff st parse", "err", err)
+				return
+			}
+			signals.Service.ServiceType = serviceType
+		default:
+			l.ErrorContext(ctx, "qpff", "invalid field in form", field)
+			return
+		}
+		key, err := getServiceViewstoreKey(signals.FormType, user.Username, signals.Service.ID)
+		if err != nil {
+			l.ErrorContext(ctx, "qsff key", "err", err, "key", key)
+			return
+		}
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
+			l.ErrorContext(ctx, "qsff vs put state", "error", err)
+			return
 		}
 	}
 }
@@ -444,16 +656,13 @@ func postServiceEdit(
 		ctx := r.Context()
 		user := currentUser(r)
 		serviceID := chi.URLParam(r, "id")
-		signals := &struct {
-			View dto.ServiceView `json:"service"`
-		}{}
+		signals := &dto.ServiceFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "post iep service edit signals", "err", err)
 			return
 		}
-		model := dto.NewModelFromView(&signals.View)
 		cmd := events.UpdateServiceCommand{
-			Service:  model,
+			Service:  signals.Service,
 			Metadata: eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
 		}
 		result, err := events.UpdateServiceCommandHandler(ctx, cmd, saver, retriever)
@@ -511,60 +720,10 @@ func getServicesCSV(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		file, err := os.OpenFile("iep_services.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+		diffs, err := loadServiceDiffs(ctx, iepReadModel, studentReadModel, serviceReadModel)
 		if err != nil {
-			http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
-			return
+			l.ErrorContext(ctx, "pscsv load diffs", "err", err)
 		}
-		defer file.Close()
-
-		csvServices := []*models.CSVService{}
-		if err := gocsv.UnmarshalFile(file, &csvServices); err != nil {
-			http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		// filter out unwanted services
-		filtered := make([]*models.CSVService, 0, len(csvServices))
-		for _, svc := range csvServices {
-			if svc.ServiceName != "Shared paraprofessional" {
-				filtered = append(filtered, svc)
-			}
-		}
-
-		// get student list and make map for marss check
-		students, _ := studentReadModel.List(ctx)
-		marssMap := make(map[string]string)
-		for _, student := range students {
-			marssMap[student.MARSSID] = student.ID
-		}
-
-		// convert CSV rows with valid MARSS ID to domain models
-		converted := make([]models.Service, 0)
-		for _, csvSvc := range filtered {
-			key := strings.TrimSpace(csvSvc.StudentMARSSID)
-			// if the service applies to a student
-			if studentID, ok := marssMap[key]; ok {
-				ieps, _ := iepReadModel.ListForStudent(ctx, studentID)
-				csvSvc.StudentID = studentID
-				if len(ieps) > 0 {
-					csvSvc.IEPID = ieps[0].ID
-				} else {
-					continue
-				}
-				converted = append(converted, models.NewModelFromCSVRow(*csvSvc))
-			}
-		}
-
-		// fetch existing DB services
-		dbServices, err := serviceReadModel.List(ctx)
-		if err != nil {
-			l.ErrorContext(ctx, "read csv list db services", "err", err)
-			return
-		}
-
-		// compute diff
-		diffs := models.CompareServices(dbServices, converted)
 
 		// render view
 		view := dto.NewServiceDiffTableView(diffs)
@@ -584,60 +743,10 @@ func postServicesCSV(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		file, err := os.OpenFile("iep_services.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+		diffs, err := loadServiceDiffs(ctx, iepReadModel, studentReadModel, serviceReadModel)
 		if err != nil {
-			http.Error(w, "failed to open csv file: "+err.Error(), http.StatusInternalServerError)
-			return
+			l.ErrorContext(ctx, "pscsv load diffs", "err", err)
 		}
-		defer file.Close()
-
-		csvServices := []*models.CSVService{}
-		if err := gocsv.UnmarshalFile(file, &csvServices); err != nil {
-			http.Error(w, "failed to parse csv: "+err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		// filter out unwanted services
-		filtered := make([]*models.CSVService, 0, len(csvServices))
-		for _, svc := range csvServices {
-			if svc.ServiceName != "Shared paraprofessional" {
-				filtered = append(filtered, svc)
-			}
-		}
-
-		// get student list and make map for marss check
-		students, _ := studentReadModel.List(ctx)
-		marssMap := make(map[string]string)
-		for _, student := range students {
-			marssMap[student.MARSSID] = student.ID
-		}
-
-		// convert CSV rows with valid MARSS ID to domain models
-		converted := make([]models.Service, 0)
-		for _, csvSvc := range filtered {
-			key := strings.TrimSpace(csvSvc.StudentMARSSID)
-			// if the service applies to a student
-			if studentID, ok := marssMap[key]; ok {
-				ieps, _ := iepReadModel.ListForStudent(ctx, studentID)
-				csvSvc.StudentID = studentID
-				if len(ieps) > 0 {
-					csvSvc.IEPID = ieps[0].ID
-				} else {
-					continue
-				}
-				converted = append(converted, models.NewModelFromCSVRow(*csvSvc))
-			}
-		}
-
-		// fetch existing DB services
-		dbServices, err := serviceReadModel.List(ctx)
-		if err != nil {
-			l.ErrorContext(ctx, "read csv list db services", "err", err)
-			return
-		}
-
-		// compute diff
-		diffs := models.CompareServices(dbServices, converted)
 
 		for _, diff := range diffs {
 			if diff.Status == sharedmodels.DiffSame {
@@ -654,20 +763,36 @@ func postServicesCSV(
 				)
 				if err != nil {
 					l.ErrorContext(ctx, "ps csv add", "err", err)
+					continue
 				}
 			}
 			if diff.Status == sharedmodels.DiffUpdated {
 				_, err := events.UpdateServiceCommandHandler(
 					ctx,
 					events.UpdateServiceCommand{
-						Service: *diff.New,
+						Service: models.Service{
+							ID:              diff.Old.ID,
+							IEPID:           diff.Old.IEPID,
+							StudentID:       diff.Old.StudentID,
+							StudentMARSSID:  diff.Old.StudentMARSSID,
+							ServiceName:     diff.New.ServiceName,
+							ServiceType:     diff.New.ServiceType,
+							IndirectMinutes: diff.New.IndirectMinutes,
+							DirectMinutes:   diff.New.DirectMinutes,
+							FrequencyCount:  diff.New.FrequencyCount,
+							FrequencyType:   diff.New.FrequencyType,
+							LocationID:      diff.New.LocationID,
+							StartDate:       diff.New.StartDate,
+							EndDate:         diff.New.EndDate,
+							CreatedAt:       diff.Old.CreatedAt,
+						},
 					},
 					saver,
 					retriever,
 				)
 				if err != nil {
 					l.ErrorContext(ctx, "ps csv update", "err", err)
-					return
+					continue
 				}
 			}
 			if diff.Status == sharedmodels.DiffAbsent {
@@ -675,6 +800,7 @@ func postServicesCSV(
 					ctx,
 					events.DeleteServiceCommand{
 						ServiceID: diff.Old.ID,
+						IEPID:     diff.Old.IEPID,
 						StudentID: diff.Old.StudentID,
 					},
 					saver,
@@ -682,7 +808,7 @@ func postServicesCSV(
 				)
 				if err != nil {
 					l.ErrorContext(ctx, "ps csv delete", "err", err)
-					return
+					continue
 				}
 			}
 		}
@@ -690,6 +816,22 @@ func postServicesCSV(
 		sse := newSSE(w, r)
 		sse.Redirect("/services")
 	}
+}
+
+func initializeServiceCreateState(
+	ctx context.Context,
+	l *slog.Logger,
+	vs viewstore.Store,
+	key string,
+) error {
+	signals := dto.ServiceFormSignals{
+		FormType: sharedmodels.FormTypeCreate,
+		Service:  *models.NewService(),
+		EducatorSelect: dto.EducatorSelectSignals{
+			Filter: educatorDTO.NewFilter(),
+		},
+	}
+	return viewstore.PutState(ctx, vs, key, signals)
 }
 
 func refreshServiceViewState(
@@ -719,8 +861,160 @@ func refreshServiceEditState(
 	if err != nil {
 		return err
 	}
+	if model == nil {
+		return errors.New("model not found")
+	}
 	iep, _ := iepReadModel.Get(ctx, model.IEPID)
 	model.StudentID = iep.StudentID
-	key := model.ID + ".edit"
-	return viewstore.PutState(ctx, vs, key, model)
+	key, err := getServiceViewstoreKey(sharedmodels.FormTypeEdit, "", model.ID)
+	if err != nil {
+		return err
+	}
+	signals := dto.ServiceFormSignals{
+		FormType: sharedmodels.FormTypeEdit,
+		Service:  *model,
+		EducatorSelect: dto.EducatorSelectSignals{
+			Filter: educatorDTO.NewFilter(),
+		},
+	}
+	return viewstore.PutState(ctx, vs, key, signals)
+}
+
+func getServiceViewstoreKey(
+	formType sharedmodels.FormType,
+	username string,
+	serviceID string,
+) (string, error) {
+	if formType == sharedmodels.FormTypeCreate && username != "" {
+		return username + ".services.create", nil
+	} else if formType == sharedmodels.FormTypeEdit && serviceID != "" {
+		return serviceID + ".edit", nil
+	} else {
+		return "", errors.New("error getting viewstore key")
+	}
+}
+
+func loadServiceDiffs(
+	ctx context.Context,
+	iepReadModel *iepEvents.ReadModel,
+	studentReadModel *studentEvents.ReadModel,
+	serviceReadModel *events.ReadModel,
+) ([]sharedmodels.Diff[models.Service], error) {
+	file, err := os.OpenFile("iep_services.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return nil, fmt.Errorf("open csv: %w", err)
+	}
+	defer file.Close()
+
+	csvServices := []*models.CSVService{}
+	if err := gocsv.UnmarshalFile(file, &csvServices); err != nil {
+		return nil, fmt.Errorf("parse csv: %w", err)
+	}
+
+	exclude := map[string]bool{
+		"Shared paraprofessional":           true,
+		"One-to-One paraprofessional (1-1)": true,
+	}
+	filtered := make([]*models.CSVService, 0, len(csvServices))
+	for _, svc := range csvServices {
+		if !exclude[svc.ServiceName] {
+			filtered = append(filtered, svc)
+		}
+	}
+
+	normalize := func(s string) string {
+		s = strings.TrimSpace(s)
+		s = strings.TrimLeft(s, "0")
+		return s
+	}
+	students, err := studentReadModel.List(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list students: %w", err)
+	}
+	marssMap := make(map[string]string, len(students))
+	for _, student := range students {
+		key := normalize(student.MARSSID)
+		if key == "" || key == "0" {
+			continue
+		}
+		marssMap[key] = student.ID
+	}
+
+	converted := make([]models.Service, 0)
+	for _, csvSvc := range filtered {
+		key := normalize(csvSvc.StudentMARSSID)
+		if key == "" || key == "0" {
+			continue
+		}
+		studentID, ok := marssMap[key]
+		if !ok {
+			continue
+		}
+
+		ieps, err := iepReadModel.ListForStudent(ctx, studentID)
+		if err != nil || len(ieps) == 0 {
+			continue
+		}
+
+		csvSvc.StudentID = studentID
+		csvSvc.IEPID = ieps[0].ID
+		converted = append(converted, models.NewModelFromCSVRow(*csvSvc))
+	}
+
+	dbServices, err := serviceReadModel.List(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list db services: %w", err)
+	}
+	for i, service := range dbServices {
+		iep, err := iepReadModel.Get(ctx, service.IEPID)
+		if err != nil {
+			continue
+		}
+		dbServices[i].StudentID = iep.StudentID
+	}
+
+	return models.CompareServices(dbServices, converted), nil
+}
+
+// buildServiceGrid assembles the grid from the read models and the given visible columns.
+// Only students with an IEP are included. Students with an IEP but no services still appear.
+func buildServiceGrid(
+	ctx context.Context,
+	studentReadModel *studentEvents.ReadModel,
+	studentFilter studentDTO.Filter,
+	iepReadModel *iepEvents.ReadModel,
+	serviceReadModel *events.ReadModel,
+	columns []sharedmodels.ServiceType,
+) (dto.ServiceGrid, error) {
+	students, err := studentReadModel.List(
+		ctx,
+		studentEvents.WithSearchFilter(studentFilter.Search),
+		studentEvents.WithSort("family_name", "ASC"),
+	)
+	if err != nil {
+		return dto.ServiceGrid{}, err
+	}
+
+	servicesByStudent := make(map[string]map[sharedmodels.ServiceType][]models.Service, len(students))
+	withIEP := make([]studentModels.Student, 0, len(students))
+
+	for _, student := range students {
+		ieps, err := iepReadModel.ListForStudent(ctx, student.ID)
+		if err != nil || len(ieps) == 0 {
+			continue
+		}
+		withIEP = append(withIEP, student)
+
+		services, err := serviceReadModel.ListServicesForIEP(ctx, ieps[0].ID)
+		if err != nil {
+			continue
+		}
+		byType := make(map[sharedmodels.ServiceType][]models.Service, len(services))
+		for _, s := range services {
+			byType[s.ServiceType] = append(byType[s.ServiceType], s)
+		}
+		servicesByStudent[student.ID] = byType
+	}
+
+	return dto.NewServiceGrid(withIEP, servicesByStudent, columns), nil
 }

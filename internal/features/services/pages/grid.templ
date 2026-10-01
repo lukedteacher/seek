@@ -1,0 +1,87 @@
+package pages
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/services/dto"
+	"seek/internal/features/services/models"
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/coreblocks/filters"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+	"seek/pkg/templui/components/badge"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+)
+
+templ Grid(grid dto.ServiceGrid) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	{{ colCount := 2 + len(grid.Columns) }}
+	@corelayouts.LayoutBase("SEEK: service grid view") {
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain("service grid view")
+			<div class="flex items-center justify-between">
+				@uifilters.SearchInput("service-grid-student-search", "student_filter.search")
+			</div>
+			<section
+				class="grid w-full lg:max-w-4/5 mt-4 border border-muted rounded-md"
+				style={ fmt.Sprintf("grid-template-columns: repeat(%d, minmax(0, 1fr));", colCount) }
+				data-signals:columns={ templ.JSONString(grid.Columns) }
+			>
+				<div class="flex items-center justify-center p-1 border-r border-muted border-dashed">student</div>
+				<div class="flex items-center justify-center p-1 border-r border-muted border-dashed">grade</div>
+				for _, col := range grid.Columns {
+					<div class="@container flex items-center justify-between gap-2 p-1 border-r border-muted border-dashed">
+						<span class="flex">
+							@icon.Icon(col.IconName())(icon.Props{
+								Class: "size-4",
+							})
+						</span>
+						<span class="hidden @12ch:flex @23ch:hidden">
+							{ col.ShortString() }
+						</span>
+						<span class="hidden @23ch:flex">
+							{ col.LongString() }
+						</span>
+						@button.Button(button.Props{
+							Variant: button.VariantGhost,
+							Attributes: templ.Attributes{
+								"data-on:click": fmt.Sprintf("$columns = $columns.filter(c => c !== '%s'); @query('/servicegrid')", col.ShortString()),
+							},
+						}) {
+							@icon.Eye()
+						}
+					</div>
+				}
+				for _, row := range grid.Rows {
+					<div class="text-sm flex p-1 border-r border-muted border-dashed">
+						{ row.Student.NameInitial() }
+					</div>
+					<div class="flex justify-center p-1 border-r border-muted border-dashed">
+						@badge.Badge() {
+							{ row.Student.Grade.Ordinal() }
+						}
+					</div>
+					for _, cell := range row.Cells {
+						<div class="flex justify-center gap-1 p-1 border-r border-muted border-dashed">
+							for _, svc := range cell {
+								@ServiceBadge(svc)
+							}
+						</div>
+					}
+				}
+			</section>
+		</main>
+	}
+}
+
+templ ServiceBadge(service models.Service) {
+	@badge.Badge(badge.Props{
+		Attributes: templ.Attributes{
+			"data-service": service.ServiceType.String(),
+		},
+	}) {
+		{ service.DirectMinutes } x { service.FrequencyCount }
+	}
+}
