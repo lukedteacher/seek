@@ -45,9 +45,9 @@ templ Form(p FormProps) {
 			</div>
 			<footer class="flex justify-end gap-6">
 				if p.FormType == sharedmodels.FormTypeEdit {
-					@forms.DeleteButton("homeroom", p.Homeroom.ID)
+					@forms.DeleteButton(forms.DeleteButtonProps{DeleteURL: fmt.Sprintf("/homerooms/%s", p.Homeroom.ID)})
 				}
-				@forms.CancelButton("/homerooms")
+				@forms.CancelButton(forms.CancelButtonProps{CancelURL: "/homerooms"})
 				@forms.SaveButton()
 			</footer>
 		</form>

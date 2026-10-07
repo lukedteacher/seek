@@ -13,6 +13,7 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 
 	iepModels "seek/internal/features/ieps/models"
+	"seek/internal/features/students/dto"
 	"seek/internal/features/students/models"
 
 	"zombiezen.com/go/sqlite"
@@ -402,7 +403,7 @@ func (m *ReadModel) listByGrade(ctx context.Context, grades []int) ([]models.Stu
 	return students, nil
 }
 
-func (m *ReadModel) ListWithIEPs(ctx context.Context) ([]models.StudentWithIEP, error) {
+func (m *ReadModel) ListWithIEPs(ctx context.Context) ([]dto.StudentWithIEP, error) {
 	var rows []dbsql.ListOnlyStudentsWithIepsRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
@@ -413,30 +414,31 @@ func (m *ReadModel) ListWithIEPs(ctx context.Context) ([]models.StudentWithIEP, 
 	}
 	// map student ID -> index in the final slice
 	studentMap := make(map[string]int)
-	var students []models.StudentWithIEP
+	var students []dto.StudentWithIEP
 
 	for _, row := range rows {
 		idx, ok := studentMap[row.StudentId]
 		if !ok {
 			// create a new student entry
-			student := models.StudentWithIEP{
-				ID:      row.StudentId,
-				MARSSID: row.MarssId,
-				Person: sharedmodels.Person{
-					Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
-					GivenName:  row.GivenName,
-					ChosenName: row.ChosenName,
-					FamilyName: row.FamilyName,
-					Pronouns:   parsePronouns(row.Pronouns),
-					Email:      row.Email,
-					Username:   row.Username,
+			student := dto.StudentWithIEP{
+				Student: models.Student{
+					ID:      row.StudentId,
+					MARSSID: row.MarssId,
+					Person: sharedmodels.Person{
+						Birthdate:  sharedmodels.DateOnly(parseDBTime(row.Birthdate)),
+						GivenName:  row.GivenName,
+						ChosenName: row.ChosenName,
+						FamilyName: row.FamilyName,
+						Pronouns:   parsePronouns(row.Pronouns),
+						Email:      row.Email,
+						Username:   row.Username,
+					},
+					Grade:         sharedmodels.Grade(row.Grade),
+					HomeroomID:    row.HomeroomId,
+					PlanType:      sharedmodels.PlanType(row.PlanType),
+					CaseManagerID: row.CaseManagerId,
+					CreatedAt:     parseDBTime(row.CreatedAt),
 				},
-				Grade:         sharedmodels.Grade(row.Grade),
-				HomeroomID:    row.HomeroomId,
-				PlanType:      sharedmodels.PlanType(row.PlanType),
-				CaseManagerID: row.CaseManagerId,
-				CreatedAt:     parseDBTime(row.CreatedAt),
-				UpdatedAt:     parseDBTime(row.UpdatedAt),
 			}
 			studentMap[row.StudentId] = len(students)
 			students = append(students, student)

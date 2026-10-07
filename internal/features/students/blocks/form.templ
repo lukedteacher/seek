@@ -22,7 +22,7 @@ templ StudentForm(view dto.StudentFormView) {
 			@FormSections(view)
 		</div>
 		<footer class="w-full flex gap-8">
-			@forms.CancelButton("/students")
+			@forms.CancelButton(forms.CancelButtonProps{CancelURL: "/students"})
 			@forms.SaveButton()
 		</footer>
 	</form>

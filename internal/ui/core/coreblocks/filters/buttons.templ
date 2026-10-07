@@ -1,43 +1,54 @@
 package uifilters
 
 import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/utils"
 )
 
 type FilterButtonsProps struct {
-	Signal string
-	Label  string
-	List []FilterButtonProps
+	Label   string
+	Buttons []FilterButtonProp
 }
 
-type FilterButtonProps struct {
-	Signal string
-	Label string
-	Active bool
-	URL string
+type FilterButtonProp struct {
+	Label       string
+	SignalKey   string
+	SignalValue string
+	Active      bool
 }
 
 templ FilterButtons(p FilterButtonsProps) {
 	<div
-		class="flex flex-col gap-3"
-		{ utils.DataSignals(p.Signal) }
+		class="flex flex-col gap-3 w-full h-full"
 	>
 		<h4>{ p.Label }</h4>
-		<div class="button-group grid grid-cols-9 w-fit">
-			for _, item := range p.List {
-				@FilterButton(item)
+		<div class="button-group grid" style="grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr))">
+			for _, filterButton := range p.Buttons {
+				@FilterButton(filterButton)
 			}
 		</div>
 	</div>
 }
 
-templ FilterButton(p FilterButtonProps) {
+templ FilterButton(p FilterButtonProp) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	{{
+		classList := "hover:bg-primary"
+		if p.Active {
+			classList = "bg-primary hover:bg-secondary"
+		}
+		expr := fmt.Sprintf(
+			"$%[1]s = $%[1]s.includes('%[2]s') ? $%[1]s.filter(v => v !== '%[2]s') : [...$%[1]s, '%[2]s']; %[3]s",
+			p.SignalKey, p.SignalValue, utils.Query(url),
+		)
+	}}
 	@button.Button(button.Props{
-		Variant: button.VariantOutline,
-		Attributes: templ.Attributes{
-			"data-on:click":         utils.Query(p.URL),
-		},
+		Class:      classList,
+		Variant:    button.VariantOutline,
+		Attributes: templ.Attributes{"data-on:click": expr},
 	}) {
 		{ p.Label }
 	}

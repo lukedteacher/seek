@@ -2,7 +2,19 @@
 
 updates for SEEK
 
-## v0.10.1 (26.09.29) styling, service grid view
+## v0.10.2 (26.10.07) form, style, educator list view refactor
+
+- moved base form to coreblocks/forms
+- added props to buttons, form
+- purged unused styles from input.css
+- deleted daisy ui theming in lieu of stellar
+- moved reset to its own css
+- refactored educator list view
+  - created educator search and filter block
+  - enabled filters
+  - styled details and summary
+
+## v0.10.1 (26.09.30) styling, service grid view
 
 - added container query to student list
 - refactored homeroom list to be more responsive to screen size

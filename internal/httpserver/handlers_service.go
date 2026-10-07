@@ -333,8 +333,8 @@ func getServiceCreateStream(
 				}
 				educators, _ := educatorReadModel.List(
 					ctx,
-					educatorEvents.FilterByRole(
-						sharedmodels.EducatorRoleServiceProvider,
+					educatorEvents.WithRoleFilter(
+						[]string{sharedmodels.EducatorRoleServiceProvider.String()},
 					),
 				)
 				view := dto.ServiceFormView{

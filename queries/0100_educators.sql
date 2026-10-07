@@ -176,7 +176,7 @@ SELECT
 FROM educators e
 INNER JOIN educator_roles er ON e.id = er.educator_id AND er.archived_at IS NULL
 WHERE e.archived_at IS NULL
-  AND er.role = @role
+  AND er.role IN (sqlc.slice('roles'))
 ORDER BY e.family_name DESC, e.given_name DESC, er.role ASC;
 
 -- name: ListEducatorsWithRoles :many

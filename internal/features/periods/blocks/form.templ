@@ -53,9 +53,9 @@ templ PeriodForm(p PeriodFormProps, schedules []scheduleDTO.PersonWithScheduleVi
 		</div>
 		<footer class="flex justify-end gap-6 mb-8">
 			if p.FormType == sharedmodels.FormTypeEdit {
-				@forms.DeleteButton("period", p.Period.ID)
+				@forms.DeleteButton(forms.DeleteButtonProps{DeleteURL: fmt.Sprintf("/periods/%s", p.Period.ID)})
 			}
-			@forms.CancelButton("/periods")
+			@forms.CancelButton(forms.CancelButtonProps{CancelURL: "/periods"})
 			@forms.SaveButton()
 		</footer>
 	</form>

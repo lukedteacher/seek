@@ -358,7 +358,7 @@ func Link(props ...LinkProps) templ.Component {
 			p = props[0]
 		}
 		var templ_7745c5c3_Var14 = []any{utils.TwMerge(
-			"text-muted-foreground hover:text-foreground hover:underline flex items-center gap-1.5 transition-colors",
+			"text-dim hover:text-foreground hover:underline flex items-center gap-1.5 transition-colors",
 			p.Class,
 		),
 		}
@@ -471,7 +471,7 @@ func Separator(props ...SeparatorProps) templ.Component {
 			p = props[0]
 		}
 		var templ_7745c5c3_Var19 = []any{utils.TwMerge(
-			"mx-2 text-muted-foreground",
+			"mx-2 text-dim",
 			p.Class,
 		),
 		}
@@ -533,7 +533,7 @@ func Separator(props ...SeparatorProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = icon.ChevronRight(icon.Props{Class: "size-3.5 text-muted-foreground"}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = icon.ChevronRight(icon.Props{Class: "size-3.5 text-dim"}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

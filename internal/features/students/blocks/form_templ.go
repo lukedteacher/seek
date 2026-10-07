@@ -82,7 +82,7 @@ func StudentForm(view dto.StudentFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = forms.CancelButton("/students").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = forms.CancelButton(forms.CancelButtonProps{CancelURL: "/students"}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

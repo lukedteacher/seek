@@ -15,7 +15,11 @@ import (
 	"seek/pkg/templui/components/icon"
 )
 
-func CancelButton(href string) templ.Component {
+type CancelButtonProps struct {
+	CancelURL string
+}
+
+func CancelButton(p CancelButtonProps) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -62,7 +66,7 @@ func CancelButton(href string) templ.Component {
 		})
 		templ_7745c5c3_Err = button.Button(button.Props{
 			Type:  "button",
-			Href:  href,
+			Href:  p.CancelURL,
 			Class: "btn-warning flex-grow basis-1",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -128,7 +132,11 @@ func SaveButton() templ.Component {
 	})
 }
 
-func ArchiveButton(object, id string) templ.Component {
+type ArchiveButtonProps struct {
+	ArchiveURL string
+}
+
+func ArchiveButton(p ArchiveButtonProps) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -177,7 +185,7 @@ func ArchiveButton(object, id string) templ.Component {
 			Type:  "button",
 			Class: "btn-info flex-grow basis-1",
 			Attributes: templ.Attributes{
-				"data-on:click": fmt.Sprintf("@post('/%s/%s/archive'", object, id),
+				"data-on:click": fmt.Sprintf("@post('/%s/archive')", p.ArchiveURL),
 			},
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -187,7 +195,11 @@ func ArchiveButton(object, id string) templ.Component {
 	})
 }
 
-func DeleteButton(objectType, id string) templ.Component {
+type DeleteButtonProps struct {
+	DeleteURL string
+}
+
+func DeleteButton(p DeleteButtonProps) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -237,7 +249,7 @@ func DeleteButton(objectType, id string) templ.Component {
 			Variant: button.VariantDestructive,
 			Class:   "flex-grow basis-1",
 			Attributes: templ.Attributes{
-				"data-on:click": fmt.Sprintf("@delete('/%ss/%s')", objectType, id),
+				"data-on:click": fmt.Sprintf("@delete('%s')", p.DeleteURL),
 			},
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

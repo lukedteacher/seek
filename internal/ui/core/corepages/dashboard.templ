@@ -22,14 +22,12 @@ type DashboardView struct {
 
 templ Dashboard(view DashboardView) {
 	@corelayouts.LayoutBase("SEEK: dashboard") {
-		<div class="flex flex-col w-full h-full row-2" data-init={ sse.LongRunningGetSSE("dashboard/stream") }>
-			<main class="h-full">
-				<div class="w-full h-full grid grid-rows-2 lg:grid-cols-2 md:grid-rows-1 gap-6">
-					@DashboardSchedule(view.Periods, view.PeriodStudentsMap)
-					@DashboardBookmarkedStudents(view.BookmarkedStudents)
-				</div>
-			</main>
-		</div>
+		<main class="flex flex-col gap-2 row-2" data-init={ sse.LongRunningGetSSE("/dashboard/stream") }>
+			<div class="w-full h-full flex flex-col lg:grid lg:grid-cols-2 lg:grid-rows-1 gap-6">
+				@DashboardSchedule(view.Periods, view.PeriodStudentsMap)
+				@DashboardBookmarkedStudents(view.BookmarkedStudents)
+			</div>
+		</main>
 	}
 }
 
@@ -56,9 +54,9 @@ templ DashboardBookmarkedStudents(students []studentDTO.StudentView) {
 			</h3>
 		</div>
 		if len(students) > 0 {
-			<ul class="flex flex-col gap-1">
+			<ul class="grid grid-cols-1 md:grid-cols-2 gap-1 overflow-y-auto">
 				for _, student := range students {
-					<li class="border border-muted rounded-md w-full bg-neutral text-sm p-2 flex items-center justify-between">
+					<li class="border border-muted rounded-md w-full bg-neutral-dark text-sm p-2 flex items-center justify-between">
 						<div class="flex gap-2 items-center">
 							@coreblocks.PersonAvatar("student", student.Person)
 							<span>{ student.NameInitial() }</span>

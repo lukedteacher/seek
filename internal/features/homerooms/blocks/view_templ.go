@@ -488,9 +488,9 @@ func EducatorsCard(educators []educatorDTO.EducatorView) templ.Component {
 							}
 							ctx = templ.InitializeContext(ctx)
 							var templ_7745c5c3_Var23 string
-							templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(role.ShortString())
+							templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(role.String())
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/homerooms/blocks/view.templ`, Line: 106, Col: 29}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/homerooms/blocks/view.templ`, Line: 106, Col: 24}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 							if templ_7745c5c3_Err != nil {

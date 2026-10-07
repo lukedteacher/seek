@@ -19,7 +19,7 @@ templ ServiceForm(view dto.IEPFormView) {
 	>
 		@FormSections(view)
 		<footer>
-			@forms.CancelButton("/ieps")
+			@forms.CancelButton(forms.CancelButtonProps{CancelURL: fmt.Sprintf("/ieps/%s", view.IEP.ID)})
 			@forms.SaveButton()
 		</footer>
 	</form>

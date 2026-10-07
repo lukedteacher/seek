@@ -118,7 +118,7 @@ templ Link(props ...LinkProps) {
 		}
 		class={
 			utils.TwMerge(
-				"text-muted-foreground hover:text-foreground hover:underline flex items-center gap-1.5 transition-colors",
+				"text-dim hover:text-foreground hover:underline flex items-center gap-1.5 transition-colors",
 				p.Class,
 			),
 		}
@@ -139,7 +139,7 @@ templ Separator(props ...SeparatorProps) {
 		}
 		class={
 			utils.TwMerge(
-				"mx-2 text-muted-foreground",
+				"mx-2 text-dim",
 				p.Class,
 			),
 		}
@@ -148,7 +148,7 @@ templ Separator(props ...SeparatorProps) {
 		if p.UseCustom {
 			{ children... }
 		} else {
-			@icon.ChevronRight(icon.Props{Class: "size-3.5 text-muted-foreground"})
+			@icon.ChevronRight(icon.Props{Class: "size-3.5 text-dim"})
 		}
 	</span>
 }

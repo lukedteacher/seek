@@ -162,7 +162,7 @@ templ Content(props ...ContentProps) {
 						"ring-offset-background",
 						// Hover/Data states
 						"data-[tui-dialog-open=true]:bg-accent",
-						"data-[tui-dialog-open=true]:text-muted-foreground",
+						"data-[tui-dialog-open=true]:text-dim",
 						// Disabled state
 						"disabled:pointer-events-none",
 						// Icon styles
@@ -258,7 +258,7 @@ templ Description(props ...DescriptionProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={ utils.TwMerge("text-muted-foreground text-sm", p.Class) }
+		class={ utils.TwMerge("text-dim text-sm", p.Class) }
 		{ p.Attributes... }
 	>
 		{ children... }

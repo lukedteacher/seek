@@ -1,0 +1,14 @@
+@layer components {
+  body {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+
+    > header {
+      block-size: 6rem;
+      display: flex;
+      align-items: center;
+      gap: var(--size-2);
+      padding-inline: var(--size-4);
+    }
+  }
+}

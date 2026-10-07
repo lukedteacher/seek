@@ -13,7 +13,8 @@ import (
 
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
-	"seek/internal/features/educators/dto"
+	"seek/internal/features/educators/blocks"
+	"seek/internal/features/educators/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/filters"
 	"seek/internal/ui/core/coreblocks/tables"
@@ -21,16 +22,17 @@ import (
 	"seek/pkg/sse"
 )
 
-type ListSignals struct {
-	Filter dto.Filter `json:"filter"`
-	Table  struct {
-		Sort shareddto.TableSort `json:"sort"`
-	} `json:"table"`
+type ListPageProps struct {
+	View          shareddto.TableView
+	FilterButtons uifilters.FilterButtonsProps
+	Signals       ListPageSignals
 }
 
-type ListPageProps struct {
-	View    shareddto.TableView
-	Signals ListSignals
+type ListPageSignals struct {
+	Filters models.Filters `json:"filter"`
+	Table   struct {
+		Sort shareddto.TableSort `json:"sort"`
+	} `json:"table"`
 }
 
 func List(p ListPageProps) templ.Component {
@@ -74,7 +76,7 @@ func List(p ListPageProps) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 32, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 34, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -87,7 +89,7 @@ func List(p ListPageProps) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.JSONString(p.Signals))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 33, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 35, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -113,15 +115,7 @@ func List(p ListPageProps) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"max-w-128\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = uifilters.SearchInput("educator-list-search", "filter.search").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div>")
+				templ_7745c5c3_Err = blocks.EducatorSearchWithFilter(p.Signals.Filters).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -131,7 +125,7 @@ func List(p ListPageProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</main>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</main>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -35,7 +35,7 @@ func valueExtractor(m *models.Educator, field string) string {
 	case "Roles":
 		var parts []string
 		for _, r := range m.Roles {
-			parts = append(parts, r.ShortString())
+			parts = append(parts, r.String())
 		}
 		return strings.Join(parts, ",")
 	default:

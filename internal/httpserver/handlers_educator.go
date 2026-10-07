@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"slices"
 	"strings"
 
 	"seek/internal/eventstore"
@@ -17,6 +18,7 @@ import (
 	scheduleDTO "seek/internal/features/schedules/dto"
 	studentDTO "seek/internal/features/students/dto"
 	studentEvents "seek/internal/features/students/events"
+	uifilters "seek/internal/ui/core/coreblocks/filters"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -54,7 +56,7 @@ func getEducatorsList(
 		ctx := r.Context()
 		view := dto.NewEducatorTableView([]models.Educator{})
 		props := pages.ListPageProps{
-			Signals: pages.ListSignals{},
+			Signals: pages.ListPageSignals{},
 			View:    view,
 		}
 		_ = pages.List(props).Render(ctx, w)
@@ -73,7 +75,8 @@ func getEducatorsListStream(
 		user := currentUser(r)
 		sse := newSSE(w, r)
 
-		// subscribes to the channel which publishes changes to any educators
+		key := user.Username + ".educators.list"
+
 		notifier := NewDedupeNotifier()
 		sub, err := subscriber.Subscribe(ctx, events.ChannelAll(), func(context.Context, []byte) {
 			notifier.Notify()
@@ -84,80 +87,57 @@ func getEducatorsListStream(
 		}
 		defer sub.Close()
 
-		// watches list key value stream for ephemeral changes
-		// lasts 5m
-		key := user.Username + ".educators.list"
-		watcher, err := vs.Watch(
-			ctx,
-			key,
-			viewstore.WatchOptions{
-				IgnoreDeletes: true,
-			},
-		)
+		watcher, err := vs.Watch(ctx, key, viewstore.WatchOptions{IgnoreDeletes: true})
 		if err != nil {
-			l.ErrorContext(ctx, "students list stream watcher", "err", err)
+			l.ErrorContext(ctx, "gels watcher", "err", err)
 			return
 		}
 		defer watcher.Stop()
 
-		educators, err := educatorReadModel.ListWithRoles(ctx)
+		// seed only if empty
+		signals, ok, err := viewstore.GetState[pages.ListPageSignals](ctx, vs, key)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			l.ErrorContext(ctx, "gels get state", "err", err)
 			return
 		}
-		view := dto.NewEducatorTableView(educators)
-		props := pages.ListPageProps{
-			Signals: pages.ListSignals{},
-			View:    view,
+		if !ok {
+			signals = pages.ListPageSignals{Filters: *models.NewFilters()}
+			if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
+				l.ErrorContext(ctx, "gels seed state", "err", err)
+				return
+			}
 		}
-		sse.PatchElementTempl(pages.List(props))
+
+		render := func(signals pages.ListPageSignals) {
+			educators, err := listEducators(ctx, l, educatorReadModel, &signals.Filters)
+			if err != nil {
+				l.ErrorContext(ctx, "gels list", "err", err)
+				return
+			}
+			props := pages.ListPageProps{
+				Signals: signals,
+				View:    dto.NewEducatorTableView(educators),
+			}
+			sse.PatchElementTempl(pages.List(props))
+		}
+
+		render(signals)
 
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal():
-				signals, ok, err := viewstore.GetState[pages.ListSignals](ctx, vs, key)
-				if err != nil {
-					l.ErrorContext(ctx, "gels notifier vs get state", "err", err)
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-					return
-				}
-				if !ok {
-					l.InfoContext(ctx, "no value for key", "key", key)
-				}
-				educators, err := educatorReadModel.ListWithRoles(ctx)
-				view := dto.NewEducatorTableView(educators)
-				props := pages.ListPageProps{
-					Signals: signals,
-					View:    view,
-				}
-				sse.PatchElementTempl(pages.List(props))
+				render(signals)
 			case entry, ok := <-watcher.Updates():
 				if !ok {
 					return
 				}
-
-				signals := &pages.ListSignals{}
-				if err := entry.JSON(signals); err != nil {
+				if err := entry.JSON(&signals); err != nil {
 					l.ErrorContext(ctx, "gels watcher json", "err", err)
 					return
 				}
-
-				educators := []models.Educator{}
-				if signals.Filter.Search != "" {
-					educators, _ = educatorReadModel.List(ctx, events.WithSearchFilter(signals.Filter.Search))
-				} else {
-					educators, _ = educatorReadModel.ListWithRoles(ctx)
-				}
-				view := dto.NewEducatorTableView(educators)
-
-				props := pages.ListPageProps{
-					Signals: *signals,
-					View:    view,
-				}
-
-				sse.PatchElementTempl(pages.List(props))
+				render(signals)
 			}
 		}
 	}
@@ -172,7 +152,7 @@ func queryEducatorsList(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		signals := &pages.ListSignals{}
+		signals := &pages.ListPageSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "qel signals", "err", err)
 			return
@@ -880,10 +860,15 @@ func listEducators(
 	ctx context.Context,
 	l *slog.Logger,
 	rm *events.ReadModel,
-	filter *dto.Filter,
+	filters *models.Filters,
 ) ([]models.Educator, error) {
-	if filter != nil {
-		return rm.List(ctx, events.WithSearchFilter(filter.Search))
+	if filters != nil {
+		stringFilter := models.ModelToString(filters.Roles)
+		return rm.List(
+			ctx,
+			events.WithSearchFilter(filters.Search),
+			events.WithRoleFilter(stringFilter),
+		)
 	}
 	return rm.List(ctx)
 }
@@ -909,10 +894,28 @@ func createEducatorSelectView(
 	filter *dto.Filter,
 	selected []string,
 ) dto.SelectView {
-	educators, err := listEducators(ctx, l, educatorReadModel, filter)
+	educators, err := listEducators(ctx, l, educatorReadModel, nil)
 	if err != nil {
 		l.ErrorContext(ctx, "cesv list educators", "err", err)
 		return dto.SelectView{}
 	}
 	return dto.NewSelectView(nil, educators, selected...)
+}
+
+func roleFilterButtons(roleFilter []string) uifilters.FilterButtonsProps {
+	buttons := make([]uifilters.FilterButtonProp, len(sharedmodels.EducatorRoleList))
+	signalKey := "filter.role"
+	for i, r := range sharedmodels.EducatorRoleList {
+		active := slices.Contains(roleFilter, r.StringLong())
+		buttons[i] = uifilters.FilterButtonProp{
+			Label:       r.String(),
+			SignalKey:   signalKey,
+			SignalValue: r.StringLong(),
+			Active:      active,
+		}
+	}
+	return uifilters.FilterButtonsProps{
+		Label:   "role",
+		Buttons: buttons,
+	}
 }

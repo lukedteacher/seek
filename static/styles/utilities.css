@@ -1,0 +1,219 @@
+@layer utilities {
+  .text-dim {
+    color: color-mix(in oklab, var(--color-neutral-content) 80%, transparent);
+  }
+
+  .text-muted {
+    color: var(--color-neutral-muted);
+  }
+
+  .border-muted {
+    border-width: 1px;
+    border-color: var(--color-neutral-muted);
+  }
+
+  .bg-primary-dark {
+    background-color: var(--color-primary-dark);
+    color: var(--color-primary-dark-content);
+  }
+
+  .bg-primary {
+    background-color: var(--color-primary);
+    color: var(--color-primary-content);
+  }
+
+  .bg-primary-bright {
+    background-color: var(--color-primary-bright);
+    color: var(--color-primary-bright-content);
+  }
+
+  .bg-secondary-dark {
+    background-color: var(--color-secondary-dark);
+    color: var(--color-secondary-dark-content);
+  }
+
+  .bg-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-secondary-content);
+  }
+
+  .bg-secondary-bright {
+    background-color: var(--color-secondary-bright);
+    color: var(--color-secondary-bright-content);
+  }
+
+  .bg-neutral-dark {
+    background-color: var(--color-neutral-dark);
+    color: var(--color-neutral-dark-content);
+  }
+
+  .bg-neutral {
+    background-color: var(--color-neutral);
+    color: var(--color-neutral-content);
+  }
+
+  .bg-neutral-bright {
+    background-color: var(--color-neutral-bright);
+    color: var(--color-neutral-bright-content);
+  }
+
+  .hover\:bg-primary:hover {
+    background-color: var(--color-primary);
+    color: var(--color-primary-content);
+  }
+
+  .hover\:bg-secondary:hover {
+    background-color: var(--color-secondary);
+    color: var(--color-secondary-content);
+  }
+
+  .hover\:bg-neutral:hover {
+    background-color: var(--color-neutral);
+    color: var(--color-neutral-content);
+  }
+
+  .hover\:bg-accent:hover {
+    background-color: var(--color-accent);
+    color: var(--color-accent-content);
+  }
+
+  .hover\:bg-info:hover {
+    background-color: var(--color-info);
+    color: var(--color-info-content);
+  }
+
+  .hover\:bg-success:hover {
+    background-color: var(--color-success);
+    color: var(--color-success-content);
+  }
+
+  .hover\:bg-warning:hover {
+    background-color: var(--color-warning);
+    color: var(--color-warning-content);
+  }
+
+  .hover\:bg-error:hover {
+    background-color: var(--color-error);
+    color: var(--color-error-content);
+  }
+
+  .fluid-size-1 {
+    width: var(--size-1);
+    height: var(--size-1);
+  }
+
+  .fluid-size-2 {
+    width: var(--size-2);
+    height: var(--size-2);
+  }
+
+  .fluid-size-3 {
+    width: var(--size-3);
+    height: var(--size-3);
+  }
+
+  .fluid-size-4 {
+    width: var(--size-4);
+    height: var(--size-4);
+  }
+
+  .fluid-size-5 {
+    width: var(--size-5);
+    height: var(--size-5);
+  }
+
+  .fluid-size-6 {
+    width: var(--size-6);
+    height: var(--size-6);
+  }
+
+  .gap-fluid-1 {
+    gap: var(--size-1);
+  }
+
+  .gap-fluid-2 {
+    gap: var(--size-2);
+  }
+
+  .gap-fluid-3 {
+    gap: var(--size-3);
+  }
+
+  .gap-fluid-4 {
+    gap: var(--size-4);
+  }
+
+  .gap-fluid-5 {
+    gap: var(--size-5);
+  }
+
+  .gap-fluid-6 {
+    gap: var(--size-6);
+  }
+
+  .button-group {
+    & button:not(:first-child) {
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
+    }
+
+    & button:not(:last-child) {
+      border-inline-end: 0;
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
+    }
+  }
+
+  .join {
+    --join-ss: 0;
+    --join-es: 0;
+    --join-se: 0;
+    --join-ee: 0;
+    --join-ml: 0;
+    --join-mt: 0;
+    --join-v: 0;
+    --join-h: 1;
+    display: inline-flex;
+    align-items: stretch;
+  }
+
+  @scope (.join) {
+    :scope :where(:scope > :first-child) {
+      --join-ss: var(--border-radius);
+      --join-se: calc(var(--border-radius) * var(--join-v));
+      --join-es: calc(var(--border-radius) * var(--join-h));
+      --join-ee: 0;
+    }
+  }
+
+  @scope (.join) {
+    :scope :where(:scope > :last-child) {
+      --join-ss: 0;
+      --join-se: calc(var(--border-radius) * var(--join-h));
+      --join-es: calc(var(--border-radius) * var(--join-v));
+      --join-ee: var(--border-radius);
+    }
+  }
+
+  @scope (.join) {
+    :scope :where(:scope > :not(:first-child)) {
+      --join-ml: calc(var(--border-width, 1px) * -1 * var(--join-h));
+      --join-mt: calc(var(--border-width, 1px) * -1 * var(--join-v));
+    }
+  }
+
+  .join-item:not(:disabled, [disabled]) {
+    margin-block-start: var(--join-mt, 0);
+    margin-inline-start: var(--join-ml, 0);
+  }
+
+  .join-item {
+    border-style: solid;
+    border-width: var(--border-width, 1px);
+    border-color: var(--color-neutral-muted);
+    border-start-start-radius: var(--join-ss);
+    border-end-start-radius: var(--join-es);
+    border-start-end-radius: var(--join-se);
+    border-end-end-radius: var(--join-ee);
+  }
+}

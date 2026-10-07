@@ -7,10 +7,14 @@ import (
 	"seek/pkg/templui/components/icon"
 )
 
-templ CancelButton(href string) {
+type CancelButtonProps struct {
+	CancelURL string
+}
+
+templ CancelButton(p CancelButtonProps) {
 	@button.Button(button.Props{
 		Type:  "button",
-		Href:  href,
+		Href:  p.CancelURL,
 		Class: "btn-warning flex-grow basis-1",
 	}) {
 		@icon.X(icon.Props{
@@ -32,12 +36,16 @@ templ SaveButton() {
 	}
 }
 
-templ ArchiveButton(object, id string) {
+type ArchiveButtonProps struct {
+	ArchiveURL string
+}
+
+templ ArchiveButton(p ArchiveButtonProps) {
 	@button.Button(button.Props{
 		Type:  "button",
 		Class: "btn-info flex-grow basis-1",
 		Attributes: templ.Attributes{
-			"data-on:click": fmt.Sprintf("@post('/%s/%s/archive'", object, id),
+			"data-on:click": fmt.Sprintf("@post('/%s/archive')", p.ArchiveURL),
 		},
 	}) {
 		@icon.Archive(icon.Props{
@@ -47,13 +55,17 @@ templ ArchiveButton(object, id string) {
 	}
 }
 
-templ DeleteButton(objectType, id string) {
+type DeleteButtonProps struct {
+	DeleteURL string
+}
+
+templ DeleteButton(p DeleteButtonProps) {
 	@button.Button(button.Props{
 		Type:    "button",
 		Variant: button.VariantDestructive,
 		Class:   "flex-grow basis-1",
 		Attributes: templ.Attributes{
-			"data-on:click": fmt.Sprintf("@delete('/%ss/%s')", objectType, id),
+			"data-on:click": fmt.Sprintf("@delete('%s')", p.DeleteURL),
 		},
 	}) {
 		@icon.Trash(icon.Props{

@@ -78,11 +78,11 @@ func EducatorForm(view dto.EducatorFormView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = forms.DeleteButton("educator", view.ID).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = forms.DeleteButton(forms.DeleteButtonProps{DeleteURL: fmt.Sprintf("/educators/%s", view.ID)}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = forms.CancelButton("/educators").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = forms.CancelButton(forms.CancelButtonProps{CancelURL: fmt.Sprintf("/educators")}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -47,13 +47,13 @@ templ Separator(props ...Props) {
 				<span
 					class={
 						utils.TwMerge(
-							"absolute w-full border-t h-[1px] text-muted-foreground",
+							"absolute w-full border-t h-[1px] text-dim",
 							decorationClasses(p.Decoration),
 						),
 					}
 					aria-hidden="true"
 				></span>
-				<span class="relative mx-auto bg-background px-2 text-xs text-muted-foreground">
+				<span class="relative mx-auto bg-background px-2 text-xs text-dim">
 					{ children... }
 				</span>
 			</div>
@@ -78,7 +78,7 @@ templ Separator(props ...Props) {
 					}
 					aria-hidden="true"
 				></span>
-				<span class="relative my-auto bg-background py-2 text-xs text-muted-foreground">
+				<span class="relative my-auto bg-background py-2 text-xs text-dim">
 					{ children... }
 				</span>
 			</div>

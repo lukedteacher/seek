@@ -396,7 +396,7 @@ func Slot(props ...SlotProps) templ.Component {
 			// Selection styles
 			"selection:bg-primary selection:text-primary-foreground",
 			// Placeholder
-			"placeholder:text-muted-foreground",
+			"placeholder:text-dim",
 			// Focus styles
 			"focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
 			// Disabled styles
@@ -531,7 +531,7 @@ func Separator(props ...SeparatorProps) templ.Component {
 			p = props[0]
 		}
 		var templ_7745c5c3_Var21 = []any{utils.TwMerge(
-			"flex items-center text-muted-foreground text-xl",
+			"flex items-center text-dim text-xl",
 			p.Class,
 		),
 		}

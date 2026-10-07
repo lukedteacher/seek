@@ -45,8 +45,8 @@ templ ServiceForm(view dto.ServiceFormView) {
 			@datepicker.Script()
 		</div>
 		<footer>
-			@forms.DeleteButton("service", view.Service.ID)
-			@forms.CancelButton("/services")
+			@forms.DeleteButton(forms.DeleteButtonProps{DeleteURL: fmt.Sprintf("/services/%s", view.Service.ID)})
+			@forms.CancelButton(forms.CancelButtonProps{CancelURL: "/services"})
 			@forms.SaveButton()
 		</footer>
 	</form>
@@ -99,7 +99,7 @@ templ ServiceFrequency(view dto.ServiceFormView) {
 
 templ ServiceDates(view dto.ServiceFormView) {
 	<div class="flex gap-3">
-		<div class="flex-grow">
+		<div class="grow">
 			@label.Label(label.Props{
 				For:   "start-date-input",
 				Class: "mb-3 text-neutral-content/90",
@@ -115,7 +115,7 @@ templ ServiceDates(view dto.ServiceFormView) {
 				},
 			})
 		</div>
-		<div class="flex-grow">
+		<div class="grow">
 			@label.Label(label.Props{
 				For:   "start-date-input",
 				Class: "mb-3",

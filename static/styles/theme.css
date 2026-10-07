@@ -1,0 +1,151 @@
+@layer theme {
+  :root {
+    --sans-serif: 'lexend', 'sans-serif';
+    --serif: 'life-savers-bold', 'serif';
+
+    --accent: transparent;
+
+    --fancy-gradient:
+      linear-gradient(
+        145deg,
+        color-mix(in oklab, var(--primary-7) 16%, transparent),
+        transparent 32%
+      ),
+      linear-gradient(
+        225deg,
+        color-mix(in oklab, var(--secondary-6) 16%, transparent),
+        transparent 32%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--neutral-2) 64%, var(--neutral-1)),
+        var(--neutral-1) 50%
+      ),
+      var(--neutral-1);
+
+    /* basic styles */
+    --color-primary-dark: var(--primary-5);
+    --color-primary-dark-content: var(--primary-5-on);
+    --color-primary-dark-muted: var(--primary-5-dim);
+    --color-primary: var(--primary-6);
+    --color-primary-content: var(--primary-6-on);
+    --color-primary-muted: var(--primary-6-dim);
+    --color-primary-bright: var(--primary-7);
+    --color-primary-bright-content: var(--primary-7-on);
+    --color-primary-bright-muted: var(--primary-7-dim);
+    --color-secondary-dark: var(--secondary-5);
+    --color-secondary-dark-content: var(--secondary-5-on);
+    --color-secondary-dark-muted: var(--secondary-5-dim);
+    --color-secondary: var(--secondary-6);
+    --color-secondary-content: var(--secondary-6-on);
+    --color-secondary-muted: var(--secondary-6-dim);
+    --color-secondary-bright: var(--secondary-7);
+    --color-secondary-bright-content: var(--secondary-7-on);
+    --color-secondary-bright-muted: var(--secondary-7-dim);
+    --color-neutral-dark: var(--neutral-3);
+    --color-neutral-dark-content: var(--neutral-3-on);
+    --color-neutral-dark-muted: var(--neutral-3-dim);
+    --color-neutral: var(--neutral-4);
+    --color-neutral-content: var(--neutral-4-on);
+    --color-neutral-muted: var(--neutral-4-dim);
+    --color-neutral-bright: var(--neutral-5);
+    --color-neutral-bright-content: var(--neutral-5-on);
+    --color-neutral-bright-muted: var(--neutral-5-dim);
+    --color-success: var(--gruvbox-green-bright-2);
+    --color-success-content: var(--gruvbox-green-bright-2-on);
+    --color-success-muted: var(--gruvbox-green-bright-2-dim);
+    --color-info: var(--gruvbox-blue-bright-2);
+    --color-info-content: var(--gruvbox-blue-bright-2-on);
+    --color-info-muted: var(--gruvbox-blue-bright-2-dim);
+    --color-warning: var(--gruvbox-yellow-bright-2);
+    --color-warning-content: var(--gruvbox-yellow-bright-2-on);
+    --color-warning-muted: var(--gruvbox-yellow-bright-2-dim);
+    --color-error: var(--error-6);
+    --color-error-content: var(--error-6-on);
+    --color-error-muted: var(--error-6-dim);
+    --border-radius: var(--border-radius-1);
+
+    /* body styles */
+    --body-font-family: var(--sans-serif);
+    --body-color: var(--color-neutral-content);
+    --body-background: var(--fancy-gradient);
+
+    /* body header styles */
+    --body-header-color: var(--color-neutral-content);
+    --body-header-bg-color: var(--color-neutral);
+
+    /* button styles */
+    --button-color: var(--color-neutral-content);
+    --button-bg-color: var(--color-neutral);
+    --button-border-radius: var(--border-radius);
+    --button-hover-color: color-mix(
+      in oklab,
+      var(--button-color) 90%,
+      var(--color-neutral)
+    );
+    --button-hover-bg-color: color-mix(
+      in oklab,
+      var(--button-bg-color) 90%,
+      var(--color-neutral)
+    );
+    --button-active-color: color-mix(
+      in oklab,
+      var(--button-color) 80%,
+      var(--color-neutral)
+    );
+    --button-active-bg-color: color-mix(
+      in oklab,
+      var(--button-bg-color) 80%,
+      var(--color-neutral)
+    );
+    --button-block-size: 1.75rem;
+    --button-font-size: var(--font-size--1);
+    --button-padding-block: calc(var(--size--1) / 2);
+    --button-padding-inline: var(--size--1);
+
+    /* input styles */
+    /* base styles */
+    --input-block-size: 1.75rem;
+    --input-inline-size: 100%;
+    --input-font-size: var(--font-size--1);
+    --input-border-width: 1px;
+    --input-border-color: var(--color-neutral-muted);
+    --input-border-radius: var(--border-radius);
+    --input-box-shadow: inset 0 1px 0
+      color-mix(in oklab, var(--color-neutral-content) 40%, transparent);
+    /* placeholder styles */
+    --input-placeholder-color: var(--color-neutral-muted);
+    --input-placeholder-font-size: var(--font-size--1);
+    /* focus styles */
+    --input-focus-outline: 2px solid
+      color-mix(in oklch, var(--color-primary-bright) 72%, transparent);
+    --input-focus-outline-offset: 2px;
+    --input-focus-border-color: var(--color-primary-bright);
+
+    /* tailwind keeps overriding these */
+    input {
+      font-size: var(--input-font-size);
+      border-radius: var(--input-border-radius);
+    }
+
+    h1 {
+      font-size: var(--font-size-4);
+      line-height: var(--font-line-height-4);
+    }
+
+    h2 {
+      font-size: var(--font-size-3);
+      line-height: var(--font-line-height-3);
+    }
+
+    h3 {
+      font-size: var(--font-size-2);
+      line-height: var(--font-line-height-2);
+    }
+
+    h4 {
+      font-size: var(--font-size-1);
+      line-height: var(--font-line-height-1);
+    }
+  }
+}

@@ -185,12 +185,12 @@ func PeriodForm(p PeriodFormProps, schedules []scheduleDTO.PersonWithScheduleVie
 			return templ_7745c5c3_Err
 		}
 		if p.FormType == sharedmodels.FormTypeEdit {
-			templ_7745c5c3_Err = forms.DeleteButton("period", p.Period.ID).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = forms.DeleteButton(forms.DeleteButtonProps{DeleteURL: fmt.Sprintf("/periods/%s", p.Period.ID)}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = forms.CancelButton("/periods").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = forms.CancelButton(forms.CancelButtonProps{CancelURL: "/periods"}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

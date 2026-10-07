@@ -3,17 +3,15 @@ package dto
 import "seek/internal/features/_shared/sharedmodels"
 
 type Filter struct {
-	Role   map[string]bool `json:"role"`
-	Search string          `json:"search"`
+	Search string   `json:"search"`
+	Role   []string `json:"role"`
 }
 
+// returns a filter that contains all roles from the role list
 func NewFilter() Filter {
-	roles := sharedmodels.EducatorRoleList
-	roleFilter := make(map[string]bool, len(roles))
-	for _, role := range roles {
-		roleFilter[role.String()] = true
+	roles := make([]string, len(sharedmodels.EducatorRoleList))
+	for i, r := range sharedmodels.EducatorRoleList {
+		roles[i] = r.StringLong()
 	}
-	return Filter{
-		Role: roleFilter,
-	}
+	return Filter{Role: roles}
 }

@@ -5,6 +5,8 @@ package dbsql
 import (
 	"fmt"
 	"zombiezen.com/go/sqlite"
+
+	"strings"
 )
 
 type ListEducatorsByRoleRes struct {
@@ -43,14 +45,14 @@ SELECT
 FROM educators e
 INNER JOIN educator_roles er ON e.id = er.educator_id AND er.archived_at IS NULL
 WHERE e.archived_at IS NULL
-  AND er.role = ?1
+  AND er.role IN (/*SLICE:roles*/?)
 ORDER BY e.family_name DESC, e.given_name DESC, er.role ASC
     `
 
 	ps := &ListEducatorsByRoleStmt{
 		conn:      tx,
 		querySQL:  querySQL,
-		hasSlices: false,
+		hasSlices: true,
 	}
 
 	if !ps.hasSlices {
@@ -61,12 +63,19 @@ ORDER BY e.family_name DESC, e.given_name DESC, er.role ASC
 }
 
 func (ps *ListEducatorsByRoleStmt) Run(
-	role string,
+	roles []string,
 ) (
 	res []ListEducatorsByRoleRes,
 	err error,
 ) {
 	querySQL := ps.querySQL
+
+	sliceRoles := roles
+	if len(sliceRoles) > 0 {
+		querySQL = strings.Replace(querySQL, "/*SLICE:roles*/?", strings.Repeat(",?", len(sliceRoles))[1:], 1)
+	} else {
+		querySQL = strings.Replace(querySQL, "/*SLICE:roles*/?", "NULL", 1)
+	}
 
 	var stmt *sqlite.Stmt
 	if ps.hasSlices {
@@ -82,9 +91,13 @@ func (ps *ListEducatorsByRoleStmt) Run(
 
 	bindIndex := 1
 	// Bind parameters
-	stmt.BindText(bindIndex, role)
+	if len(sliceRoles) > 0 {
+		for _, elem := range sliceRoles {
+			stmt.BindText(bindIndex, elem)
 
-	bindIndex++
+			bindIndex++
+		}
+	}
 
 	// Execute the query
 	for {
@@ -113,7 +126,7 @@ func (ps *ListEducatorsByRoleStmt) Run(
 
 func OnceListEducatorsByRole(
 	tx *sqlite.Conn,
-	role string,
+	roles []string,
 ) (
 	res []ListEducatorsByRoleRes,
 	err error,
@@ -121,6 +134,6 @@ func OnceListEducatorsByRole(
 	ps := ListEducatorsByRole(tx)
 
 	return ps.Run(
-		role,
+		roles,
 	)
 }

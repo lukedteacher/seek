@@ -1,0 +1,38 @@
+package pages
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/educators/blocks"
+	"seek/internal/features/educators/dto"
+	"seek/internal/features/educators/models"
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/coreblocks/forms"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+)
+
+type EducatorFormPageView struct {
+	FormType sharedmodels.FormType
+	Educator models.Educator
+	FormView dto.EducatorFormView
+}
+
+templ EducatorFormPage(view EducatorFormPageView) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	@corelayouts.LayoutBase(fmt.Sprintf("SEEK: %s educator", view.FormType)) {
+		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain(fmt.Sprintf("edit %s", view.FormType))
+			<section class="w-full flex items-center justify-center">
+				@forms.Form(forms.FormProps{
+					FormType:   view.FormType,
+					ObjectName: "educator",
+					ID:         view.Educator.ID,
+				}) {
+					@blocks.FormSections(view.FormView)
+				}
+			</section>
+		</main>
+	}
+}

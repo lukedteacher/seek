@@ -441,7 +441,7 @@ func Content(props ...ContentProps) templ.Component {
 				"ring-offset-background",
 				// Hover/Data states
 				"data-[tui-dialog-open=true]:bg-accent",
-				"data-[tui-dialog-open=true]:text-muted-foreground",
+				"data-[tui-dialog-open=true]:text-dim",
 				// Disabled state
 				"disabled:pointer-events-none",
 				// Icon styles
@@ -895,7 +895,7 @@ func Description(props ...DescriptionProps) templ.Component {
 		if len(props) > 0 {
 			p = props[0]
 		}
-		var templ_7745c5c3_Var37 = []any{utils.TwMerge("text-muted-foreground text-sm", p.Class)}
+		var templ_7745c5c3_Var37 = []any{utils.TwMerge("text-dim text-sm", p.Class)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var37...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

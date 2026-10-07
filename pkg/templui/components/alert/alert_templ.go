@@ -257,7 +257,7 @@ func Description(props ...DescriptionProps) templ.Component {
 			p = props[0]
 		}
 		var templ_7745c5c3_Var10 = []any{utils.TwMerge(
-			"text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
+			"text-dim col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
 			p.Class,
 		),
 		}

@@ -688,7 +688,7 @@ func Trigger(props ...TriggerProps) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " <span class=\"ml-1 hidden cursor-pointer text-muted-foreground hover:text-foreground\" data-tui-selectbox-clear-trigger aria-label=\"Clear selection\" role=\"button\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " <span class=\"ml-1 hidden cursor-pointer text-dim hover:text-foreground\" data-tui-selectbox-clear-trigger aria-label=\"Clear selection\" role=\"button\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -700,7 +700,7 @@ func Trigger(props ...TriggerProps) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = icon.ChevronDown(icon.Props{Class: "size-4 text-muted-foreground"}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = icon.ChevronDown(icon.Props{Class: "size-4 text-dim"}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -784,7 +784,7 @@ func Value(props ...ValueProps) templ.Component {
 		if len(props) > 0 {
 			p = props[0]
 		}
-		var templ_7745c5c3_Var31 = []any{utils.TwMerge("block truncate select-value text-muted-foreground text-sm", p.Class)}
+		var templ_7745c5c3_Var31 = []any{utils.TwMerge("block truncate select-value text-dim text-sm", p.Class)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var31...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -917,7 +917,7 @@ func Content(props ...ContentProps) templ.Component {
 			}
 			ctx = templ.InitializeContext(ctx)
 			if !p.NoSearch {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div class=\"sticky top-0 bg-popover p-1\"><div class=\"relative\"><span class=\"absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div class=\"sticky top-0 bg-popover p-1\"><div class=\"relative\"><span class=\"absolute left-3 top-1/2 -translate-y-1/2 text-dim z-10 pointer-events-none\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

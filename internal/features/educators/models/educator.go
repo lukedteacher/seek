@@ -7,6 +7,7 @@ import (
 	"seek/internal/features/_shared/sharedmodels"
 )
 
+// sentinel errors for Educator model validation
 var (
 	ErrEmailRequired = errors.New("educator email is required")
 	ErrRoleRequired  = errors.New("educator role is required")
@@ -20,13 +21,6 @@ type Educator struct {
 	UpdatedAt           time.Time
 }
 
-func NewEducator(id, given, chosen, family, email string, roles []string) (Educator, error) {
-	person, err := sharedmodels.NewPerson(given, chosen, family, email)
-	if err != nil {
-		return Educator{}, err
-	}
-	return Educator{
-		Person: person,
-		ID:     id,
-	}, nil
+func NewEducator() *Educator {
+	return &Educator{}
 }

@@ -358,7 +358,7 @@ func Description(props ...DescriptionProps) templ.Component {
 			p = props[0]
 		}
 		var templ_7745c5c3_Var14 = []any{utils.TwMerge(
-			"text-sm text-muted-foreground",
+			"text-sm text-dim",
 			p.Class,
 		),
 		}

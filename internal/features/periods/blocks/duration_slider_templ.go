@@ -63,7 +63,7 @@ func DurationSlider(view dto.PeriodView) templ.Component {
 		})
 		templ_7745c5c3_Err = label.Label(label.Props{
 			For:   "period-duration-slider-trigger",
-			Class: "mb-3 text-muted-foreground",
+			Class: "mb-3 text-dim",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

@@ -98,7 +98,7 @@ func Input(props ...Props) templ.Component {
 			// Selection styles
 			"selection:bg-primary selection:text-primary-foreground",
 			// Placeholder
-			"placeholder:text-muted-foreground",
+			"placeholder:text-dim",
 			// File input styles
 			"file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
 			// Focus styles

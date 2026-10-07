@@ -117,7 +117,7 @@ func HeroCard() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"overflow-hidden w-128\"><img src=\"/static/images/cc.jpg\" alt=\"charlie in the throws of apophenia\" class=\"h-full w-full object-cover\"></div><div class=\"w-128\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"overflow-hidden w-lg\"><img src=\"/static/images/cc.jpg\" alt=\"charlie in the throws of apophenia\" class=\"h-full w-full object-cover\"></div><div class=\"w-lg\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -262,7 +262,7 @@ func FeatureCards() templ.Component {
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<section class=\"grid gfs3 w-full\" style=\"grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<section class=\"grid gap-fluid-3 w-full\" style=\"grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -622,7 +622,8 @@ func IndexCard(props IndexCardProps) templ.Component {
 					return nil
 				})
 				templ_7745c5c3_Err = button.Button(button.Props{
-					Href: props.url + "/create",
+					Href:  props.url + "/create",
+					Class: "button",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

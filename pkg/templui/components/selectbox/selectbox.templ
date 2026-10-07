@@ -232,7 +232,7 @@ templ Trigger(props ...TriggerProps) {
 			/>
 			{ children... }
 			<span
-				class="ml-1 hidden cursor-pointer text-muted-foreground hover:text-foreground"
+				class="ml-1 hidden cursor-pointer text-dim hover:text-foreground"
 				data-tui-selectbox-clear-trigger
 				aria-label="Clear selection"
 				role="button"
@@ -240,7 +240,7 @@ templ Trigger(props ...TriggerProps) {
 				@icon.CircleX(icon.Props{Class: "size-3.5"})
 			</span>
 			<span class="pointer-events-none ml-1" data-tui-selectbox-chevron>
-				@icon.ChevronDown(icon.Props{Class: "size-4 text-muted-foreground"})
+				@icon.ChevronDown(icon.Props{Class: "size-4 text-dim"})
 			</span>
 		}
 	}
@@ -255,7 +255,7 @@ templ Value(props ...ValueProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={ utils.TwMerge("block truncate select-value text-muted-foreground text-sm", p.Class) }
+		class={ utils.TwMerge("block truncate select-value text-dim text-sm", p.Class) }
 		if p.Placeholder != "" {
 			data-tui-selectbox-placeholder={ p.Placeholder }
 		}
@@ -294,7 +294,7 @@ templ Content(props ...ContentProps) {
 		if !p.NoSearch {
 			<div class="sticky top-0 bg-popover p-1">
 				<div class="relative">
-					<span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none">
+					<span class="absolute left-3 top-1/2 -translate-y-1/2 text-dim z-10 pointer-events-none">
 						@icon.Search(icon.Props{Class: "size-4"})
 					</span>
 					@input.Input(input.Props{

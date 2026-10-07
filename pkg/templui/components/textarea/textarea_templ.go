@@ -67,7 +67,7 @@ func Textarea(props ...Props) templ.Component {
 			// Selection styles
 			"selection:bg-primary selection:text-primary-foreground",
 			// Placeholder
-			"placeholder:text-muted-foreground",
+			"placeholder:text-dim",
 			// Focus styles
 			"focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
 			// Disabled styles

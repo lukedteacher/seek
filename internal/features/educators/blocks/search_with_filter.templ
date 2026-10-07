@@ -1,0 +1,82 @@
+package blocks
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/educators/models"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/utils"
+)
+
+templ EducatorSearchWithFilter(filters models.Filters) {
+	<div class="join">
+		<div class="flex items-center relative min-w-md shrink-0">
+			@icon.Search(icon.Props{
+				Class: "size-4 absolute left-3 top-1/2 -translate-y-1/2 stroke-neutral-content/80",
+			})
+			@EducatorSearchInput()
+		</div>
+		@FilterMenu() {
+			@FilterButtons(filters)
+		}
+	</div>
+}
+
+templ EducatorSearchInput() {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<input
+		type="search"
+		id="educator-list-search"
+		class="pl-9 join-item"
+		placeholder="type to filter results..."
+		{ utils.DataBind("filter.search") }
+		{ utils.OnInputQuery(url) }
+	/>
+}
+
+templ FilterMenu() {
+	<neo-popover>
+		<button data-neo-popover-trigger class="join-item w-full button">
+			@icon.ListFilter()
+		</button>
+		<div data-neo-popover-content>
+			{ children... }
+		</div>
+	</neo-popover>
+}
+
+templ FilterButtons(filters models.Filters) {
+	<details class="w-lg flex flex-col" open data-preserve-attr="open">
+		<summary class="px-3 py-1 border border-muted rounded-md inline-flex justify-between bg-neutral-dark">
+			<span>roles</span>
+		</summary>
+		<div class="button-group grid" style="grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr))">
+			for _, role := range sharedmodels.EducatorRoleList {
+				@FilterButton(role.String(), role.String(), filters.Roles[role])
+			}
+		</div>
+	</details>
+}
+
+templ FilterButton(label, signal string, active bool) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	{{
+		classList := "hover:bg-primary"
+		if active {
+			classList = "bg-primary hover:bg-secondary"
+		}
+		expr := fmt.Sprintf(
+			"$filter.roles.%[1]s = !$filter.roles.%[1]s; %[2]s",
+			signal, utils.Query(url),
+		)
+	}}
+	@button.Button(button.Props{
+		Class:      classList,
+		Variant:    button.VariantOutline,
+		Attributes: templ.Attributes{"data-on:click": expr},
+	}) {
+		{ label }
+	}
+}

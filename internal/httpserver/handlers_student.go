@@ -252,7 +252,9 @@ func getStudentCreateStream(
 		studentFormView := dto.NewStudentFormView("create", &models.Student{Grade: -1})
 		caseManagers, _ := educatorReadModel.List(
 			ctx,
-			educatorEvents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
+			educatorEvents.WithRoleFilter(
+				[]string{sharedmodels.EducatorRoleCaseManager.String()},
+			),
 		)
 		studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, sharedmodels.PlanTypeNone)
 		studentFormView.CaseManagers = educatorDTO.NewSelectView(&educatorDTO.Filter{}, caseManagers, "")
@@ -274,7 +276,9 @@ func getStudentCreateStream(
 				studentFormView := dto.NewStudentFormView("create", student)
 				caseManagers, _ := educatorReadModel.List(
 					ctx,
-					educatorEvents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
+					educatorEvents.WithRoleFilter(
+						[]string{sharedmodels.EducatorRoleCaseManager.String()},
+					),
 				)
 				studentFormView.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, student.PlanType)
 				studentFormView.CaseManagers = educatorDTO.NewSelectView(&educatorDTO.Filter{}, caseManagers, "")
@@ -764,7 +768,9 @@ func getStudentEditStream(
 				// list current case managers to populate form
 				caseManagers, _ := educatorReadModel.List(
 					ctx,
-					educatorEvents.FilterByRole(sharedmodels.EducatorRoleCaseManager),
+					educatorEvents.WithRoleFilter(
+						[]string{sharedmodels.EducatorRoleCaseManager.String()},
+					),
 				)
 				view.PlanTypeOptions = dto.NewSelectPlanTypeOptions(sharedmodels.PlanTypeList, view.Student.PlanType)
 				view.CaseManagers = educatorDTO.NewSelectView(nil, caseManagers, view.Student.CaseManagerID)
@@ -1185,7 +1191,7 @@ func listStudents(
 ) []models.Student {
 	opts := []events.ListOption{}
 	if filter != nil {
-		opts = filter.Options()
+		opts = Options(filter)
 	}
 	students, err := rm.List(ctx, opts...)
 	if err != nil {
@@ -1221,4 +1227,41 @@ func createStudentSelectView(
 	}
 	students := listStudents(ctx, l, studentReadModel, filter)
 	return dto.NewSelectView(filter, students, selected)
+}
+
+func Options(f *dto.Filter) []events.ListOption {
+	var opts []events.ListOption
+	if f == nil {
+		return opts
+	}
+	if len(f.Grade) > 0 {
+		grades := []int{}
+		for g, ok := range f.Grade {
+			if ok {
+				if i, err := strconv.Atoi(g); err == nil {
+					grades = append(grades, i)
+				}
+			}
+		}
+		if len(grades) > 0 {
+			opts = append(opts, events.WithGradeFilter(grades))
+		}
+	}
+	if len(f.PlanType) > 0 {
+		planTypes := []int{}
+		for p, ok := range f.PlanType {
+			if ok {
+				if i, err := strconv.Atoi(p); err == nil {
+					planTypes = append(planTypes, i)
+				}
+			}
+		}
+		if len(planTypes) > 0 {
+			opts = append(opts, events.WithPlanFilter(planTypes))
+		}
+	}
+	if f.Search != "" {
+		opts = append(opts, events.WithSearchFilter(f.Search))
+	}
+	return opts
 }

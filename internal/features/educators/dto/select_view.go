@@ -1,7 +1,6 @@
 package dto
 
 import (
-	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/models"
 )
 
@@ -21,19 +20,15 @@ func NewSelectView(
 	selected ...string,
 ) SelectView {
 	if filter == nil {
-		defaultRoleFilter := make(map[string]bool, len(sharedmodels.EducatorRoleList))
-		for _, role := range sharedmodels.EducatorRoleList {
-			defaultRoleFilter[role.String()] = true
-		}
-		filter = &Filter{
-			Search: "",
-			Role:   defaultRoleFilter,
-		}
+		defaultFilter := NewFilter()
+		filter = &defaultFilter
 	}
+
 	selectedMap := make(map[string]bool, len(selected))
 	for i := range selected {
 		selectedMap[selected[i]] = true
 	}
+
 	options := make([]SelectOption, len(educators))
 	for i, educator := range educators {
 		options[i] = NewSelectOption(

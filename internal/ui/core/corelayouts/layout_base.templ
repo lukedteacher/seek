@@ -28,8 +28,12 @@ templ LayoutBase(title string) {
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ title }</title>
-			<script type="module" src={ resources.StaticPath("scripts/seek-wc.js") }></script>
 			<script type="module" src={ resources.StaticPath("scripts/datastar-rocket.js") }></script>
+			<link rel="stylesheet" href={ resources.StaticPath("styles/reset.css") }/>
+			<link rel="stylesheet" href={ resources.StaticPath("styles/base.css") }/>
+			<link rel="stylesheet" href={ resources.StaticPath("styles/theme.css") }/>
+			<link rel="stylesheet" href={ resources.StaticPath("styles/components.css") }/>
+			<link rel="stylesheet" href={ resources.StaticPath("styles/utilities.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/style.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/stellar.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/global.css") }/>

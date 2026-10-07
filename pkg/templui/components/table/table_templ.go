@@ -550,7 +550,7 @@ func Head(props ...HeadProps) templ.Component {
 			p = props[0]
 		}
 		var templ_7745c5c3_Var22 = []any{utils.TwMerge(
-			"h-10 px-2 text-left align-middle font-medium text-muted-foreground",
+			"h-10 px-2 text-left align-middle font-medium text-dim",
 			"[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
 			p.Class,
 		),
@@ -739,7 +739,7 @@ func Caption(props ...CaptionProps) templ.Component {
 		if len(props) > 0 {
 			p = props[0]
 		}
-		var templ_7745c5c3_Var30 = []any{utils.TwMerge("mt-4 text-sm text-muted-foreground", p.Class)}
+		var templ_7745c5c3_Var30 = []any{utils.TwMerge("mt-4 text-sm text-dim", p.Class)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var30...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

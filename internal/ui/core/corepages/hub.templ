@@ -23,8 +23,8 @@ type linkProps struct {
 
 templ Hub() {
 	@corelayouts.LayoutBase("SEEK: hub") {
-		<main class="flex flex-col gap-2 row-2" data-init={ sse.LongRunningGetSSE("/stream") }>
-			<section class="grid gap-16 w-full max-w-400" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+		<main class="flex flex-col row-2" data-init={ sse.LongRunningGetSSE("/stream") }>
+			<section class="grid gap-fluid-3 w-full max-w-400" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
 				@HubCard(HubCardProps{
 					icon:        "calendar-range",
 					title:       "schedules",

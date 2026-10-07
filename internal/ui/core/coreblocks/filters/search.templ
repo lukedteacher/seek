@@ -8,17 +8,18 @@ import (
 
 templ SearchInput(id, signal string) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	<div class="flex gap-2 items-center relative input min-w-128 max-w-256 shrink-0">
+	<div class="flex items-center relative min-w-md shrink-0">
 		@icon.Search(icon.Props{
 			Class: "size-4 absolute left-3 top-1/2 -translate-y-1/2 stroke-neutral-content/80",
 		})
 		<input
 			type="search"
 			id={ id }
-			class="pl-8"
+			class="pl-9"
 			placeholder="type to filter results..."
 			{ utils.DataBind(signal) }
 			{ utils.OnInputQuery(url) }
 		/>
+		{ children... }
 	</div>
 }

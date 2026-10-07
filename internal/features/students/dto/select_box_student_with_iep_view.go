@@ -1,14 +1,12 @@
 package dto
 
-import "seek/internal/features/students/models"
-
 type SelectStudentWithIEPOption struct {
-	Student  models.StudentWithIEP
+	Student  StudentWithIEP
 	Selected bool
 }
 
 func NewSelectStudentWithIEPOption(
-	s models.StudentWithIEP,
+	s StudentWithIEP,
 	isSelected bool,
 ) SelectStudentWithIEPOption {
 	return SelectStudentWithIEPOption{
@@ -17,7 +15,7 @@ func NewSelectStudentWithIEPOption(
 	}
 }
 
-func NewSelectStudentWithIEPOptions(students []models.StudentWithIEP, selected []string) []SelectStudentWithIEPOption {
+func NewSelectStudentWithIEPOptions(students []StudentWithIEP, selected []string) []SelectStudentWithIEPOption {
 	selectedMap := make(map[string]bool, len(selected))
 	for i := range selected {
 		selectedMap[selected[i]] = true

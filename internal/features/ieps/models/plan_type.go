@@ -20,6 +20,7 @@ var IEPTypeList = []IEPType{
 	IEPTypeInterim,
 }
 
+// returns the word representation of the IEPType
 func (iepType IEPType) Word() string {
 	wordMap := map[IEPType]string{
 		-1: "unknown",
@@ -30,6 +31,7 @@ func (iepType IEPType) Word() string {
 	return wordMap[iepType]
 }
 
+// returns the string representation of the IEPType, which is the integer value as a string
 func (iepType IEPType) String() string {
 	strMap := map[IEPType]string{
 		-1: "-1",
@@ -40,6 +42,7 @@ func (iepType IEPType) String() string {
 	return strMap[iepType]
 }
 
+// UnmarshalJSON implements the json.Unmarshaler interface for IEPType.
 func (iepType *IEPType) UnmarshalJSON(b []byte) error {
 	// try as number
 	var i int

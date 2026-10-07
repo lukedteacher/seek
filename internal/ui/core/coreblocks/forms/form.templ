@@ -1,0 +1,33 @@
+package forms
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+
+	"github.com/starfederation/datastar-go/datastar"
+)
+
+type FormProps struct {
+	FormType   sharedmodels.FormType
+	ObjectName string
+	ID         string
+}
+
+templ Form(p FormProps) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<form
+		id={ fmt.Sprintf("educator-%s-form", p.FormType) }
+		class="w-full max-w-264 gap-10 flex flex-col"
+		data-on:submit={ datastar.PostSSE("%s", url) }
+	>
+		<div class="w-full gap-8 flex flex-wrap">
+			{ children... }
+		</div>
+		<footer class="flex gap-8">
+			@DeleteButton(DeleteButtonProps{DeleteURL: fmt.Sprintf("/%ss/%s", p.ObjectName, p.ID)})
+			@CancelButton(CancelButtonProps{CancelURL: fmt.Sprintf("/%ss", p.ObjectName)})
+			@SaveButton()
+		</footer>
+	</form>
+}

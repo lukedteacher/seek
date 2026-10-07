@@ -103,7 +103,7 @@ templ EducatorsCard(educators []educatorDTO.EducatorView) {
 							{ educator.FullName() }
 							for _, role := range educator.Roles {
 								@badge.Badge() {
-									{ role.ShortString() }
+									{ role.String() }
 								}
 							}
 						</div>

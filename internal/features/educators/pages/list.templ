@@ -5,7 +5,8 @@ import (
 
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
-	"seek/internal/features/educators/dto"
+	"seek/internal/features/educators/blocks"
+	"seek/internal/features/educators/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/filters"
 	"seek/internal/ui/core/coreblocks/tables"
@@ -13,16 +14,17 @@ import (
 	"seek/pkg/sse"
 )
 
-type ListSignals struct {
-	Filter dto.Filter `json:"filter"`
-	Table  struct {
-		Sort shareddto.TableSort `json:"sort"`
-	} `json:"table"`
+type ListPageProps struct {
+	View          shareddto.TableView
+	FilterButtons uifilters.FilterButtonsProps
+	Signals       ListPageSignals
 }
 
-type ListPageProps struct {
-	View    shareddto.TableView
-	Signals ListSignals
+type ListPageSignals struct {
+	Filters models.Filters `json:"filter"`
+	Table   struct {
+		Sort shareddto.TableSort `json:"sort"`
+	} `json:"table"`
 }
 
 templ List(p ListPageProps) {
@@ -34,9 +36,7 @@ templ List(p ListPageProps) {
 		>
 			@coreblocks.HeaderMain("list of educators")
 			@tables.DataTable(p.View) {
-				<div class="max-w-128">
-					@uifilters.SearchInput("educator-list-search", "filter.search")
-				</div>
+				@blocks.EducatorSearchWithFilter(p.Signals.Filters)
 			}
 		</main>
 	}

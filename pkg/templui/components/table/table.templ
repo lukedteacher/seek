@@ -153,7 +153,7 @@ templ Head(props ...HeadProps) {
 		}
 		class={
 			utils.TwMerge(
-				"h-10 px-2 text-left align-middle font-medium text-muted-foreground",
+				"h-10 px-2 text-left align-middle font-medium text-dim",
 				"[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
 				p.Class,
 			),
@@ -195,7 +195,7 @@ templ Caption(props ...CaptionProps) {
 		if p.ID != "" {
 			id={ p.ID }
 		}
-		class={ utils.TwMerge("mt-4 text-sm text-muted-foreground", p.Class) }
+		class={ utils.TwMerge("mt-4 text-sm text-dim", p.Class) }
 		{ p.Attributes... }
 	>
 		{ children... }
