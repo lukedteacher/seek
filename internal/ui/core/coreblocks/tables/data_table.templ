@@ -17,31 +17,31 @@ import (
 templ DataTable(view shareddto.TableView) {
 	<section
 		data-slot="data-table"
-		class="w-full ml-auto mr-auto"
-		data-signals={ fmt.Sprintf("{table: {sort: {column: '%s', direction: '%s'}}}", view.Sort.Column, view.Sort.Direction) }
+		class="flex flex-col w-full h-full ml-auto mr-auto overflow-hidden rounded-md border border-muted"
 	>
-		{ children... }
-		@Table(view)
+		<div class="flex-1 min-h-0 overflow-y-auto snap-y snap-proximity scroll-pbs-24">
+			@Table(view)
+		</div>
 	</section>
-	<style>
-		section[data-slot="data-table"] {
-			max-width: 72rem;
-
-			& >:not(:last-child) {
-				margin-block-end: 1rem;
-			}
-		}
-	</style>
 }
 
 templ Table(view shareddto.TableView) {
 	@table.Table(table.Props{
-		Class: "data-table",
+		Class: "data-table overflow-auto",
 	}) {
 		@Header(view)
 		@table.Body() {
 			if len(view.Rows) > 0 {
+				{{ currentGroup := "" }}
 				for i := range view.Rows {
+					if view.Rows[i].Group != "" && view.Rows[i].Group != currentGroup {
+						<tr>
+							<td colspan={ len(view.Columns) + 1 } class="bg-primary-dim uppercase px-6 py-3 sticky top-24 z-10 snap-start">
+								<h3>{ view.Rows[i].Group }</h3>
+							</td>
+						</tr>
+						{{ currentGroup = view.Rows[i].Group }}
+					}
 					@Row(view.Name, view.Columns, view.Rows[i])
 					if view.Rows[i].SubTable != nil {
 						if len(view.Rows[i].SubTable.Rows) > 0 {
@@ -83,7 +83,9 @@ templ Table(view shareddto.TableView) {
 }
 
 templ Header(view shareddto.TableView) {
-	@table.Header() {
+	@table.Header(table.HeaderProps{
+		Class: "sticky top-0 z-20 h-24",
+	}) {
 		// first row: status (rowspan=2) + group headers and ungrouped headers
 		@table.Row() {
 			{{ renderedGroups := make(map[string]bool) }}
@@ -97,7 +99,9 @@ templ Header(view shareddto.TableView) {
 					}) {
 						<div class="flex justify-between items-center">
 							<span class="mr-3">{ col.Display }</span>
-							@SortButton(col.Signal, view.Sort.Column, view.Sort.Direction)
+							if col.Sortable {
+								@SortButton(col, view.Sort)
+							}
 						</div>
 					}
 				} else {
@@ -142,7 +146,9 @@ templ Header(view shareddto.TableView) {
 					@table.Head(table.HeadProps{Class: class}) {
 						<div class="flex justify-between items-center">
 							<span>{ col.Display }</span>
-							@SortButton(col.Signal, view.Sort.Column, view.Sort.Direction)
+							if col.Sortable {
+								@SortButton(col, view.Sort)
+							}
 						</div>
 					}
 					{{ firstGrouped = false }}
@@ -180,7 +186,7 @@ templ SkeletonRow(columns []shareddto.ColumnView) {
 
 templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) {
 	@table.Row(table.RowProps{
-		Class: "hover:bg-primary/20 border-1 border-muted",
+		Class: "hover:bg-primary/20 border-1 border-muted snap-start",
 	}) {
 		for i := range row.Cells {
 			@table.Cell(table.CellProps{
@@ -254,7 +260,7 @@ templ ActionCell(target, rowID string) {
 	}
 }
 
-templ SortButton(column, sortCol, sortDir string) {
+templ SortButton(column shareddto.ColumnView, sort shareddto.TableSort) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@button.Button(button.Props{
 		Size:    button.SizeIcon,
@@ -262,14 +268,14 @@ templ SortButton(column, sortCol, sortDir string) {
 		Attributes: templ.Attributes{
 			"data-on:click": fmt.Sprintf(
 				"if ($table.sort.column == '%[1]s') { $table.sort.direction = $table.sort.direction == 'ASC' ? 'DESC' : 'ASC'; } else { $table.sort.column = '%[1]s'; $table.sort.direction = 'ASC'; } @query('%[2]s')",
-				column, url,
+				column.Signal, url,
 			),
-			"data-class:bg-primary": fmt.Sprintf("$table.sort.column == '%s'", column),
+			"data-class:bg-primary": fmt.Sprintf("$table.sort.column == '%s'", column.Signal),
 			"style":                 "margin-left: auto;",
 		},
 	}) {
-		if sortCol == column {
-			if sortDir == "ASC" {
+		if sort.Column == column.Signal {
+			if sort.Direction == "ASC" {
 				@icon.ArrowUp(icon.Props{
 					Class: "text-neutral-content",
 				})

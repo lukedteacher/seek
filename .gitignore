@@ -14,8 +14,8 @@
 .vscode
 
 # binaries
-/.bin
-/bin
+/.bin/
+/bin/
 
 # data
 /data/

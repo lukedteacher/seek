@@ -2,7 +2,7 @@ package dto
 
 import (
 	"seek/internal/features/_shared/sharedmodels"
-	educatorDTO "seek/internal/features/educators/dto"
+	educatorModels "seek/internal/features/educators/models"
 	"seek/internal/features/homerooms/models"
 	studentDTO "seek/internal/features/students/dto"
 )
@@ -15,7 +15,7 @@ type HomeroomFormSignals struct {
 }
 
 type EducatorSelectSignals struct {
-	Filter educatorDTO.Filter `json:"filter"`
+	Filters educatorModels.Filters `json:"filter"`
 }
 
 type StudentSelectSignals struct {
@@ -27,7 +27,7 @@ func NewHomeroomFormSignals(formType sharedmodels.FormType, model *models.Homero
 		FormType: formType,
 		Homeroom: NewHomeroomView(model),
 		EducatorSelect: EducatorSelectSignals{
-			Filter: educatorDTO.NewFilter(),
+			Filters: *educatorModels.NewFilters(),
 		},
 		StudentSelect: StudentSelectSignals{
 			Filter: studentDTO.NewFilter(),

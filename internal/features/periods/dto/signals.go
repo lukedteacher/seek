@@ -2,7 +2,7 @@ package dto
 
 import (
 	"seek/internal/features/_shared/sharedmodels"
-	educatorDTO "seek/internal/features/educators/dto"
+	educatorModels "seek/internal/features/educators/models"
 	"seek/internal/features/periods/models"
 	studentDTO "seek/internal/features/students/dto"
 )
@@ -15,7 +15,7 @@ type PeriodFormSignals struct {
 }
 
 type EducatorSelectSignals struct {
-	Filter educatorDTO.Filter `json:"filter"`
+	Filters educatorModels.Filters `json:"filter"`
 }
 
 type StudentSelectSignals struct {
@@ -27,7 +27,7 @@ func NewPeriodFormSignals(formType sharedmodels.FormType, model *models.Period) 
 		FormType: formType,
 		Period:   NewPeriodView(model),
 		EducatorSelect: EducatorSelectSignals{
-			Filter: educatorDTO.NewFilter(),
+			Filters: *educatorModels.NewFilters(),
 		},
 		StudentSelect: StudentSelectSignals{
 			Filter: studentDTO.NewFilter(),

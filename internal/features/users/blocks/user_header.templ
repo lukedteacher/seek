@@ -23,11 +23,14 @@ templ UserHeaderDropdown(user models.User) {
 		@dropdown.Trigger() {
 			@button.Button(button.Props{
 				Variant: button.VariantGhost,
-				Class:   "flex items-center justify-center",
+				Class:   "flex items-center justify-center hover:bg-secondary-dim",
 			}) {
 				@avatar.Avatar(avatar.Props{
-					Class: "h-6 w-6 border-2 border-border text-xs",
+					Class: "h-8 w-8 text-xs",
 				}) {
+					@avatar.Image(avatar.ImageProps{
+						Src: "/static/images/people/earley_luke.jpg",
+					})
 				}
 				@icon.ChevronDown(icon.Props{Class: "size-4"})
 			}
@@ -40,13 +43,15 @@ templ UserHeaderDropdown(user models.User) {
 					@avatar.Avatar(avatar.Props{
 						Class: "h-12 w-12",
 					}) {
+						@avatar.Image(avatar.ImageProps{
+							Src: "/static/images/people/earley_luke.jpg",
+						})
 					}
 					<div class="flex-1 min-w-0">
 						<div class="text-sm truncate text-neutral-content/80">{ user.Username }</div>
 						<div class="flex items-center space-x-2 mt-1">
 							@badge.Badge(badge.Props{
-								Variant: badge.VariantSecondary,
-								Class:   "text-xs bg-success/32 text-success",
+								Class: "text-xs bg-success-dim",
 							}) {
 								online
 							}
@@ -57,7 +62,7 @@ templ UserHeaderDropdown(user models.User) {
 			<div class="py-1">
 				@dropdown.Item(dropdown.ItemProps{
 					Class: "px-4 py-2",
-					Href:  "/",
+					Href:  "/dashboard",
 				}) {
 					<div class="flex items-center space-x-3">
 						@icon.LayoutDashboard(icon.Props{Class: "size-4"})

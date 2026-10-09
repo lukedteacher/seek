@@ -11,7 +11,7 @@
     --base-color-dim: var(--color-neutral-dim);
 
     /* sizing */
-    --base-block-size: 2rem;
+    --base-block-size: 2.25rem;
     --base-padding-block: calc(var(--size--1) / 2);
     --base-padding-inline: var(--size--1);
 
@@ -89,13 +89,49 @@
 
     /* body header styles */
     --body-header-color: var(--color-neutral-content);
-    --body-header-bg-color: var(--color-neutral);
+    --body-header-bg-color: color-mix(
+      in oklch,
+      var(--primary-7) 20%,
+      var(--neutral-4)
+    );
+
+    /* button styles */
+    --button-color: var(--color-neutral-content);
+    --button-bg-color: var(--color-neutral);
+    --button-border-radius: var(--border-radius);
+    --button-hover-color: color-mix(
+      in oklch,
+      var(--button-color) 90%,
+      var(--color-neutral)
+    );
+    --button-hover-bg-color: color-mix(
+      in oklch,
+      var(--button-bg-color) 90%,
+      var(--color-neutral)
+    );
+    --button-active-color: color-mix(
+      in oklch,
+      var(--button-color) 80%,
+      var(--color-neutral)
+    );
+    --button-active-bg-color: color-mix(
+      in oklch,
+      var(--button-bg-color) 80%,
+      var(--color-neutral)
+    );
+    --button-block-size: 2.25rem;
+    --button-font-size: var(--font-size--1);
+    --button-padding-block: calc(var(--size--1) / 2);
+    --button-padding-inline: var(--size--1);
 
     /* input styles */
     /* base styles */
-    --input-border-color: var(--color-neutral-dim);
-    --input-box-shadow: inset 0 1px 0
-      color-mix(in oklab, var(--color-neutral-content) 40%, transparent);
+    .input {
+      --border-color: var(--color-neutral-dim);
+      --input-box-shadow: inset 0 2px 0
+        color-mix(in oklab, var(--color-neutral-content) 20%, transparent);
+    }
+
     /* placeholder styles */
     --input-placeholder-color: var(--color-neutral-dim);
     --input-placeholder-font-size: var(--font-size--1);
@@ -112,7 +148,7 @@
     }
 
     /* tailwind keeps overriding these */
-    input {
+    .input {
       font-size: var(--base-font-size);
       border-radius: var(--border-radius);
     }

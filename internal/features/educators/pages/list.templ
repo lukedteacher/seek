@@ -6,12 +6,15 @@ import (
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/blocks"
+	"seek/internal/features/educators/dto"
 	"seek/internal/features/educators/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/filters"
 	"seek/internal/ui/core/coreblocks/tables"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
+	"seek/pkg/templui/components/icon"
+	"seek/pkg/utils"
 )
 
 type ListPageProps struct {
@@ -21,10 +24,14 @@ type ListPageProps struct {
 }
 
 type ListPageSignals struct {
-	Filters models.Filters `json:"filter"`
-	Table   struct {
-		Sort shareddto.TableSort `json:"sort"`
-	} `json:"table"`
+	Filters models.Filters       `json:"filter"`
+	Table   ListPageTableSignals `json:"table"`
+}
+
+type ListPageTableSignals struct {
+	Sort      shareddto.TableSort `json:"sort"`
+	Columns   map[string]bool     `json:"columns"`
+	GroupedBy string              `json:"grouped_by"`
 }
 
 templ List(p ListPageProps) {
@@ -35,9 +42,100 @@ templ List(p ListPageProps) {
 			data-signals={ templ.JSONString(p.Signals) }
 		>
 			@coreblocks.HeaderMain("list of educators")
-			@tables.DataTable(p.View) {
+			<div class="w-full flex justify-between mb-4">
 				@blocks.EducatorSearchWithFilter(p.Signals.Filters)
-			}
+				<div class="flex gap-4">
+					@GroupBySelect(p.Signals.Table.GroupedBy)
+					@ColumnSelect(p.Signals.Table.Columns)
+				</div>
+			</div>
+			@tables.DataTable(p.View)
 		</main>
 	}
+}
+
+templ GroupBySelect(groupedBy string) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<neo-popover>
+		<button class="button" data-neo-popover-trigger>
+			@icon.Group(icon.Props{
+				Size: "16",
+			})
+			<span>group by</span>
+		</button>
+		<ul data-neo-popover-content class="text-sm flex flex-col gap-1">
+			<li
+				class={
+					"flex justify-between items-center hover:bg-secondary rounded-md px-3 py-1 cursor-pointer",
+					utils.If(groupedBy == "none", "bg-primary"),
+				}
+				{ utils.OnClick("$table.grouped_by='none'", utils.Query(url)) }
+			>
+				<span>none</span>
+				if groupedBy == "none" {
+					@icon.Check(icon.Props{
+						Size: "16",
+					})
+				}
+			</li>
+			for _, column := range dto.EducatorTableColumns {
+				{{
+					if !column.Groupable {
+						continue
+					}
+				}}
+				<li
+					class={
+						"flex justify-between items-center hover:bg-secondary rounded-md px-3 py-1 cursor-pointer",
+						utils.If(groupedBy == column.Signal, "bg-primary"),
+					}
+					{ utils.OnClick(fmt.Sprintf("$table.grouped_by='%s'", column.Signal), utils.Query(url)) }
+				>
+					<span>{ column.Display }</span>
+					if groupedBy == column.Signal {
+						@icon.Check(icon.Props{
+							Size: "16",
+						})
+					}
+				</li>
+			}
+		</ul>
+	</neo-popover>
+}
+
+templ ColumnSelect(columnSignals map[string]bool) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<neo-popover>
+		<button class="button" data-neo-popover-trigger>
+			@icon.Columns3Cog(icon.Props{
+				Size: "16",
+			})
+			<span>columns</span>
+		</button>
+		<ul data-neo-popover-content class="text-sm flex flex-col gap-1">
+			for _, column := range dto.EducatorTableColumns {
+				{{
+					visible, ok := columnSignals[column.Signal]
+					if !ok {
+						continue
+					}
+					column.Visible = visible
+				}}
+				<li
+					class={
+						"flex justify-between items-center hover:bg-secondary rounded-md px-3 py-1 cursor-pointer",
+						utils.If(column.Visible, "bg-primary"),
+					}
+					{ utils.OnClick(fmt.Sprintf("$table.columns.%[1]s=!$table.columns.%[1]s", column.Signal), utils.Query(url)) }
+				>
+					<span>{ column.Display }</span>
+					if column.Visible {
+						@icon.Check(icon.Props{
+							Size: "16",
+						})
+					}
+				</li>
+			}
+		</ul>
+	</neo-popover>
 }

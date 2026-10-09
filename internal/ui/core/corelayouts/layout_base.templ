@@ -45,7 +45,6 @@ templ LayoutBase(title string) {
 			}
 		>
 			@coreblocks.HeaderBody(user)
-			<header class="h-16 w-full bg-transparent"></header>
 			{ children... }
 			@coreblocks.FooterBody()
 			@toasts.ToastContainer("", "")

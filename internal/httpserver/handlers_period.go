@@ -186,7 +186,7 @@ func getPeriodCreateStream(
 					FormProps: blocks.PeriodFormProps{
 						FormType:          sharedmodels.FormTypeCreate,
 						Period:            signals.Period,
-						EducatorSelect:    createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filter, signals.Period.EducatorIDs),
+						EducatorSelect:    createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filters, signals.Period.EducatorIDs),
 						SelectedEducators: educatorDTO.NewViews(educators),
 						StudentSelect:     createStudentSelectView(ctx, l, studentReadModel, &signals.StudentSelect.Filter, signals.Period.StudentIDs),
 						SelectedStudents:  studentDTO.NewViews(students),
@@ -591,7 +591,7 @@ func getPeriodEditStream(
 					FormProps: blocks.PeriodFormProps{
 						FormType:          sharedmodels.FormTypeEdit,
 						Period:            signals.Period,
-						EducatorSelect:    createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filter, signals.Period.EducatorIDs),
+						EducatorSelect:    createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filters, signals.Period.EducatorIDs),
 						SelectedEducators: educatorDTO.NewViews(educators),
 						StudentSelect:     createStudentSelectView(ctx, l, studentReadModel, &signals.StudentSelect.Filter, signals.Period.StudentIDs),
 						SelectedStudents:  studentDTO.NewViews(students),

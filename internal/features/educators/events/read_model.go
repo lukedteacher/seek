@@ -272,6 +272,7 @@ type ListOption func(*listConfig)
 type listConfig struct {
 	withSortColumn    string
 	withSortDirection string
+	withGroupedBy     string
 	withSearchFilter  string
 	withRoleFilter    []string
 }
@@ -285,6 +286,12 @@ func WithSortColumn(column string) ListOption {
 func WithSortDirection(direction string) ListOption {
 	return func(c *listConfig) {
 		c.withSortDirection = direction
+	}
+}
+
+func WithGroupedBy(groupedBy string) ListOption {
+	return func(c *listConfig) {
+		c.withGroupedBy = groupedBy
 	}
 }
 
@@ -348,6 +355,11 @@ func (m *ReadModel) listWithFilters(
 		}
 	}
 
+	orderBy := fmt.Sprintf("e.%s COLLATE NOCASE %s", sortColumn, sortDirection)
+	if expr := groupOrderExpression(cfg.withGroupedBy); expr != "" {
+		orderBy = expr + " COLLATE NOCASE " + sortDirection + ", " + orderBy
+	}
+
 	query := fmt.Sprintf(`
 		SELECT
 			e.id, e.given_name, e.chosen_name, e.family_name, e.pronouns,
@@ -361,8 +373,8 @@ func (m *ReadModel) listWithFilters(
 			) AS roles_json
 		FROM educators e
 		WHERE %s
-		ORDER BY e.%s COLLATE NOCASE %s, e.family_name COLLATE NOCASE ASC
-	`, where, sortColumn, sortDirection)
+		ORDER BY %s
+	`, where, orderBy)
 
 	var educators []models.Educator
 	err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
@@ -570,4 +582,17 @@ func parsePronouns(s string) []sharedmodels.Pronoun {
 		_ = json.Unmarshal([]byte(s), &p)
 	}
 	return p
+}
+
+func groupOrderExpression(groupedBy string) string {
+	switch groupedBy {
+	case "given_name":
+		return "UPPER(SUBSTR(e.given_name, 1, 1))"
+	case "family_name":
+		return "UPPER(SUBSTR(e.family_name, 1, 1))"
+	case "role":
+		return "(SELECT MIN(er2.role) FROM educator_roles er2 WHERE er2.educator_id = e.id)"
+	default:
+		return ""
+	}
 }

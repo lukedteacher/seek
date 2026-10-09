@@ -3,7 +3,6 @@ package corepages
 import (
 	"seek/internal/features/users/models"
 	"seek/internal/ui/core/corelayouts"
-	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/separator"
@@ -170,23 +169,18 @@ templ IndexCard(props IndexCardProps) {
 		@card.Footer(card.FooterProps{
 			Class: "justify-end gap-4 mt-auto",
 		}) {
-			@button.Button(button.Props{
-				Href: props.url,
-			}) {
+			<a href={ props.url } class="button">
 				@icon.List(icon.Props{
 					Size: "16",
 				})
 				<span>list</span>
-			}
-			@button.Button(button.Props{
-				Href:  props.url + "/create",
-				Class: "button",
-			}) {
+			</a>
+			<a href={ props.url + "/create" } class="button">
 				@icon.Plus(icon.Props{
 					Size: "16",
 				})
 				<span>create</span>
-			}
+			</a>
 		}
 	}
 }

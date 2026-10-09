@@ -15,7 +15,7 @@ type Field struct {
 templ AuthForm(action string, title string, fields []Field, errors map[string]string) {
 	<main id="auth-page">
 		<section class="w-full h-full flex items-center justify-center">
-			<div class="auth-card card-body h-fit max-w-128 w-full">
+			<div class="auth-card card-body h-fit max-w-lg w-full">
 				if errors != nil && errors["error"] != "" {
 					<div class="alert alert-error alert-soft">{ errors["error"] }</div>
 				}
@@ -57,9 +57,6 @@ templ AuthForm(action string, title string, fields []Field, errors map[string]st
 						}
 					</footer>
 				</form>
-				<div class="auth-links">
-					{ children... }
-				</div>
 			</div>
 		</section>
 	</main>

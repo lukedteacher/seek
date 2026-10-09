@@ -1,6 +1,9 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func Query(url string) string {
 	return fmt.Sprintf("@query('%s')", url)
@@ -20,6 +23,11 @@ func DataSignals(signal string) string {
 
 func OnInput(action string) string {
 	return fmt.Sprintf("data-on:input__debounce.250ms=%s", action)
+}
+
+func OnClick(actions ...string) string {
+	result := fmt.Sprintf("data-on:click__debounce.250ms=%s", strings.Join(actions, ";"))
+	return result
 }
 
 func OnInputQuery(url string) string {

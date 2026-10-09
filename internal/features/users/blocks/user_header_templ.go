@@ -124,10 +124,16 @@ func UserHeaderDropdown(user models.User) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
+						templ_7745c5c3_Err = avatar.Image(avatar.ImageProps{
+							Src: "/static/images/people/earley_luke.jpg",
+						}).Render(ctx, templ_7745c5c3_Buffer)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 						return nil
 					})
 					templ_7745c5c3_Err = avatar.Avatar(avatar.Props{
-						Class: "h-6 w-6 border-2 border-border text-xs",
+						Class: "h-8 w-8 text-xs",
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -144,7 +150,7 @@ func UserHeaderDropdown(user models.User) templ.Component {
 				})
 				templ_7745c5c3_Err = button.Button(button.Props{
 					Variant: button.VariantGhost,
-					Class:   "flex items-center justify-center",
+					Class:   "flex items-center justify-center hover:bg-secondary-dim",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -187,6 +193,12 @@ func UserHeaderDropdown(user models.User) templ.Component {
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
+					templ_7745c5c3_Err = avatar.Image(avatar.ImageProps{
+						Src: "/static/images/people/earley_luke.jpg",
+					}).Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 					return nil
 				})
 				templ_7745c5c3_Err = avatar.Avatar(avatar.Props{
@@ -202,7 +214,7 @@ func UserHeaderDropdown(user models.User) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(user.Username)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/users/blocks/user_header.templ`, Line: 45, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/users/blocks/user_header.templ`, Line: 51, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -231,8 +243,7 @@ func UserHeaderDropdown(user models.User) templ.Component {
 					return nil
 				})
 				templ_7745c5c3_Err = badge.Badge(badge.Props{
-					Variant: badge.VariantSecondary,
-					Class:   "text-xs bg-success/32 text-success",
+					Class: "text-xs bg-success-dim",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -269,7 +280,7 @@ func UserHeaderDropdown(user models.User) templ.Component {
 				})
 				templ_7745c5c3_Err = dropdown.Item(dropdown.ItemProps{
 					Class: "px-4 py-2",
-					Href:  "/",
+					Href:  "/dashboard",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

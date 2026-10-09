@@ -14,9 +14,9 @@ templ ThemeToggle() {
 			Class: "size-4",
 		})
 		<input
+			id="theme-toggle"
 			type="checkbox"
-			class="toggle animate-none"
-			style="border-color: var(--primary-4-dim);"
+			class="toggle"
 			data-signals:dark="localStorage.getItem('theme') == 'dark'"
 			data-bind:dark
 			data-signals:theme="localStorage.getItem('theme')"

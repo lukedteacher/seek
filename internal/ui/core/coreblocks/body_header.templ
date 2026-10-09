@@ -3,59 +3,29 @@ package coreblocks
 import (
 	"seek/internal/features/users/blocks"
 	"seek/internal/features/users/models"
-	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 )
 
 templ HeaderBody(user models.User) {
-	<!DOCTYPE html>
-	<header class="fixed row-1 z-10">
+	<header>
 		<hgroup>
-			<h1 class="mb-[-0.4rem]">SEEK</h1>
+			@SeekIcon()
+			<h1>SEEK</h1>
 		</hgroup>
 		@Nav()
-		{ children... }
 		@ThemeToggle()
 		if user.UserRegisteredID != "" {
 			@blocks.UserHeader(user)
 		} else {
-			@button.Button(button.Props{
-				Href: "/login",
-			}) {
+			<a
+				href="/login"
+				class="button"
+			>
 				@icon.LogIn(icon.Props{
 					Size: "16",
 				})
 				<span>login</span>
-			}
+			</a>
 		}
 	</header>
-	@HeaderBodyStyles()
-}
-
-templ HeaderBodyStyles() {
-	<style>
-		body {
-			&> header {
-				color: var(--primary-5-on);
-				background-color: var(--primary-5);
-				width: 100%;
-				height: 4rem;
-				align-items: center;
-				display: flex;
-				flex-direction: row;
-				padding: 0 var(--size-4);
-
-				hgroup {
-					h1 {
-						color: var(--primary-6-on);
-					}
-				}
-
-				nav {
-					margin-left: var(--size-6);
-					margin-right: auto;
-				}
-			}
-		}
-	</style>
 }

@@ -52,7 +52,7 @@ func ThemeToggle() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <input type=\"checkbox\" class=\"toggle animate-none\" style=\"border-color: var(--primary-4-dim);\" data-signals:dark=\"localStorage.getItem('theme') == 'dark'\" data-bind:dark data-signals:theme=\"localStorage.getItem('theme')\" data-on:click=\"$theme == 'light' ? $theme = 'dark' : $theme = 'light'; localStorage.setItem('theme', $theme);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " <input id=\"theme-toggle\" type=\"checkbox\" class=\"toggle\" data-signals:dark=\"localStorage.getItem('theme') == 'dark'\" data-bind:dark data-signals:theme=\"localStorage.getItem('theme')\" data-on:click=\"$theme == 'light' ? $theme = 'dark' : $theme = 'light'; localStorage.setItem('theme', $theme);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -39,11 +39,11 @@ var StudentWithDataTableConfig = shareddto.TableConfig[StudentWithData]{
 }
 
 var StudentWithDataColumns = []shareddto.ColumnView{
-	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name"},
-	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name"},
-	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name"},
-	{Field: "Email", Display: "email", Signal: "email"},
-	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center", Signal: "grade"},
+	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name", Sortable: true},
+	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name", Sortable: true},
+	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name", Sortable: true},
+	{Field: "Email", Display: "email", Signal: "email", Sortable: true},
+	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center", Signal: "grade", Sortable: true},
 	{Field: "Homeroom", Display: "homeroom", RenderFunc: homeroomRenderer, Signal: "homeroom"},
 	{Field: "PlanType", Display: "plan", Renderer: "badge", Alignment: "center", Signal: "plan_type"},
 	{Field: "CaseManager", Display: "case manager", RenderFunc: caseManagerRenderer, Signal: "case_manager"},

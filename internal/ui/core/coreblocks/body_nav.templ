@@ -1,59 +1,50 @@
 package coreblocks
 
 import "seek/pkg/templui/components/icon"
+import "seek/internal/features/_shared/sharedmodels"
+
+type NavItem struct {
+	Label    string
+	IconName string
+	HREF     string
+}
+
+var NavItems = []NavItem{
+	NavItem{
+		Label:    "home",
+		IconName: "house",
+		HREF:     "/",
+	},
+	NavItem{
+		Label:    "dashboard",
+		IconName: "layout-dashboard",
+		HREF:     "/dashboard",
+	},
+	NavItem{
+		Label:    "hub",
+		IconName: "circle-question-mark",
+		HREF:     "/hub",
+	},
+}
 
 templ Nav() {
 	<nav>
 		<ul>
-			<li>
-				<a href="/">
-					@icon.House(icon.Props{
-						Size: "20",
-					})
-					<span class="hidden sm:block">home</span>
-				</a>
-			</li>
-			<li>
-				<a href="/dashboard">
-					@icon.LayoutDashboard(icon.Props{
-						Size: "20",
-					})
-					<span class="hidden sm:block">dashboard</span>
-				</a>
-			</li>
-			<li>
-				<a href="/hub">
-					@icon.CircleQuestionMark(icon.Props{
-						Size: "20",
-					})
-					<span class="hidden sm:block">hub</span>
-				</a>
-			</li>
+			for _, item := range NavItems {
+				@NavItemLink(item)
+			}
 		</ul>
 	</nav>
-	@NavStyles()
 }
 
-templ NavStyles() {
-	<style>
-		body > header nav {
-			ul {
-				display: flex;
-				flex-direction: row;
-				gap: var(--size-4);
-
-				li a {
-					display: flex;
-					gap: var(--size--2);
-					font-size: var(--font-size--1);
-					align-items: center;
-					padding: var(--size--1) var(--size-1);
-					border-radius: var(--border-radius-1);
-					&:hover {
-						background-color: var(--secondary-5);
-					}
-				}
-			}
-		}
-	</style>
+templ NavItemLink(item NavItem) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	<li data-active={ item.HREF == url }>
+		<a href={ item.HREF }>
+			@icon.Icon(item.IconName)(icon.Props{
+				Size: "20",
+			})
+			<span class="hidden sm:block">{ item.Label }</span>
+		</a>
+	</li>
 }

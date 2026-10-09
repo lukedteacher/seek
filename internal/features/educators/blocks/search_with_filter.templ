@@ -11,12 +11,7 @@ import (
 
 templ EducatorSearchWithFilter(filters models.Filters) {
 	<div class="join w-full max-w-lg">
-		<div class="flex items-center relative w-full">
-			@icon.Search(icon.Props{
-				Class: "size-4 absolute left-3 top-1/2 -translate-y-1/2 stroke-neutral-content/80",
-			})
-			@EducatorSearchInput()
-		</div>
+		@EducatorSearchInput()
 		@FilterMenu() {
 			@FilterButtons(filters)
 		}
@@ -25,14 +20,27 @@ templ EducatorSearchWithFilter(filters models.Filters) {
 
 templ EducatorSearchInput() {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	<input
-		type="search"
-		id="educator-list-search"
-		class="input pl-9 join-item"
-		placeholder="type to filter results..."
-		{ utils.DataBind("filter.search") }
-		{ utils.OnInputQuery(url) }
-	/>
+	<div class="join-item input">
+		@icon.Search(icon.Props{
+			Size: "16",
+		})
+		<input
+			type="search"
+			id="educator-list-search"
+			class="w-full"
+			placeholder="type to filter results..."
+			{ utils.DataBind("filter.search") }
+			{ utils.OnInputQuery(url) }
+		/>
+		<button
+			data-show="$filter.search.length > 0"
+			{ utils.OnClick("$filter.search=''", utils.Query(url)) }
+		>
+			@icon.X(icon.Props{
+				Size: "16",
+			})
+		</button>
+	</div>
 }
 
 templ FilterMenu() {

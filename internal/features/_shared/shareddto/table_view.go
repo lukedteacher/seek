@@ -9,6 +9,7 @@ type TableConfig[T any] struct {
 	ValueExtractor  func(item *T, field string) string // for cell values
 	TargetExtractor func(item *T) string               // for row link target
 	SubTableBuilder func(item T) TableView
+	GroupExtractor  func(item *T) string // nil = no grouping
 }
 
 type TableSort struct {
@@ -18,20 +19,23 @@ type TableSort struct {
 
 type TableView struct {
 	Name    string
-	Sort    TableSort
+	Sort    TableSort `json:"sort"`
 	Columns []ColumnView
 	Rows    []RowView
 }
 
 type ColumnView struct {
-	Field        string                         // e.g. "DirectMinutes", "StudentID"
-	Signal       string                         // e.g. "direct_minutes", "student_id"
-	Display      string                         // e.g. "direct", "student ID"
-	Group        string                         // e.g. "minutes", ""
-	Renderer     string                         // e.g. "text", "badge"
-	Alignment    string                         // e.g. "left", "center", "right"
-	FormatMethod string                         // e.g. "GradeOrdinal", "FullName"
-	RenderFunc   func(item any) templ.Component // optional custom cell renderer
+	Field        string                         `json:"-"`       // e.g. "DirectMinutes", "StudentID"
+	Signal       string                         `json:"signal"`  // e.g. "direct_minutes", "student_id"
+	Display      string                         `json:"display"` // e.g. "direct", "student ID"
+	Group        string                         `json:"-"`       // e.g. "minutes", ""
+	Renderer     string                         `json:"-"`       // e.g. "text", "badge"
+	Alignment    string                         `json:"-"`       // e.g. "left", "center", "right"
+	FormatMethod string                         `json:"-"`       // e.g. "GradeOrdinal", "FullName"
+	Sortable     bool                           `json:"-"`
+	Groupable    bool                           `json:"-"`
+	Visible      bool                           `json:"visible"`
+	RenderFunc   func(item any) templ.Component `json:"-"` // optional custom cell renderer
 }
 
 type RowView struct {
@@ -39,6 +43,7 @@ type RowView struct {
 	Item     any
 	Cells    []CellView
 	SubTable *TableView
+	Group    string
 }
 
 type CellView string
@@ -66,6 +71,9 @@ func NewTableView[T any](items []T, cfg TableConfig[T]) TableView {
 
 		cells := make([]CellView, len(cfg.Columns))
 		for j, col := range cfg.Columns {
+			if !col.Visible {
+				continue
+			}
 			cells[j] = CellView(cfg.ValueExtractor(item, col.Field))
 		}
 
@@ -75,11 +83,17 @@ func NewTableView[T any](items []T, cfg TableConfig[T]) TableView {
 			subTable = &st
 		}
 
+		var group string
+		if cfg.GroupExtractor != nil {
+			group = cfg.GroupExtractor(item)
+		}
+
 		rows[i] = RowView{
 			Target:   target,
 			Item:     *item,
 			Cells:    cells,
 			SubTable: subTable,
+			Group:    group,
 		}
 	}
 

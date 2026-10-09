@@ -180,7 +180,7 @@ func getHomeroomCreateStream(
 				props := pages.FormProps{
 					FormType:           sharedmodels.FormTypeCreate,
 					Homeroom:           signals.Homeroom,
-					EducatorSelectView: createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filter, signals.Homeroom.EducatorIDs),
+					EducatorSelectView: createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filters, signals.Homeroom.EducatorIDs),
 					SelectedEducators:  educatorDTO.NewViews(educators),
 					StudentSelectView:  createStudentSelectView(ctx, l, studentReadModel, &signals.StudentSelect.Filter, signals.Homeroom.StudentIDs),
 					SelectedStudents:   studentDTO.NewViews(students),
@@ -537,7 +537,7 @@ func getHomeroomEditStream(
 				props := pages.FormProps{
 					FormType:           sharedmodels.FormTypeEdit,
 					Homeroom:           signals.Homeroom,
-					EducatorSelectView: createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filter, signals.Homeroom.EducatorIDs),
+					EducatorSelectView: createEducatorSelectView(ctx, l, educatorReadModel, &signals.EducatorSelect.Filters, signals.Homeroom.EducatorIDs),
 					SelectedEducators:  educatorDTO.NewViews(educators),
 					StudentSelectView:  createStudentSelectView(ctx, l, studentReadModel, &signals.StudentSelect.Filter, signals.Homeroom.StudentIDs),
 					SelectedStudents:   studentDTO.NewViews(students),
@@ -710,7 +710,7 @@ func refreshHomeroomEditState(
 	for _, planType := range sharedmodels.PlanTypeList {
 		studentPlanFilter[planType.String()] = true
 	}
-	educators, _ := listEducators(ctx, l, educatorReadModel, nil, nil)
+	educators, _ := listEducators(ctx, l, educatorReadModel, nil, "", nil)
 	studentFilter := &studentDTO.Filter{
 		Grade:    studentGradeFilter,
 		PlanType: studentPlanFilter,

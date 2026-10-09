@@ -21,6 +21,15 @@
     color: var(--color-primary-content);
   }
 
+  .bg-primary-dim {
+    background-color: color-mix(
+      in oklch,
+      var(--color-primary-muted) 20%,
+      var(--color-neutral)
+    );
+    color: var(--color-primary-content);
+  }
+
   .bg-primary-bright {
     background-color: var(--color-primary-bright);
     color: var(--color-primary-bright-content);
@@ -56,6 +65,15 @@
     color: var(--color-neutral-bright-content);
   }
 
+  .bg-success-dim {
+    background-color: color-mix(
+      in oklch,
+      var(--color-success) 40%,
+      transparent
+    );
+    color: var(--color-neutral-content);
+  }
+
   .hover\:bg-primary:hover {
     background-color: var(--color-primary);
     color: var(--color-primary-content);
@@ -63,6 +81,15 @@
 
   .hover\:bg-secondary:hover {
     background-color: var(--color-secondary);
+    color: var(--color-secondary-content);
+  }
+
+  .hover\:bg-secondary-dim:hover {
+    background-color: color-mix(
+      in oklch,
+      var(--color-secondary) 70%,
+      transparent
+    );
     color: var(--color-secondary-content);
   }
 

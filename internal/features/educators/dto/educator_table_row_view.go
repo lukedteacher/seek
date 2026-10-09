@@ -8,11 +8,13 @@ import (
 )
 
 // columns for the educator table
-var EducatorColumns = []shareddto.ColumnView{
-	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name"},
-	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name"},
-	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name"},
-	{Field: "Roles", Display: "role(s)", Renderer: "badge", Alignment: "center", Signal: "roles"},
+var EducatorTableColumns = []shareddto.ColumnView{
+	{Field: "FirstL", Display: "first l", Group: "name", Signal: "first_l", Sortable: true, Groupable: false, Visible: true},
+	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name", Sortable: true, Groupable: true, Visible: true},
+	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name", Sortable: true, Groupable: false, Visible: true},
+	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name", Sortable: true, Groupable: true, Visible: true},
+	{Field: "Email", Display: "email", Signal: "email", Sortable: true, Groupable: false, Visible: true},
+	{Field: "Roles", Display: "role(s)", Renderer: "badge", Alignment: "center", Signal: "roles", Sortable: false, Groupable: true, Visible: true},
 }
 
 // extract values from an educator by field name
@@ -23,6 +25,8 @@ func valueExtractor(m *models.Educator, field string) string {
 	switch field {
 	case "ID":
 		return m.ID
+	case "FirstL":
+		return m.NameInitial()
 	case "GivenName":
 		return m.GivenName
 	case "ChosenName":
@@ -50,7 +54,7 @@ func targetExtractor(m *models.Educator) string {
 // table config for educator (used by both regular and diff tables)
 var EducatorTableConfig = shareddto.TableConfig[models.Educator]{
 	Name:    "educators",
-	Columns: EducatorColumns,
+	Columns: EducatorTableColumns,
 	Sort: shareddto.TableSort{
 		Column:    "family_name",
 		Direction: "ASC",
@@ -64,9 +68,53 @@ func NewEducatorTableView(educators []models.Educator) shareddto.TableView {
 	return shareddto.NewTableView(educators, EducatorTableConfig)
 }
 
-func NewEducatorTableViewWithSort(educators []models.Educator, sort shareddto.TableSort) shareddto.TableView {
+func NewEducatorTableViewWithSort(
+	educators []models.Educator,
+	columns map[string]bool,
+	sort shareddto.TableSort,
+	groupedBy string,
+) shareddto.TableView {
 	if sort.Column != "" && sort.Direction != "" {
 		EducatorTableConfig.Sort = sort
 	}
+
+	visible := make([]shareddto.ColumnView, 0, len(EducatorTableColumns))
+	for _, c := range EducatorTableColumns {
+		if columns[c.Signal] {
+			visible = append(visible, c)
+		}
+	}
+	EducatorTableConfig.Columns = visible
+
+	EducatorTableConfig.GroupExtractor = educatorGroupExtractor(groupedBy)
+
 	return shareddto.NewTableView(educators, EducatorTableConfig)
+}
+
+func educatorGroupExtractor(groupedBy string) func(*models.Educator) string {
+	switch groupedBy {
+	case "given_name":
+		return func(e *models.Educator) string {
+			if e.GivenName == "" {
+				return ""
+			}
+			return strings.ToUpper(e.GivenName[:1])
+		}
+	case "family_name":
+		return func(e *models.Educator) string {
+			if e.FamilyName == "" {
+				return ""
+			}
+			return strings.ToUpper(e.FamilyName[:1])
+		}
+	case "role":
+		return func(e *models.Educator) string {
+			if len(e.Roles) == 0 {
+				return ""
+			}
+			return string(e.Roles[0])
+		}
+	default:
+		return nil // "none" → no grouping
+	}
 }

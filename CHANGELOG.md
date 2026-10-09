@@ -2,6 +2,18 @@
 
 updates for SEEK
 
+## v0.10.4 (26.10.09) header revision, more table stuff
+
+- revised header to use 'sticky' instead of fixed
+- added logo (temporary)
+- refactored nav and nav links
+  - highlight on active
+  - box shadow accent on bottom
+- re-added theme toggle styles from daisy ui
+- added grouping to educator list view
+- tweaked table config with new fields
+  - visible, groupable, and sortable
+
 ## v0.10.3 (26.10.08) finish educator list view
 
 - added sorting

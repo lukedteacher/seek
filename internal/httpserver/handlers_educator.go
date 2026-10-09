@@ -45,7 +45,7 @@ func (s Server) educatorRoutes(r chi.Router) {
 	r.Get("/educators/{username}/edit/stream", getEducatorEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
 	r.Post("/educators/{username}/edit/validate", postEducatorEditValidate(s.Logger, s.ViewStore))
 	r.Post("/educators/{username}/edit", postEducatorEdit(s.Logger, s.EventSaver, s.EventRetriever))
-	r.Delete("/educators/{id}", deleteEducator(s.Logger, s.EventSaver, s.EventRetriever, s.ReadModels.Educators))
+	r.Delete("/educators/{id}", deleteEducator(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Get("/e/{id}", getEducatorEditByID(s.Logger, s.ReadModels.Educators))
 }
 
@@ -102,7 +102,21 @@ func getEducatorsListStream(
 			return
 		}
 		if !ok {
-			signals = pages.ListPageSignals{Filters: *models.NewFilters()}
+			columns := make(map[string]bool, len(dto.EducatorTableColumns))
+			for _, column := range dto.EducatorTableColumns {
+				columns[column.Signal] = column.Visible
+			}
+			signals = pages.ListPageSignals{
+				Table: pages.ListPageTableSignals{
+					Columns: columns,
+					Sort: shareddto.TableSort{
+						Column:    "family_name",
+						Direction: "ASC",
+					},
+					GroupedBy: "none",
+				},
+				Filters: *models.NewFilters(),
+			}
 			if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 				l.ErrorContext(ctx, "gels seed state", "err", err)
 				return
@@ -110,14 +124,14 @@ func getEducatorsListStream(
 		}
 
 		render := func(signals pages.ListPageSignals) {
-			educators, err := listEducators(ctx, l, educatorReadModel, &signals.Table.Sort, &signals.Filters)
+			educators, err := listEducators(ctx, l, educatorReadModel, &signals.Table.Sort, signals.Table.GroupedBy, &signals.Filters)
 			if err != nil {
 				l.ErrorContext(ctx, "gels list", "err", err)
 				return
 			}
 			props := pages.ListPageProps{
 				Signals: signals,
-				View:    dto.NewEducatorTableViewWithSort(educators, signals.Table.Sort),
+				View:    dto.NewEducatorTableViewWithSort(educators, signals.Table.Columns, signals.Table.Sort, signals.Table.GroupedBy),
 			}
 			sse.PatchElementTempl(pages.List(props))
 		}
@@ -783,7 +797,6 @@ func deleteEducator(
 	l *slog.Logger,
 	saver eventstore.Saver,
 	retriever eventstore.Retriever,
-	educatorReadModel *events.ReadModel,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -859,9 +872,10 @@ func refreshEducatorEditState(
 
 func listEducators(
 	ctx context.Context,
-	l *slog.Logger,
+	_ *slog.Logger,
 	rm *events.ReadModel,
 	sort *shareddto.TableSort,
+	groupedBy string,
 	filters *models.Filters,
 ) ([]models.Educator, error) {
 	stringFilter := []string{}
@@ -871,10 +885,15 @@ func listEducators(
 	if sort == nil {
 		sort = &shareddto.TableSort{}
 	}
+	sortCol := "family_name"
+	if sort.Column == "first_l" {
+		sortCol = "given_name"
+	}
 	return rm.List(
 		ctx,
-		events.WithSortColumn(sort.Column),
+		events.WithSortColumn(sortCol),
 		events.WithSortDirection(sort.Direction),
+		events.WithGroupedBy(groupedBy),
 		events.WithSearchFilter(filters.Search),
 		events.WithRoleFilter(stringFilter),
 	)
@@ -898,10 +917,10 @@ func createEducatorSelectView(
 	ctx context.Context,
 	l *slog.Logger,
 	educatorReadModel *events.ReadModel,
-	filter *dto.Filter,
+	filters *models.Filters,
 	selected []string,
 ) dto.SelectView {
-	educators, err := listEducators(ctx, l, educatorReadModel, nil, nil)
+	educators, err := listEducators(ctx, l, educatorReadModel, nil, "", filters)
 	if err != nil {
 		l.ErrorContext(ctx, "cesv list educators", "err", err)
 		return dto.SelectView{}
