@@ -270,8 +270,22 @@ func (m *ReadModel) GetWithPeriods(ctx context.Context, username string) (*dto.E
 type ListOption func(*listConfig)
 
 type listConfig struct {
-	withRoleFilter   []string
-	withSearchFilter string
+	withSortColumn    string
+	withSortDirection string
+	withSearchFilter  string
+	withRoleFilter    []string
+}
+
+func WithSortColumn(column string) ListOption {
+	return func(c *listConfig) {
+		c.withSortColumn = column
+	}
+}
+
+func WithSortDirection(direction string) ListOption {
+	return func(c *listConfig) {
+		c.withSortDirection = direction
+	}
 }
 
 func WithSearchFilter(search string) ListOption {
@@ -298,6 +312,14 @@ func (m *ReadModel) listWithFilters(
 	ctx context.Context,
 	cfg *listConfig,
 ) ([]models.Educator, error) {
+	sortColumn := "family_name"
+	if cfg.withSortColumn != "" {
+		sortColumn = cfg.withSortColumn
+	}
+	sortDirection := "ASC"
+	if cfg.withSortDirection != "" {
+		sortDirection = cfg.withSortDirection
+	}
 	where := "e.archived_at IS NULL"
 	args := []any{}
 	if cfg.withSearchFilter != "" {
@@ -313,7 +335,6 @@ func (m *ReadModel) listWithFilters(
 		}
 		where += ")"
 	}
-
 	if cfg.withRoleFilter != nil {
 		if len(cfg.withRoleFilter) == 0 {
 			return []models.Educator{}, nil
@@ -340,8 +361,8 @@ func (m *ReadModel) listWithFilters(
 			) AS roles_json
 		FROM educators e
 		WHERE %s
-		ORDER BY e.family_name ASC, e.given_name ASC
-	`, where)
+		ORDER BY e.%s COLLATE NOCASE %s, e.family_name COLLATE NOCASE ASC
+	`, where, sortColumn, sortDirection)
 
 	var educators []models.Educator
 	err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {

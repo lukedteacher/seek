@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.10.3 (26.10.08) finish educator list view
+
+- added sorting
+- fixed some style issues with search input + filter
+- re-added hover style for rows and added highlight
+
 ## v0.10.2 (26.10.07) form, style, educator list view refactor
 
 - moved base form to coreblocks/forms

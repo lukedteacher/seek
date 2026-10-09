@@ -117,31 +117,6 @@ span.span-absent {
   color: var(--color-error);
 }
 
-table.data-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  border-width: 1px;
-  border-style: solid;
-  border-color: var(--neutral-4-dim);
-  border-radius: var(--border-radius-0);
-  overflow: hidden;
-  min-width: 320px;
-  thead {
-    background-color: var(--neutral-3);
-  }
-  tr {
-    th {
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
-    }
-    td {
-      border-top-width: 1px;
-      border-top-style: solid;
-      border-top-color: var(--neutral-4-dim);
-    }
-  }
-}
-
 fieldset {
   gap: clamp(0.9rem, var(--size-2), 1.2rem);
   background: linear-gradient(
@@ -151,7 +126,7 @@ fieldset {
   );
   border-style: solid;
   border-width: var(--border-width-0);
-  border-radius: var(--border-radius-3);
+  border-radius: var(--border-radius);
   padding: var(--size-4);
   padding-top: var(--size-0);
 }
@@ -163,20 +138,6 @@ form.seek-form {
   hgroup p {
     color: color-mix(in oklch, currentColor 90%, black 10%);
     font-size: var(--font-size--1);
-  }
-
-  fieldset {
-    gap: clamp(1.2rem, var(--size-4), var(--size-5));
-    background: linear-gradient(
-      to bottom right,
-      var(--neutral-4),
-      var(--neutral-3)
-    );
-    border-style: solid;
-    border-width: var(--border-width-0);
-    border-radius: var(--border-radius-3);
-    padding: var(--size-4);
-    padding-top: var(--size-0);
   }
 
   footer {

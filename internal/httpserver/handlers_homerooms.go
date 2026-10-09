@@ -710,7 +710,7 @@ func refreshHomeroomEditState(
 	for _, planType := range sharedmodels.PlanTypeList {
 		studentPlanFilter[planType.String()] = true
 	}
-	educators, _ := listEducators(ctx, l, educatorReadModel, nil)
+	educators, _ := listEducators(ctx, l, educatorReadModel, nil, nil)
 	studentFilter := &studentDTO.Filter{
 		Grade:    studentGradeFilter,
 		PlanType: studentPlanFilter,

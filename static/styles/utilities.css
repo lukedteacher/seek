@@ -4,12 +4,11 @@
   }
 
   .text-muted {
-    color: var(--color-neutral-muted);
+    color: var(--color-neutral-dim);
   }
 
   .border-muted {
-    border-width: 1px;
-    border-color: var(--color-neutral-muted);
+    border-color: var(--color-neutral-dim);
   }
 
   .bg-primary-dark {
@@ -210,7 +209,7 @@
   .join-item {
     border-style: solid;
     border-width: var(--border-width, 1px);
-    border-color: var(--color-neutral-muted);
+    border-color: var(--color-neutral-dim);
     border-start-start-radius: var(--join-ss);
     border-end-start-radius: var(--join-es);
     border-start-end-radius: var(--join-se);

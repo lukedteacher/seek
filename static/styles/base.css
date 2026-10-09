@@ -37,18 +37,20 @@
   }
 
   /* input styles */
-  input {
-    block-size: var(--input-block-size);
-    inline-size: var(--input-inline-size);
-    font-size: var(--input-font-size);
-    border-width: var(--input-border-width);
-    border-color: var(--input-border-color);
-    border-radius: var(--input-border-radius);
+  .input {
+    block-size: var(--base-block-size);
+    inline-size: 100%;
+    padding-block: var(--base-padding-block);
+    padding-inline: var(--base-padding-inline);
+    font-size: var(--base-font-size);
+    border-width: var(--border-width);
+    border-color: var(--border-color);
+    border-radius: var(--border-radius);
   }
 
   input::placeholder {
-    color: var(--input-placeholder-color);
-    font-size: var(--input-placeholder-font-size);
+    color: var(--base-color-dim);
+    font-size: var(--base-font-size);
   }
 
   input:focus {
@@ -58,61 +60,71 @@
   }
 
   .button {
-    color: var(--button-color);
-    background-color: var(--button-bg-color);
-    border-color: var(--button-border-color);
-    border-radius: var(--button-border-radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--base-color);
+    background-color: var(--base-bg-color);
+    border-width: var(--border-width);
+    border-color: var(--border-color);
+    border-radius: var(--border-radius);
     &:hover {
-      color: color-mix(in oklab, var(--button-color) 90%, var(--color-neutral));
+      color: color-mix(in oklab, var(--base-color) 90%, transparent);
       background-color: color-mix(
         in oklab,
-        var(--button-bg-color) 90%,
-        var(--color-neutral)
+        var(--base-bg-color) 90%,
+        transparent
       );
     }
     &:active {
-      color: color-mix(in oklab, var(--button-color) 80%, var(--color-neutral));
+      color: color-mix(in oklab, var(--base-color) 80%, transparent);
       background-color: color-mix(
         in oklab,
-        var(--button-bg-color) 80%,
-        var(--color-neutral)
+        var(--base-bg-color) 80%,
+        transparent
       );
     }
-    block-size: var(--button-block-size);
-    font-size: var(--button-font-size);
-    padding-block: var(--button-padding-block);
-    padding-inline: var(--button-padding-inline);
+    block-size: var(--base-block-size);
+    padding-block: var(--base-padding-block);
+    padding-inline: var(--base-padding-inline);
+    font-size: var(--base-font-size);
     transition: all 100ms ease-in-out;
   }
 
   .button[data-variant='primary'] {
-    --button-color: var(--color-primary-content);
-    --button-bg-color: var(--color-primary);
+    --color: var(--color-primary-content);
+    --base-bg-color: var(--color-primary);
   }
 
   .button[data-variant='secondary'] {
-    --button-color: var(--color-secondary-content);
-    --button-bg-color: var(--color-secondary);
+    --color: var(--color-secondary-content);
+    --base-bg-color: var(--color-secondary);
   }
 
   .button[data-variant='success'] {
-    --button-color: var(--color-success-content);
-    --button-bg-color: var(--color-success);
+    --color: var(--color-success-content);
+    --base-bg-color: var(--color-success);
   }
 
   .button[data-variant='info'] {
-    --button-color: var(--color-info-content);
-    --button-bg-color: var(--color-info);
+    --color: var(--color-info-content);
+    --base-bg-color: var(--color-info);
   }
 
   .button[data-variant='warning'] {
-    --button-color: var(--color-warning-content);
-    --button-bg-color: var(--color-warning);
+    --color: var(--color-warning-content);
+    --base-bg-color: var(--color-warning);
   }
 
   .button[data-variant='destructive'] {
-    --button-color: var(--color-error-content);
-    --button-bg-color: var(--color-error);
+    --color: var(--color-error-content);
+    --base-bg-color: var(--color-error);
+  }
+
+  .button[data-variant='outline'] {
+    --base-bg-color: transparent;
+    --border-color: var(--color-neutral-dim);
   }
 
   summary {
@@ -133,5 +145,75 @@
 
   details:open summary::after {
     transform: rotate(-180deg);
+  }
+
+  details {
+    display: flex;
+    flex-direction: column;
+
+    & summary {
+      display: inline-flex;
+      justify-content: space-between;
+      color: var(--base-color);
+      background-color: var(--base-bg-color);
+      border-style: solid;
+      border-color: var(--border-color);
+      border-width: var(--border-width, 1px);
+      border-radius: var(--border-radius);
+    }
+  }
+
+  table.data-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--neutral-4-dim);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    min-width: 320px;
+    thead {
+      background-color: color-mix(
+        in oklch,
+        var(--color-neutral-dark) 90%,
+        white
+      );
+    }
+    tbody {
+      tr {
+        background-color: var(--color-neutral-dark);
+        &:hover {
+          background-color: color-mix(
+            in oklch,
+            var(--base-bg-color) 80%,
+            transparent
+          );
+          position: relative;
+          &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            block-size: 100%;
+            inline-size: 100%;
+            box-shadow:
+              inset 4px 0 0 var(--primary-7),
+              inset -4px 0 0 var(--primary-7);
+            pointer-events: none;
+          }
+        }
+      }
+    }
+    tr {
+      th {
+        padding-block: calc(var(--size-2) / 2);
+        padding-inline: var(--size-2);
+      }
+      td {
+        border-top-width: 1px;
+        border-top-style: solid;
+        border-top-color: var(--color-neutral-dim);
+      }
+    }
   }
 }

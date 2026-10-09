@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"seek/internal/eventstore"
+	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/dto"
 	"seek/internal/features/educators/events"
@@ -109,14 +110,14 @@ func getEducatorsListStream(
 		}
 
 		render := func(signals pages.ListPageSignals) {
-			educators, err := listEducators(ctx, l, educatorReadModel, &signals.Filters)
+			educators, err := listEducators(ctx, l, educatorReadModel, &signals.Table.Sort, &signals.Filters)
 			if err != nil {
 				l.ErrorContext(ctx, "gels list", "err", err)
 				return
 			}
 			props := pages.ListPageProps{
 				Signals: signals,
-				View:    dto.NewEducatorTableView(educators),
+				View:    dto.NewEducatorTableViewWithSort(educators, signals.Table.Sort),
 			}
 			sse.PatchElementTempl(pages.List(props))
 		}
@@ -860,17 +861,23 @@ func listEducators(
 	ctx context.Context,
 	l *slog.Logger,
 	rm *events.ReadModel,
+	sort *shareddto.TableSort,
 	filters *models.Filters,
 ) ([]models.Educator, error) {
+	stringFilter := []string{}
 	if filters != nil {
-		stringFilter := models.ModelToString(filters.Roles)
-		return rm.List(
-			ctx,
-			events.WithSearchFilter(filters.Search),
-			events.WithRoleFilter(stringFilter),
-		)
+		stringFilter = models.ModelToString(filters.Roles)
 	}
-	return rm.List(ctx)
+	if sort == nil {
+		sort = &shareddto.TableSort{}
+	}
+	return rm.List(
+		ctx,
+		events.WithSortColumn(sort.Column),
+		events.WithSortDirection(sort.Direction),
+		events.WithSearchFilter(filters.Search),
+		events.WithRoleFilter(stringFilter),
+	)
 }
 
 func listEducatorsByIDs(
@@ -894,7 +901,7 @@ func createEducatorSelectView(
 	filter *dto.Filter,
 	selected []string,
 ) dto.SelectView {
-	educators, err := listEducators(ctx, l, educatorReadModel, nil)
+	educators, err := listEducators(ctx, l, educatorReadModel, nil, nil)
 	if err != nil {
 		l.ErrorContext(ctx, "cesv list educators", "err", err)
 		return dto.SelectView{}

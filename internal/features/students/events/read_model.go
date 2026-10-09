@@ -262,7 +262,7 @@ func (m *ReadModel) listAllWithSorting(
 			updated_at
 		FROM students
 		WHERE %s
-		ORDER BY %s %s, family_name COLLATE NOCASE ASC, chosen_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC
+		ORDER BY %s COLLATE NOCASE %s, family_name COLLATE NOCASE ASC, chosen_name COLLATE NOCASE ASC, given_name COLLATE NOCASE ASC
 	`, where, sortBy, sortDir)
 
 	var students []models.Student

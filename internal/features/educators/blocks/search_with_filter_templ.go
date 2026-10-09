@@ -13,7 +13,6 @@ import (
 
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/models"
-	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/utils"
 )
@@ -39,7 +38,7 @@ func EducatorSearchWithFilter(filters models.Filters) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"join\"><div class=\"flex items-center relative min-w-md shrink-0\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"join w-full max-w-lg\"><div class=\"flex items-center relative w-full\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -109,14 +108,14 @@ func EducatorSearchInput() templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		url := sharedmodels.GetURLFromContext(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<input type=\"search\" id=\"educator-list-search\" class=\"pl-9 join-item\" placeholder=\"type to filter results...\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<input type=\"search\" id=\"educator-list-search\" class=\"input pl-9 join-item\" placeholder=\"type to filter results...\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(utils.DataBind("filter.search"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/search_with_filter.templ`, Line: 34, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/search_with_filter.templ`, Line: 33, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(` ` + templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -125,7 +124,7 @@ func EducatorSearchInput() templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(utils.OnInputQuery(url))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/search_with_filter.templ`, Line: 35, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/search_with_filter.templ`, Line: 34, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(` ` + templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -205,7 +204,7 @@ func FilterButtons(filters models.Filters) templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<details class=\"w-lg flex flex-col\" open data-preserve-attr=\"open\"><summary class=\"px-3 py-1 border border-muted rounded-md inline-flex justify-between bg-neutral-dark\"><span>roles</span></summary><div class=\"button-group grid\" style=\"grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr))\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<details class=\"w-lg\" open data-preserve-attr=\"open\"><summary class=\"px-3 py-1 bg-neutral-dark\"><span>roles</span></summary><div class=\"button-group grid\" style=\"grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr))\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -245,42 +244,59 @@ func FilterButton(label, signal string, active bool) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		url := sharedmodels.GetURLFromContext(ctx)
-		classList := "hover:bg-primary"
+		classList := "button bg-neutral-bright hover:bg-primary"
 		if active {
-			classList = "bg-primary hover:bg-secondary"
+			classList = "button bg-primary hover:bg-secondary"
 		}
 		expr := fmt.Sprintf(
 			"$filter.roles.%[1]s = !$filter.roles.%[1]s; %[2]s",
 			signal, utils.Query(url),
 		)
-		templ_7745c5c3_Var9 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(label)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/search_with_filter.templ`, Line: 80, Col: 9}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = button.Button(button.Props{
-			Class:      classList,
-			Variant:    button.VariantOutline,
-			Attributes: templ.Attributes{"data-on:click": expr},
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
+		var templ_7745c5c3_Var9 = []any{classList}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var9...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<button class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var9).String())
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/search_with_filter.templ`, Line: 1, Col: 0}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" data-variant=\"outline\" data-on:click=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var11 string
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(expr)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/search_with_filter.templ`, Line: 74, Col: 72}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var12 string
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(label)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/blocks/search_with_filter.templ`, Line: 74, Col: 82}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</button>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

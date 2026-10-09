@@ -1,5 +1,22 @@
 @layer theme {
   :root {
+    /* base theme */
+
+    /* colors */
+    --border-width: 1px;
+    --border-color: transparent;
+    --border-radius: max(10px, var(--border-radius-0));
+    --base-color: var(--color-neutral-content);
+    --base-bg-color: var(--color-neutral);
+    --base-color-dim: var(--color-neutral-dim);
+
+    /* sizing */
+    --base-block-size: 2rem;
+    --base-padding-block: calc(var(--size--1) / 2);
+    --base-padding-inline: var(--size--1);
+
+    /* fonts */
+    --base-font-size: var(--font-size--1);
     --sans-serif: 'lexend', 'sans-serif';
     --serif: 'life-savers-bold', 'serif';
 
@@ -47,7 +64,7 @@
     --color-neutral-dark-muted: var(--neutral-3-dim);
     --color-neutral: var(--neutral-4);
     --color-neutral-content: var(--neutral-4-on);
-    --color-neutral-muted: var(--neutral-4-dim);
+    --color-neutral-dim: var(--neutral-4-dim);
     --color-neutral-bright: var(--neutral-5);
     --color-neutral-bright-content: var(--neutral-5-on);
     --color-neutral-bright-muted: var(--neutral-5-dim);
@@ -63,7 +80,7 @@
     --color-error: var(--error-6);
     --color-error-content: var(--error-6-on);
     --color-error-muted: var(--error-6-dim);
-    --border-radius: var(--border-radius-1);
+    --border-radius: var(--border-radius-0);
 
     /* body styles */
     --body-font-family: var(--sans-serif);
@@ -74,47 +91,13 @@
     --body-header-color: var(--color-neutral-content);
     --body-header-bg-color: var(--color-neutral);
 
-    /* button styles */
-    --button-color: var(--color-neutral-content);
-    --button-bg-color: var(--color-neutral);
-    --button-border-radius: var(--border-radius);
-    --button-hover-color: color-mix(
-      in oklab,
-      var(--button-color) 90%,
-      var(--color-neutral)
-    );
-    --button-hover-bg-color: color-mix(
-      in oklab,
-      var(--button-bg-color) 90%,
-      var(--color-neutral)
-    );
-    --button-active-color: color-mix(
-      in oklab,
-      var(--button-color) 80%,
-      var(--color-neutral)
-    );
-    --button-active-bg-color: color-mix(
-      in oklab,
-      var(--button-bg-color) 80%,
-      var(--color-neutral)
-    );
-    --button-block-size: 1.75rem;
-    --button-font-size: var(--font-size--1);
-    --button-padding-block: calc(var(--size--1) / 2);
-    --button-padding-inline: var(--size--1);
-
     /* input styles */
     /* base styles */
-    --input-block-size: 1.75rem;
-    --input-inline-size: 100%;
-    --input-font-size: var(--font-size--1);
-    --input-border-width: 1px;
-    --input-border-color: var(--color-neutral-muted);
-    --input-border-radius: var(--border-radius);
+    --input-border-color: var(--color-neutral-dim);
     --input-box-shadow: inset 0 1px 0
       color-mix(in oklab, var(--color-neutral-content) 40%, transparent);
     /* placeholder styles */
-    --input-placeholder-color: var(--color-neutral-muted);
+    --input-placeholder-color: var(--color-neutral-dim);
     --input-placeholder-font-size: var(--font-size--1);
     /* focus styles */
     --input-focus-outline: 2px solid
@@ -122,10 +105,16 @@
     --input-focus-outline-offset: 2px;
     --input-focus-border-color: var(--color-primary-bright);
 
+    summary {
+      --color: var(--color-neutral-bright-content);
+      --base-bg-color: var(--color-neutral-bright);
+      --border-color: var(--color-neutral-dim);
+    }
+
     /* tailwind keeps overriding these */
     input {
-      font-size: var(--input-font-size);
-      border-radius: var(--input-border-radius);
+      font-size: var(--base-font-size);
+      border-radius: var(--border-radius);
     }
 
     h1 {
