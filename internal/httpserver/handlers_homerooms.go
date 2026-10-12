@@ -25,7 +25,7 @@ import (
 )
 
 func (s Server) homeroomRoutes(r chi.Router) {
-	// homeroom list
+	// homerooms list
 	r.Get("/homerooms", getHomeroomsList(s.Logger))
 	r.Get("/homerooms/stream", getHomeroomsListStream(s.Logger, s.Subscriber, s.ReadModels.Homerooms, s.ReadModels.Educators, s.ReadModels.Students))
 	// homeroom creation
@@ -210,7 +210,7 @@ func queryHomeroomFormValidate(
 		// store the signals in the viewstore based on form type
 		key, err := getHomeroomViewstoreKey(signals.FormType, user.Username, signals.Homeroom.ID)
 		if err != nil {
-			l.ErrorContext(ctx, "qhfg vs key", "err", err, "form type", signals.FormType, "username", user.Username, "hid", signals.Homeroom.ID)
+			l.ErrorContext(ctx, "qhfv vs key", "err", err, "form type", signals.FormType, "username", user.Username, "hid", signals.Homeroom.ID)
 			return
 		}
 		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {

@@ -118,7 +118,7 @@ func Separator(props ...Props) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 = []any{utils.TwMerge(
-				"absolute w-full border-t h-[1px] text-dim",
+				"absolute w-full border-t h-px text-dim",
 				decorationClasses(p.Decoration),
 			),
 			}
@@ -206,7 +206,7 @@ func Separator(props ...Props) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 = []any{utils.TwMerge(
-				"absolute h-full border-l w-[1px]",
+				"absolute h-full border-l w-px",
 				decorationClasses(p.Decoration),
 			),
 			}

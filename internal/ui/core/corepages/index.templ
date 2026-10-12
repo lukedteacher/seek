@@ -60,7 +60,7 @@ templ HeroCard() {
 }
 
 templ FeatureCards() {
-	<section class="grid gap-fluid-3 w-full" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+	<section class="grid gap-fluid-3 w-full" style="grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));">
 		@IndexCard(IndexCardProps{
 			icon:        "house-heart",
 			title:       "homerooms",
@@ -144,32 +144,28 @@ type IndexCardProps struct {
 }
 
 templ IndexCard(props IndexCardProps) {
-	<div class="card">
-		@card.Header() {
-			@card.Title() {
+	<article class="card">
+		<hgroup class="card-header">
+			<header>
 				@icon.Icon(props.icon)(icon.Props{Size: "20"})
 				{ props.title }
-			}
-			@card.Description() {
+			</header>
+			<p>
 				{ props.description }
-			}
-			@separator.Separator(separator.Props{
-				Class: "mt-1",
-			})
-		}
-		@card.Content(card.ContentProps{
-			Class: "text-sm py-5",
-		}) {
+			</p>
+		</hgroup>
+		@separator.Separator()
+		<div>
 			<p>features</p>
 			<ul style="list-style-type: circle; padding-left: var(--size--1); margin-left: var(--size--1);">
 				for _, feature := range props.features {
 					<li>{ feature }</li>
 				}
 			</ul>
-		}
+		</div>
 		<div class="card-footer">
 			@corebuttons.FlexIconButton(props.url, "list", "list")
 			@corebuttons.FlexIconButton(props.url+"/create", "plus", "create")
 		</div>
-	</div>
+	</article>
 }

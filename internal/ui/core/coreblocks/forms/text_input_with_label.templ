@@ -3,7 +3,6 @@ package forms
 import (
 	"fmt"
 
-	"seek/pkg/templui/components/input"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/utils"
 )
@@ -25,15 +24,13 @@ templ TextInputWithLabel(p TextInputWithLabelProps) {
 		}) {
 			{ p.LabelText }
 		}
-		@input.Input(input.Props{
-			ID:    fmt.Sprintf("%s-input", p.ID),
-			Name:  p.ID,
-			Type:  input.TypeText,
-			Value: p.Value,
-			Attributes: templ.Attributes{
-				"data-bind":                     p.Bind,
-				"data-on:input__debounce.250ms": utils.QueryValidate(p.URL),
-			},
-		})
+		<input
+			id={ fmt.Sprintf("%s-input", p.ID) }
+			class="input"
+			name={ p.ID }
+			type="text"
+			data-bind={ p.Bind }
+			{ utils.OnInput(utils.QueryValidate(p.URL)) }
+		/>
 	</div>
 }

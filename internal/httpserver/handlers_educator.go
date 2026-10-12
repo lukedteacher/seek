@@ -2,11 +2,11 @@ package httpserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"slices"
-	"strings"
 
 	"seek/internal/eventstore"
 	"seek/internal/features/_shared/shareddto"
@@ -27,13 +27,11 @@ import (
 )
 
 func (s Server) educatorRoutes(r chi.Router) {
+	// educators list
 	r.Get("/educators", getEducatorsList(s.Logger))
 	r.Get("/educators/stream", getEducatorsListStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
 	r.Query("/educators", queryEducatorsList(s.Logger, s.ViewStore))
-	r.Get("/educators/create", getEducatorCreate(s.Logger))
-	r.Get("/educators/create/stream", getEducatorCreateStream(s.Logger, s.ViewStore))
-	r.Post("/educators/create/validate", postEducatorCreateValidate(s.Logger, s.ViewStore))
-	r.Post("/educators/create", postEducatorCreate(s.Logger, s.EventSaver))
+	// educator viewing
 	r.Get("/educators/{username}", getEducatorView(s.Logger))
 	r.Get("/educators/{username}/info", getEducatorViewInfo(s.Logger))
 	r.Get("/educators/{username}/info/stream", getEducatorViewInfoStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
@@ -41,10 +39,17 @@ func (s Server) educatorRoutes(r chi.Router) {
 	r.Get("/educators/{username}/schedule/stream", getEducatorViewScheduleStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators, s.ReadModels.Periods, s.ReadModels.Students))
 	r.Get("/educators/{username}/caseload", getEducatorViewCaseload(s.Logger))
 	r.Get("/educators/{username}/caseload/stream", getEducatorViewCaseloadStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
+	// educator creation
+	r.Get("/educators/create", getEducatorCreate(s.Logger))
+	r.Get("/educators/create/stream", getEducatorCreateStream(s.Logger, s.ViewStore))
+	r.Query("/educators/create/validate", queryEducatorFormValidate(s.Logger, s.ViewStore))
+	r.Post("/educators/create", postEducatorCreate(s.Logger, s.EventSaver))
+	// educator editing
 	r.Get("/educators/{username}/edit", getEducatorEdit(s.Logger))
 	r.Get("/educators/{username}/edit/stream", getEducatorEditStream(s.Logger, s.Subscriber, s.ViewStore, s.ReadModels.Educators))
-	r.Post("/educators/{username}/edit/validate", postEducatorEditValidate(s.Logger, s.ViewStore))
+	r.Query("/educators/{username}/edit/validate", queryEducatorFormValidate(s.Logger, s.ViewStore))
 	r.Post("/educators/{username}/edit", postEducatorEdit(s.Logger, s.EventSaver, s.EventRetriever))
+	// other educator stuff
 	r.Delete("/educators/{id}", deleteEducator(s.Logger, s.EventSaver, s.EventRetriever))
 	r.Get("/e/{id}", getEducatorEditByID(s.Logger, s.ReadModels.Educators))
 }
@@ -98,7 +103,7 @@ func getEducatorsListStream(
 		// seed only if empty
 		signals, ok, err := viewstore.GetState[pages.ListPageSignals](ctx, vs, key)
 		if err != nil {
-			l.ErrorContext(ctx, "gels get state", "err", err)
+			l.ErrorContext(ctx, "gels get state", "err", err, "key", key)
 			return
 		}
 		if !ok {
@@ -135,8 +140,6 @@ func getEducatorsListStream(
 			}
 			sse.PatchElementTempl(pages.List(props))
 		}
-
-		render(signals)
 
 		for {
 			select {
@@ -176,140 +179,6 @@ func queryEducatorsList(
 		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
 			l.ErrorContext(ctx, "qel vs put state", "err", err)
 		}
-	}
-}
-
-// GET request to /educators/create
-func getEducatorCreate(
-	_ *slog.Logger,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		view := dto.NewEducatorFormView(&models.Educator{})
-		_ = pages.Create(view).Render(ctx, w)
-	}
-}
-
-// GET request to /educators/create/stream
-func getEducatorCreateStream(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		user := currentUser(r)
-		sse := newSSE(w, r)
-
-		key := user.Username + ".educators.create"
-		watcher, err := vs.Watch(
-			ctx,
-			key,
-			viewstore.WatchOptions{
-				IgnoreDeletes: true,
-			},
-		)
-		if err != nil {
-			l.ErrorContext(ctx, "watcher error in educator create stream", "error", err)
-			return
-		}
-		defer watcher.Stop()
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case entry, ok := <-watcher.Updates():
-				if !ok {
-					l.WarnContext(ctx, "educator watcher updates channel closed")
-					return
-				}
-				model := &models.Educator{}
-				if err := entry.JSON(model); err != nil {
-					l.ErrorContext(ctx, "failed to unmarshal educator from view store", "error", err)
-					return
-				}
-				view := dto.NewEducatorFormView(model)
-				sse.PatchElementTempl(pages.Create(view))
-			}
-		}
-	}
-}
-
-// POST request to /educators/create/validate
-// validates the current state of the educator form via signals
-// saves the state to a view store for SSE updates
-func postEducatorCreateValidate(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		user := currentUser(r)
-		signals := &struct {
-			Educator dto.EducatorFormView `json:"educator"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "educator create validate read signals", "err", err)
-			return
-		}
-		rolesStrings := strings.Split(signals.Educator.Role, ",")
-		roles := make([]sharedmodels.EducatorRole, len(rolesStrings))
-		for i, role := range rolesStrings {
-			roles[i] = sharedmodels.EducatorRole(role)
-		}
-		model := models.Educator{
-			ID: signals.Educator.ID,
-			Person: sharedmodels.Person{
-				GivenName:  signals.Educator.GivenName,
-				ChosenName: signals.Educator.ChosenName,
-				FamilyName: signals.Educator.FamilyName,
-				Email:      signals.Educator.Email,
-			},
-			Roles: roles,
-		}
-		// saves the state to a view store so that the SSE can update
-		// TODO look into a better name for the channel
-		key := user.Username + ".educators.create"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
-			l.ErrorContext(ctx, "educator create validate view store", "err", err)
-		}
-
-	}
-}
-
-// POST request to /educator/create
-func postEducatorCreate(
-	l *slog.Logger,
-	saver eventstore.Saver,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		user := currentUser(r)
-		signals := &struct {
-			Educator dto.EducatorFormView `json:"educator"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			l.ErrorContext(ctx, "post educator create signals", "error", err)
-			return
-		}
-		educator := events.EducatorState{
-			GivenName:  signals.Educator.GivenName,
-			ChosenName: signals.Educator.ChosenName,
-			FamilyName: signals.Educator.FamilyName,
-			Email:      signals.Educator.Email,
-			Roles:      strings.Split(signals.Educator.Role, ","),
-		}
-		cmd := events.CreateEducatorCommand{
-			EducatorState: educator,
-			Metadata:      eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
-		}
-		result, err := events.CreateEducatorCommandHandler(ctx, cmd, saver)
-		if err != nil {
-			l.ErrorContext(ctx, "post educator create command handler", "error", err)
-			return
-		}
-		sse := newSSE(w, r)
-		sse.Redirect(fmt.Sprintf("/educators/%s", result.EventID))
 	}
 }
 
@@ -633,14 +502,133 @@ func getEducatorViewCaseloadStream(
 	}
 }
 
+// GET request to /educators/create
+func getEducatorCreate(
+	_ *slog.Logger,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		view := pages.EducatorFormPageProps{
+			FormType: sharedmodels.FormTypeCreate,
+		}
+		_ = pages.EducatorFormPage(view).Render(ctx, w)
+	}
+}
+
+// GET request to /educators/create/stream
+func getEducatorCreateStream(
+	l *slog.Logger,
+	vs viewstore.Store,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		user := currentUser(r)
+		sse := newSSE(w, r)
+
+		key, err := getEducatorViewstoreKey(sharedmodels.FormTypeCreate, user.Username, "")
+		if err != nil {
+			l.ErrorContext(ctx, "gecs vs key", "err", err, "username", user.Username)
+			return
+		}
+		watcher, err := vs.Watch(
+			ctx,
+			key,
+			viewstore.WatchOptions{
+				IgnoreDeletes: true,
+			},
+		)
+		if err != nil {
+			l.ErrorContext(ctx, "gecs watch", "error", err)
+			return
+		}
+		defer watcher.Stop()
+
+		props, ok, err := viewstore.GetState[pages.EducatorFormPageProps](ctx, vs, key)
+		if err != nil {
+			l.ErrorContext(ctx, "gecs get state", "err", err, "key", key)
+			return
+		}
+		if !ok {
+			props := pages.EducatorFormPageProps{
+				FormType: sharedmodels.FormTypeCreate,
+			}
+			if err := viewstore.PutState(ctx, vs, key, props); err != nil {
+				l.ErrorContext(ctx, "gecs seed state", "err", err)
+				return
+			}
+		}
+
+		render := func(props pages.EducatorFormPageProps) {
+			sse.PatchElementTempl(pages.EducatorFormPage(props))
+		}
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case entry, ok := <-watcher.Updates():
+				if !ok {
+					l.WarnContext(ctx, "gecs watcher updates channel closed")
+					return
+				}
+				if err := entry.JSON(&props); err != nil {
+					l.ErrorContext(ctx, "gecs watcher json", "error", err)
+					return
+				}
+				render(props)
+			}
+		}
+	}
+}
+
+// POST request to /educator/create
+func postEducatorCreate(
+	l *slog.Logger,
+	saver eventstore.Saver,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		user := currentUser(r)
+		signals := &pages.EducatorFormPageProps{}
+		if err := datastar.ReadSignals(r, signals); err != nil {
+			l.ErrorContext(ctx, "pec signals", "error", err)
+			return
+		}
+		roleString := make([]string, len(signals.Educator.Roles))
+		for i, role := range signals.Educator.Roles {
+			roleString[i] = role.StringLong()
+		}
+		educator := events.EducatorState{
+			GivenName:  signals.Educator.GivenName,
+			ChosenName: signals.Educator.ChosenName,
+			FamilyName: signals.Educator.FamilyName,
+			Email:      signals.Educator.Email,
+			Roles:      roleString,
+		}
+		cmd := events.CreateEducatorCommand{
+			EducatorState: educator,
+			Metadata:      eventstore.HTTPCommandMetadata(r, user.UserRegisteredID),
+		}
+		result, err := events.CreateEducatorCommandHandler(ctx, cmd, saver)
+		if err != nil {
+			l.ErrorContext(ctx, "pec command handler", "error", err)
+			return
+		}
+		sse := newSSE(w, r)
+		sse.Redirect(fmt.Sprintf("/educators/%s", result.EventID))
+	}
+}
+
 // GET request to /educators/{username}/edit
 func getEducatorEdit(
 	_ *slog.Logger,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		view := dto.NewEducatorFormView(&models.Educator{})
-		_ = pages.Edit(view).Render(ctx, w)
+		view := pages.EducatorFormPageProps{
+			FormType: sharedmodels.FormTypeEdit,
+		}
+		_ = pages.EducatorFormPage(view).Render(ctx, w)
 	}
 }
 
@@ -660,13 +648,14 @@ func getEducatorEditStream(
 			sse.Redirect("/404")
 		}
 		model, err := educatorReadModel.GetByUsername(ctx, username)
+
 		// subscribes to the channel which publishes changes to the underlying model
 		notifier := NewDedupeNotifier()
 		sub, err := subscriber.Subscribe(ctx, events.Channel(model.ID), func(context.Context, []byte) {
 			notifier.Notify()
 		})
 		if err != nil {
-			l.ErrorContext(ctx, "educator edit stream subscribe", "err", err)
+			l.ErrorContext(ctx, "gees subscribe", "err", err)
 			return
 		}
 		defer sub.Close()
@@ -681,16 +670,37 @@ func getEducatorEditStream(
 			},
 		)
 		if err != nil {
-			l.ErrorContext(ctx, "educator edit stream watcher", "err", err)
+			l.ErrorContext(ctx, "gees stream watcher", "err", err)
 			return
 		}
 		defer watcher.Stop()
-		if err := refreshEducatorEditState(ctx, l, vs, username, educatorReadModel); err != nil {
-			if err.Error() == "educator not found" {
-				sse.PatchElementTempl(pages.NotFound())
-			}
-			l.ErrorContext(ctx, "educator edit stream refresh", "err", err)
+
+		props, ok, err := viewstore.GetState[pages.EducatorFormPageProps](ctx, vs, key)
+		if err != nil {
+			l.ErrorContext(ctx, "gees get state", "err", err, "key", key)
 			return
+		}
+		if !ok {
+			educator, err := getEducator(ctx, l, educatorReadModel, username)
+			if err != nil {
+				l.ErrorContext(ctx, "gees get educator", "err", err, "educator username", username)
+				return
+			}
+			if educator == nil {
+				sse.Redirect("/404")
+			}
+			props := pages.EducatorFormPageProps{
+				FormType: sharedmodels.FormTypeEdit,
+				Educator: *educator,
+			}
+			if err := viewstore.PutState(ctx, vs, key, props); err != nil {
+				l.ErrorContext(ctx, "gees seed state", "err", err)
+				return
+			}
+		}
+
+		render := func(props pages.EducatorFormPageProps) {
+			sse.PatchElementTempl(pages.EducatorFormPage(props))
 		}
 
 		for {
@@ -698,56 +708,18 @@ func getEducatorEditStream(
 			case <-ctx.Done():
 				return
 			case <-notifier.Signal():
-				if err := refreshEducatorEditState(ctx, l, vs, username, educatorReadModel); err != nil {
-					if err.Error() == "educator not found" {
-						sse.PatchElementTempl(pages.NotFound())
-					}
-					l.ErrorContext(ctx, "educator edit stream refresh", "err", err)
-					return
-				}
+				render(props)
 			case entry, ok := <-watcher.Updates():
 				if !ok {
+					l.WarnContext(ctx, "gees watcher updates channel closed")
 					return
 				}
-				model := &models.Educator{}
-				if err := entry.JSON(model); err != nil {
-					l.ErrorContext(ctx, "educator edit stream json read", "err", err)
+				if err := entry.JSON(&props); err != nil {
+					l.ErrorContext(ctx, "gees json read", "err", err)
 					return
 				}
-				view := dto.NewEducatorFormView(model)
-				sse.PatchElementTempl(pages.Edit(view))
+				render(props)
 			}
-		}
-	}
-}
-
-// POST request to /educators/{username}/edit/validate
-func postEducatorEditValidate(
-	l *slog.Logger,
-	vs viewstore.Store,
-) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		signals := &struct {
-			Educator dto.EducatorFormView `json:"educator"`
-		}{}
-		if err := datastar.ReadSignals(r, signals); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		rolesStringSlice := strings.Split(signals.Educator.Role, ",")
-		roles := make([]sharedmodels.EducatorRole, len(rolesStringSlice))
-		for i, role := range rolesStringSlice {
-			roles[i] = sharedmodels.EducatorRole(role)
-		}
-		model := models.Educator{
-			ID:     signals.Educator.ID,
-			Person: signals.Educator.Person,
-			Roles:  roles,
-		}
-		key := model.ID + ".edit"
-		if err := viewstore.PutState(ctx, vs, key, model); err != nil {
-			l.ErrorContext(ctx, "post homeroom create validate viewstore", "err", err)
 		}
 	}
 }
@@ -761,12 +733,14 @@ func postEducatorEdit(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := currentUser(r)
-		signals := &struct {
-			Educator dto.EducatorFormView `json:"educator"`
-		}{}
+		signals := &pages.EducatorFormPageProps{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "post educator edit signal read", "err", err)
 			return
+		}
+		roleString := make([]string, len(signals.Educator.Roles))
+		for i, role := range signals.Educator.Roles {
+			roleString[i] = role.StringLong()
 		}
 		educator := events.EducatorState{
 			ID:         signals.Educator.ID,
@@ -775,7 +749,7 @@ func postEducatorEdit(
 			FamilyName: signals.Educator.FamilyName,
 			Email:      signals.Educator.Email,
 			Username:   signals.Educator.Username,
-			Roles:      strings.Split(signals.Educator.Role, ","),
+			Roles:      roleString,
 		}
 		cmd := events.UpdateEducatorCommand{
 			EducatorState: educator,
@@ -789,6 +763,31 @@ func postEducatorEdit(
 		l.InfoContext(ctx, "post educator edit command handler", "eventID", result.EventID, "skipped", result.Skipped)
 		sse := newSSE(w, r)
 		sse.Redirect(fmt.Sprintf("/educators/%s", result.Educator.Username))
+	}
+}
+
+// QUERY request to /educators/create/validate
+// or /educators/edit/{id}
+// TODO add actual validation
+func queryEducatorFormValidate(
+	l *slog.Logger,
+	vs viewstore.Store,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		user := currentUser(r)
+		signals := &pages.EducatorFormPageProps{}
+		if err := datastar.ReadSignals(r, signals); err != nil {
+			l.ErrorContext(ctx, "qefv signals", "err", err)
+			return
+		}
+		key, err := getEducatorViewstoreKey(signals.FormType, user.Username, signals.Educator.ID)
+		if err != nil {
+			l.ErrorContext(ctx, "qefv key", "err", err, "form type", signals.FormType, "username", user.Username, "educator id", signals.Educator.ID)
+		}
+		if err := viewstore.PutState(ctx, vs, key, signals); err != nil {
+			l.ErrorContext(ctx, "educator create validate view store", "err", err)
+		}
 	}
 }
 
@@ -833,8 +832,11 @@ func getEducatorEditByID(
 		if err != nil {
 			l.ErrorContext(ctx, "geebid db", "err", err)
 		}
-		view := dto.NewEducatorFormView(model)
-		_ = pages.Edit(view).Render(ctx, w)
+		view := pages.EducatorFormPageProps{
+			FormType: sharedmodels.FormTypeEdit,
+			Educator: *model,
+		}
+		_ = pages.EducatorFormPage(view).Render(ctx, w)
 	}
 }
 
@@ -866,8 +868,28 @@ func refreshEducatorEditState(
 	if err != nil {
 		return err
 	}
-	key := model.ID + ".edit"
-	return viewstore.PutState(ctx, vs, key, model)
+	view := pages.EducatorFormPageProps{
+		FormType: sharedmodels.FormTypeEdit,
+		Educator: *model,
+	}
+	key, err := getEducatorViewstoreKey(sharedmodels.FormTypeEdit, "", model.ID)
+	if err != nil {
+		return err
+	}
+	return viewstore.PutState(ctx, vs, key, view)
+}
+
+func getEducator(
+	ctx context.Context,
+	_ *slog.Logger,
+	rm *events.ReadModel,
+	username string,
+) (*models.Educator, error) {
+	model, err := rm.GetByUsername(ctx, username, events.WithRoles())
+	if err != nil {
+		return nil, err
+	}
+	return model, nil
 }
 
 func listEducators(
@@ -883,9 +905,12 @@ func listEducators(
 		stringFilter = models.ModelToString(filters.Roles)
 	}
 	if sort == nil {
-		sort = &shareddto.TableSort{}
+		sort = &shareddto.TableSort{
+			Column:    "family_name",
+			Direction: "ASC",
+		}
 	}
-	sortCol := "family_name"
+	sortCol := sort.Column
 	if sort.Column == "first_l" {
 		sortCol = "given_name"
 	}
@@ -943,5 +968,19 @@ func roleFilterButtons(roleFilter []string) uifilters.FilterButtonsProps {
 	return uifilters.FilterButtonsProps{
 		Label:   "role",
 		Buttons: buttons,
+	}
+}
+
+func getEducatorViewstoreKey(
+	formType sharedmodels.FormType,
+	username string,
+	educatorID string,
+) (string, error) {
+	if formType == sharedmodels.FormTypeCreate && username != "" {
+		return username + ".educators.create", nil
+	} else if formType == sharedmodels.FormTypeEdit && educatorID != "" {
+		return educatorID + ".edit", nil
+	} else {
+		return "", errors.New("error getting viewstore key")
 	}
 }

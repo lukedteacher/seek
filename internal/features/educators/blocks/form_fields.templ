@@ -2,44 +2,51 @@ package blocks
 
 import (
 	"seek/internal/features/_shared/sharedmodels"
-	"seek/internal/features/educators/dto"
+	"seek/internal/features/educators/models"
 	"seek/internal/ui/core/coreblocks/forms"
 	"seek/pkg/templui/components/label"
 	"seek/pkg/templui/components/selectbox"
 )
 
-templ FormSections(view dto.EducatorFormView) {
+templ HiddenInputs(educator models.Educator) {
+	<input id="educator-id" class="hidden" data-bind:educator.id value={ educator.ID }/>
+	<input id="educator-username" class="hidden" data-bind:educator.username value={ educator.Username }/>
+}
+
+templ NameFields(educator models.Educator) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	@selectbox.Script()
-	@HiddenInputs(view)
 	@forms.Fieldset("name") {
 		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
 			ID:        "given-name",
 			LabelText: "given name",
-			Value:     view.GivenName,
+			Value:     educator.GivenName,
 			Bind:      "educator.given_name",
 			URL:       url,
 		})
 		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
 			ID:        "chosen-name",
 			LabelText: "chosen name",
-			Value:     view.ChosenName,
+			Value:     educator.ChosenName,
 			Bind:      "educator.chosen_name",
 			URL:       url,
 		})
 		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
 			ID:        "family-name",
 			LabelText: "family name",
-			Value:     view.FamilyName,
+			Value:     educator.FamilyName,
 			Bind:      "educator.family_name",
 			URL:       url,
 		})
 	}
+}
+
+templ SchoolFields(educator models.Educator) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
 	@forms.Fieldset("school") {
 		@forms.TextInputWithLabel(forms.TextInputWithLabelProps{
 			ID:        "email",
 			LabelText: "email",
-			Value:     view.Email,
+			Value:     educator.Email,
 			Bind:      "educator.email",
 			URL:       url,
 		})
@@ -64,20 +71,14 @@ templ FormSections(view dto.EducatorFormView) {
 			@selectbox.Content(selectbox.ContentProps{
 				NoSearch: true,
 			}) {
-				for _, role := range view.Roles {
+				for _, role := range educator.Roles {
 					@selectbox.Item(selectbox.ItemProps{
-						Value:    role.String,
-						Selected: role.Selected,
+						Value:    role.String(),
 					}) {
-						{ role.String }
+						{ role.String() }
 					}
 				}
 			}
 		}
 	}
-}
-
-templ HiddenInputs(view dto.EducatorFormView) {
-	<input id="educator-id" class="hidden" data-bind:educator.id value={ view.ID }/>
-	<input id="educator-username" class="hidden" data-bind:educator.username value={ view.Username }/>
 }

@@ -5,7 +5,6 @@ import (
 
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/blocks"
-	"seek/internal/features/educators/dto"
 	"seek/internal/features/educators/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/forms"
@@ -13,24 +12,26 @@ import (
 	"seek/pkg/sse"
 )
 
-type EducatorFormPageView struct {
-	FormType sharedmodels.FormType
-	Educator models.Educator
-	FormView dto.EducatorFormView
+type EducatorFormPageProps struct {
+	FormType sharedmodels.FormType `json:"form_type"`
+	Educator models.Educator       `json:"educator"`
 }
 
-templ EducatorFormPage(view EducatorFormPageView) {
+templ EducatorFormPage(view EducatorFormPageProps) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	@corelayouts.LayoutBase(fmt.Sprintf("SEEK: %s educator", view.FormType)) {
+	@corelayouts.LayoutBase(fmt.Sprintf("SEEK: %s educator", view.FormType.Word())) {
 		<main data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
-			@coreblocks.HeaderMain(fmt.Sprintf("edit %s", view.FormType))
-			<section class="w-full flex items-center justify-center">
+			@coreblocks.HeaderMain(fmt.Sprintf("%s educator", view.FormType.Word()))
+			{{ signals, _ := templ.JSONString(view) }}
+			<section class="w-full flex items-center justify-center" data-signals={ signals }>
 				@forms.Form(forms.FormProps{
 					FormType:   view.FormType,
 					ObjectName: "educator",
 					ID:         view.Educator.ID,
 				}) {
-					@blocks.FormSections(view.FormView)
+					@blocks.HiddenInputs(view.Educator)
+					@blocks.NameFields(view.Educator)
+					@blocks.SchoolFields(view.Educator)
 				}
 			</section>
 		</main>

@@ -139,28 +139,6 @@
     gap: 1.5rem;
   }
 
-  /* input styles */
-  .input {
-    display: flex;
-    align-items: center;
-    gap: var(--size-0);
-    block-size: var(--base-block-size);
-    inline-size: 100%;
-    padding-block: var(--base-padding-block);
-    padding-inline: var(--base-padding-inline);
-    font-size: var(--base-font-size);
-    border-width: var(--border-width);
-    border-color: var(--border-color);
-    border-radius: var(--border-radius);
-    &:hover {
-      background-color: color-mix(
-        in oklch,
-        var(--color-secondary) 10%,
-        transparent
-      );
-    }
-  }
-
   input {
     flex: 1;
     border: 0;
@@ -180,6 +158,31 @@
   input::placeholder {
     color: var(--base-color-dim);
     font-size: var(--base-font-size);
+  }
+
+  /* input styles */
+  .input {
+    color: var(--color-neutral-dark-content);
+    background-color: var(--color-neutral-dark);
+    display: flex;
+    align-items: center;
+    gap: var(--size-0);
+    block-size: var(--base-block-size);
+    inline-size: 100%;
+    padding-block: var(--base-padding-block);
+    padding-inline: var(--base-padding-inline);
+    font-size: var(--base-font-size);
+    border-style: solid;
+    border-width: var(--border-width);
+    border-color: var(--border-color);
+    border-radius: var(--border-radius);
+    &:hover {
+      background-color: color-mix(
+        in oklch,
+        var(--color-secondary) 10%,
+        transparent
+      );
+    }
   }
 
   .input:focus-within {

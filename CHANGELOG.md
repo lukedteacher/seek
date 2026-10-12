@@ -2,6 +2,13 @@
 
 updates for SEEK
 
+## v0.10.5 (26.10.12) educator handler and form updates, index styles
+
+- refactored handler to use unified structure for edit / create
+- moved forms to single page based on form type
+- tweaked some styles for buttons in various places
+- updated index page with card classes instead of templ components
+
 ## v0.10.4 (26.10.09) header revision, more table stuff
 
 - revised header to use 'sticky' instead of fixed

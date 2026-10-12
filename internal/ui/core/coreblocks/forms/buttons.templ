@@ -12,28 +12,21 @@ type CancelButtonProps struct {
 }
 
 templ CancelButton(p CancelButtonProps) {
-	@button.Button(button.Props{
-		Type:  "button",
-		Href:  p.CancelURL,
-		Class: "btn-warning flex-grow basis-1",
-	}) {
+	<a class="button" href={ p.CancelURL } data-variant="warning">
 		@icon.X(icon.Props{
 			Size: "16",
 		})
 		<span>cancel</span>
-	}
+	</a>
 }
 
 templ SaveButton() {
-	@button.Button(button.Props{
-		Type:  "submit",
-		Class: "flex-grow basis-1 btn-success bg-success/80 hover:bg-success/90 active:bg-success",
-	}) {
+	<button type="submit" class="button" data-variant="success">
 		@icon.Save(icon.Props{
 			Size: "16",
 		})
 		<span>save</span>
-	}
+	</button>
 }
 
 type ArchiveButtonProps struct {
@@ -60,17 +53,15 @@ type DeleteButtonProps struct {
 }
 
 templ DeleteButton(p DeleteButtonProps) {
-	@button.Button(button.Props{
-		Type:    "button",
-		Variant: button.VariantDestructive,
-		Class:   "flex-grow basis-1",
-		Attributes: templ.Attributes{
-			"data-on:click": fmt.Sprintf("@delete('%s')", p.DeleteURL),
-		},
-	}) {
+	<button
+		class="button"
+		type="button"
+		data-variant="destructive"
+		data-on:click={ fmt.Sprintf("@delete('%s')", p.DeleteURL) }
+	>
 		@icon.Trash(icon.Props{
 			Size: "16",
 		})
 		<span>delete</span>
-	}
+	</button>
 }
