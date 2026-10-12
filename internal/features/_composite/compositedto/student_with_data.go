@@ -39,14 +39,14 @@ var StudentWithDataTableConfig = shareddto.TableConfig[StudentWithData]{
 }
 
 var StudentWithDataColumns = []shareddto.ColumnView{
-	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name", Sortable: true},
-	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name", Sortable: true},
-	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name", Sortable: true},
-	{Field: "Email", Display: "email", Signal: "email", Sortable: true},
-	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center", Signal: "grade", Sortable: true},
-	{Field: "Homeroom", Display: "homeroom", RenderFunc: homeroomRenderer, Signal: "homeroom"},
-	{Field: "PlanType", Display: "plan", Renderer: "badge", Alignment: "center", Signal: "plan_type"},
-	{Field: "CaseManager", Display: "case manager", RenderFunc: caseManagerRenderer, Signal: "case_manager"},
+	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name", Sortable: true, Groupable: false, Visible: true},
+	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name", Sortable: true, Groupable: false, Visible: true},
+	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name", Sortable: true, Groupable: false, Visible: true},
+	{Field: "Email", Display: "email", Signal: "email", Sortable: true, Groupable: false, Visible: true},
+	{Field: "Grade", Display: "grade", Renderer: "badge", Alignment: "center", Signal: "grade", Sortable: true, Groupable: false, Visible: true},
+	{Field: "Homeroom", Display: "homeroom", RenderFunc: homeroomRenderer, Signal: "homeroom", Sortable: true, Groupable: false, Visible: true},
+	{Field: "PlanType", Display: "plan", Renderer: "badge", Alignment: "center", Signal: "plan_type", Sortable: true, Groupable: false, Visible: true},
+	{Field: "CaseManager", Display: "case manager", RenderFunc: caseManagerRenderer, Signal: "case_manager", Sortable: true, Groupable: false, Visible: true},
 }
 
 func NewStudentWithDataTableView(students []StudentWithData, sort shareddto.TableSort) shareddto.TableView {

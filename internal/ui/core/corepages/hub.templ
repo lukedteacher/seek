@@ -353,7 +353,7 @@ templ HubCard(props HubCardProps) {
 			<ul class="flex flex-col gap-1">
 				for _, link := range props.links {
 					<a href={ link.href } target="_blank">
-						<li class="flex justify-between items-center hover:bg-primary/20 py-1 px-2 rounded-md">
+						<li class="flex justify-between items-center hover:bg-secondary-dim py-1 px-2 rounded-md">
 							<span>{ link.text }</span>
 							if link.linkType != "" {
 								@icon.Icon(link.linkType)(icon.Props{Class: "size-4"})

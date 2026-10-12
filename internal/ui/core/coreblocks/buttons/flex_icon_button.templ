@@ -1,18 +1,12 @@
 package corebuttons
 
-import (
-	"seek/pkg/templui/components/button"
-	"seek/pkg/templui/components/icon"
-)
+import "seek/pkg/templui/components/icon"
 
 templ FlexIconButton(url, iconName, text string) {
-	@button.Button(button.Props{
-		Class: "basis-1 flex-grow py-2 h-auto",
-		Href:  url,
-	}) {
+	<a class="button @container" href={ url }>
 		@icon.Icon(iconName)()
-		<span class="hidden md:flex">
+		<span class="hidden @5xs:flex">
 			{ text }
 		</span>
-	}
+	</a>
 }

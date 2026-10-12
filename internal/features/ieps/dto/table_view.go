@@ -20,16 +20,16 @@ var IEPTableConfig = shareddto.TableConfig[IEPView]{
 
 // columns for the iep service table
 var IEPColumns = []shareddto.ColumnView{
-	{Field: "Student", Display: "student", RenderFunc: studentRenderer},
-	{Field: "PlanManagerSPEDFormsID", Display: "pm sf id"},
-	{Field: "Disability1", Display: "disability 1", Renderer: "badge", Alignment: "center"},
-	{Field: "Disability2", Display: "disability 2", Renderer: "badge", Alignment: "center"},
-	{Field: "MeetingDate", Display: "meeting", Group: "date", Alignment: "center"},
-	{Field: "IEPDueDate", Display: "IEP due", Group: "date", Alignment: "center"},
-	{Field: "LastEvalDate", Display: "last eval", Group: "date", Alignment: "center"},
-	{Field: "EvalDueDate", Display: "eval due", Group: "date", Alignment: "center"},
-	{Field: "AmendedDate", Display: "amended", Group: "date", Alignment: "center"},
-	{Field: "IEPType", Display: "IEP type", Renderer: "badge", Alignment: "center"},
+	{Field: "Student", Display: "student", RenderFunc: studentRenderer, Sortable: true, Groupable: false, Visible: true},
+	{Field: "PlanManagerSPEDFormsID", Display: "pm sf id", Sortable: true, Groupable: false, Visible: false},
+	{Field: "Disability1", Display: "disability 1", Renderer: "badge", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "Disability2", Display: "disability 2", Renderer: "badge", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "MeetingDate", Display: "meeting", Group: "date", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "IEPDueDate", Display: "IEP due", Group: "date", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "LastEvalDate", Display: "last eval", Group: "date", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "EvalDueDate", Display: "eval due", Group: "date", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "AmendedDate", Display: "amended", Group: "date", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "IEPType", Display: "IEP type", Renderer: "badge", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
 }
 
 func NewIEPTableView(services []IEPView) shareddto.TableView {

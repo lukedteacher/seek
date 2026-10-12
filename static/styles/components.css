@@ -1,1 +1,22 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--size-2);
+  padding-inline: var(--size-3);
+  border-style: solid;
+  border-width: var(--border-width);
+  border-radius: var(--border-radius);
+  border-color: var(--color-neutral-dim);
+  background: linear-gradient(
+    to right top,
+    var(--color-neutral-dark) 80%,
+    color-mix(in oklch, var(--color-primary), transparent)
+  );
+}
 
+.card-footer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
+  margin-block-start: auto;
+  gap: var(--size-1);
+}

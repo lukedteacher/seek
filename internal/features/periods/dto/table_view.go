@@ -8,13 +8,13 @@ import (
 
 var PeriodColumns = []shareddto.ColumnView{
 	{Field: "Title", Display: "title"},
-	{Field: "ServiceType", Display: "type", Renderer: "badge", Alignment: "center"},
-	{Field: "StartTime", Display: "start", Group: "time", Alignment: "center"},
-	{Field: "EndTime", Display: "end", Group: "time", Alignment: "center"},
-	{Field: "Duration", Display: "duration", Alignment: "center"},
-	{Field: "Days", Display: "days", Alignment: "center"},
-	{Field: "EducatorIDs", Display: "educators", Alignment: "center"},
-	{Field: "StudentIDs", Display: "students", Alignment: "center"},
+	{Field: "ServiceType", Display: "type", Renderer: "badge", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "StartTime", Display: "start", Group: "time", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "EndTime", Display: "end", Group: "time", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "Duration", Display: "duration", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "Days", Display: "days", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "EducatorIDs", Display: "educators", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "StudentIDs", Display: "students", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
 }
 
 func valueExtractor(m *models.Period, field string) string {

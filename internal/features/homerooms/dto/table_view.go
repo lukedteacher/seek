@@ -12,11 +12,11 @@ import (
 )
 
 var HomeroomColumns = []shareddto.ColumnView{
-	{Field: "Title", Display: "title"},
-	{Field: "Grades", Display: "grades", RenderFunc: gradesRenderer},
-	{Field: "LocationID", Display: "location id"},
-	{Field: "EducatorIDs", Display: "educators", Alignment: "center"},
-	{Field: "StudentIDs", Display: "students", Alignment: "center"},
+	{Field: "Title", Display: "title", Sortable: false, Groupable: false, Visible: true},
+	{Field: "Grades", Display: "grades", RenderFunc: gradesRenderer, Sortable: false, Groupable: false, Visible: true},
+	{Field: "LocationID", Display: "location id", Sortable: false, Groupable: false, Visible: true},
+	{Field: "EducatorIDs", Display: "educators", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "StudentIDs", Display: "students", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
 }
 
 func valueExtractor(m *models.Homeroom, field string) string {

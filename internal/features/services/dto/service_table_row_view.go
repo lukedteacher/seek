@@ -9,16 +9,16 @@ import (
 
 // columns for the iep service table
 var ServiceColumns = []shareddto.ColumnView{
-	{Field: "ServiceName", Display: "name"},
-	{Field: "ServiceType", Display: "type", Renderer: "badge", Alignment: "center"},
-	{Field: "IndirectMinutes", Display: "indirect", Group: "minutes", Alignment: "center"},
-	{Field: "DirectMinutes", Display: "direct", Group: "minutes", Alignment: "center"},
-	{Field: "FrequencyCount", Display: "count", Group: "frequency", Alignment: "center"},
-	{Field: "FrequencyType", Display: "type", Group: "frequency", Renderer: "badge", Alignment: "center"},
-	{Field: "LocationID", Display: "location id", Renderer: "badge", Alignment: "center"},
-	{Field: "Provider", Display: "provider"},
-	{Field: "StartDate", Display: "start", Group: "date", Alignment: "center"},
-	{Field: "EndDate", Display: "end", Group: "date", Alignment: "center"},
+	{Field: "ServiceName", Display: "name", Sortable: true, Groupable: false, Visible: true},
+	{Field: "ServiceType", Display: "type", Renderer: "badge", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "IndirectMinutes", Display: "indirect", Group: "minutes", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "DirectMinutes", Display: "direct", Group: "minutes", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "FrequencyCount", Display: "count", Group: "frequency", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "FrequencyType", Display: "type", Group: "frequency", Renderer: "badge", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "LocationID", Display: "location id", Renderer: "badge", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "Provider", Display: "provider", Sortable: true, Groupable: false, Visible: true},
+	{Field: "StartDate", Display: "start", Group: "date", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
+	{Field: "EndDate", Display: "end", Group: "date", Alignment: "center", Sortable: true, Groupable: false, Visible: true},
 }
 
 // extract values from an iep service by field name

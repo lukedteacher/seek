@@ -12,12 +12,13 @@ import (
 	"seek/pkg/templui/components/icon"
 	"seek/pkg/templui/components/skeleton"
 	"seek/pkg/templui/components/table"
+	"seek/pkg/utils"
 )
 
 templ DataTable(view shareddto.TableView) {
 	<section
 		data-slot="data-table"
-		class="flex flex-col w-full h-full ml-auto mr-auto overflow-hidden rounded-md border border-muted"
+		class="flex flex-col w-full max-h-full h-fit ml-auto mr-auto overflow-hidden rounded-md border border-muted"
 	>
 		<div class="flex-1 min-h-0 overflow-y-auto snap-y snap-proximity scroll-pbs-24">
 			@Table(view)
@@ -27,7 +28,7 @@ templ DataTable(view shareddto.TableView) {
 
 templ Table(view shareddto.TableView) {
 	@table.Table(table.Props{
-		Class: "data-table overflow-auto",
+		Class: "data-table",
 	}) {
 		@Header(view)
 		@table.Body() {
@@ -35,11 +36,7 @@ templ Table(view shareddto.TableView) {
 				{{ currentGroup := "" }}
 				for i := range view.Rows {
 					if view.Rows[i].Group != "" && view.Rows[i].Group != currentGroup {
-						<tr>
-							<td colspan={ len(view.Columns) + 1 } class="bg-primary-dim uppercase px-6 py-3 sticky top-24 z-10 snap-start">
-								<h3>{ view.Rows[i].Group }</h3>
-							</td>
-						</tr>
+						@GroupRowHeader(len(view.Columns), view.Rows[i].Group)
 						{{ currentGroup = view.Rows[i].Group }}
 					}
 					@Row(view.Name, view.Columns, view.Rows[i])
@@ -87,72 +84,82 @@ templ Header(view shareddto.TableView) {
 		Class: "sticky top-0 z-20 h-24",
 	}) {
 		// first row: status (rowspan=2) + group headers and ungrouped headers
-		@table.Row() {
-			{{ renderedGroups := make(map[string]bool) }}
-			for _, col := range view.Columns {
-				if col.Group == "" {
+		@HeaderRowFirst(view)
+		// second row: individual headers only for grouped columns
+		@HeaderRowSecond(view)
+	}
+}
+
+templ HeaderRowFirst(view shareddto.TableView) {
+	@table.Row() {
+		{{ renderedGroups := make(map[string]bool) }}
+		for _, col := range view.Columns {
+			if col.Group == "" {
+				@table.Head(table.HeadProps{
+					Class: "text-center",
+					Attributes: templ.Attributes{
+						"rowspan": 2,
+					},
+				}) {
+					<div class="flex justify-between items-center">
+						<span>{ col.Display }</span>
+						if col.Sortable {
+							@SortButton(col, view.Sort)
+						}
+					</div>
+				}
+			} else {
+				if !renderedGroups[col.Group] {
+					{{ renderedGroups[col.Group] = true }}
+					{{ count := countColumnsInGroup(view.Columns, col.Group) }}
 					@table.Head(table.HeadProps{
-						Class: "text-center not-first:border-l border-dashed border-muted",
+						Class: "text-center",
 						Attributes: templ.Attributes{
-							"rowspan": 2,
+							"colspan": count,
 						},
 					}) {
-						<div class="flex justify-between items-center">
-							<span class="mr-3">{ col.Display }</span>
-							if col.Sortable {
-								@SortButton(col, view.Sort)
-							}
-						</div>
-					}
-				} else {
-					if !renderedGroups[col.Group] {
-						{{ renderedGroups[col.Group] = true }}
-						{{ count := countColumnsInGroup(view.Columns, col.Group) }}
-						@table.Head(table.HeadProps{
-							Class: "text-center not-first:border-l border-b border-dashed border-muted",
-							Attributes: templ.Attributes{
-								"colspan": count,
-							},
-						}) {
-							{ col.Group }
-						}
+						{ col.Group }
 					}
 				}
-			}
-			@table.Head(table.HeadProps{
-				Class: "text-center border-l border-dashed border-muted",
-				Attributes: templ.Attributes{
-					"rowspan": 2,
-				},
-			}) {
-				actions 
 			}
 		}
-		// second row: individual headers only for grouped columns
-		@table.Row() {
-			{{ seenUngrouped := false }}
-			{{ firstGrouped := true }}
-			for _, col := range view.Columns {
-				if col.Group == "" {
-					{{ seenUngrouped = true }}
-				} else {
-					{{ class := "text-center border-dashed border-muted" }}
-					if firstGrouped && seenUngrouped {
-						{{ class += " border-l" }}
-					}
-					if !firstGrouped {
-						{{ class += " not-first:border-l" }}
-					}
-					@table.Head(table.HeadProps{Class: class}) {
-						<div class="flex justify-between items-center">
-							<span>{ col.Display }</span>
-							if col.Sortable {
-								@SortButton(col, view.Sort)
-							}
-						</div>
-					}
-					{{ firstGrouped = false }}
+		@table.Head(table.HeadProps{
+			Class: "text-center",
+			Attributes: templ.Attributes{
+				"rowspan": 2,
+			},
+		}) {
+			actions 
+		}
+	}
+}
+
+templ HeaderRowSecond(view shareddto.TableView) {
+	@table.Row() {
+		{{ seenUngrouped := false }}
+		{{ firstGrouped := true }}
+		for _, col := range view.Columns {
+			if col.Group == "" {
+				{{ seenUngrouped = true }}
+			} else {
+				{{
+					class := utils.TwMerge(
+						"text-center border-dashed border-muted",
+						utils.If(!firstGrouped, "not-first:border-l"),
+						utils.If(firstGrouped && seenUngrouped, "border-l"),
+					)
+				}}
+				@table.Head(table.HeadProps{
+					Class: class,
+				}) {
+					<div class="flex justify-between items-center">
+						<span>{ col.Display }</span>
+						if col.Sortable {
+							@SortButton(col, view.Sort)
+						}
+					</div>
 				}
+				{{ firstGrouped = false }}
 			}
 		}
 	}
@@ -184,14 +191,20 @@ templ SkeletonRow(columns []shareddto.ColumnView) {
 	}
 }
 
+templ GroupRowHeader(colspan int, label string) {
+	<tr class="">
+		<td colspan={ colspan } class="bg-primary-dim uppercase px-6 py-3 sticky top-24 z-10 snap-start">
+			<h3>{ label }</h3>
+		</td>
+	</tr>
+}
+
 templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) {
 	@table.Row(table.RowProps{
-		Class: "hover:bg-primary/20 border-1 border-muted snap-start",
+		Class: "hover:bg-primary/20 snap-start",
 	}) {
 		for i := range row.Cells {
-			@table.Cell(table.CellProps{
-				Class: fmt.Sprintf("not-first:border-l border-dashed border-muted text-%s", columns[i].Alignment),
-			}) {
+			<td class={ utils.If(columns[i].Alignment != "", fmt.Sprintf("text-%s", columns[i].Alignment)) }>
 				if columns[i].RenderFunc != nil {
 					@columns[i].RenderFunc(row.Item)
 				} else if columns[i].Renderer == "badge" {
@@ -203,7 +216,7 @@ templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) 
 				} else {
 					{ row.Cells[i] }
 				}
-			}
+			</td>
 		}
 		@ActionCell(target, row.Target)
 	}
@@ -221,7 +234,7 @@ templ BadgeCellContent(field string, value shareddto.CellView) {
 		}
 	} else if field == "Roles" {
 		{{ roles := strings.Split(string(value), ",") }}
-		<span class="inline-flex items-center gap-2">
+		<span class="flex flex-wrap justify-center items-center gap-2">
 			for _, role := range roles {
 				@badge.Badge() {
 					{ role }
@@ -237,7 +250,7 @@ templ BadgeCellContent(field string, value shareddto.CellView) {
 
 templ ActionCell(target, rowID string) {
 	@table.Cell(table.CellProps{
-		Class: "border-l border-dashed border-muted text-center w-min",
+		Class: "text-center w-fit",
 	}) {
 		@button.Button(button.Props{
 			Size:    button.SizeIcon,

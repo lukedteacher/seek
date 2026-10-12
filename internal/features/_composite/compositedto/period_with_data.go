@@ -32,14 +32,14 @@ var PeriodWithDataTableConfig = shareddto.TableConfig[PeriodWithData]{
 }
 
 var PeriodWithDataColumns = []shareddto.ColumnView{
-	{Field: "Title", Display: "title"},
-	{Field: "ServiceType", Display: "type", Renderer: "badge", Alignment: "center"},
-	{Field: "StartTime", Display: "start", Group: "time", Alignment: "center"},
-	{Field: "EndTime", Display: "end", Group: "time", Alignment: "center"},
-	{Field: "Duration", Display: "duration", Alignment: "center"},
-	{Field: "Days", Display: "days", Alignment: "center"},
-	{Field: "Educators", Display: "educators", RenderFunc: educatorsRenderer, Signal: "educators"},
-	{Field: "Students", Display: "students", RenderFunc: studentsRenderer, Signal: "students"},
+	{Field: "Title", Display: "title", Sortable: false, Groupable: false, Visible: true},
+	{Field: "ServiceType", Display: "type", Renderer: "badge", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "StartTime", Display: "start", Group: "time", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "EndTime", Display: "end", Group: "time", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "Duration", Display: "duration", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "Days", Display: "days", Alignment: "center", Sortable: false, Groupable: false, Visible: true},
+	{Field: "Educators", Display: "educators", RenderFunc: educatorsRenderer, Signal: "educators", Sortable: false, Groupable: false, Visible: true},
+	{Field: "Students", Display: "students", RenderFunc: studentsRenderer, Signal: "students", Sortable: false, Groupable: false, Visible: true},
 }
 
 func NewPeriodWithDataTableView(periodsWithData []PeriodWithData) shareddto.TableView {
