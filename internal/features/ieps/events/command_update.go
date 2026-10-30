@@ -45,10 +45,7 @@ func UpdateIEPCommandHandler(
 	if !model.student.isActive() {
 		return UpdateIEPResult{}, eventstore.ErrStudentNotActive
 	}
-	// TODO reimplement this
-	// if model.isSame(cmd) {
-	// 	return UpdateIEPResult{Skipped: true}, nil
-	// }
+	// TODO skip logic
 
 	eventID := uuidv7.NewString()
 	event := NewIEPUpdatedEvent(

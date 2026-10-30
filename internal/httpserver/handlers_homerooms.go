@@ -2,7 +2,6 @@ package httpserver
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -138,7 +137,7 @@ func getHomeroomCreateStream(
 		sse := newSSE(w, r)
 
 		// watch for view store changes
-		key, err := getHomeroomViewstoreKey(sharedmodels.FormTypeCreate, user.Username, "")
+		key, err := viewstore.Key(user.ID, sharedmodels.FormTypeCreate.Word(), "homeroom", "")
 		if err != nil {
 			l.ErrorContext(ctx, "ghcs vs key", "err", err, "username", user.Username)
 			return
@@ -208,7 +207,7 @@ func queryHomeroomFormValidate(
 			return
 		}
 		// store the signals in the viewstore based on form type
-		key, err := getHomeroomViewstoreKey(signals.FormType, user.Username, signals.Homeroom.ID)
+		key, err := viewstore.Key(user.ID, signals.FormType.Word(), "homeroom", signals.Homeroom.ID)
 		if err != nil {
 			l.ErrorContext(ctx, "qhfv vs key", "err", err, "form type", signals.FormType, "username", user.Username, "hid", signals.Homeroom.ID)
 			return
@@ -252,7 +251,7 @@ func queryHomeroomFormField(
 			l.ErrorContext(ctx, "qhff", "invalid field in form", field)
 			return
 		}
-		key, err := getHomeroomViewstoreKey(signals.FormType, user.Username, signals.Homeroom.ID)
+		key, err := viewstore.Key(user.ID, signals.FormType.Word(), "homeroom", signals.Homeroom.ID)
 		if err != nil {
 			l.ErrorContext(ctx, "qhff vs key", "err", err, "form type", signals.FormType, "username", user.Username, "hid", signals.Homeroom.ID)
 			return
@@ -456,7 +455,8 @@ func getHomeroomEditStream(
 		defer sub.Close()
 
 		// get view store key based on form type and info
-		key, err := getHomeroomViewstoreKey(sharedmodels.FormTypeEdit, "", homeroomID)
+		key, err := viewstore.Key("", sharedmodels.FormTypeEdit.Word(), "homeroom", homeroomID)
+		l.DebugContext(ctx, "hid", homeroomID)
 		if err != nil {
 			l.ErrorContext(ctx, "ghes vs key", "err", err)
 		}
@@ -722,7 +722,7 @@ func refreshHomeroomEditState(
 		studentFilter,
 		educators,
 	)
-	key, err := getHomeroomViewstoreKey(sharedmodels.FormTypeEdit, "", homeroomID)
+	key, err := viewstore.Key("", sharedmodels.FormTypeEdit.Word(), "homeroom", homeroomID)
 	if err != nil {
 		return err
 	}
@@ -738,18 +738,4 @@ func toggleID(slice []string, value string) []string {
 	}
 	// not found – add it
 	return append(slice, value)
-}
-
-func getHomeroomViewstoreKey(
-	formType sharedmodels.FormType,
-	username string,
-	homeroomID string,
-) (string, error) {
-	if formType == sharedmodels.FormTypeCreate && username != "" {
-		return username + ".homerooms.create", nil
-	} else if formType == sharedmodels.FormTypeEdit && homeroomID != "" {
-		return homeroomID + ".edit", nil
-	} else {
-		return "", errors.New("error getting viewstore key")
-	}
 }

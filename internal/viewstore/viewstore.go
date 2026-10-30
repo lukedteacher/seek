@@ -3,6 +3,7 @@ package viewstore
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 )
 
@@ -74,4 +75,29 @@ func viewKey(parts ...string) string {
 		}
 	}
 	return strings.Join(clean, "//")
+}
+
+func Key(userID, actionType, entityType, entityID string) (string, error) {
+	if entityType == "" {
+		return "", errors.New("must include entity type")
+	}
+	switch actionType {
+	case "create":
+		if userID != "" {
+			return userID + entityType + actionType, nil
+		}
+	case "edit":
+		if entityID != "" {
+			return entityType + entityID + actionType, nil
+		}
+	case "list":
+		if userID != "" {
+			return userID + entityType + actionType, nil
+		}
+	case "view":
+		if entityID != "" {
+			return entityType + entityID + actionType, nil
+		}
+	}
+	return "", errors.New("error creating viewstore key")
 }

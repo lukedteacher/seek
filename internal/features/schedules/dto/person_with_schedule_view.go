@@ -7,7 +7,7 @@ import (
 )
 
 type PersonWithScheduleView struct {
-	ID        string // TODO fix this
+	ID        string
 	Person    sharedmodels.Person
 	Periods   []dto.PeriodScheduleView
 	Color     string

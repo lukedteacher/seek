@@ -2,6 +2,12 @@
 
 updates for SEEK
 
+## v0.10.6 (26.10.30) minor bug fixes, viewstore key function
+
+- added viewstore key function
+- implemented it for educators and homerooms
+- a few minor bug fixes
+
 ## v0.10.5 (26.10.12) educator handler and form updates, index styles
 
 - refactored handler to use unified structure for edit / create

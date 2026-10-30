@@ -45,10 +45,7 @@ func UpdateServiceCommandHandler(
 	if !model.iep.isActive() {
 		return UpdateServiceResult{}, eventstore.ErrIEPNotActive
 	}
-	// TODO reimpliment this
-	// if model.isSame(cmd) {
-	// 	return UpdateServiceResult{Skipped: true}, nil
-	// }
+	// TODO skip logic
 
 	eventID := uuidv7.NewString()
 	event := NewServiceUpdatedEvent(

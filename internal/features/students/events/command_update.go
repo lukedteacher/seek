@@ -38,7 +38,7 @@ func UpdateStudentCommandHandler(
 		return UpdateStudentResult{}, eventstore.ErrStudentNotActive
 	}
 
-	// TODO add skip logic
+	// TODO skip logic
 	cmd.Username = deriveUsername(cmd.Email)
 	eventID := uuidv7.NewString()
 	event := NewStudentUpdatedEvent(
