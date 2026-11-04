@@ -1,25 +1,23 @@
 package dto
 
 import (
-	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/models"
+	periodModels "seek/internal/features/periods/models"
+	studentModels "seek/internal/features/students/models"
 )
 
 type EducatorView struct {
-	sharedmodels.Person                             // embeds given, chosen, & family name
-	ID                  string                      `json:"id"`
-	Roles               []sharedmodels.EducatorRole `json:"roles"`
+	models.Educator
+	Periods        []periodModels.Period
+	PeriodStudents map[string][]studentModels.Student
+	Caseload       []studentModels.Student
 }
 
-func NewView(e *models.Educator) EducatorView {
-	if e == nil {
+func NewView(educator *models.Educator) EducatorView {
+	if educator == nil {
 		return EducatorView{}
 	}
-	return EducatorView{
-		ID:     e.ID,
-		Person: e.Person,
-		Roles:  e.Roles,
-	}
+	return EducatorView{Educator: *educator}
 }
 
 func NewViews(educators []models.Educator) []EducatorView {
@@ -28,13 +26,4 @@ func NewViews(educators []models.Educator) []EducatorView {
 		views[i] = NewView(&educators[i])
 	}
 	return views
-}
-
-func (m *EducatorView) IsCaseManager() bool {
-	for _, role := range m.Roles {
-		if role == sharedmodels.EducatorRoleCaseManager {
-			return true
-		}
-	}
-	return false
 }

@@ -1,0 +1,48 @@
+package pages
+
+import (
+	"fmt"
+
+	"seek/internal/features/_shared/sharedmodels"
+	"seek/internal/features/educators/blocks"
+	"seek/internal/features/educators/models"
+	"seek/internal/features/students/dto"
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/sse"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+)
+
+type CaseloadProps struct {
+	Toasts   []sharedmodels.Toast
+	Educator models.Educator
+	Caseload []dto.StudentView
+}
+
+templ Caseload(props CaseloadProps) {
+	{{ url := sharedmodels.GetURLFromContext(ctx) }}
+	@corelayouts.LayoutBaseWithProps(corelayouts.Props{
+		Title:  "SEEK: " + props.Educator.FullName(),
+		Toasts: props.Toasts,
+	}) {
+		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
+			@coreblocks.HeaderMain(props.Educator.FullName())
+			<section class="w-full max-w-[900px] flex flex-col gap-3">
+				@blocks.Card(props.Educator)
+				<div class="flex gap-2">
+					@button.Button(button.Props{
+						Href:    fmt.Sprintf("/educators/%s/info", props.Educator.Username),
+						Variant: button.VariantGhost,
+					}) {
+						@icon.Info(icon.Props{Class: "size-4"})
+						<span>back to info</span>
+					}
+				</div>
+			</section>
+			<section class="w-full max-w-[900px]">
+				@blocks.Caseload(props.Caseload)
+			</section>
+		</main>
+	}
+}

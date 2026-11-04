@@ -6,6 +6,7 @@ import (
 	"seek/internal/features/_shared/shareddto"
 	educatorBlocks "seek/internal/features/educators/blocks"
 	educatorDTO "seek/internal/features/educators/dto"
+	"seek/internal/features/educators/models"
 	homeroomBlocks "seek/internal/features/homerooms/blocks"
 	homeroomDTO "seek/internal/features/homerooms/dto"
 	iepModels "seek/internal/features/ieps/models"
@@ -102,10 +103,12 @@ func caseManagerRenderer(item any) templ.Component {
 		return templ.NopComponent
 	}
 	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) error {
-		educatorView := educatorDTO.EducatorView{
-			Person: s.CaseManager.Person,
-			ID:     s.CaseManagerID,
+		view := educatorDTO.EducatorView{
+			Educator: models.Educator{
+				Person: s.CaseManager.Person,
+				ID:     s.CaseManagerID,
+			},
 		}
-		return educatorBlocks.EducatorAvatar(educatorView).Render(ctx, w)
+		return educatorBlocks.EducatorAvatar(view).Render(ctx, w)
 	})
 }

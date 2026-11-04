@@ -26,20 +26,43 @@ import (
 )
 
 type ListPageProps struct {
-	View          shareddto.TableView
-	FilterButtons uifilters.FilterButtonsProps
-	Signals       ListPageSignals
+	Toasts         []sharedmodels.Toast
+	View           shareddto.TableView
+	FilterButtons  uifilters.FilterButtonsProps
+	Signals        ListPageSignals
+	ScrollAction   string
+	TopSpacerPx    int
+	BottomSpacerPx int
 }
 
 type ListPageSignals struct {
-	Filters models.Filters       `json:"filter"`
-	Table   ListPageTableSignals `json:"table"`
+	Filters        models.Filters       `json:"filter"`
+	Table          ListPageTableSignals `json:"table"`
+	ScrollTop      int                  `json:"scroll_top"`
+	ViewportHeight int                  `json:"viewport_height"`
 }
 
 type ListPageTableSignals struct {
 	Sort      shareddto.TableSort `json:"sort"`
 	Columns   map[string]bool     `json:"columns"`
 	GroupedBy string              `json:"grouped_by"`
+}
+
+func NewListPageSignals() ListPageSignals {
+	columns := make(map[string]bool, len(dto.EducatorTableColumns))
+	for _, column := range dto.EducatorTableColumns {
+		columns[column.Signal] = column.Visible
+	}
+	return ListPageSignals{
+		Table: ListPageTableSignals{
+			Columns:   columns,
+			Sort:      shareddto.TableSort{Column: "family_name", Direction: "ASC"},
+			GroupedBy: "none",
+		},
+		Filters:        *models.NewFilters(),
+		ScrollTop:      0,
+		ViewportHeight: 0,
+	}
 }
 
 func List(p ListPageProps) templ.Component {
@@ -76,14 +99,14 @@ func List(p ListPageProps) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main data-init=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main id=\"main\" data-init=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 41, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 68, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -96,7 +119,7 @@ func List(p ListPageProps) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.JSONString(p.Signals))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 42, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 69, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -134,7 +157,7 @@ func List(p ListPageProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = tables.DataTable(p.View).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = tables.VirtualDataTable(p.View, p.ScrollAction, p.TopSpacerPx, p.BottomSpacerPx).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -144,7 +167,10 @@ func List(p ListPageProps) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: educators").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBaseWithProps(corelayouts.Props{
+			Title:  "SEEK: educators",
+			Toasts: p.Toasts,
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -213,9 +239,9 @@ func GroupBySelect(groupedBy string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(utils.OnClick("$table.grouped_by='none'", utils.Query(url)))
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(utils.OnClick("$table.grouped_by='none'; $scroll_top=0", utils.Query(url)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 72, Col: 65}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 99, Col: 80}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(` ` + templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -266,9 +292,9 @@ func GroupBySelect(groupedBy string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(utils.OnClick(fmt.Sprintf("$table.grouped_by='%s'", column.Signal), utils.Query(url)))
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(utils.OnClick(fmt.Sprintf("$table.grouped_by='%s'; $scroll_top=0", column.Signal), utils.Query(url)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 92, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 119, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(` ` + templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -281,7 +307,7 @@ func GroupBySelect(groupedBy string) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(column.Display)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 94, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 121, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -381,7 +407,7 @@ func ColumnSelect(columnSignals map[string]bool) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(utils.OnClick(fmt.Sprintf("$table.columns.%[1]s=!$table.columns.%[1]s", column.Signal), utils.Query(url)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 129, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 156, Col: 112}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(` ` + templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -394,7 +420,7 @@ func ColumnSelect(columnSignals map[string]bool) templ.Component {
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(column.Display)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 131, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/list.templ`, Line: 158, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {

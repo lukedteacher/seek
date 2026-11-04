@@ -1,7 +1,9 @@
 package dto
 
 import (
+	"fmt"
 	"strings"
+	"time"
 
 	"seek/internal/features/_shared/shareddto"
 	"seek/internal/features/educators/models"
@@ -15,6 +17,13 @@ var EducatorTableColumns = []shareddto.ColumnView{
 	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name", Sortable: true, Groupable: true, Visible: true},
 	{Field: "Email", Display: "email", Signal: "email", Sortable: true, Groupable: false, Visible: true},
 	{Field: "Roles", Display: "role(s)", Renderer: "badge", Alignment: "center", Signal: "roles", Sortable: false, Groupable: true, Visible: true},
+	{
+		Field:    "UpdatedAt",
+		Signal:   "updated_at",
+		Display:  "last updated",
+		Sortable: true,
+		Visible:  true,
+	},
 }
 
 // extract values from an educator by field name
@@ -41,6 +50,8 @@ func valueExtractor(m *models.Educator, field string) string {
 			parts = append(parts, r.String())
 		}
 		return strings.Join(parts, ",")
+	case "UpdatedAt":
+		return relativeTime(m.UpdatedAt)
 	default:
 		return ""
 	}
@@ -116,5 +127,19 @@ func educatorGroupExtractor(groupedBy string) func(*models.Educator) string {
 		}
 	default:
 		return nil // "none" → no grouping
+	}
+}
+
+func relativeTime(t time.Time) string {
+	d := time.Since(t)
+	switch {
+	case d < time.Minute:
+		return "just now"
+	case d < time.Hour:
+		return fmt.Sprintf("%dm ago", int(d.Minutes()))
+	case d < 24*time.Hour:
+		return fmt.Sprintf("%dh ago", int(d.Hours()))
+	default:
+		return fmt.Sprintf("%dd ago", int(d.Hours()/24))
 	}
 }

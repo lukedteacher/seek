@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
@@ -9,14 +10,17 @@ import (
 
 	"seek/internal/appcore"
 	"seek/internal/auth"
+	"seek/internal/errs"
 	"seek/internal/eventstore"
 	"seek/internal/features/_shared/sharedmodels"
 	profile "seek/internal/features/profiles/events"
 	"seek/internal/features/users/models"
 	"seek/internal/resources"
+	"seek/internal/ui/core/corepages"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 type MessageSubscriber interface {
@@ -92,6 +96,7 @@ func (s Server) Routes() http.Handler {
 		s.iepRoutes(r)
 		s.profileRoutes(r)
 		s.userRoutes(r)
+		s.toastRoutes(r)
 	})
 
 	return r
@@ -102,6 +107,76 @@ func render(component interface {
 }) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_ = component.Render(r.Context(), w)
+	}
+}
+
+// htmlHandler writes one HTML response. error → mapped to http status.
+func htmlHandler(
+	logger *slog.Logger,
+	op string,
+	fn func(ctx context.Context, r *http.Request) error,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		if err := fn(ctx, r); err != nil {
+			logger.ErrorContext(ctx, op, "err", err)
+			switch {
+			case errors.Is(err, errs.ErrNotFound):
+				http.NotFound(w, r)
+			case errors.Is(err, errs.ErrForbidden):
+				http.Error(w, "forbidden", http.StatusForbidden)
+			case errors.Is(err, errs.ErrConflict):
+				http.Error(w, "conflict", http.StatusConflict)
+			default:
+				http.Error(w, "internal error", http.StatusInternalServerError)
+			}
+		}
+	}
+}
+
+// sseView runs a GET stream. errors patch not-found/forbidden pages.
+func sseView(
+	logger *slog.Logger,
+	op string,
+	fn func(ctx context.Context, r *http.Request, sse *datastar.ServerSentEventGenerator) error,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		sse := newSSE(w, r)
+		if err := fn(ctx, r, sse); err != nil {
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				return
+			}
+			logger.ErrorContext(ctx, op, "err", err)
+			switch {
+			case errors.Is(err, errs.ErrNotFound):
+				_ = sse.PatchElementTempl(corepages.NotFound())
+			case errors.Is(err, errs.ErrForbidden):
+				_ = sse.PatchElementTempl(corepages.Forbidden())
+			}
+		}
+	}
+}
+
+// httpCommand reads signals, runs fn, returns 204. fn writes user-visible
+// outcomes to the viewstore; its errors are infra failures, logged not surfaced.
+func httpCommand[T any](
+	logger *slog.Logger,
+	op string,
+	signals *T,
+	fn func(ctx context.Context, r *http.Request, signals *T) error,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		if err := datastar.ReadSignals(r, signals); err != nil {
+			logger.ErrorContext(ctx, op, "read signals", "err", err)
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		if err := fn(ctx, r, signals); err != nil {
+			logger.ErrorContext(ctx, op, "err", err)
+		}
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
@@ -123,8 +198,6 @@ func addPathToContext(
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			// l.InfoContext(ctx, "add path to context", "uri", r.RequestURI, "path", r.URL.Path)
-			// strips the url of "/stream" and any parameters
 			baseURL := strings.TrimSuffix(r.URL.Path, "/stream")
 			ctx = sharedmodels.WithURL(ctx, baseURL)
 			next.ServeHTTP(w, r.WithContext(ctx))
@@ -140,7 +213,6 @@ func (s Server) requireUserLoggedIn(next http.Handler) http.Handler {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		// if there is no user logged in
 		if !ok {
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return

@@ -21,7 +21,6 @@ import (
 	studentDTO "seek/internal/features/students/dto"
 	studentEvents "seek/internal/features/students/events"
 	studentModels "seek/internal/features/students/models"
-	"seek/internal/ui/core/coreblocks/toasts"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -384,11 +383,6 @@ func postServiceCreate(
 		signals := &dto.ServiceFormSignals{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "post iep services create signals", "err", err)
-			return
-		}
-		if signals.Service.StudentID == "" {
-			sse := newSSE(w, r)
-			sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantError, "no student selected"))
 			return
 		}
 		cmd := events.AddServiceToIEPCommand{

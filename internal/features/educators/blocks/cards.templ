@@ -1,8 +1,8 @@
 package blocks
 
-import "seek/internal/features/educators/dto"
+import "seek/internal/features/educators/models"
 
-templ CardGrid(educator []dto.EducatorView) {
+templ CardGrid(educator []models.Educator) {
 	<div class="educator-card-grid">
 		for i := range educator {
 			@Card(educator[i])

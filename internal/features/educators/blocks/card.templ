@@ -3,14 +3,14 @@ package blocks
 import (
 	"fmt"
 
-	"seek/internal/features/educators/dto"
+	"seek/internal/features/educators/models"
 	"seek/pkg/templui/components/badge"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
 )
 
-templ Card(view dto.EducatorView) {
+templ Card(view models.Educator) {
 	@card.Card(card.Props{
 		ID:    fmt.Sprintf("educator-%s-card", view.Username),
 		Class: "educator-card w-128 bg-neutral border-muted",

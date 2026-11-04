@@ -1,0 +1,25 @@
+package corepages
+
+import (
+	"seek/internal/ui/core/coreblocks"
+	"seek/internal/ui/core/corelayouts"
+	"seek/pkg/templui/components/button"
+	"seek/pkg/templui/components/icon"
+)
+
+templ NotFound() {
+	@corelayouts.LayoutBase("SEEK: not found") {
+		<main class="flex flex-col gap-4">
+			@coreblocks.HeaderMain("not found")
+			<section>
+				<h3>this resource could not be found</h3>
+				@button.Button(button.Props{
+					Href: "/",
+				}) {
+					@icon.House()
+					<span>go home</span>
+				}
+			</section>
+		</main>
+	}
+}

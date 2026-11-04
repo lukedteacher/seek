@@ -18,14 +18,20 @@ import (
 )
 
 type ListPageProps struct {
-	View          shareddto.TableView
-	FilterButtons uifilters.FilterButtonsProps
-	Signals       ListPageSignals
+	Toasts         []sharedmodels.Toast
+	View           shareddto.TableView
+	FilterButtons  uifilters.FilterButtonsProps
+	Signals        ListPageSignals
+	ScrollAction   string
+	TopSpacerPx    int
+	BottomSpacerPx int
 }
 
 type ListPageSignals struct {
-	Filters models.Filters       `json:"filter"`
-	Table   ListPageTableSignals `json:"table"`
+	Filters        models.Filters       `json:"filter"`
+	Table          ListPageTableSignals `json:"table"`
+	ScrollTop      int                  `json:"scroll_top"`
+	ViewportHeight int                  `json:"viewport_height"`
 }
 
 type ListPageTableSignals struct {
@@ -34,10 +40,31 @@ type ListPageTableSignals struct {
 	GroupedBy string              `json:"grouped_by"`
 }
 
+func NewListPageSignals() ListPageSignals {
+	columns := make(map[string]bool, len(dto.EducatorTableColumns))
+	for _, column := range dto.EducatorTableColumns {
+		columns[column.Signal] = column.Visible
+	}
+	return ListPageSignals{
+		Table: ListPageTableSignals{
+			Columns:   columns,
+			Sort:      shareddto.TableSort{Column: "family_name", Direction: "ASC"},
+			GroupedBy: "none",
+		},
+		Filters:        *models.NewFilters(),
+		ScrollTop:      0,
+		ViewportHeight: 0,
+	}
+}
+
 templ List(p ListPageProps) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	@corelayouts.LayoutBase("SEEK: educators") {
+	@corelayouts.LayoutBaseWithProps(corelayouts.Props{
+		Title:  "SEEK: educators",
+		Toasts: p.Toasts,
+	}) {
 		<main
+			id="main"
 			data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }
 			data-signals={ templ.JSONString(p.Signals) }
 		>
@@ -49,7 +76,7 @@ templ List(p ListPageProps) {
 					@ColumnSelect(p.Signals.Table.Columns)
 				</div>
 			</div>
-			@tables.DataTable(p.View)
+			@tables.VirtualDataTable(p.View, p.ScrollAction, p.TopSpacerPx, p.BottomSpacerPx)
 		</main>
 	}
 }
@@ -69,7 +96,7 @@ templ GroupBySelect(groupedBy string) {
 					"flex justify-between items-center hover:bg-secondary rounded-md px-3 py-1 cursor-pointer",
 					utils.If(groupedBy == "none", "bg-primary"),
 				}
-				{ utils.OnClick("$table.grouped_by='none'", utils.Query(url)) }
+				{ utils.OnClick("$table.grouped_by='none'; $scroll_top=0", utils.Query(url)) }
 			>
 				<span>none</span>
 				if groupedBy == "none" {
@@ -89,7 +116,7 @@ templ GroupBySelect(groupedBy string) {
 						"flex justify-between items-center hover:bg-secondary rounded-md px-3 py-1 cursor-pointer",
 						utils.If(groupedBy == column.Signal, "bg-primary"),
 					}
-					{ utils.OnClick(fmt.Sprintf("$table.grouped_by='%s'", column.Signal), utils.Query(url)) }
+					{ utils.OnClick(fmt.Sprintf("$table.grouped_by='%s'; $scroll_top=0", column.Signal), utils.Query(url)) }
 				>
 					<span>{ column.Display }</span>
 					if groupedBy == column.Signal {

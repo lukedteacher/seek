@@ -200,8 +200,9 @@ templ GroupRowHeader(colspan int, label string) {
 }
 
 templ Row(target string, columns []shareddto.ColumnView, row shareddto.RowView) {
+	{{ class := "hover:bg-primary/20 snap-start " + utils.If(isFresh(row.Item), "row--flash") }}
 	@table.Row(table.RowProps{
-		Class: "hover:bg-primary/20 snap-start",
+		Class: class,
 	}) {
 		for i := range row.Cells {
 			<td class={ utils.If(columns[i].Alignment != "", fmt.Sprintf("text-%s", columns[i].Alignment)) }>
@@ -301,4 +302,11 @@ templ SortButton(column shareddto.ColumnView, sort shareddto.TableSort) {
 			@icon.ArrowUpDown()
 		}
 	}
+}
+
+func isFresh(item any) bool {
+	if f, ok := item.(interface{ IsFresh() bool }); ok {
+		return f.IsFresh()
+	}
+	return false
 }

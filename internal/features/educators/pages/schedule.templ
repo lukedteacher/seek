@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/sharedmodels"
-	"seek/internal/features/educators/dto"
+	"seek/internal/features/educators/models"
 	scheduleBlocks "seek/internal/features/schedules/blocks"
 	scheduleDTO "seek/internal/features/schedules/dto"
 	"seek/internal/ui/core/coreblocks"
@@ -15,16 +15,20 @@ import (
 	"seek/pkg/templui/components/tabs"
 )
 
-type EducatorViewSchedulePageProps struct {
-	Educator dto.EducatorView
+type ScheduleProps struct {
+	Toasts   []sharedmodels.Toast
+	Educator models.Educator
 	Periods  []scheduleDTO.SchedulePeriodView
 }
 
-templ EducatorViewSchedule(p EducatorViewSchedulePageProps) {
+templ Schedule(props ScheduleProps) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	@corelayouts.LayoutBase("SEEK: educator") {
+	@corelayouts.LayoutBaseWithProps(corelayouts.Props{
+		Title:  "SEEK: " + props.Educator.FullName(),
+		Toasts: props.Toasts,
+	}) {
 		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
-			@coreblocks.HeaderMain(p.Educator.FullName())
+			@coreblocks.HeaderMain(props.Educator.FullName())
 			@tabs.Tabs(tabs.Props{
 				ID:    "educator-tabs",
 				Class: "w-full md:px-3 flex flex-col gap-3",
@@ -34,40 +38,28 @@ templ EducatorViewSchedule(p EducatorViewSchedulePageProps) {
 					Class: "tabs-list flex w-full max-w-128 gap-1",
 				}) {
 					@button.Button(button.Props{
-						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/educators/%s/info", p.Educator.Username),
-						Attributes: templ.Attributes{
-							"data-tab-active": false,
-						},
+						Class:      "basis-1 flex-grow py-1 h-auto",
+						Href:       fmt.Sprintf("/educators/%s/info", props.Educator.Username),
+						Attributes: templ.Attributes{"data-tab-active": false},
 					}) {
-						@icon.Info(icon.Props{
-							Class: "size-4",
-						})
+						@icon.Info(icon.Props{Class: "size-4"})
 						<span class="hidden md:flex">info</span>
 					}
 					@button.Button(button.Props{
-						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/educators/%s/schedule", p.Educator.Username),
-						Attributes: templ.Attributes{
-							"data-tab-active": true,
-						},
+						Class:      "basis-1 flex-grow py-1 h-auto",
+						Href:       fmt.Sprintf("/educators/%s/schedule", props.Educator.Username),
+						Attributes: templ.Attributes{"data-tab-active": true},
 					}) {
-						@icon.CalendarRange(icon.Props{
-							Class: "size-4",
-						})
+						@icon.CalendarRange(icon.Props{Class: "size-4"})
 						<span class="hidden md:flex">schedule</span>
 					}
-					if p.Educator.IsCaseManager() {
+					if props.Educator.IsCaseManager() {
 						@button.Button(button.Props{
-							Class: "basis-1 flex-grow py-1 h-auto",
-							Href:  fmt.Sprintf("/educators/%s/caseload", p.Educator.Username),
-							Attributes: templ.Attributes{
-								"data-tab-active": false,
-							},
+							Class:      "basis-1 flex-grow py-1 h-auto",
+							Href:       fmt.Sprintf("/educators/%s/caseload", props.Educator.Username),
+							Attributes: templ.Attributes{"data-tab-active": false},
 						}) {
-							@icon.FolderOpen(icon.Props{
-								Class: "size-4",
-							})
+							@icon.FolderOpen(icon.Props{Class: "size-4"})
 							<span class="hidden md:flex">caseload</span>
 						}
 					}
@@ -75,7 +67,7 @@ templ EducatorViewSchedule(p EducatorViewSchedulePageProps) {
 				@tabs.Content(tabs.ContentProps{Value: "schedule", IsActive: true}) {
 					<section class="w-full">
 						@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{}) {
-							for _, period := range p.Periods {
+							for _, period := range props.Periods {
 								@scheduleBlocks.EducatorPeriodCard(scheduleBlocks.EducatorPeriodCardProps{
 									View: period,
 								})

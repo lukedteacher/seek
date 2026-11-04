@@ -2,6 +2,8 @@
 
 updates for SEEK
 
+
+
 ## v0.10.6 (26.10.30) minor bug fixes, viewstore key function
 
 - added viewstore key function

@@ -5,91 +5,106 @@ import (
 
 	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/educators/blocks"
-	"seek/internal/features/educators/dto"
-	scheduleBlocks "seek/internal/features/schedules/blocks"
-	scheduleDTO "seek/internal/features/schedules/dto"
-	studentDTO "seek/internal/features/students/dto"
+	"seek/internal/features/educators/models"
+	periodModels "seek/internal/features/periods/models"
+	"seek/internal/features/students/dto"
+	studentModels "seek/internal/features/students/models"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/corelayouts"
 	"seek/pkg/sse"
 	"seek/pkg/templui/components/button"
 	"seek/pkg/templui/components/icon"
-	"seek/pkg/templui/components/tabs"
 )
 
-templ View(view dto.EducatorView, schedule scheduleDTO.PersonWithScheduleView, caseload []studentDTO.StudentView, active string) {
+type InfoProps struct {
+	Toasts         []sharedmodels.Toast
+	Educator       models.Educator
+	Periods        []periodModels.Period
+	PeriodStudents map[string][]studentModels.Student
+	Caseload       []dto.StudentView
+}
+
+templ Info(props InfoProps) {
 	{{ url := sharedmodels.GetURLFromContext(ctx) }}
-	@corelayouts.LayoutBase("SEEK: educator") {
+	@corelayouts.LayoutBaseWithProps(corelayouts.Props{
+		Title:  "SEEK: " + props.Educator.FullName(),
+		Toasts: props.Toasts,
+	}) {
 		<main id="main" class="flex flex-col gap-4" data-init={ sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)) }>
-			@coreblocks.HeaderMain(view.FullName())
-			@tabs.Tabs(tabs.Props{
-				ID:    "educator-tabs",
-				Class: "w-full md:px-3 flex flex-col gap-3",
-			}) {
-				@tabs.List(tabs.ListProps{
-					ID:    "educator-tabs-list",
-					Class: "tabs-list flex w-full max-w-128 gap-1",
-				}) {
+			@coreblocks.HeaderMain(props.Educator.FullName())
+			<section class="w-full max-w-[900px]">
+				@blocks.Card(props.Educator)
+			</section>
+			<section class="w-full max-w-[900px] flex flex-col gap-3">
+				<div class="flex items-baseline justify-between">
+					<h2>schedule</h2>
 					@button.Button(button.Props{
-						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/educators/%s/info", view.Username),
-						Attributes: templ.Attributes{
-							"data-tab-active": active == "info",
-						},
+						Href:    fmt.Sprintf("/educators/%s/schedule", props.Educator.Username),
+						Variant: button.VariantGhost,
 					}) {
-						@icon.Info(icon.Props{
-							Class: "size-4",
-						})
-						<span class="hidden md:flex">info</span>
+						@icon.CalendarRange(icon.Props{Class: "size-4"})
+						<span>view schedule</span>
 					}
-					@button.Button(button.Props{
-						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/educators/%s/schedule", view.Username),
-						Attributes: templ.Attributes{
-							"data-tab-active": active == "schedule",
-						},
-					}) {
-						@icon.CalendarRange(icon.Props{
-							Class: "size-4",
-						})
-						<span class="hidden md:flex">schedule</span>
-					}
-					if view.IsCaseManager() {
+				</div>
+				if len(props.Periods) == 0 {
+					<p class="text-muted">no periods assigned</p>
+				} else {
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-1">
+						for _, period := range props.Periods {
+							@PeriodListItem(period, props.PeriodStudents[period.ID])
+						}
+					</div>
+				}
+			</section>
+			if props.Educator.IsCaseManager() {
+				<section class="w-full max-w-[900px] flex flex-col gap-3">
+					<div class="flex items-baseline justify-between">
+						<h2>caseload</h2>
 						@button.Button(button.Props{
-							Class: "basis-1 flex-grow py-1 h-auto",
-							Href:  fmt.Sprintf("/educators/%s/caseload", view.Username),
-							Attributes: templ.Attributes{
-								"data-tab-active": active == "caseload",
-							},
+							Href:    fmt.Sprintf("/educators/%s/caseload", props.Educator.Username),
+							Variant: button.VariantGhost,
 						}) {
-							@icon.FolderOpen(icon.Props{
-								Class: "size-4",
-							})
-							<span class="hidden md:flex">caseload</span>
+							@icon.FolderOpen(icon.Props{Class: "size-4"})
+							<span>view caseload</span>
 						}
+					</div>
+					if len(props.Caseload) == 0 {
+						<p class="text-muted">no students in caseload</p>
+					} else {
+						@blocks.Caseload(props.Caseload)
 					}
-				}
-				switch active {
-					case "info":
-						@tabs.Content(tabs.ContentProps{Value: "info", IsActive: true}) {
-							<section class="w-full">
-								@blocks.Card(view)
-							</section>
-						}
-					case "schedule":
-						@tabs.Content(tabs.ContentProps{Value: "schedule", IsActive: true}) {
-							<section class="w-full">
-								@scheduleBlocks.ScheduleComponent([]scheduleDTO.PersonWithScheduleView{schedule})
-							</section>
-						}
-					case "caseload":
-						@tabs.Content(tabs.ContentProps{Value: "caseload", IsActive: true}) {
-							<section class="w-full">
-								@blocks.Caseload(caseload)
-							</section>
-						}
-				}
+				</section>
 			}
+			<section class="w-full max-w-[900px] flex flex-wrap gap-2">
+				@button.Button(button.Props{
+					Href:    fmt.Sprintf("/educators/%s/edit", props.Educator.Username),
+					Variant: button.VariantGhost,
+				}) {
+					@icon.Pencil(icon.Props{Class: "size-4"})
+					<span>edit</span>
+				}
+			</section>
 		</main>
 	}
+}
+
+templ PeriodListItem(period periodModels.Period, students []studentModels.Student) {
+	<a
+		href={ templ.SafeURL(fmt.Sprintf("/periods/%s", period.ID)) }
+		class="flex items-center justify-between gap-2 px-2 py-1 rounded border border-muted hover:bg-primary/10 text-sm"
+	>
+		<div class="flex items-center gap-2 min-w-0">
+			<span class="font-medium truncate">{ period.Title }</span>
+			<span class="text-xs text-muted shrink-0">
+				{ period.ServiceType.ShortString() } · { period.StartTime.Format("3:04pm") }
+			</span>
+		</div>
+		<div class="flex items-center gap-0.5 shrink-0">
+			for _, student := range students {
+				<span class="inline-flex items-center justify-center size-5 rounded-full bg-primary/20 text-[10px] font-medium">
+					{ student.Initials() }
+				</span>
+			}
+		</div>
+	</a>
 }

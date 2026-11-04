@@ -24,3 +24,16 @@ type Educator struct {
 func NewEducator() *Educator {
 	return &Educator{}
 }
+
+func (e Educator) IsFresh() bool {
+	return time.Since(e.UpdatedAt) < 2*time.Second
+}
+
+func (e Educator) IsCaseManager() bool {
+	for _, role := range e.Roles {
+		if role == sharedmodels.EducatorRoleCaseManager {
+			return true
+		}
+	}
+	return false
+}

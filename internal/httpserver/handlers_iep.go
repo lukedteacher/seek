@@ -18,7 +18,6 @@ import (
 	serviceEvents "seek/internal/features/services/events"
 	studentDTO "seek/internal/features/students/dto"
 	studentEvents "seek/internal/features/students/events"
-	"seek/internal/ui/core/coreblocks/toasts"
 	"seek/internal/viewstore"
 
 	"github.com/go-chi/chi/v5"
@@ -231,11 +230,6 @@ func postIEPCreate(
 			l.ErrorContext(ctx, "post iep create signals", "err", err)
 			return
 		}
-		if signals.View.StudentID == "" {
-			sse := newSSE(w, r)
-			sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantError, "no student selected"))
-			return
-		}
 		iep := dto.NewModelFromView(&signals.View)
 		cmd := events.AddIEPToStudentCommand{
 			IEP:      iep,
@@ -245,7 +239,6 @@ func postIEPCreate(
 		sse := newSSE(w, r)
 		if err != nil {
 			l.ErrorContext(ctx, "post iep create command handler", "err", err)
-			sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantError, err.Error()))
 			return
 		}
 		sse.Redirect(fmt.Sprintf("/ieps/%s", result.EventID))

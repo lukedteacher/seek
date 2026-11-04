@@ -9,6 +9,7 @@ import (
 
 	"seek/internal/appdb"
 	"seek/internal/dbsql"
+	"seek/internal/errs"
 	"seek/internal/features/_shared/sharedmodels"
 	caseloadStudentsModels "seek/internal/features/caseload_students/models"
 	"seek/internal/features/educators/dto"
@@ -33,8 +34,14 @@ func NewReadModel(db *appdb.DB) *ReadModel {
 type GetOption func(*getConfig)
 
 type getConfig struct {
-	withRoles    bool
+	withPeriods  bool
 	withCaseload bool
+}
+
+func WithPeriods() GetOption {
+	return func(c *getConfig) {
+		c.withPeriods = true
+	}
 }
 
 func WithCaseload() GetOption {
@@ -43,28 +50,47 @@ func WithCaseload() GetOption {
 	}
 }
 
+// WithRoles is deprecated. Roles are always loaded with the educator.
+// Kept as a no-op so unmigrated call sites still compile.
 func WithRoles() GetOption {
-	return func(c *getConfig) {
-		c.withRoles = true
-	}
+	return func(_ *getConfig) {}
 }
 
 func (m *ReadModel) GetByUsername(
 	ctx context.Context,
 	username string,
 	opts ...GetOption,
-) (
-	*models.Educator,
-	error,
-) {
+) (*dto.EducatorView, error) {
 	cfg := &getConfig{}
 	for _, opt := range opts {
 		opt(cfg)
 	}
-	if cfg.withRoles {
-		return m.getByUsernameWithRoles(ctx, username)
+
+	educator, err := m.getByUsernameWithRoles(ctx, username)
+	if err != nil {
+		return nil, err
 	}
-	return m.getByUsername(ctx, username)
+
+	view := dto.NewView(educator)
+
+	if cfg.withPeriods {
+		withPeriods, err := m.GetWithPeriods(ctx, username)
+		if err != nil {
+			return nil, fmt.Errorf("get periods: %w", err)
+		}
+		view.Periods = withPeriods.Periods
+		view.PeriodStudents = withPeriods.PeriodStudentsMap
+	}
+
+	if cfg.withCaseload {
+		caseManager, err := m.GetByUsernameWithCaseload(ctx, username)
+		if err != nil {
+			return nil, fmt.Errorf("get caseload: %w", err)
+		}
+		view.Caseload = caseManager.Caseload
+	}
+
+	return &view, nil
 }
 
 func (m *ReadModel) GetByID(ctx context.Context, educatorID string) (*models.Educator, error) {
@@ -78,36 +104,7 @@ func (m *ReadModel) GetByID(ctx context.Context, educatorID string) (*models.Edu
 	}
 
 	if row == nil {
-		return nil, fmt.Errorf("educator not found")
-	}
-
-	educator := &models.Educator{
-		ID: row.Id,
-		Person: sharedmodels.Person{
-			GivenName:  row.GivenName,
-			ChosenName: row.ChosenName,
-			FamilyName: row.FamilyName,
-			Pronouns:   parsePronouns(row.Pronouns),
-			Email:      row.Email,
-			Username:   row.Username,
-		},
-	}
-
-	return educator, nil
-}
-
-func (m *ReadModel) getByUsername(ctx context.Context, username string) (*models.Educator, error) {
-	var row *dbsql.GetEducatorByUsernameRes
-	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
-		var err error
-		row, err = dbsql.OnceGetEducatorByUsername(conn, username)
-		return err
-	}); err != nil {
-		return nil, err
-	}
-
-	if row == nil {
-		return nil, fmt.Errorf("educator not found")
+		return nil, fmt.Errorf("educator %q: %w", educatorID, errs.ErrNotFound)
 	}
 
 	educator := &models.Educator{
@@ -126,37 +123,54 @@ func (m *ReadModel) getByUsername(ctx context.Context, username string) (*models
 }
 
 func (m *ReadModel) getByUsernameWithRoles(ctx context.Context, username string) (*models.Educator, error) {
-	var rows []dbsql.GetEducatorWithRolesByUsernameRes
-	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
-		var err error
-		rows, err = dbsql.OnceGetEducatorWithRolesByUsername(conn, username)
-		return err
-	}); err != nil {
+	query := `
+		SELECT
+			e.id, e.given_name, e.chosen_name, e.family_name, e.pronouns,
+			e.email, e.username,
+			e.created_at, e.updated_at,
+			COALESCE(
+				(SELECT json_group_array(er.role)
+				 FROM educator_roles er
+				 WHERE er.educator_id = e.id AND er.archived_at IS NULL),
+				'[]'
+			) AS roles_json
+		FROM educators e
+		WHERE e.username = ? AND e.archived_at IS NULL
+		LIMIT 1
+	`
+
+	var educator *models.Educator
+	err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
+		return sqlitex.ExecuteTransient(conn, query, &sqlitex.ExecOptions{
+			Args: []any{username},
+			ResultFunc: func(stmt *sqlite.Stmt) error {
+				var e models.Educator
+				e.ID = stmt.ColumnText(0)
+				e.GivenName = stmt.ColumnText(1)
+				e.ChosenName = stmt.ColumnText(2)
+				e.FamilyName = stmt.ColumnText(3)
+				e.Pronouns = parsePronouns(stmt.ColumnText(4))
+				e.Email = stmt.ColumnText(5)
+				e.Username = stmt.ColumnText(6)
+				e.CreatedAt = parseDBTime(stmt.ColumnText(7))
+				e.UpdatedAt = parseDBTime(stmt.ColumnText(8))
+
+				var roles []sharedmodels.EducatorRole
+				if err := json.Unmarshal([]byte(stmt.ColumnText(9)), &roles); err != nil {
+					return err
+				}
+				e.Roles = roles
+				educator = &e
+				return nil
+			},
+		})
+	})
+	if err != nil {
 		return nil, err
 	}
-
-	if len(rows) == 0 {
-		return nil, fmt.Errorf("educator not found")
+	if educator == nil {
+		return nil, fmt.Errorf("educator %q: %w", username, errs.ErrNotFound)
 	}
-
-	educator := &models.Educator{
-		ID: rows[0].Id,
-		Person: sharedmodels.Person{
-			GivenName:  rows[0].GivenName,
-			ChosenName: rows[0].ChosenName,
-			FamilyName: rows[0].FamilyName,
-			Pronouns:   parsePronouns(rows[0].Pronouns),
-			Email:      rows[0].Email,
-			Username:   rows[0].Username,
-		},
-		Roles: make([]sharedmodels.EducatorRole, len(rows)),
-	}
-	for i, row := range rows {
-		if row.Role != nil {
-			educator.Roles[i] = sharedmodels.EducatorRole(*row.Role)
-		}
-	}
-
 	return educator, nil
 }
 
@@ -171,7 +185,7 @@ func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username stri
 	}
 
 	if len(rows) == 0 {
-		return nil, fmt.Errorf("educator not found")
+		return nil, fmt.Errorf("educator %q: %w", username, errs.ErrNotFound)
 	}
 
 	caseManager := &caseloadStudentsModels.CaseManager{
@@ -186,7 +200,7 @@ func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username stri
 				Username:   rows[0].Username,
 			},
 		},
-		Caseload: []studentModels.Student{}, // empty initially
+		Caseload: []studentModels.Student{},
 	}
 	for _, row := range rows {
 		if row.StudentId != nil {
@@ -210,7 +224,6 @@ func (m *ReadModel) GetByUsernameWithCaseload(ctx context.Context, username stri
 }
 
 func (m *ReadModel) GetWithPeriods(ctx context.Context, username string) (*dto.EducatorWithPeriods, error) {
-	// 1. execute the query inside a read transaction.
 	var row *dbsql.GetEducatorWithPeriodsRes
 	if err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
 		var err error
@@ -220,12 +233,10 @@ func (m *ReadModel) GetWithPeriods(ctx context.Context, username string) (*dto.E
 		return nil, err
 	}
 
-	// 2. if no educator found, return nil.
 	if row.Id == "" {
-		return nil, nil
+		return nil, fmt.Errorf("educator %q: %w", username, errs.ErrNotFound)
 	}
 
-	// 3. build the base educator from the scalar columns.
 	educator := models.Educator{
 		ID: row.Id,
 		Person: sharedmodels.Person{
@@ -238,7 +249,6 @@ func (m *ReadModel) GetWithPeriods(ctx context.Context, username string) (*dto.E
 		},
 	}
 
-	// 4. unmarshal periods directly into the domain slice.
 	var periods []periodModels.Period
 	if row.PeriodsJson != "" && row.PeriodsJson != "[]" {
 		if err := json.Unmarshal([]byte(row.PeriodsJson), &periods); err != nil {
@@ -246,7 +256,6 @@ func (m *ReadModel) GetWithPeriods(ctx context.Context, username string) (*dto.E
 		}
 	}
 
-	// 5. unmarshal students directly into the map keyed by period id.
 	studentsMap := map[string][]studentModels.Student{}
 	if row.StudentsJson != "" && row.StudentsJson != "{}" {
 		if err := json.Unmarshal([]byte(row.StudentsJson), &studentsMap); err != nil {
@@ -254,12 +263,10 @@ func (m *ReadModel) GetWithPeriods(ctx context.Context, username string) (*dto.E
 		}
 	}
 
-	// 6. EndTime is computed, not stored — fill it in.
 	for i := range periods {
 		periods[i].EndTime = periods[i].StartTime.Add(periods[i].Duration)
 	}
 
-	// 7. return the assembled aggregate.
 	return &dto.EducatorWithPeriods{
 		Educator:          educator,
 		Periods:           periods,
@@ -275,6 +282,8 @@ type listConfig struct {
 	withGroupedBy     string
 	withSearchFilter  string
 	withRoleFilter    []string
+	withOffset        int
+	withLimit         int
 }
 
 func WithSortColumn(column string) ListOption {
@@ -307,7 +316,30 @@ func WithRoleFilter(roles []string) ListOption {
 	}
 }
 
+// WithWindow restricts the returned rows to [offset, offset+limit).
+// Total in the result is still the full count matching the filters.
+// limit=0 means unbounded (current behavior).
+func WithWindow(offset, limit int) ListOption {
+	return func(c *listConfig) {
+		c.withOffset = offset
+		c.withLimit = limit
+	}
+}
+
+type ListResult struct {
+	Educators []models.Educator
+	Total     int
+}
+
 func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Educator, error) {
+	result, err := m.ListWindowed(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return result.Educators, nil
+}
+
+func (m *ReadModel) ListWindowed(ctx context.Context, opts ...ListOption) (*ListResult, error) {
 	cfg := &listConfig{}
 	for _, opt := range opts {
 		opt(cfg)
@@ -318,7 +350,7 @@ func (m *ReadModel) List(ctx context.Context, opts ...ListOption) ([]models.Educ
 func (m *ReadModel) listWithFilters(
 	ctx context.Context,
 	cfg *listConfig,
-) ([]models.Educator, error) {
+) (*ListResult, error) {
 	sortColumn := "family_name"
 	if cfg.withSortColumn != "" {
 		sortColumn = cfg.withSortColumn
@@ -329,6 +361,7 @@ func (m *ReadModel) listWithFilters(
 	}
 	where := "e.archived_at IS NULL"
 	args := []any{}
+
 	if cfg.withSearchFilter != "" {
 		searchTerm := "%" + cfg.withSearchFilter + "%"
 		where += " AND ("
@@ -342,17 +375,37 @@ func (m *ReadModel) listWithFilters(
 		}
 		where += ")"
 	}
-	if cfg.withRoleFilter != nil {
-		if len(cfg.withRoleFilter) == 0 {
-			return []models.Educator{}, nil
-		}
-		placeholders := strings.TrimSuffix(strings.Repeat("?,", len(cfg.withRoleFilter)), ",")
-		where += " AND EXISTS (SELECT 1 FROM educator_roles er " +
-			"WHERE er.educator_id = e.id AND er.archived_at IS NULL " +
-			"AND er.role IN (" + placeholders + "))"
+
+	// role filter: "none" is a sentinel for educators with no active roles,
+	// so the filter needs both an EXISTS branch and a NOT EXISTS branch.
+	if len(cfg.withRoleFilter) > 0 {
+		hasNone := false
+		roles := make([]string, 0, len(cfg.withRoleFilter))
 		for _, role := range cfg.withRoleFilter {
-			args = append(args, role)
+			if role == sharedmodels.EducatorRoleNone.StringLong() {
+				hasNone = true
+			} else {
+				roles = append(roles, role)
+			}
 		}
+
+		var clauses []string
+		if len(roles) > 0 {
+			placeholders := strings.TrimSuffix(strings.Repeat("?,", len(roles)), ",")
+			clauses = append(clauses,
+				"EXISTS (SELECT 1 FROM educator_roles er "+
+					"WHERE er.educator_id = e.id AND er.archived_at IS NULL "+
+					"AND er.role IN ("+placeholders+"))")
+			for _, role := range roles {
+				args = append(args, role)
+			}
+		}
+		if hasNone {
+			clauses = append(clauses,
+				"NOT EXISTS (SELECT 1 FROM educator_roles er "+
+					"WHERE er.educator_id = e.id AND er.archived_at IS NULL)")
+		}
+		where += " AND (" + strings.Join(clauses, " OR ") + ")"
 	}
 
 	orderBy := fmt.Sprintf("e.%s COLLATE NOCASE %s", sortColumn, sortDirection)
@@ -360,7 +413,9 @@ func (m *ReadModel) listWithFilters(
 		orderBy = expr + " COLLATE NOCASE " + sortDirection + ", " + orderBy
 	}
 
-	query := fmt.Sprintf(`
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM educators e WHERE %s", where)
+
+	rowQuery := fmt.Sprintf(`
 		SELECT
 			e.id, e.given_name, e.chosen_name, e.family_name, e.pronouns,
 			e.email, e.username,
@@ -376,10 +431,27 @@ func (m *ReadModel) listWithFilters(
 		ORDER BY %s
 	`, where, orderBy)
 
-	var educators []models.Educator
+	rowArgs := args
+	if cfg.withLimit > 0 {
+		rowQuery += " LIMIT ? OFFSET ?"
+		rowArgs = append(append([]any{}, args...), cfg.withLimit, cfg.withOffset)
+	}
+
+	result := &ListResult{Educators: []models.Educator{}}
+
 	err := m.db.ReadTX(ctx, func(conn *sqlite.Conn) error {
-		return sqlitex.ExecuteTransient(conn, query, &sqlitex.ExecOptions{
+		if err := sqlitex.ExecuteTransient(conn, countQuery, &sqlitex.ExecOptions{
 			Args: args,
+			ResultFunc: func(stmt *sqlite.Stmt) error {
+				result.Total = stmt.ColumnInt(0)
+				return nil
+			},
+		}); err != nil {
+			return err
+		}
+
+		return sqlitex.ExecuteTransient(conn, rowQuery, &sqlitex.ExecOptions{
+			Args: rowArgs,
 			ResultFunc: func(stmt *sqlite.Stmt) error {
 				var e models.Educator
 				e.ID = stmt.ColumnText(0)
@@ -396,9 +468,12 @@ func (m *ReadModel) listWithFilters(
 				if err := json.Unmarshal([]byte(stmt.ColumnText(9)), &roles); err != nil {
 					return err
 				}
+				if len(roles) == 0 {
+					roles = []sharedmodels.EducatorRole{sharedmodels.EducatorRoleNone}
+				}
 				e.Roles = roles
 
-				educators = append(educators, e)
+				result.Educators = append(result.Educators, e)
 				return nil
 			},
 		})
@@ -406,7 +481,7 @@ func (m *ReadModel) listWithFilters(
 	if err != nil {
 		return nil, err
 	}
-	return educators, nil
+	return result, nil
 }
 
 func (m *ReadModel) ListByIDs(ctx context.Context, educatorIDs []string) ([]models.Educator, error) {

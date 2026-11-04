@@ -28,9 +28,7 @@ import (
 	"seek/internal/features/students/events"
 	"seek/internal/features/students/models"
 	"seek/internal/features/students/pages"
-	"seek/internal/ui/core/coreblocks/toasts"
 	"seek/internal/viewstore"
-	"seek/pkg/templui/components/toast"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gocarina/gocsv"
@@ -143,7 +141,6 @@ func getStudentsListStream(
 					l.ErrorContext(ctx, "parse signal data", "err", err)
 					continue
 				}
-				toastMsg := fmt.Sprintf("Updated: %s", msg["studentID"]) // example
 
 				signals, ok, err := viewstore.GetState[dto.TableSignals](ctx, vs, user.Username+".students.list")
 				if err != nil {
@@ -165,7 +162,6 @@ func getStudentsListStream(
 					serviceReadModel,
 				)
 				sse.PatchElementTempl(pages.List(listView))
-				sse.PatchElementTempl(toasts.ToastContainer(toast.VariantInfo, toastMsg))
 			case entry, ok := <-watcher.Updates(): // triggers when the view state publishes to kv store
 				if !ok {
 					return
@@ -324,11 +320,6 @@ func postStudentCreate(
 		}{}
 		if err := datastar.ReadSignals(r, signals); err != nil {
 			l.ErrorContext(ctx, "student create signal read", "err", err)
-			return
-		}
-		if signals.Student.Email == "" {
-			sse := newSSE(w, r)
-			toastError(sse, "no email provided")
 			return
 		}
 		student := events.StudentState{

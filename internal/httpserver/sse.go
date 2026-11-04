@@ -2,7 +2,6 @@ package httpserver
 
 import (
 	"net/http"
-	"seek/internal/ui/core/coreblocks/toasts"
 	"sync"
 	"time"
 
@@ -89,22 +88,6 @@ func alert(sse *datastar.ServerSentEventGenerator, message string) error {
 
 func flashError(sse *datastar.ServerSentEventGenerator, message string) error {
 	return sse.MarshalAndPatchSignals(map[string]string{"flashMessage": message})
-}
-
-func toastError(sse *datastar.ServerSentEventGenerator, message string) error {
-	return sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantError, message))
-}
-
-func toastInfo(sse *datastar.ServerSentEventGenerator, message string) error {
-	return sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantInfo, message))
-}
-
-func toastSuccess(sse *datastar.ServerSentEventGenerator, message string) error {
-	return sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantSuccess, message))
-}
-
-func toastWarning(sse *datastar.ServerSentEventGenerator, message string) error {
-	return sse.PatchElementTempl(toasts.ToastContainer(toasts.VariantWarning, message))
 }
 
 func patchTempl(w http.ResponseWriter, r *http.Request, component templ.Component, opts ...datastar.PatchElementOption) {

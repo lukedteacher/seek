@@ -12,7 +12,7 @@ import (
 	"fmt"
 
 	"seek/internal/features/_shared/sharedmodels"
-	"seek/internal/features/educators/dto"
+	"seek/internal/features/educators/models"
 	scheduleBlocks "seek/internal/features/schedules/blocks"
 	scheduleDTO "seek/internal/features/schedules/dto"
 	"seek/internal/ui/core/coreblocks"
@@ -23,12 +23,13 @@ import (
 	"seek/pkg/templui/components/tabs"
 )
 
-type EducatorViewSchedulePageProps struct {
-	Educator dto.EducatorView
+type ScheduleProps struct {
+	Toasts   []sharedmodels.Toast
+	Educator models.Educator
 	Periods  []scheduleDTO.SchedulePeriodView
 }
 
-func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
+func Schedule(props ScheduleProps) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -69,7 +70,7 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(sse.LongRunningGetSSE(fmt.Sprintf("%s/stream", url)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/view_schedule.templ`, Line: 26, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/features/educators/pages/schedule.templ`, Line: 30, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -79,7 +80,7 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = coreblocks.HeaderMain(p.Educator.FullName()).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = coreblocks.HeaderMain(props.Educator.FullName()).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -119,9 +120,7 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.Info(icon.Props{
-							Class: "size-4",
-						}).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.Info(icon.Props{Class: "size-4"}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -132,11 +131,9 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = button.Button(button.Props{
-						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/educators/%s/info", p.Educator.Username),
-						Attributes: templ.Attributes{
-							"data-tab-active": false,
-						},
+						Class:      "basis-1 flex-grow py-1 h-auto",
+						Href:       fmt.Sprintf("/educators/%s/info", props.Educator.Username),
+						Attributes: templ.Attributes{"data-tab-active": false},
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -157,9 +154,7 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = icon.CalendarRange(icon.Props{
-							Class: "size-4",
-						}).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = icon.CalendarRange(icon.Props{Class: "size-4"}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -170,11 +165,9 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 						return nil
 					})
 					templ_7745c5c3_Err = button.Button(button.Props{
-						Class: "basis-1 flex-grow py-1 h-auto",
-						Href:  fmt.Sprintf("/educators/%s/schedule", p.Educator.Username),
-						Attributes: templ.Attributes{
-							"data-tab-active": true,
-						},
+						Class:      "basis-1 flex-grow py-1 h-auto",
+						Href:       fmt.Sprintf("/educators/%s/schedule", props.Educator.Username),
+						Attributes: templ.Attributes{"data-tab-active": true},
 					}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -183,7 +176,7 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if p.Educator.IsCaseManager() {
+					if props.Educator.IsCaseManager() {
 						templ_7745c5c3_Var8 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 							templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 							templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -196,9 +189,7 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 								}()
 							}
 							ctx = templ.InitializeContext(ctx)
-							templ_7745c5c3_Err = icon.FolderOpen(icon.Props{
-								Class: "size-4",
-							}).Render(ctx, templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = icon.FolderOpen(icon.Props{Class: "size-4"}).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -209,11 +200,9 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 							return nil
 						})
 						templ_7745c5c3_Err = button.Button(button.Props{
-							Class: "basis-1 flex-grow py-1 h-auto",
-							Href:  fmt.Sprintf("/educators/%s/caseload", p.Educator.Username),
-							Attributes: templ.Attributes{
-								"data-tab-active": false,
-							},
+							Class:      "basis-1 flex-grow py-1 h-auto",
+							Href:       fmt.Sprintf("/educators/%s/caseload", props.Educator.Username),
+							Attributes: templ.Attributes{"data-tab-active": false},
 						}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
@@ -260,7 +249,7 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						for _, period := range p.Periods {
+						for _, period := range props.Periods {
 							templ_7745c5c3_Err = scheduleBlocks.EducatorPeriodCard(scheduleBlocks.EducatorPeriodCardProps{
 								View: period,
 							}).Render(ctx, templ_7745c5c3_Buffer)
@@ -299,7 +288,10 @@ func EducatorViewSchedule(p EducatorViewSchedulePageProps) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = corelayouts.LayoutBase("SEEK: educator").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = corelayouts.LayoutBaseWithProps(corelayouts.Props{
+			Title:  "SEEK: " + props.Educator.FullName(),
+			Toasts: props.Toasts,
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

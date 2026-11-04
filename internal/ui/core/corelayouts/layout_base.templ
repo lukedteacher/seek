@@ -1,15 +1,27 @@
 package corelayouts
 
 import (
+	"seek/internal/features/_shared/sharedmodels"
 	"seek/internal/features/users/models"
 	"seek/internal/resources"
 	"seek/internal/ui/core/coreblocks"
 	"seek/internal/ui/core/coreblocks/toasts"
 	"seek/pkg/sse"
-	"seek/pkg/templui/components/toast"
 )
 
+type Props struct {
+	Title  string
+	Toasts []sharedmodels.Toast
+}
+
+// LayoutBase is the string-only shim for pages not yet on props.
 templ LayoutBase(title string) {
+	@LayoutBaseWithProps(Props{Title: title}) {
+		{ children... }
+	}
+}
+
+templ LayoutBaseWithProps(props Props) {
 	{{ user := models.GetUserFromContext(ctx) }}
 	<!DOCTYPE html>
 	<html lang="en" data-attr:data-theme="$theme">
@@ -27,7 +39,7 @@ templ LayoutBase(title string) {
 			</script>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<title>{ title }</title>
+			<title>{ props.Title }</title>
 			<script type="module" src={ resources.StaticPath("scripts/datastar-rocket.js") }></script>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/reset.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/base.css") }/>
@@ -37,7 +49,7 @@ templ LayoutBase(title string) {
 			<link rel="stylesheet" href={ resources.StaticPath("styles/style.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/stellar.css") }/>
 			<link rel="stylesheet" href={ resources.StaticPath("styles/global.css") }/>
-			<script src="/static/scripts/morpheus-bundle.js" defer></script>
+			<script src="/static/scripts/morpheus-bundle.js" defer fetchpriority="high"></script>
 		</head>
 		<body
 			if sse.IsDevelopment() {
@@ -47,8 +59,7 @@ templ LayoutBase(title string) {
 			@coreblocks.HeaderBody(user)
 			{ children... }
 			@coreblocks.FooterBody()
-			@toasts.ToastContainer("", "")
-			@toast.Script()
+			@toasts.Container(props.Toasts)
 		</body>
 	</html>
 }
