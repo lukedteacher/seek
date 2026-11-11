@@ -21,7 +21,12 @@ import (
 	"seek/pkg/templui/components/skeleton"
 )
 
-func VirtualDataTable(view shareddto.TableView, scrollAction string, topSpacerPx, bottomSpacerPx int) templ.Component {
+func VirtualDataTable(
+	view shareddto.TableView,
+	scrollAction string,
+	topSpacerPx,
+	bottomSpacerPx int,
+) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -42,33 +47,7 @@ func VirtualDataTable(view shareddto.TableView, scrollAction string, topSpacerPx
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t.vt-wrap {\n\t\t\tdisplay: flex;\n\t\t\tflex-direction: column;\n\t\t\twidth: 100%;\n\t\t\tmax-height: 100%;\n\t\t\theight: fit-content;\n\t\t\tmargin: 0 auto;\n\t\t\toverflow: hidden;\n\t\t\tborder: 1px solid var(--color-neutral-dim);\n\t\t\tborder-radius: 0.375rem;\n\t\t}\n\t\t.vt-scroll {\n\t\t\tflex: 1 1 auto;\n\t\t\tmin-height: 0;\n\t\t\toverflow-y: auto;\n\t\t\tposition: relative;\n\t\t}\n\t\t.vt-header {\n\t\t\tposition: sticky;\n\t\t\ttop: 0;\n\t\t\tz-index: 20;\n\t\t\tbackground-color: var(--color-neutral-dark);\n\t\t\tborder-bottom: 1px solid var(--color-neutral-dim);\n\t\t}\n\t\t.vt-header-grid {\n\t\t\tdisplay: grid;\n\t\t\tgrid-auto-rows: 44px;\n\t\t\talign-items: center;\n\t\t}\n\t\t.vt-th {\n\t\t\tpadding: 0 0.75rem;\n\t\t\tfont-weight: 600;\n\t\t\tfont-size: 0.875rem;\n\t\t\toverflow: hidden;\n\t\t\tdisplay: flex;\n\t\t\talign-items: center;\n\t\t\tjustify-content: space-between;\n\t\t\tgap: 0.5rem;\n\t\t}\n\t\t.vt-th span {\n\t\t\toverflow: hidden;\n\t\t\ttext-overflow: ellipsis;\n\t\t\twhite-space: nowrap;\n\t\t}\n\t\t.vt-th-group {\n\t\t\tjustify-content: center;\n\t\t\tborder-left: 1px dashed var(--color-neutral-dim);\n\t\t\tcolor: var(--color-neutral-content);\n\t\t\tfont-size: 0.75rem;\n\t\t\ttext-transform: uppercase;\n\t\t\tletter-spacing: 0.05em;\n\t\t}\n\t\t.vt-th-actions {\n\t\t\tjustify-content: center;\n\t\t}\n\t\t.vt-row {\n\t\t\tdisplay: grid;\n\t\t\talign-items: center;\n\t\t\theight: 44px;\n\t\t\tborder-top: 1px solid var(--color-neutral-dim);\n\t\t\tbox-sizing: border-box;\n\t\t}\n\t\t.vt-row:hover {\n\t\t\tbackground: color-mix(in srgb, var(--color-primary) 20%, transparent);\n\t\t\tbox-shadow: inset 0 0 0 1px var(--color-primary);\n\t\t}\n\t\t.vt-cell {\n\t\t\tpadding: 0 0.75rem;\n\t\t\tfont-size: 0.875rem;\n\t\t\toverflow: hidden;\n\t\t\ttext-overflow: ellipsis;\n\t\t\twhite-space: nowrap;\n\t\t}\n\t\t.vt-cell.text-center { text-align: center; }\n\t\t.vt-cell.text-right { text-align: right; }\n\t\t.vt-actions {\n\t\t\tdisplay: flex;\n\t\t\talign-items: center;\n\t\t\tjustify-content: center;\n\t\t\tgap: 0.25rem;\n\t\t\tpadding: 0 0.5rem;\n\t\t}\n\t\t.vt-group-row {\n\t\t\tdisplay: flex;\n\t\t\talign-items: center;\n\t\t\theight: 44px;\n\t\t\tpadding: 0 1.5rem;\n\t\t\tbackground: var(--color-primary-dim);\n\t\t\ttext-transform: uppercase;\n\t\t\tfont-size: 0.75rem;\n\t\t\tletter-spacing: 0.05em;\n\t\t\tfont-weight: 700;\n\t\t\tborder-top: 1px solid var(--color-muted);\n\t\t}\n\t\t.vt-subrow {\n\t\t\tbackground: color-mix(in srgb, var(--color-muted) 20%, transparent);\n\t\t\tborder-top: 1px solid var(--color-muted);\n\t\t}\n\t\t.vt-spacer { display: block; }\n\t\t.vt-row.row--flash { animation: row-flash 2s ease-out; }\n\t\t@keyframes row-flash {\n\t\t\t0% { background-color: color-mix(in srgb, var(--color-primary) 20%, transparent); }\n\t\t\t100% { background-color: transparent; }\n\t\t}\n\t\t.vt-sort-active { background: var(--color-primary); }\n\t</style><div class=\"vt-wrap\"><div id=\"vt-scroll\" class=\"vt-scroll\" data-init=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("$lastStart = 0; $viewport_height = Math.round(el.clientHeight); $scroll_top = Math.round(el.scrollTop); %s", scrollAction))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 128, Col: 150}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" data-on:scroll=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("$visibleStart = Math.floor(el.scrollTop / 44); if ($visibleStart != $lastStart) { $lastStart = $visibleStart; $scroll_top = Math.round(el.scrollTop); $viewport_height = Math.round(el.clientHeight); %s }", scrollAction))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 129, Col: 251}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<style>\n\t\t.vt-wrap {\n\t\t\tdisplay: flex;\n\t\t\tflex-direction: column;\n\t\t\twidth: 100%;\n\t\t\tmax-height: 100%;\n\t\t\theight: fit-content;\n\t\t\tmargin: 0 auto;\n\t\t\toverflow: hidden;\n\t\t\tborder: 1px solid var(--color-neutral-dim);\n\t\t\tborder-radius: 0.375rem;\n\t\t}\n\t\t.vt-scroll {\n\t\t\tflex: 1 1 auto;\n\t\t\tmin-height: 0;\n\t\t\toverflow-y: auto;\n\t\t\tposition: relative;\n\t\t}\n\t\t.vt-header {\n\t\t\tposition: sticky;\n\t\t\ttop: 0;\n\t\t\tz-index: 20;\n\t\t\tbackground-color: var(--color-neutral-dark);\n\t\t\tborder-bottom: 1px solid var(--color-neutral-dim);\n\t\t}\n\t\t.vt-header-grid {\n\t\t\tdisplay: grid;\n\t\t\tgrid-auto-rows: 44px;\n\t\t\talign-items: center;\n\t\t}\n\t\t.vt-th {\n\t\t\tpadding: 0 0.75rem;\n\t\t\tfont-weight: 600;\n\t\t\tfont-size: 0.875rem;\n\t\t\toverflow: hidden;\n\t\t\tdisplay: flex;\n\t\t\talign-items: center;\n\t\t\tjustify-content: space-between;\n\t\t\tgap: 0.5rem;\n\t\t}\n\t\t.vt-th span {\n\t\t\toverflow: hidden;\n\t\t\ttext-overflow: ellipsis;\n\t\t\twhite-space: nowrap;\n\t\t}\n\t\t.vt-th-group {\n\t\t\tjustify-content: center;\n\t\t\tcolor: var(--color-neutral-content);\n\t\t\tfont-size: 0.75rem;\n\t\t\ttext-transform: uppercase;\n\t\t\tletter-spacing: 0.05em;\n\t\t}\n\t\t.vt-th-actions {\n\t\t\tjustify-content: center;\n\t\t}\n\t\t.vt-row {\n\t\t\tdisplay: grid;\n\t\t\talign-items: center;\n\t\t\theight: 44px;\n\t\t\tborder-top: 1px solid var(--color-neutral-dim);\n\t\t\tbox-sizing: border-box;\n\t\t}\n\t\t.vt-row:hover {\n\t\t\tbackground: color-mix(in oklch, var(--color-primary) 20%, transparent);\n\t\t\tbox-shadow: inset 0 0 0 1px var(--color-primary);\n\t\t}\n\t\t.vt-cell {\n\t\t\tpadding: 0 0.75rem;\n\t\t\tfont-size: 0.875rem;\n\t\t\toverflow: hidden;\n\t\t\ttext-overflow: ellipsis;\n\t\t\twhite-space: nowrap;\n\t\t}\n\t\t.vt-cell.text-center { text-align: center; }\n\t\t.vt-cell.text-right { text-align: right; }\n\t\t.vt-actions {\n\t\t\tdisplay: flex;\n\t\t\talign-items: center;\n\t\t\tjustify-content: center;\n\t\t\tgap: 0.25rem;\n\t\t\tpadding: 0 0.5rem;\n\t\t}\n\t\t.vt-group-row {\n\t\t\tdisplay: flex;\n\t\t\talign-items: center;\n\t\t\theight: 44px;\n\t\t\tpadding: 0 1.5rem;\n\t\t\tbackground-color: color-mix(in oklch, var(--color-secondary), transparent);\n\t\t\tfont-size: 1.0rem;\n\t\t\tletter-spacing: 0.05em;\n\t\t\tfont-weight: 700;\n\t\t\tborder-top: 1px solid var(--color-muted);\n\t\t}\n\t\t.vt-subrow {\n\t\t\tbackground: color-mix(in oklch, var(--color-muted) 20%, transparent);\n\t\t\tborder-top: 1px solid var(--color-muted);\n\t\t}\n\t\t.vt-spacer { display: block; }\n\t\t.vt-row.row--flash { animation: row-flash 2s ease-out; }\n\t\t@keyframes row-flash {\n\t\t\t0% { background-color: color-mix(in oklch, var(--color-primary) 20%, transparent); }\n\t\t\t100% { background-color: transparent; }\n\t\t}\n\t\t.vt-sort-active { background: var(--color-primary); }\n\t</style><div class=\"vt-wrap\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -76,21 +55,51 @@ func VirtualDataTable(view shareddto.TableView, scrollAction string, topSpacerPx
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div id=\"vt-scroll\" class=\"vt-scroll\" data-init=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 string
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("$lastStart = 0; $viewport_height = Math.round(el.clientHeight); $scroll_top = Math.round(el.scrollTop); %s", scrollAction))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 132, Col: 150}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" data-on:scroll=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("$visibleStart = Math.floor(el.scrollTop / 44); if ($visibleStart != $lastStart) { $lastStart = $visibleStart; $scroll_top = Math.round(el.scrollTop); $viewport_height = Math.round(el.clientHeight); %s }", scrollAction))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 133, Col: 251}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		if topSpacerPx > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div id=\"vt-top-spacer\" class=\"vt-spacer\" style=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div id=\"vt-top-spacer\" class=\"vt-spacer\" style=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("height: %dpx", topSpacerPx))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 133, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 136, Col: 94}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -100,25 +109,25 @@ func VirtualDataTable(view shareddto.TableView, scrollAction string, topSpacerPx
 			return templ_7745c5c3_Err
 		}
 		if bottomSpacerPx > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div id=\"vt-bottom-spacer\" class=\"vt-spacer\" style=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div id=\"vt-bottom-spacer\" class=\"vt-spacer\" style=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("height: %dpx", bottomSpacerPx))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 137, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 140, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -147,20 +156,20 @@ func virtualHeader(view shareddto.TableView) templ.Component {
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"vt-header\"><div class=\"vt-header-grid\" style=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"vt-header\"><div class=\"vt-header-grid\" style=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-template-columns: repeat(%d, minmax(0, 1fr)) 80px", len(view.Columns)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 145, Col: 126}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 148, Col: 126}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -168,46 +177,46 @@ func virtualHeader(view shareddto.TableView) templ.Component {
 		renderedGroups := make(map[string]bool)
 		for _, col := range view.Columns {
 			if col.Group == "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div id=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div id=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue("vt-h-" + col.Signal)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 150, Col: 35}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 153, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"vt-th\" style=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" class=\"vt-th\" style=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-row: span 2; grid-column: %d", colIdx))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 150, Col: 116}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 153, Col: 116}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"><span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(col.Display)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 151, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 154, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -217,7 +226,7 @@ func virtualHeader(view shareddto.TableView) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -225,112 +234,112 @@ func virtualHeader(view shareddto.TableView) templ.Component {
 			} else if !renderedGroups[col.Group] {
 				renderedGroups[col.Group] = true
 				span := virtualCountColumnsInGroup(view.Columns, col.Group)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div id=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div id=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue("vt-hg-" + col.Group)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 160, Col: 35}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 163, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" class=\"vt-th vt-th-group\" style=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"vt-th vt-th-group\" style=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-row: 1; grid-column: %d / span %d", colIdx, span))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 160, Col: 139}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 163, Col: 139}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(col.Group)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 161, Col: 17}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 164, Col: 17}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				colIdx += span
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div id=\"vt-h-actions\" class=\"vt-th vt-th-actions\" style=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div id=\"vt-h-actions\" class=\"vt-th vt-th-actions\" style=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-row: span 2; grid-column: %d", colIdx))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 166, Col: 118}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 169, Col: 118}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\">actions</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\">actions</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		subIdx := 1
 		for _, col := range view.Columns {
 			if col.Group != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div id=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div id=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue("vt-h2-" + col.Signal)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 170, Col: 36}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 173, Col: 36}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"vt-th\" style=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"vt-th\" style=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-row: 2; grid-column: %d", subIdx))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 170, Col: 112}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 173, Col: 112}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\"><span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(col.Display)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 171, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 174, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -340,18 +349,18 @@ func virtualHeader(view shareddto.TableView) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, " ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			subIdx++
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -384,39 +393,39 @@ func virtualRows(view shareddto.TableView) templ.Component {
 			currentGroup := ""
 			for i := range view.Rows {
 				if view.Rows[i].Group != "" && view.Rows[i].Group != currentGroup {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue("vt-group-" + view.Rows[i].Group)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 188, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 191, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" class=\"vt-group-row\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" class=\"vt-group-row\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(view.Rows[i].Group)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 189, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 192, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					currentGroup = view.Rows[i].Group
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, " ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, " ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -424,25 +433,25 @@ func virtualRows(view shareddto.TableView) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, " ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, " ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if view.Rows[i].SubTable != nil && len(view.Rows[i].SubTable.Rows) > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue("vt-sub-" + view.Rows[i].Target)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 195, Col: 45}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 198, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" class=\"vt-subrow\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" class=\"vt-subrow\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -474,7 +483,7 @@ func virtualRows(view shareddto.TableView) templ.Component {
 								}()
 							}
 							ctx = templ.InitializeContext(ctx)
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "services")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "services")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -512,7 +521,7 @@ func virtualRows(view shareddto.TableView) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, " ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -544,7 +553,7 @@ func virtualRows(view shareddto.TableView) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -592,20 +601,20 @@ func virtualRow(target string, columns []shareddto.ColumnView, row shareddto.Row
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var28 string
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue("vt-row-" + row.Target)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 231, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 234, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" class=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -618,20 +627,20 @@ func virtualRow(target string, columns []shareddto.ColumnView, row shareddto.Row
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" style=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" style=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var30 string
 		templ_7745c5c3_Var30, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-template-columns: repeat(%d, minmax(0, 1fr)) 80px", len(columns)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 231, Col: 143}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 234, Col: 143}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -641,7 +650,7 @@ func virtualRow(target string, columns []shareddto.ColumnView, row shareddto.Row
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<div class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -654,7 +663,7 @@ func virtualRow(target string, columns []shareddto.ColumnView, row shareddto.Row
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -670,7 +679,7 @@ func virtualRow(target string, columns []shareddto.ColumnView, row shareddto.Row
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "-")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "-")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -679,19 +688,19 @@ func virtualRow(target string, columns []shareddto.ColumnView, row shareddto.Row
 				var templ_7745c5c3_Var33 string
 				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(row.Cells[i])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 243, Col: 19}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 246, Col: 19}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div class=\"vt-actions\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"vt-actions\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -747,7 +756,7 @@ func virtualRow(target string, columns []shareddto.ColumnView, row shareddto.Row
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -793,14 +802,14 @@ func virtualBadgeCell(field string, value shareddto.CellView) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, " ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, " ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var38 string
 				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 272, Col: 10}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 275, Col: 10}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 				if templ_7745c5c3_Err != nil {
@@ -816,7 +825,7 @@ func virtualBadgeCell(field string, value shareddto.CellView) templ.Component {
 			}
 		} else if field == "Roles" {
 			roles := strings.Split(string(value), ",")
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<span class=\"flex flex-wrap justify-center items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<span class=\"flex flex-wrap justify-center items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -836,7 +845,7 @@ func virtualBadgeCell(field string, value shareddto.CellView) templ.Component {
 					var templ_7745c5c3_Var40 string
 					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(role)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 279, Col: 11}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 282, Col: 11}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 					if templ_7745c5c3_Err != nil {
@@ -849,7 +858,7 @@ func virtualBadgeCell(field string, value shareddto.CellView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -869,7 +878,7 @@ func virtualBadgeCell(field string, value shareddto.CellView) templ.Component {
 				var templ_7745c5c3_Var42 string
 				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 285, Col: 10}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 288, Col: 10}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 				if templ_7745c5c3_Err != nil {
@@ -907,20 +916,20 @@ func virtualSkeletonRow(columns []shareddto.ColumnView) templ.Component {
 			templ_7745c5c3_Var43 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"vt-row\" style=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"vt-row\" style=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var44 string
 		templ_7745c5c3_Var44, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("grid-template-columns: repeat(%d, minmax(0, 1fr)) 80px", len(columns)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 291, Col: 112}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/core/coreblocks/tables/virtual_table.templ`, Line: 294, Col: 112}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -930,7 +939,7 @@ func virtualSkeletonRow(columns []shareddto.ColumnView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<div class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<div class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -943,7 +952,7 @@ func virtualSkeletonRow(columns []shareddto.ColumnView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "\"><div class=\"flex justify-center items-center\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\"><div class=\"flex justify-center items-center\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -951,12 +960,12 @@ func virtualSkeletonRow(columns []shareddto.ColumnView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<div class=\"vt-actions\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div class=\"vt-actions\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -968,7 +977,7 @@ func virtualSkeletonRow(columns []shareddto.ColumnView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

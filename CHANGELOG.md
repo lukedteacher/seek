@@ -2,7 +2,11 @@
 
 updates for SEEK
 
+## v0.10.7 (26.11.11) adjusting to new dev setup
 
+- fixed group row color
+- removed stray dashed border from new virtual table
+- fix up some of the educator view styling
 
 ## v0.10.6 (26.10.30) minor bug fixes, viewstore key function
 

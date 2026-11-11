@@ -36,25 +36,7 @@ templ Info(props InfoProps) {
 				@blocks.Card(props.Educator)
 			</section>
 			<section class="w-full max-w-[900px] flex flex-col gap-3">
-				<div class="flex items-baseline justify-between">
-					<h2>schedule</h2>
-					@button.Button(button.Props{
-						Href:    fmt.Sprintf("/educators/%s/schedule", props.Educator.Username),
-						Variant: button.VariantGhost,
-					}) {
-						@icon.CalendarRange(icon.Props{Class: "size-4"})
-						<span>view schedule</span>
-					}
-				</div>
-				if len(props.Periods) == 0 {
-					<p class="text-muted">no periods assigned</p>
-				} else {
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-						for _, period := range props.Periods {
-							@PeriodListItem(period, props.PeriodStudents[period.ID])
-						}
-					</div>
-				}
+				@ScheduleSummaryCard(props.Educator.Username, props.Periods, props.PeriodStudents)
 			</section>
 			if props.Educator.IsCaseManager() {
 				<section class="w-full max-w-[900px] flex flex-col gap-3">
@@ -75,36 +57,101 @@ templ Info(props InfoProps) {
 					}
 				</section>
 			}
-			<section class="w-full max-w-[900px] flex flex-wrap gap-2">
-				@button.Button(button.Props{
-					Href:    fmt.Sprintf("/educators/%s/edit", props.Educator.Username),
-					Variant: button.VariantGhost,
-				}) {
-					@icon.Pencil(icon.Props{Class: "size-4"})
-					<span>edit</span>
-				}
-			</section>
 		</main>
 	}
 }
 
+templ ScheduleSummaryCard(username string, periods []periodModels.Period, periodStudents map[string][]studentModels.Student) {
+	<style>
+		div.schedule-summary-card {
+			inline: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-direction: column;
+		border-style: solid;
+		border-width: 1px;
+		border-color: var(--color-neutral-dim);
+		border-radius: var(--border-radius);
+		background-color: var(--color-neutral);
+		padding-inline: var(--size-4);
+		padding-block: var(--size-2);
+		gap: 0.75rem;
+
+		hgroup {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			width: 100%;
+
+			header {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+		}
+
+		ul.period-list {
+			width: 100%;
+			--column-width: 20rem;
+			--auto-grid-gap: 0.25rem;
+			display: grid;
+			gap: 0.25rem;
+			grid-template-columns: repeat(auto-fit, minmax(var(--column-width), 1fr));
+			gap: var(--auto-grid-gap, 0.25rem);
+
+			li a {
+			background-color: var(--color-neutral-dark);
+			&:hover {
+				background-color: color-mix(in oklch, var(--color-neutral-dark), transparent);
+			}
+		}
+	}
+</style>
+	<div class="schedule-summary-card">
+		<hgroup> 
+			<header class="flex items-center gap-2">
+				@icon.CalendarRange()
+				<h2>schedule</h2>
+			</header>
+			@button.Button(button.Props{
+				Href:    fmt.Sprintf("/educators/%s/schedule", username),
+				Variant: button.VariantGhost,
+			}) {
+				<span>view schedule</span>
+			}
+		</hgroup>
+		if len(periods) == 0 {
+			<p class="text-muted">no periods assigned</p>
+		} else {
+			<ul class="period-list">
+				for _, period := range periods {
+					@PeriodListItem(period, periodStudents[period.ID])
+				}
+			</ul>
+		}
+	</div>
+}
+
 templ PeriodListItem(period periodModels.Period, students []studentModels.Student) {
+	<li>
 	<a
 		href={ templ.SafeURL(fmt.Sprintf("/periods/%s", period.ID)) }
 		class="flex items-center justify-between gap-2 px-2 py-1 rounded border border-muted hover:bg-primary/10 text-sm"
 	>
-		<div class="flex items-center gap-2 min-w-0">
+		<span class="flex items-center gap-2 min-w-0">
 			<span class="font-medium truncate">{ period.Title }</span>
 			<span class="text-xs text-muted shrink-0">
 				{ period.ServiceType.ShortString() } · { period.StartTime.Format("3:04pm") }
 			</span>
-		</div>
-		<div class="flex items-center gap-0.5 shrink-0">
+		</span>
+		<span class="flex items-center gap-0.5 shrink-0">
 			for _, student := range students {
 				<span class="inline-flex items-center justify-center size-5 rounded-full bg-primary/20 text-[10px] font-medium">
 					{ student.Initials() }
 				</span>
 			}
-		</div>
+		</span>
 	</a>
+	</li>
 }

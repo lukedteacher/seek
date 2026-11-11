@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"slices"
 	"time"
 
 	"seek/internal/features/_shared/sharedmodels"
@@ -26,14 +27,9 @@ func NewEducator() *Educator {
 }
 
 func (e Educator) IsFresh() bool {
-	return time.Since(e.UpdatedAt) < 2*time.Second
+	return time.Since(e.UpdatedAt) < 5*time.Second
 }
 
 func (e Educator) IsCaseManager() bool {
-	for _, role := range e.Roles {
-		if role == sharedmodels.EducatorRoleCaseManager {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(e.Roles, sharedmodels.EducatorRoleCaseManager)
 }

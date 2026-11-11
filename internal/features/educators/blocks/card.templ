@@ -5,9 +5,8 @@ import (
 
 	"seek/internal/features/educators/models"
 	"seek/pkg/templui/components/badge"
-	"seek/pkg/templui/components/button"
-	"seek/pkg/templui/components/card"
 	"seek/pkg/templui/components/icon"
+	"seek/pkg/templui/components/card"
 )
 
 templ Card(view models.Educator) {
@@ -17,18 +16,33 @@ templ Card(view models.Educator) {
 	}) {
 		@card.Header() {
 			@card.Title() {
-				{ view.FullName() }
+				@icon.Info()
+				<span>
+					info
+				</span>
 			}
 		}
 		@card.Content(card.ContentProps{
 			Class: "flex flex-col gap-3",
 		}) {
 			<p class="flex justify-between">
-				<span class="text-neutral-content/80">email: </span>
+				<span class="text-neutral-content/80">given</span>
+				<span>{ view.GivenName }</span>
+			</p>
+			<p class="flex justify-between">
+				<span class="text-neutral-content/80">chosen</span>
+				<span>{ view.ChosenName }</span>
+			</p>
+			<p class="flex justify-between">
+				<span class="text-neutral-content/80">family</span>
+				<span>{ view.FamilyName }</span>
+			</p>
+			<p class="flex justify-between">
+				<span class="text-neutral-content/80">email</span>
 				<span>{ view.Email }</span>
 			</p>
 			<p class="flex justify-between">
-				<span class="text-neutral-content/80">roles: </span>
+				<span class="text-neutral-content/80">roles</span>
 				<span class="inline-flex gap-2 items-center">
 					for _, role := range view.Roles {
 						if role.String() != "" {
@@ -39,18 +53,6 @@ templ Card(view models.Educator) {
 					}
 				</span>
 			</p>
-		}
-		@card.Footer(card.FooterProps{
-			Class: "flex justify-end items-center",
-		}) {
-			@button.Button(button.Props{
-				Href: fmt.Sprintf("/educators/%s/edit", view.Username),
-			}) {
-				@icon.Pencil(icon.Props{
-					Size: "16",
-				})
-				<span>edit</span>
-			}
 		}
 	}
 }

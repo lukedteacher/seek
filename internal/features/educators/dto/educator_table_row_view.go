@@ -11,11 +11,11 @@ import (
 
 // columns for the educator table
 var EducatorTableColumns = []shareddto.ColumnView{
-	{Field: "FirstL", Display: "first l", Group: "name", Signal: "first_l", Sortable: true, Groupable: false, Visible: true},
-	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name", Sortable: true, Groupable: true, Visible: true},
-	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name", Sortable: true, Groupable: false, Visible: true},
-	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name", Sortable: true, Groupable: true, Visible: true},
-	{Field: "Email", Display: "email", Signal: "email", Sortable: true, Groupable: false, Visible: true},
+	{Field: "FirstLast", Display: "name", Signal: "first_last", Sortable: true, Groupable: false, Visible: true},
+	{Field: "GivenName", Display: "given", Group: "name", Signal: "given_name", Sortable: true, Groupable: true, Visible: false},
+	{Field: "ChosenName", Display: "chosen", Group: "name", Signal: "chosen_name", Sortable: true, Groupable: false, Visible: false},
+	{Field: "FamilyName", Display: "family", Group: "name", Signal: "family_name", Sortable: true, Groupable: true, Visible: false},
+	{Field: "Email", Display: "email", Signal: "email", Sortable: true, Groupable: false, Visible: false},
 	{Field: "Roles", Display: "role(s)", Renderer: "badge", Alignment: "center", Signal: "roles", Sortable: false, Groupable: true, Visible: true},
 	{
 		Field:    "UpdatedAt",
@@ -34,8 +34,8 @@ func valueExtractor(m *models.Educator, field string) string {
 	switch field {
 	case "ID":
 		return m.ID
-	case "FirstL":
-		return m.NameInitial()
+	case "FirstLast":
+		return m.FullName()
 	case "GivenName":
 		return m.GivenName
 	case "ChosenName":
